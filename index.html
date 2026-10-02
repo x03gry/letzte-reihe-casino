@@ -768,7 +768,6 @@ const ACCOUNTS=true;
 const API='/api/spielstand';
 let acct=null,rev=0;try{acct=localStorage.getItem('lr_user');rev=+(localStorage.getItem('lr_rev')||0)}catch(e){}
 let srvT=0,srvBusy=false,srvDirty=false,srvFails=0;
-const DEV=Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 const NAME_RE=/^[a-z0-9äöüß._ -]{3,20}$/;
 const normName=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
 const apiUrl=()=>API+'?name='+encodeURIComponent(acct);
@@ -777,11 +776,11 @@ function setSync(st){const d=$('syncDot');if(d)d.className='sync '+(st==='ok'?'o
 function applyServer(state,r,msg){if(!state)return;adopt(state);setRev(r);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge();if(msg)toast(msg,'bad')}
 function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;setSync('busy');if(srvT)return;srvT=setTimeout(()=>{srvT=0;srvFlush()},1500)}
 async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;
-  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev,dev:DEV}),keepalive:!!keep&&JSON.stringify(S).length<60000});
+  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev}),keepalive:!!keep&&JSON.stringify(S).length<60000});
     const d=await r.json().catch(()=>({}));
     if(r.ok){setRev(d.rev);srvFails=0;setSync(srvDirty?'busy':'ok')}
-    else if(r.status===409&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Mit deinem Account wurde in einem anderen Tab oder auf einem anderen Gerät gespielt. Dieser Stand wurde geladen.');setSync('ok')}
-    else if(r.status===422&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Dieser Spielstand war ungültig. Der gespeicherte Stand vom Server wurde geladen.');setSync('ok')}
+    else if(r.status===409&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Ein Admin hat deinen Spielstand geändert.');setSync('ok')}
+    else if(r.status===422&&d.state){srvDirty=false;applyServer(d.state,d.rev);setSync('ok')}
     else if(r.status===404){srvBusy=false;logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
     else if(r.status===403){srvBusy=false;logout('Dieser Account wurde gesperrt.');return}
     else throw new Error(r.status)}
@@ -795,7 +794,7 @@ async function srvPull(){if(!ACCOUNTS||!acct||srvBusy||srvDirty||Date.now()-last
   const before=rev;
   try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(d.banned){logout('Dieser Account wurde gesperrt.');return}
     // nur übernehmen, wenn in der Zwischenzeit hier nichts gespeichert/gespielt wurde und der Server wirklich neuer ist
-    if(d.exists&&d.rev>rev&&rev===before&&!srvDirty&&!srvBusy)applyServer(d.state,d.rev,'Dein Spielstand wurde aktualisiert.')}catch(e){}}
+    if(d.exists&&d.rev>rev&&rev===before&&!srvDirty&&!srvBusy)applyServer(d.state,d.rev)}catch(e){}}
 // Nachricht an alle (vom Admin)
 async function loadNews(){if(!ACCOUNTS)return;try{const r=await fetch(API+'?msg=1',{cache:'no-store'});if(!r.ok)return;const d=await r.json();const m=d.message;let seen='';try{seen=localStorage.getItem('lr_msg_seen')||''}catch(e){}
   const bar=$('newsBar');if(m&&m.text&&String(m.id)!==seen){$('newsText').textContent=m.text;bar.hidden=false;bar.dataset.id=m.id}else bar.hidden=true}catch(e){}}
@@ -812,7 +811,7 @@ async function doLogin(create){const name=normName($('lgName').value);
   lgBusy(true);lgMsg(create?'Account wird erstellt …':'Einloggen …');
   try{
     if(create){const snd=S.set.sound;const st=fresh();st.set.sound=snd;
-      const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:st,dev:DEV})});
+      const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:st})});
       const d=await r.json().catch(()=>({}));
       if(r.status===409){lgMsg('Diesen Namen gibt es schon. Wähle einen anderen oder logge dich damit ein.',true);lgBusy(false);return}
       if(!r.ok)throw new Error(r.status);

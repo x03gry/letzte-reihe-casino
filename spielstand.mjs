@@ -39,11 +39,11 @@ function plausible(oldS, newS, elapsedMs) {
   }
 
   const dRounds = rounds(newS) - rounds(oldS);
-  if (dRounds < 0) return "runden";
+  // weniger Runden/Sterne/Boni als vorher = Speicherstand aus einem älteren Tab -> erlaubt (letzte Speicherung gilt)
   if (dRounds > 40 + (elapsedMs / 1000) * 10) return "zu_viele_runden";
 
   const dStars = num(newS.stars) - num(oldS.stars);
-  if (dStars < 0 || dStars > 1) return "sterne";
+  if (dStars > 1) return "sterne";
   if (dStars === 1 && num(oldS.bal) < CAP * 0.99) return "stern_ohne_10mio";
 
   if (num(newS.restarts) > num(oldS.restarts)) {
@@ -52,11 +52,11 @@ function plausible(oldS, newS, elapsedMs) {
   }
 
   const dNet = gameNet(newS) - gameNet(oldS);
-  if (dNet > dRounds * MAXWIN + 1) return "gewinn_zu_hoch";
+  if (dNet > Math.max(dRounds, 1) * MAXWIN + 1) return "gewinn_zu_hoch";
 
   const oldBonus = oldS.bonus || {}, newBonus = newS.bonus || {};
   const dBonus = sumObj(newBonus, "sell") - sumObj(oldBonus, "sell");
-  if (dBonus < -1 || dBonus > BONUS_PER_SAVE) return "bonus";
+  if (dBonus > BONUS_PER_SAVE) return "bonus";
 
   // Verkäufe nur so viel, wie verkaufte Gegenstände wert waren
   const dSell = num(newBonus.sell) - num(oldBonus.sell);
@@ -66,10 +66,9 @@ function plausible(oldS, newS, elapsedMs) {
   if (dSell > sold + 1) return "verkauf";
 
   const dSpent = num(newS.spent) - num(oldS.spent);
-  if (dSpent < -1) return "ausgaben";
 
   // Guthaben darf nicht stärker steigen, als Spiele, Boni und Verkäufe erklären
-  if (dStars === 0) {
+  if (dStars <= 0) {
     // inPlay = Einsätze laufender Runden (schon abgezogen, noch nicht ausgewertet)
     const expected = num(oldS.bal) + num(oldS.inPlay) + dNet + dBonus + dSell - dSpent;
     if (num(newS.inPlay) < 0) return "einsatz";
@@ -112,14 +111,12 @@ export default async (req) => {
   try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
   const state = body && body.state;
   const now = Date.now();
-  // Zufällige Kennung pro geöffneter Seite: so erkennt der Server, ob wirklich ein anderes Gerät gespeichert hat
-  const dev = typeof body.dev === "string" ? body.dev.slice(0, 40) : "";
 
   if (body.create) {
     if (stored) return json({ error: "vergeben" }, 409);
     const err = basicCheck(state) || (looksFresh(state) ? null : "kein_neuer_spielstand");
     if (err) return json({ error: err }, 422);
-    await store.setJSON(key, { state, rev: 1, savedAt: now, dev });
+    await store.setJSON(key, { state, rev: 1, savedAt: now });
     return json({ ok: true, rev: 1 });
   }
 
@@ -127,10 +124,9 @@ export default async (req) => {
   if (stored.banned) return json({ error: "gesperrt" }, 403);
   const curRev = stored.rev || 1;
 
-  // Hat dieselbe Seite zuletzt gespeichert, nur die Antwort ging verloren (Handy gesperrt, WLAN weg),
-  // ist das kein Konflikt. Nur wenn ein anderes Gerät/Tab oder der Admin gespeichert hat, gilt der Server-Stand.
-  const ownLostReply = dev && stored.dev === dev && typeof body.rev === "number" && body.rev < curRev;
-  if (body.rev !== curRev && !ownLostReply) return json({ error: "konflikt", state: stored.state, rev: curRev }, 409);
+  // Keine Prüfung auf andere Tabs/Geräte: der neueste Speicherstand gewinnt.
+  // Ausnahme: Hat der Admin den Stand geändert, muss das Gerät diesen erst übernehmen.
+  if (stored.dev === "admin" && body.rev !== curRev) return json({ error: "admin", state: stored.state, rev: curRev }, 409);
 
   const err = plausible(stored.state, state, now - (stored.savedAt || 0));
   if (err) {
@@ -138,7 +134,7 @@ export default async (req) => {
     return json({ error: err, state: stored.state, rev: curRev }, 422);
   }
 
-  await store.setJSON(key, { state, rev: curRev + 1, savedAt: now, dev });
+  await store.setJSON(key, { state, rev: curRev + 1, savedAt: now });
   return json({ ok: true, rev: curRev + 1 });
 };
 
