@@ -46,6 +46,7 @@ button{cursor:pointer}
 
 /* ---------- shell ---------- */
 .app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.mainwrap{min-width:0}
 .side{position:sticky;top:0;height:100vh;background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px;padding:18px 12px;overflow-y:auto}
 .logo{display:flex;align-items:center;gap:10px;background:none;border:0;padding:4px 8px 16px;color:var(--ink);text-align:left}
 .logo svg{width:34px;height:34px;flex:none}
@@ -116,7 +117,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
 .starline .val{font:600 13px var(--f-num);color:var(--mute);white-space:nowrap}
 .games{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:1100px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:460px){.games{grid-template-columns:1fr}}
+
 .gcard{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;text-align:left;padding:0;transition:transform .15s,border-color .15s,box-shadow .15s}
 .gcard:hover{transform:translateY(-3px);border-color:var(--gc);box-shadow:0 14px 30px var(--shadow)}
 .gcard .art{aspect-ratio:16/10;max-width:100%;background:var(--bg2);position:relative}
@@ -139,7 +140,7 @@ h1,h2,h3{margin:0;text-wrap:balance}
 /* ---------- vitrine ---------- */
 .items{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:1100px){.items{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:460px){.items{grid-template-columns:1fr}}
+
 .item{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
 .item .pic{aspect-ratio:16/10;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,var(--panel3),var(--bg2) 75%);position:relative}
 .item .pic svg{width:58%;height:auto;max-height:80%}
@@ -387,6 +388,59 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
 .mlogo{display:none;align-items:center;gap:8px;background:none;border:0;padding:0;color:var(--ink)}
 .mlogo svg{width:28px;height:28px}
 @media (max-width:520px){.wallet .v{min-width:0;font-size:15px}.stars{padding:7px 8px}}
+
+/* ---------- Feinschliff & iPhone ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+button,a,input,select,canvas{touch-action:manipulation}
+.view{animation:vin .22s ease-out}
+@keyframes vin{from{opacity:0;transform:translateY(6px)}}
+.btn:active:not(:disabled){transform:scale(.98)}
+.mainact{display:flex;flex-direction:column;gap:10px}
+.gcard .art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(11,19,27,.55));pointer-events:none}
+@media (hover:none){.gcard:hover{transform:none;box-shadow:none;border-color:var(--line)}.btn:hover:not(:disabled){filter:none}}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  main{padding-block:14px 110px}
+  .view{gap:14px}
+  .top-in{padding-block:8px}
+  .games{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .gcard{border-radius:12px}
+  .gcard .body{padding:10px 11px 12px;gap:4px}
+  .gcard h3{font-size:15px}
+  .gcard .rec{font-size:11.5px;line-height:1.35}
+  .gcard .cta .btn{padding:7px 12px!important;font-size:13px}
+  .starline{grid-template-columns:auto minmax(0,1fr);padding:10px 12px}
+  .starline .val{grid-column:1/-1;font-size:12px}
+  .items{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .item .body{padding:10px 11px 12px}
+  .item h3{font-size:15px}
+  .item .price{font-size:12.5px}
+  .item .btn{width:100%;padding:9px 8px;font-size:13px}
+  .starcard{grid-column:1/-1}
+  .ghead{gap:8px 10px}
+  .ghead .back{padding:6px 10px}
+  .gtitle h1{font-size:20px}
+  .ghead>.chip{display:none}
+  .gstats .chip{font-size:11px;padding:3px 8px}
+  .game{border-radius:14px}
+  .stage{padding:10px}
+  .rail{padding:14px;gap:12px}
+  .mainact{position:fixed;left:0;right:0;bottom:calc(57px + env(safe-area-inset-bottom,0px));z-index:25;flex-direction:row;gap:8px;padding:10px 12px;background:rgba(11,19,27,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+  .mainact .btn{flex:1;padding:15px 10px;font-size:15px}
+  #v-chicken:not([hidden]),#v-mines:not([hidden]),#v-tower:not([hidden]),#v-plinko:not([hidden]){padding-bottom:84px}
+  .phead h1{font-size:26px}
+  .lede{font-size:14px}
+  .kgrid{gap:12px}
+  select.inp,.inp,.betrow input{font-size:16px}
+  #toasts{left:12px;right:12px;align-items:stretch}
+  .toast{font-size:13.5px}
+  .bottomnav button{padding-top:10px;min-height:56px}
+  .bottomnav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--brass)}
+  .mbox{padding:18px}
+  .lcard{padding:22px 18px}
+}
+@media (max-width:360px){.games,.items{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -516,8 +570,8 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
       <div data-betfield="chBet" data-def="10"></div>
       <div class="field"><span class="lbl">Schwierigkeit</span><div class="seg" id="chDiff"></div></div>
       <div class="field"><label for="chAuto">Auto-Auszahlen ab Spur <span style="text-transform:none;letter-spacing:0">0 = aus</span></label><input class="inp" id="chAuto" type="number" min="0" step="1" value="0"></div>
-      <button class="btn gold big" id="chPlay">Start</button>
-      <button class="btn cash big" id="chCash" disabled>Auszahlen</button>
+      <div class="mainact"><button class="btn gold big" id="chPlay">Start</button>
+      <button class="btn cash big" id="chCash" disabled>Auszahlen</button></div>
       <p class="keys"><kbd>Leertaste</kbd> Start / nächste Spur · <kbd>C</kbd> Auszahlen</p>
     </div>
     <div class="stage"><canvas id="chCv" aria-label="Straße"></canvas><div class="banner" id="chBanner" hidden></div></div>
@@ -538,7 +592,7 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
         <div class="field"><label for="plCount">Bälle <span style="text-transform:none;letter-spacing:0">0 = endlos</span></label><input class="inp" id="plCount" type="number" min="0" step="1" value="50"></div>
         <div class="mini-stats"><div class="field"><label for="plSW">Stopp Gewinn</label><input class="inp" id="plSW" type="number" min="0" step="1" value="0"></div><div class="field"><label for="plSL">Stopp Verlust</label><input class="inp" id="plSL" type="number" min="0" step="1" value="0"></div></div>
       </div>
-      <button class="btn gold big" id="plGo">Ball werfen</button>
+      <div class="mainact"><button class="btn gold big" id="plGo">Ball werfen</button></div>
       <div class="field"><span class="lbl">Ball</span><div class="seg skins" id="plSkin"><button data-v="gold"><span style="background:#ffb020"></span>Gold</button><button data-v="neon"><span style="background:#ff3fa4"></span>Neon</button><button data-v="ice"><span style="background:#4fd8ff"></span>Eis</button></div></div>
       <div class="seg"><button id="plTurbo" aria-pressed="false">Turbo</button></div>
       <div class="mini-stats" id="plOdds"></div>
@@ -556,7 +610,7 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
     <div class="rail">
       <div data-betfield="twBet" data-def="10"></div>
       <div class="field"><span class="lbl">Schwierigkeit</span><div class="seg" id="twDiff"></div><small class="note" id="twNote"></small></div>
-      <button class="btn gold big" id="twMain">Spielen</button>
+      <div class="mainact"><button class="btn gold big" id="twMain">Spielen</button></div>
       <button class="btn" id="twRand" disabled>Zufälliges Feld</button>
       <div class="mini-stats"><div class="ms"><span>Multiplikator</span><b id="twMult">1,00×</b></div><div class="ms"><span>Gewinn jetzt</span><b id="twProfit">0,00</b></div></div>
       <p class="keys"><kbd>Leertaste</kbd> Start / Auszahlen · <kbd>1</kbd>–<kbd>4</kbd> Feld wählen</p>
@@ -575,8 +629,8 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
       <div class="field"><label for="miMines">Minen <span id="miMinesVal">3</span></label><input id="miMines" type="range" min="3" max="24" value="3" style="accent-color:var(--brass)">
         <div class="seg" id="miPre"><button data-m="3">3</button><button data-m="5">5</button><button data-m="10">10</button><button data-m="15">15</button><button data-m="24">24</button></div></div>
       <div class="field"><label for="miAutoN">Auto-Auszahlen nach Diamanten <span style="text-transform:none;letter-spacing:0">0 = aus</span></label><input class="inp" id="miAutoN" type="number" min="0" max="22" step="1" value="0"></div>
-      <button class="btn gold big" id="miPlay">Spielen</button>
-      <button class="btn cash big" id="miCash" hidden>Auszahlen</button>
+      <div class="mainact"><button class="btn gold big" id="miPlay">Spielen</button>
+      <button class="btn cash big" id="miCash" hidden>Auszahlen</button></div>
       <div class="pick"><button class="btn" id="miRand" disabled>Zufallsfeld</button><button class="btn" id="miAuto" disabled>3 Felder auto</button></div>
       <div class="mini-stats">
         <div class="ms"><span>Multiplikator</span><b id="miMult">1,00×</b></div>
@@ -676,7 +730,7 @@ function adopt(o){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object
   S.owned=Object.assign({games:{},items:{}},o.owned||{});S.owned.games=S.owned.games||{};S.owned.items=S.owned.items||{};
   S.set=Object.assign(fresh().set,o.set||{});S.streak=Object.assign(fresh().streak,o.streak||{});
   ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];migrate()}
-function migrate(){if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(){S.inPlay=0;if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -704,46 +758,65 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&cloud&&clo
 // ================= Accounts (nur auf der eigenen Website mit Server) =================
 const ACCOUNTS=true;
 const API='/api/spielstand';
-let acct=null;try{acct=localStorage.getItem('lr_user')}catch(e){}
-let srvT=0,srvBusy=false,srvDirty=false;
+let acct=null,rev=0;try{acct=localStorage.getItem('lr_user');rev=+(localStorage.getItem('lr_rev')||0)}catch(e){}
+let srvT=0,srvBusy=false,srvDirty=false,srvFails=0;
 const NAME_RE=/^[a-z0-9äöüß._ -]{3,20}$/;
-function setSync(ok){const d=$('syncDot');if(d)d.className='sync '+(ok?'ok':'bad');const c=$('acctChip');if(c)c.title=ok?'Gespeichert':'Nicht gespeichert, Verbindung fehlt'}
-function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;clearTimeout(srvT);srvT=setTimeout(()=>srvFlush(),2000)}
+const normName=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
+const apiUrl=()=>API+'?name='+encodeURIComponent(acct);
+function setRev(r){rev=r||0;try{localStorage.setItem('lr_rev',String(rev))}catch(e){}}
+function setSync(st){const d=$('syncDot');if(d)d.className='sync '+(st==='ok'?'ok':st==='busy'?'':'bad');const c=$('acctChip');if(c)c.title=st==='ok'?'Gespeichert':st==='busy'?'Speichert …':'Nicht gespeichert, Verbindung fehlt'}
+function applyServer(state,r,msg){if(!state)return;adopt(state);setRev(r);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge();if(msg)toast(msg,'bad')}
+function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;setSync('busy');if(srvT)return;srvT=setTimeout(()=>{srvT=0;srvFlush()},1500)}
 async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;
-  try{const r=await fetch(API+'?name='+encodeURIComponent(acct),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S}),keepalive:!!keep});if(!r.ok)throw new Error(r.status);setSync(true)}
-  catch(e){srvDirty=true;setSync(false)}
-  srvBusy=false;if(srvDirty&&!keep){clearTimeout(srvT);srvT=setTimeout(()=>srvFlush(),8000)}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&srvDirty){clearTimeout(srvT);srvFlush(true)}});
+  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev}),keepalive:!!keep&&JSON.stringify(S).length<60000});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok){setRev(d.rev);srvFails=0;setSync(srvDirty?'busy':'ok')}
+    else if(r.status===409&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Auf einem anderen Gerät wurde weitergespielt. Dieser Spielstand wurde geladen.');setSync('ok')}
+    else if(r.status===422&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Dieser Spielstand war ungültig. Der gespeicherte Stand vom Server wurde geladen.');setSync('ok')}
+    else if(r.status===404){srvBusy=false;logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
+    else throw new Error(r.status)}
+  catch(e){srvDirty=true;srvFails++;setSync('bad')}
+  srvBusy=false;if(srvDirty&&!keep){clearTimeout(srvT);srvT=setTimeout(()=>{srvT=0;srvFlush()},srvFails?Math.min(30000,1500*Math.pow(2,srvFails)):1500)}}
+// Beim Verlassen sofort speichern, beim Zurückkommen neuesten Stand holen
+addEventListener('pagehide',()=>{if(srvDirty){clearTimeout(srvT);srvT=0;srvFlush(true)}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(srvDirty){clearTimeout(srvT);srvT=0;srvFlush(true)}}else srvPull()});
+let lastPull=0;
+async function srvPull(){if(!ACCOUNTS||!acct||srvBusy||srvDirty||Date.now()-lastPull<4000)return;lastPull=Date.now();
+  try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(d.exists&&d.rev!==rev&&!srvDirty)applyServer(d.state,d.rev,'Neuer Spielstand von deinem anderen Gerät geladen.')}catch(e){}}
 function showAcct(){const c=$('acctChip');if(!c)return;c.hidden=!(ACCOUNTS&&acct);if(acct)$('acctName').textContent=acct}
 function lgMsg(t,bad){const m=$('lgMsg');m.textContent=t;m.className='msg'+(bad?' bad':'')}
 function lgBusy(on){$('lgIn').disabled=on;$('lgNew').disabled=on}
-async function doLogin(create){const name=$('lgName').value.trim().toLowerCase().replace(/\s+/g,' ');
+async function doLogin(create){const name=normName($('lgName').value);
   if(!NAME_RE.test(name)){lgMsg('Der Name braucht 3 bis 20 Zeichen: Buchstaben, Zahlen, Leerzeichen, Punkt, Unterstrich oder Bindestrich.',true);return}
   lgBusy(true);lgMsg(create?'Account wird erstellt …':'Einloggen …');
   try{
-    if(create){const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:S})});
+    if(create){const snd=S.set.sound;const st=fresh();st.set.sound=snd;
+      const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:st})});
+      const d=await r.json().catch(()=>({}));
       if(r.status===409){lgMsg('Diesen Namen gibt es schon. Wähle einen anderen oder logge dich damit ein.',true);lgBusy(false);return}
-      if(!r.ok)throw new Error(r.status)}
-    else{const r=await fetch(API+'?name='+encodeURIComponent(name));if(!r.ok)throw new Error(r.status);const d=await r.json();
+      if(!r.ok)throw new Error(r.status);
+      acct=name;S=st;setRev(d.rev)}
+    else{const r=await fetch(API+'?name='+encodeURIComponent(name),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
       if(!d.exists){lgMsg('Diesen Account gibt es noch nicht. Klicke auf „Account erstellen“.',true);lgBusy(false);return}
-      adopt(d.state);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-    acct=name;try{localStorage.setItem('lr_user',name)}catch(e){}
-    $('login').hidden=true;lgBusy(false);showAcct();setSync(true);shown=S.bal;refreshAll();renderBadge();
-    toast(create?`Account <b>${name}</b> erstellt. Viel Glück!`:`Willkommen zurück, <b>${name}</b>!`,'good')
+      acct=name;adopt(d.state);setRev(d.rev)}
+    try{localStorage.setItem('lr_user',name);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+    $('login').hidden=true;lgBusy(false);showAcct();setSync('ok');shown=S.bal;refreshAll();renderBadge();
+    toast(create?`Account <b>${name}</b> erstellt. Du startest mit 1.000 Coins. Viel Glück!`:`Willkommen zurück, <b>${name}</b>!`,'good')
   }catch(e){lgBusy(false);lgMsg('Der Server ist gerade nicht erreichbar. Versuch es gleich noch einmal.',true);$('lgOff').hidden=false}}
-$('lgOff').onclick=()=>{try{sessionStorage.setItem('lr_offline','1')}catch(e){}$('login').hidden=true;toast('Du spielst ohne Account. Der Spielstand bleibt nur in diesem Browser.','bad')};
 $('lgForm').addEventListener('submit',e=>{e.preventDefault();doLogin(false)});
 $('lgNew').onclick=()=>doLogin(true);
+$('lgOff').onclick=()=>{try{sessionStorage.setItem('lr_offline','1')}catch(e){}$('login').hidden=true;toast('Du spielst ohne Account. Der Spielstand bleibt nur in diesem Browser.','bad')};
 async function acctBoot(){if(!ACCOUNTS)return;showAcct();
   let off=false;try{off=sessionStorage.getItem('lr_offline')==='1'}catch(e){}
   if(!acct&&off)return;
   if(!acct){$('login').hidden=false;setTimeout(()=>$('lgName').focus(),50);return}
-  try{const r=await fetch(API+'?name='+encodeURIComponent(acct));if(!r.ok)throw 0;const d=await r.json();
-    if(d.exists&&d.state&&(d.state.updated||0)>(S.updated||0)){adopt(d.state);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge()}
-    else if(!d.exists){srvDirty=true;srvFlush()}
-    setSync(true)}catch(e){setSync(false)}}
-async function logout(){clearTimeout(srvT);if(srvDirty)await srvFlush();acct=null;try{localStorage.removeItem('lr_user');localStorage.removeItem(KEY)}catch(e){}
-  const snd=S.set.sound;S=fresh();S.set.sound=snd;shown=S.bal;refreshAll();showAcct();$('lgName').value='';lgMsg('');$('login').hidden=false;$('lgName').focus()}
+  setSync('busy');
+  try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)throw 0;const d=await r.json();
+    if(!d.exists){logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
+    applyServer(d.state,d.rev);
+    setSync('ok');lastPull=Date.now()}catch(e){setSync('bad')}}
+async function logout(msg){clearTimeout(srvT);srvT=0;if(srvDirty&&!msg)await srvFlush();acct=null;srvDirty=false;try{localStorage.removeItem('lr_user');localStorage.removeItem('lr_rev');localStorage.removeItem(KEY)}catch(e){}
+  const snd=S.set.sound;S=fresh();S.set.sound=snd;rev=0;shown=S.bal;refreshAll();showAcct();$('lgName').value='';lgMsg(msg||'',!!msg);$('login').hidden=false}
 
 // ================= audio =================
 let AC=null;
@@ -796,10 +869,10 @@ function readBet(id){const v=parseFloat(String($(id).value).replace(',','.'));re
 function take(game,amount){if(!(amount>0)){toast('Gib einen Einsatz größer als 0 ein.','bad');return false}
   if(amount>S.bal+1e-9){toast(S.bal<1?'Du bist pleite. Starte oben mit 1.000 Coins neu.':'Nicht genug Guthaben für diesen Einsatz.','bad');return false}
   if(amount>tableLimit()+1e-9){toast(`Höchstens 25 % deines Guthabens pro Runde: <b class="num">${fmt(tableLimit())}</b>`,'bad');return false}
-  S.bal=r2(S.bal-amount);session.lastAct=Date.now();renderWallet(true);save();return true}
+  S.bal=r2(S.bal-amount);S.inPlay=r2((S.inPlay||0)+amount);session.lastAct=Date.now();renderWallet(true);save();return true}
 function capBal(){if(S.bal>CAP){const lost=r2(S.bal-CAP);S.bal=CAP;toast(`10 Mio. erreicht. <b class="num">${fmt(lost)}</b> Coins verfallen. Hol dir jetzt deinen Stern!`,'good')}}
 function settle(game,bet,payout,mult,rtp){
-  payout=r2(payCap(bet,payout));S.bal=r2(S.bal+payout);capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
+  payout=r2(payCap(bet,payout));S.inPlay=Math.max(0,r2((S.inPlay||0)-bet));S.bal=r2(S.bal+payout);capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
   g.n++;g.w=r2(g.w+bet);g.p=r2(g.p+payout);if(payout>bet)g.wins++;if(mult>g.best)g.best=mult;if(net>g.big)g.big=net;g.e=r2(g.e+bet*(1-rtp));
   S.log.push([t,game,bet,payout,Math.round(mult*100)/100,r2(bet*(1-rtp))]);if(S.log.length>600)S.log.splice(0,S.log.length-600);
   S.hist.push([t,S.bal,'g']);if(S.hist.length>600)S.hist.splice(0,S.hist.length-600);
@@ -1167,7 +1240,7 @@ const PLT={
   for(const n in PLT)for(const r in PLT[n]){const t=PLT[n][r],q=t.reduce((s,m,k)=>s+m*b(+n,k),0),f=.95/q;PLT[n][r]=t.map(m=>rd(m*f))}})();
 const PL=(()=>{
   const T=PLT,binom=(n,k)=>{let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return r},prob=(n,k)=>binom(n,k)/2**n,rtp=(n,r)=>T[n][r].reduce((s,m,k)=>s+m*prob(n,k),0);
-  const P={rows:S.prefs.plRows||16,risk:S.prefs.plRisk||'medium',skin:S.prefs.plSkin||'gold',turbo:false,mode:'manual',balls:[],flash:new Map(),hit:[],parts:[],floats:[],auto:{on:false,left:0,start:0,timer:0},profit:0};
+  const P={rows:S.prefs.plRows||(innerWidth<=600?12:16),risk:S.prefs.plRisk||'medium',skin:S.prefs.plSkin||'gold',turbo:false,mode:'manual',balls:[],flash:new Map(),hit:[],parts:[],floats:[],auto:{on:false,left:0,start:0,timer:0},profit:0};
   const SK={gold:['#fff3c4','#ffb020','#b36b00'],neon:['#ffd1ea','#ff3fa4','#9a0a5a'],ice:['#e2f8ff','#4fd8ff','#0f7fa6']};
   const cv=$('plCv'),ctx=cv.getContext('2d');let G={W:0};
   const rowsSel=$('plRows');for(let n=8;n<=16;n++)rowsSel.insertAdjacentHTML('beforeend',`<option value="${n}">${n}</option>`);rowsSel.value=P.rows;
