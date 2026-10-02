@@ -196,7 +196,7 @@ const fmt=v=>(+v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractio
 const fmt0=v=>Math.round(v).toLocaleString('de-DE');
 const sgn=v=>(v>0.004?'+':v<-0.004?'−':'')+fmt(Math.abs(v));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const GAMES={chicken:'Chicken',mines:'Mines',tower:'Tower',plinko:'Plinko',double:'Münzwurf'};
+const GAMES={chicken:'Chicken',mines:'Mines',tower:'Tower',plinko:'Plinko',poker:'Poker',double:'Münzwurf'};
 const ITEMS={kette:'Goldkette',uhr:'Luxusuhr',auto:'Sportwagen',villa:'Villa',yacht:'Yacht',jet:'Privatjet',insel:'Privatinsel'};
 const REASONS={guthaben_unerklaerlich:'Guthaben gestiegen ohne Grund',gewinn_zu_hoch:'Gewinn höher als möglich',zu_viele_runden:'Zu viele Runden zu schnell',runden:'Rundenzahl gesunken',sterne:'Sterne manipuliert',stern_ohne_10mio:'Stern ohne 10 Mio.',neustart_zu_frueh:'Neustart vor Ablauf der Sperre',neustarts:'Zu viele Neustarts',bonus:'Zu viel Bonus auf einmal',verkauf:'Verkauf ohne Gegenstand',ausgaben:'Ausgaben verringert',einsatz:'Einsatz negativ',guthaben:'Guthaben ungültig',zu_gross:'Spielstand zu groß',kein_spielstand:'Spielstand fehlt'};
 let KEY='';try{KEY=localStorage.getItem('lr_admin')||''}catch(e){}
@@ -253,7 +253,6 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
       <div class="row"><input class="inp" id="mBal" type="number" min="0" step="1" value="${a.bal}" inputmode="decimal" aria-label="Guthaben"><button class="btn gold" data-act="setBal">Setzen</button></div>
       <div class="row"><button class="btn" data-add="1000">+1.000</button><button class="btn" data-add="10000">+10.000</button><button class="btn" data-add="100000">+100.000</button><button class="btn" data-add="-1000">−1.000</button></div></div>
     <div class="sec"><h3>Sterne</h3><div class="row"><input class="inp" id="mStars" type="number" min="0" step="1" value="${a.stars}" aria-label="Sterne"><button class="btn gold" data-act="setStars">Setzen</button></div></div>
-    <div class="sec"><h3>Spiele freigeschaltet</h3><div class="checks">${['tower','plinko'].map(g=>`<label><input type="checkbox" data-game="${g}" ${a.games.includes(g)?'checked':''}>${GAMES[g]}</label>`).join('')}</div><p class="note">Chicken und Mines sind immer frei.</p></div>
     <div class="sec"><h3>Vitrine</h3><div class="checks">${Object.entries(ITEMS).map(([k,n])=>`<label><input type="checkbox" data-item="${k}" ${a.items.includes(k)?'checked':''}>${n}</label>`).join('')}</div></div>
     <div class="sec"><h3>Account</h3><div class="row">
       <button class="btn" data-act="cooldown" ${cd?'':'disabled'}>Neustart-Sperre aufheben</button>
