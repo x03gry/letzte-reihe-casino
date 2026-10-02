@@ -326,6 +326,24 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
 .bottomnav button{position:relative}
 .bottomnav .cnt{position:absolute;top:4px;right:calc(50% - 22px);background:var(--win);color:var(--on-win);font:700 10px var(--f-num);border-radius:999px;padding:0 5px}
 .richnote{background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;color:var(--mute);font-size:14px}
+/* ---------- login ---------- */
+#login{position:fixed;inset:0;z-index:95;background:radial-gradient(ellipse at 50% 0%,#1b2b3a,var(--bg) 70%);display:grid;place-items:center;padding:16px}
+.lcard{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:26px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 60px var(--shadow)}
+.lcard .lhead{display:flex;align-items:center;gap:12px}
+.lcard .lhead svg{width:44px;height:44px}
+.lcard .lhead b{display:block;font:700 20px/1.1 var(--f-disp);letter-spacing:.05em;text-transform:uppercase}
+.lcard .lhead small{display:block;font:600 12px var(--f-body);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+.lcard h1{font:700 22px var(--f-disp)}
+.lcard p{margin:0;color:var(--mute);font-size:14px}
+.lcard .inp{font:600 17px var(--f-body)}
+.lcard .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lcard .msg{min-height:20px;font-size:13.5px;color:var(--brass-hi)}
+.lcard .msg.bad{color:var(--loss)}
+.lcard .fine{font-size:12px;color:var(--dim)}
+.acctchip{display:flex;align-items:center;gap:8px;margin:0 8px 8px;padding:8px 10px;border-radius:10px;background:var(--panel);font-size:13px;color:var(--mute)}
+.acctchip b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acctchip .sync{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
+.acctchip .sync.ok{background:var(--win)} .acctchip .sync.bad{background:var(--loss)}
 /* settings */
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line);text-align:left}
 .setrow:last-child{border-bottom:0}
@@ -381,6 +399,7 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
     <button class="navbtn" data-go="stats" data-nav="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Statistik</button>
     <h3>Spiele</h3>
     <div id="sideGames"></div>
+    <div class="acctchip" id="acctChip" hidden><span class="sync" id="syncDot"></span><span>Account:</span><b id="acctName"></b></div>
     <p class="foot">Nur Spielgeld. Kein echtes Geld, keine Käufe, keine Auszahlung.</p>
   </aside>
   <div class="mainwrap">
@@ -592,6 +611,19 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
   <button data-go="stats" data-nav="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Statistik</button>
 </nav>
 
+<div id="login" hidden>
+  <form class="lcard" id="lgForm" autocomplete="off">
+    <div class="lhead"><svg viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="8" fill="#1b2b3a"/><rect x="7" y="8" width="20" height="4" rx="2" fill="#2f4960"/><rect x="7" y="15" width="20" height="4" rx="2" fill="#2f4960"/><rect x="7" y="22" width="20" height="5" rx="2" fill="#ffb020"/></svg><span><b>Letzte Reihe</b><small>Casino</small></span></div>
+    <h1>Wer spielt?</h1>
+    <p>Gib deinen Login-Namen ein. Dein Spielstand ist dann auf jedem Gerät derselbe.</p>
+    <label class="lbl" for="lgName">Login-Name</label>
+    <input class="inp" id="lgName" maxlength="20" placeholder="z. B. gregor_10b" autocapitalize="off" spellcheck="false">
+    <div class="row"><button class="btn gold" type="submit" id="lgIn">Einloggen</button><button class="btn" type="button" id="lgNew">Account erstellen</button></div>
+    <div class="msg" id="lgMsg" role="status"></div>
+    <button class="btn ghost" type="button" id="lgOff" hidden>Ohne Account spielen (nur dieser Browser)</button>
+    <p class="fine">3 bis 20 Zeichen: Buchstaben, Zahlen, Punkt, Unterstrich oder Bindestrich. Es gibt kein Passwort: Wer deinen Namen kennt, kann mit deinem Spielstand spielen. Nimm also keinen Namen, den andere leicht erraten.</p>
+  </form>
+</div>
 <div id="toasts" aria-live="polite"></div>
 <div id="modal" hidden></div>
 <div class="tip" id="tip" hidden></div>
@@ -658,7 +690,7 @@ try{if(!localStorage.getItem(KEY)){const o=JSON.parse(localStorage.getItem('nach
 
 // ---- Konto-Speicherung (privat pro Person)
 let cloud=null,cloudT=0,cloudBusy=false,cloudDirty=false;
-function save(){S.updated=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(cloud){cloudDirty=true;clearTimeout(cloudT);cloudT=setTimeout(flushCloud,2500)}}
+function save(){S.updated=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}srvSchedule();if(cloud){cloudDirty=true;clearTimeout(cloudT);cloudT=setTimeout(flushCloud,2500)}}
 async function flushCloud(){if(!cloud||cloudBusy||!cloudDirty)return;cloudBusy=true;cloudDirty=false;
   try{await cloud.set({state:JSON.stringify(S),updated:S.updated})}catch(e){const c=e&&e.code;if(c==='unavailable'){cloudDirty=true}else if(c!=='resource_exhausted'){cloud=null}}
   cloudBusy=false;if(cloudDirty){clearTimeout(cloudT);cloudT=setTimeout(flushCloud,4000)}}
@@ -667,6 +699,51 @@ async function initCloud(){try{if(!window.claude||!window.claude.use)return;cons
   if(snap.exists){const d=snap.data();if(d&&d.state&&(d.updated||0)>(S.updated||0)){try{adopt(JSON.parse(d.state));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}refreshAll()}catch(e){}}}
   cloud=ref;cloudDirty=true;flushCloud()}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&cloud&&cloudDirty){clearTimeout(cloudT);flushCloud()}});
+
+
+// ================= Accounts (nur auf der eigenen Website mit Server) =================
+const ACCOUNTS=true;
+const API='/api/spielstand';
+let acct=null;try{acct=localStorage.getItem('lr_user')}catch(e){}
+let srvT=0,srvBusy=false,srvDirty=false;
+const NAME_RE=/^[a-z0-9äöüß._-]{3,20}$/;
+function setSync(ok){const d=$('syncDot');if(d)d.className='sync '+(ok?'ok':'bad');const c=$('acctChip');if(c)c.title=ok?'Gespeichert':'Nicht gespeichert, Verbindung fehlt'}
+function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;clearTimeout(srvT);srvT=setTimeout(()=>srvFlush(),2000)}
+async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;
+  try{const r=await fetch(API+'?name='+encodeURIComponent(acct),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S}),keepalive:!!keep});if(!r.ok)throw new Error(r.status);setSync(true)}
+  catch(e){srvDirty=true;setSync(false)}
+  srvBusy=false;if(srvDirty&&!keep){clearTimeout(srvT);srvT=setTimeout(()=>srvFlush(),8000)}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&srvDirty){clearTimeout(srvT);srvFlush(true)}});
+function showAcct(){const c=$('acctChip');if(!c)return;c.hidden=!(ACCOUNTS&&acct);if(acct)$('acctName').textContent=acct}
+function lgMsg(t,bad){const m=$('lgMsg');m.textContent=t;m.className='msg'+(bad?' bad':'')}
+function lgBusy(on){$('lgIn').disabled=on;$('lgNew').disabled=on}
+async function doLogin(create){const name=$('lgName').value.trim().toLowerCase();
+  if(!NAME_RE.test(name)){lgMsg('Der Name braucht 3 bis 20 Zeichen: Buchstaben, Zahlen, Punkt, Unterstrich oder Bindestrich.',true);return}
+  lgBusy(true);lgMsg(create?'Account wird erstellt …':'Einloggen …');
+  try{
+    if(create){const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:S})});
+      if(r.status===409){lgMsg('Diesen Namen gibt es schon. Wähle einen anderen oder logge dich damit ein.',true);lgBusy(false);return}
+      if(!r.ok)throw new Error(r.status)}
+    else{const r=await fetch(API+'?name='+encodeURIComponent(name));if(!r.ok)throw new Error(r.status);const d=await r.json();
+      if(!d.exists){lgMsg('Diesen Account gibt es noch nicht. Klicke auf „Account erstellen“.',true);lgBusy(false);return}
+      adopt(d.state);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+    acct=name;try{localStorage.setItem('lr_user',name)}catch(e){}
+    $('login').hidden=true;lgBusy(false);showAcct();setSync(true);shown=S.bal;refreshAll();renderBadge();
+    toast(create?`Account <b>${name}</b> erstellt. Viel Glück!`:`Willkommen zurück, <b>${name}</b>!`,'good')
+  }catch(e){lgBusy(false);lgMsg('Der Server ist gerade nicht erreichbar. Versuch es gleich noch einmal.',true);$('lgOff').hidden=false}}
+$('lgOff').onclick=()=>{try{sessionStorage.setItem('lr_offline','1')}catch(e){}$('login').hidden=true;toast('Du spielst ohne Account. Der Spielstand bleibt nur in diesem Browser.','bad')};
+$('lgForm').addEventListener('submit',e=>{e.preventDefault();doLogin(false)});
+$('lgNew').onclick=()=>doLogin(true);
+async function acctBoot(){if(!ACCOUNTS)return;showAcct();
+  let off=false;try{off=sessionStorage.getItem('lr_offline')==='1'}catch(e){}
+  if(!acct&&off)return;
+  if(!acct){$('login').hidden=false;setTimeout(()=>$('lgName').focus(),50);return}
+  try{const r=await fetch(API+'?name='+encodeURIComponent(acct));if(!r.ok)throw 0;const d=await r.json();
+    if(d.exists&&d.state&&(d.state.updated||0)>(S.updated||0)){adopt(d.state);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge()}
+    else if(!d.exists){srvDirty=true;srvFlush()}
+    setSync(true)}catch(e){setSync(false)}}
+async function logout(){clearTimeout(srvT);if(srvDirty)await srvFlush();acct=null;try{localStorage.removeItem('lr_user');localStorage.removeItem(KEY)}catch(e){}
+  const snd=S.set.sound;S=fresh();S.set.sound=snd;shown=S.bal;refreshAll();showAcct();$('lgName').value='';lgMsg('');$('login').hidden=false;$('lgName').focus()}
 
 // ================= audio =================
 let AC=null;
@@ -894,11 +971,13 @@ setInterval(()=>{renderBadge();if(cur==='bonus'&&!wSpin){const ae=document.activ
 
 // ================= Einstellungen =================
 $('setBtn').onclick=()=>{modal(`<h2>Einstellungen</h2>
+  ${ACCOUNTS&&acct?`<div class="setrow"><div><p>Account: ${acct}</p><small>Dein Spielstand wird auf dem Server gespeichert</small></div><button class="btn" id="sLogout">Abmelden</button></div>`:''}
   <div class="setrow"><div><p>Sound</p><small>Klicks, Gewinne, Münzen</small></div><button class="btn" id="sSound">${S.set.sound?'An':'Aus'}</button></div>
   <div class="setrow"><div><p>Pausen-Erinnerung</p><small>Zeigt, wie lange du schon spielst</small></div><div class="seg" id="sReal">${[0,15,30,60].map(v=>`<button data-v="${v}" aria-pressed="${S.set.reality===v}">${v?v+' Min':'Aus'}</button>`).join('')}</div></div>
   <div class="setrow"><div><p>Alles zurücksetzen</p><small>Guthaben, Sterne, Vitrine, Statistik. Zählt als Neustart (nur alle 60 Min.)</small></div><button class="btn" id="sReset" style="color:var(--loss)">Zurücksetzen</button></div>
   <div class="row" style="margin-top:6px"><button class="btn gold" data-close>Fertig</button></div>`)};
 $('modal').addEventListener('click',e=>{
+  if(e.target.id==='sLogout'){closeModal();logout();return}
   if(e.target.id==='sSound'){S.set.sound=!S.set.sound;save();e.target.textContent=S.set.sound?'An':'Aus'}
   const r=e.target.closest('#sReal button');if(r){S.set.reality=+r.dataset.v;session.lastCheck=Date.now();save();document.querySelectorAll('#sReal button').forEach(b=>b.setAttribute('aria-pressed',b===r))}
   if(e.target.id==='sReset'){if(cdLeft()>0){closeModal();toast(`Zurücksetzen geht erst in <b class="num">${mmss(cdLeft())}</b> Minuten wieder (gleiche Sperre wie beim Neustart).`,'bad');return}modal(`<h2>Wirklich alles löschen?</h2><p>Guthaben, Sterne, freigeschaltete Spiele, Vitrine und Statistik gehen auf Anfang. Das lässt sich nicht rückgängig machen.</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn stop" data-ok>Alles zurücksetzen</button></div>`,()=>{const snd=S.set.sound;S=fresh();S.set.sound=snd;S.lastRestart=Date.now();save();session={start:Date.now(),net:0,rounds:0,lastAct:Date.now(),lastCheck:Date.now()};simDone=false;refreshAll();toast('Alles zurückgesetzt. Viel Glück!','good')})}});
@@ -1242,7 +1321,7 @@ requestAnimationFrame(loop);
 let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(cur==='chicken')CH.show();if(cur==='plinko')PL.relayout();if(cur==='stats')renderStats();if(parts.length)sizeFx()},150)});
 renderWallet();renderSide();renderBadge();
 const startView=(location.hash||'').slice(1);go(VIEWS.includes(startView)?startView:'lobby');
-initCloud();
+if(ACCOUNTS)acctBoot();else initCloud();
 })();
 </script>
 
