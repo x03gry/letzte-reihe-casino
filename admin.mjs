@@ -4,7 +4,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
 const CAP = 10_000_000;
-const GAMES = ["chicken", "mines", "tower", "plinko"];
+const GAMES = ["chicken", "mines", "tower", "plinko", "poker"];
 const ITEMS = ["kette", "uhr", "auto", "villa", "yacht", "jet", "insel"];
 
 const json = (body, status = 200) =>

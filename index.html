@@ -511,7 +511,7 @@ button,a,input,select,canvas{touch-action:manipulation}
   .pkmsg{min-height:20px;font-size:13px}
 }
 .lbtabs{min-width:220px}
-.lblist{display:flex;flex-direction:column;gap:6px;max-height:430px;overflow-y:auto}
+.lblist{display:flex;flex-direction:column;gap:6px}
 .lbrow{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);border:1px solid transparent}
 .lbrow .rk{font:700 15px var(--f-num);color:var(--mute);text-align:center}
 .lbrow .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -838,14 +838,17 @@ const KEY='letztereihe_v1';
 const emptyG=()=>({n:0,w:0,p:0,wins:0,best:0,big:0,e:0});
 function fresh(){const g={};GK.forEach(k=>g[k]=emptyG());const t=Date.now();
   return {v:1,bal:1000,stars:0,restarts:0,owned:{games:{},items:{}},spent:0,created:t,updated:t,games:g,log:[],hist:[[t,1000,'s']],bonus:{},bonusN:{},
-    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{}}}
+    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1}}
 let S=fresh();
-function adopt(o){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object.assign(f,o);
+function adopt(o){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object.assign(f,o);if(!o.playSeed)S.playSeed=0;
   S.games=Object.assign(f.games,o.games||{});GK.forEach(k=>S.games[k]=Object.assign(emptyG(),S.games[k]||{}));
   S.owned=Object.assign({games:{},items:{}},o.owned||{});S.owned.games=S.owned.games||{};S.owned.items=S.owned.items||{};
   S.set=Object.assign(fresh().set,o.set||{});S.streak=Object.assign(fresh().streak,o.streak||{});
   ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];migrate()}
-function migrate(){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);S.inPlay=S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0;if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+// Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
+function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
+  for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
+function migrate(){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0;if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -980,9 +983,9 @@ function fxTick(dt){if(!parts.length)return;fctx.clearRect(0,0,innerWidth,innerH
 
 // ================= Guthaben =================
 let session={start:Date.now(),net:0,rounds:0,lastAct:Date.now(),lastCheck:Date.now()};
-// Spielzeit fürs Leaderboard: zählt nur, solange die Seite offen ist und in den letzten 2 Minuten getippt/geklickt wurde
+// Spielzeit fürs Leaderboard: zählt, solange die Seite offen ist und in den letzten 5 Minuten getippt/geklickt/gespielt wurde
 ['pointerdown','keydown'].forEach(ev=>addEventListener(ev,()=>{session.lastAct=Date.now()},{passive:true}));
-let playTick=0;setInterval(()=>{if(document.hidden||Date.now()-session.lastAct>120000)return;S.playMs=(S.playMs||0)+10000;if(++playTick%3===0)save()},10000);
+let playTick=0;setInterval(()=>{if(document.hidden||Date.now()-session.lastAct>300000)return;S.playMs=(S.playMs||0)+5000;if(++playTick%6===0)save()},5000);
 let shown=S.bal,balRaf=0;
 function tweenBal(){const el=$('wBal');const from=shown,to=S.bal;cancelAnimationFrame(balRaf);
   if(Math.abs(to-from)<.005||reduced){shown=to;el.textContent=fmt(to);return}
@@ -1229,7 +1232,7 @@ function lineChart(cv,series,opts={}){const dpr=devicePixelRatio||1,W=cv.clientW
 let stF='all';
 // ---- Leaderboard (Daten vom Server, alle 30 s neu)
 let lbTab='bal',lbData=null,lbAt=0,lbBusy=false;
-const fmtDur=ms=>{const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h} Std ${m%60} Min`:m?`${m} Min`:'< 1 Min'};
+const fmtDur=ms=>{const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h} Std ${m%60} Min`:m?`${m} Min`:`${Math.floor(ms/1000)} Sek`};
 async function loadBoard(force){if(!ACCOUNTS){renderBoard();return}if(lbBusy||(!force&&lbData&&Date.now()-lbAt<30000)){renderBoard();return}lbBusy=true;
   try{const r=await fetch(API+'?board=1',{cache:'no-store'});if(r.ok){const d=await r.json();lbData=d.players||[];lbAt=Date.now()}}catch(e){}lbBusy=false;renderBoard()}
 function renderBoard(){const L=$('lbList');if(!L)return;document.querySelectorAll('#lbTabs [data-lb]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lb===lbTab));
@@ -1238,10 +1241,10 @@ function renderBoard(){const L=$('lbList');if(!L)return;document.querySelectorAl
   const me=acct||'';const list=lbData.map(p=>p.n===me?Object.assign({},p,{b:S.bal,t:Math.max(p.t,S.playMs||0),s:S.stars}):p);
   const key=lbTab==='bal'?(p=>p.b):(p=>p.t);list.sort((a,b)=>key(b)-key(a)||a.n.localeCompare(b.n));
   const row=(p,i)=>`<div class="lbrow ${i<3?'top'+(i+1):''} ${p.n===me?'me':''}"><span class="rk">${i+1}</span><span class="nm">${esc(p.n)}${p.s?`<small>★${p.s}</small>`:''}</span><span class="vl">${lbTab==='bal'?fmt(p.b):fmtDur(p.t)}</span></div>`;
-  const mi=list.findIndex(p=>p.n===me);let h=list.slice(0,25).map(row).join('');if(mi>=25)h+='<div class="lbsep">⋯</div>'+row(list[mi],mi);
+  const mi=list.findIndex(p=>p.n===me);let h=list.slice(0,10).map(row).join('');if(mi>=10)h+='<div class="lbsep">⋯</div>'+row(list[mi],mi);
   L.innerHTML=h||'<p class="note">Noch niemand da.</p>';
-  $('lbNote').textContent=(lbTab==='bal'?'Aktuelles Guthaben aller Spieler.':'Spielzeit zählt nur, solange die Seite offen ist und du aktiv spielst.')+` ${list.length} Spieler · aktualisiert alle 30 Sekunden.`}
-$('lbTabs').addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(!b)return;lbTab=b.dataset.lb;renderBoard()});
+  $('lbNote').textContent=(lbTab==='bal'?'Aktuelles Guthaben aller Spieler.':'Spielzeit zählt, solange die Seite offen ist und du aktiv spielst. Ältere Spielzeit ist aus deinen Runden geschätzt.')+` ${list.length} Spieler · aktualisiert alle 30 Sekunden.`}
+$('lbTabs').addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(!b)return;lbTab=b.dataset.lb;renderBoard();loadBoard()});
 setInterval(()=>{if(cur==='stats'&&!document.hidden)loadBoard()},30000);
 function renderStats(){loadBoard();
   $('stFilter').innerHTML=[['all','Alle Spiele','var(--brass)']].concat(GK.map(k=>[k,GAMES[k].short,GAMES[k].hex])).map(([k,n,c])=>`<button data-f="${k}" aria-pressed="${stF===k}"><span class="dot" style="background:${c}"></span>${n}</button>`).join('');

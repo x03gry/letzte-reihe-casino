@@ -153,7 +153,9 @@ export default async (req) => {
 
   // Spielzeit kann nicht schneller wachsen als die echte Zeit (+1 Minute Puffer) und sinkt nie
   const oldPlay = num(stored.state && stored.state.playMs);
-  state.playMs = Math.max(oldPlay, Math.min(num(state.playMs), oldPlay + elapsed + 60_000));
+  // Einmalige Schätzung der alten Spielzeit beim ersten Update: höchstens 1 Minute pro bisheriger Runde
+  const seed = !(stored.state && stored.state.playSeed) && state.playSeed ? rounds(stored.state || {}) * 60_000 : 0;
+  state.playMs = Math.max(oldPlay, Math.min(num(state.playMs), oldPlay + elapsed + 60_000 + seed));
   await store.setJSON(key, { state, rev: curRev + 1, savedAt: now });
   return json({ ok: true, rev: curRev + 1 });
 };
