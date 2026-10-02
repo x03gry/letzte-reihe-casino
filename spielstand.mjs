@@ -1,13 +1,13 @@
 // Speichert und lädt Spielstände pro Login-Name (Netlify Blobs).
 import { getStore } from "@netlify/blobs";
 
-const NAME_RE = /^[a-z0-9äöüß._-]{3,20}$/;
+const NAME_RE = /^[a-z0-9äöüß._ -]{3,20}$/;
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 
 export default async (req) => {
   const url = new URL(req.url);
-  const name = (url.searchParams.get("name") || "").trim().toLowerCase();
+  const name = (url.searchParams.get("name") || "").trim().toLowerCase().replace(/\s+/g, " ");
   if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
   const store = getStore("spielstaende");
   const key = encodeURIComponent(name);

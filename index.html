@@ -617,11 +617,11 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
     <h1>Wer spielt?</h1>
     <p>Gib deinen Login-Namen ein. Dein Spielstand ist dann auf jedem Gerät derselbe.</p>
     <label class="lbl" for="lgName">Login-Name</label>
-    <input class="inp" id="lgName" maxlength="20" placeholder="z. B. gregor_10b" autocapitalize="off" spellcheck="false">
+    <input class="inp" id="lgName" maxlength="20" placeholder="z. B. Ivo Golf" autocapitalize="off" spellcheck="false">
     <div class="row"><button class="btn gold" type="submit" id="lgIn">Einloggen</button><button class="btn" type="button" id="lgNew">Account erstellen</button></div>
     <div class="msg" id="lgMsg" role="status"></div>
     <button class="btn ghost" type="button" id="lgOff" hidden>Ohne Account spielen (nur dieser Browser)</button>
-    <p class="fine">3 bis 20 Zeichen: Buchstaben, Zahlen, Punkt, Unterstrich oder Bindestrich. Es gibt kein Passwort: Wer deinen Namen kennt, kann mit deinem Spielstand spielen. Nimm also keinen Namen, den andere leicht erraten.</p>
+    <p class="fine">3 bis 20 Zeichen, Groß- und Kleinschreibung egal. Es gibt kein Passwort: Wer deinen Namen kennt, kann mit deinem Spielstand spielen. Nimm also keinen Namen, den andere leicht erraten.</p>
   </form>
 </div>
 <div id="toasts" aria-live="polite"></div>
@@ -706,7 +706,7 @@ const ACCOUNTS=true;
 const API='/api/spielstand';
 let acct=null;try{acct=localStorage.getItem('lr_user')}catch(e){}
 let srvT=0,srvBusy=false,srvDirty=false;
-const NAME_RE=/^[a-z0-9äöüß._-]{3,20}$/;
+const NAME_RE=/^[a-z0-9äöüß._ -]{3,20}$/;
 function setSync(ok){const d=$('syncDot');if(d)d.className='sync '+(ok?'ok':'bad');const c=$('acctChip');if(c)c.title=ok?'Gespeichert':'Nicht gespeichert, Verbindung fehlt'}
 function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;clearTimeout(srvT);srvT=setTimeout(()=>srvFlush(),2000)}
 async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;
@@ -717,8 +717,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&srvDirty){
 function showAcct(){const c=$('acctChip');if(!c)return;c.hidden=!(ACCOUNTS&&acct);if(acct)$('acctName').textContent=acct}
 function lgMsg(t,bad){const m=$('lgMsg');m.textContent=t;m.className='msg'+(bad?' bad':'')}
 function lgBusy(on){$('lgIn').disabled=on;$('lgNew').disabled=on}
-async function doLogin(create){const name=$('lgName').value.trim().toLowerCase();
-  if(!NAME_RE.test(name)){lgMsg('Der Name braucht 3 bis 20 Zeichen: Buchstaben, Zahlen, Punkt, Unterstrich oder Bindestrich.',true);return}
+async function doLogin(create){const name=$('lgName').value.trim().toLowerCase().replace(/\s+/g,' ');
+  if(!NAME_RE.test(name)){lgMsg('Der Name braucht 3 bis 20 Zeichen: Buchstaben, Zahlen, Leerzeichen, Punkt, Unterstrich oder Bindestrich.',true);return}
   lgBusy(true);lgMsg(create?'Account wird erstellt …':'Einloggen …');
   try{
     if(create){const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:S})});
