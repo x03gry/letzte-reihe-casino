@@ -510,6 +510,17 @@ button,a,input,select,canvas{touch-action:manipulation}
   .pkc.big{width:44px;height:62px;font-size:17px}
   .pkmsg{min-height:20px;font-size:13px}
 }
+.lbtabs{min-width:220px}
+.lblist{display:flex;flex-direction:column;gap:6px;max-height:430px;overflow-y:auto}
+.lbrow{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);border:1px solid transparent}
+.lbrow .rk{font:700 15px var(--f-num);color:var(--mute);text-align:center}
+.lbrow .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbrow .nm small{color:var(--brass-hi);font:700 12px var(--f-num);margin-left:6px}
+.lbrow .vl{font:700 15px var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lbrow.top1 .rk{color:#ffd27a}.lbrow.top2 .rk{color:#d6dee6}.lbrow.top3 .rk{color:#e0a370}
+.lbrow.me{border-color:var(--brass);background:var(--panel2)}
+.lbsep{text-align:center;color:var(--dim);font-size:12px;line-height:1}
+@media (max-width:600px){.lbpanel .ph{flex-wrap:wrap;gap:8px}.lbtabs{min-width:0;width:100%}.lbrow{padding:8px 10px;gap:8px;grid-template-columns:30px minmax(0,1fr) auto}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -597,6 +608,11 @@ button,a,input,select,canvas{touch-action:manipulation}
   <div class="phead">
     <div><p class="eyebrow">Statistik-Hub</p><h1>Deine Zahlen</h1></div>
     <button class="btn" id="stExport">Runden als CSV speichern</button>
+  </div>
+  <div class="panel lbpanel">
+    <div class="ph"><h2>Leaderboard</h2><div class="seg lbtabs" id="lbTabs" role="tablist"><button data-lb="bal" aria-pressed="true">Guthaben</button><button data-lb="time" aria-pressed="false">Spielzeit</button></div></div>
+    <div class="lblist" id="lbList"><p class="note">Lädt …</p></div>
+    <p class="note" id="lbNote"></p>
   </div>
   <div class="filters" id="stFilter" role="group" aria-label="Nach Spiel filtern"></div>
   <div class="kpis" id="stKpis"></div>
@@ -786,6 +802,7 @@ button,a,input,select,canvas{touch-action:manipulation}
 // ================= helpers =================
 const $=id=>document.getElementById(id);
 const r2=v=>Math.round(v*100)/100;
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=v=>(+v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmt0=v=>Math.round(v).toLocaleString('de-DE');
 const fmtX=m=>(m>=100?m.toLocaleString('de-DE',{maximumFractionDigits:0}):m.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}))+'×';
@@ -802,10 +819,10 @@ const C={line:'#22364a',line2:'#2f4960',mute:'#8ba2b7',dim:'#5d7387',ink:'#e9f0f
 // Neues Spiel: Eintrag hier + Baustein unten (HTML-Section + Modul). Lobby, Seitenleiste, Freischalten und Statistik übernehmen es automatisch.
 const GAMES={
   chicken:{name:'Chicken Crossing',short:'Chicken',hex:'#c98500',rtp:'95 %',price:0,added:'2026-09-01'},
-  mines:{name:'Mines Royale',short:'Mines',hex:'#3987e5',rtp:'95 %',price:0,added:'2026-09-01'},
-  tower:{name:'Neon Tower',short:'Tower',hex:'#199e70',rtp:'95 %',price:0,added:'2026-09-01'},
-  plinko:{name:'Plinko Drop',short:'Plinko',hex:'#d55181',rtp:'95 %',price:0,added:'2026-09-01'},
-  poker:{name:"Hold'em Turnier",short:'Poker',hex:'#2f9e8f',rtp:'bis 95 %',price:0,added:'2026-10-03'},
+  mines:{name:'Mines Royale',short:'Mines',hex:'#3987e5',rtp:'95 %',price:1500,added:'2026-09-01'},
+  tower:{name:'Neon Tower',short:'Tower',hex:'#199e70',rtp:'95 %',price:3000,added:'2026-09-01'},
+  plinko:{name:'Plinko Drop',short:'Plinko',hex:'#d55181',rtp:'95 %',price:6000,added:'2026-09-01'},
+  poker:{name:"Hold'em Turnier",short:'Poker',hex:'#2f9e8f',rtp:'bis 95 %',price:10000,added:'2026-10-03'},
   double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'98 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
@@ -828,7 +845,7 @@ function adopt(o){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object
   S.owned=Object.assign({games:{},items:{}},o.owned||{});S.owned.games=S.owned.games||{};S.owned.items=S.owned.items||{};
   S.set=Object.assign(fresh().set,o.set||{});S.streak=Object.assign(fresh().streak,o.streak||{});
   ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];migrate()}
-function migrate(){S.inPlay=S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0;if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);S.inPlay=S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0;if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -963,6 +980,9 @@ function fxTick(dt){if(!parts.length)return;fctx.clearRect(0,0,innerWidth,innerH
 
 // ================= Guthaben =================
 let session={start:Date.now(),net:0,rounds:0,lastAct:Date.now(),lastCheck:Date.now()};
+// Spielzeit fürs Leaderboard: zählt nur, solange die Seite offen ist und in den letzten 2 Minuten getippt/geklickt wurde
+['pointerdown','keydown'].forEach(ev=>addEventListener(ev,()=>{session.lastAct=Date.now()},{passive:true}));
+let playTick=0;setInterval(()=>{if(document.hidden||Date.now()-session.lastAct>120000)return;S.playMs=(S.playMs||0)+10000;if(++playTick%3===0)save()},10000);
 let shown=S.bal,balRaf=0;
 function tweenBal(){const el=$('wBal');const from=shown,to=S.bal;cancelAnimationFrame(balRaf);
   if(Math.abs(to-from)<.005||reduced){shown=to;el.textContent=fmt(to);return}
@@ -1207,7 +1227,23 @@ function lineChart(cv,series,opts={}){const dpr=devicePixelRatio||1,W=cv.clientW
 
 // ================= STATS =================
 let stF='all';
-function renderStats(){
+// ---- Leaderboard (Daten vom Server, alle 30 s neu)
+let lbTab='bal',lbData=null,lbAt=0,lbBusy=false;
+const fmtDur=ms=>{const m=Math.floor(ms/60000),h=Math.floor(m/60);return h?`${h} Std ${m%60} Min`:m?`${m} Min`:'< 1 Min'};
+async function loadBoard(force){if(!ACCOUNTS){renderBoard();return}if(lbBusy||(!force&&lbData&&Date.now()-lbAt<30000)){renderBoard();return}lbBusy=true;
+  try{const r=await fetch(API+'?board=1',{cache:'no-store'});if(r.ok){const d=await r.json();lbData=d.players||[];lbAt=Date.now()}}catch(e){}lbBusy=false;renderBoard()}
+function renderBoard(){const L=$('lbList');if(!L)return;document.querySelectorAll('#lbTabs [data-lb]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lb===lbTab));
+  if(!ACCOUNTS){L.innerHTML='<p class="note">Das Leaderboard gibt es nur auf der Website mit Accounts.</p>';$('lbNote').textContent='';return}
+  if(!lbData){L.innerHTML='<p class="note">'+(lbBusy?'Lädt …':'Leaderboard gerade nicht erreichbar.')+'</p>';return}
+  const me=acct||'';const list=lbData.map(p=>p.n===me?Object.assign({},p,{b:S.bal,t:Math.max(p.t,S.playMs||0),s:S.stars}):p);
+  const key=lbTab==='bal'?(p=>p.b):(p=>p.t);list.sort((a,b)=>key(b)-key(a)||a.n.localeCompare(b.n));
+  const row=(p,i)=>`<div class="lbrow ${i<3?'top'+(i+1):''} ${p.n===me?'me':''}"><span class="rk">${i+1}</span><span class="nm">${esc(p.n)}${p.s?`<small>★${p.s}</small>`:''}</span><span class="vl">${lbTab==='bal'?fmt(p.b):fmtDur(p.t)}</span></div>`;
+  const mi=list.findIndex(p=>p.n===me);let h=list.slice(0,25).map(row).join('');if(mi>=25)h+='<div class="lbsep">⋯</div>'+row(list[mi],mi);
+  L.innerHTML=h||'<p class="note">Noch niemand da.</p>';
+  $('lbNote').textContent=(lbTab==='bal'?'Aktuelles Guthaben aller Spieler.':'Spielzeit zählt nur, solange die Seite offen ist und du aktiv spielst.')+` ${list.length} Spieler · aktualisiert alle 30 Sekunden.`}
+$('lbTabs').addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(!b)return;lbTab=b.dataset.lb;renderBoard()});
+setInterval(()=>{if(cur==='stats'&&!document.hidden)loadBoard()},30000);
+function renderStats(){loadBoard();
   $('stFilter').innerHTML=[['all','Alle Spiele','var(--brass)']].concat(GK.map(k=>[k,GAMES[k].short,GAMES[k].hex])).map(([k,n,c])=>`<button data-f="${k}" aria-pressed="${stF===k}"><span class="dot" style="background:${c}"></span>${n}</button>`).join('');
   const keys=stF==='all'?GK:[stF];const A=keys.reduce((a,k)=>{const g=S.games[k];a.n+=g.n;a.w+=g.w;a.p+=g.p;a.wins+=g.wins;a.e+=g.e;a.best=Math.max(a.best,g.best);a.big=Math.max(a.big,g.big);return a},{n:0,w:0,p:0,wins:0,e:0,best:0,big:0});
   const net=A.p-A.w,bonusTot=Object.values(S.bonus).reduce((s,v)=>s+v,0);

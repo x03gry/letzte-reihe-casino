@@ -253,6 +253,7 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
       <div class="row"><input class="inp" id="mBal" type="number" min="0" step="1" value="${a.bal}" inputmode="decimal" aria-label="Guthaben"><button class="btn gold" data-act="setBal">Setzen</button></div>
       <div class="row"><button class="btn" data-add="1000">+1.000</button><button class="btn" data-add="10000">+10.000</button><button class="btn" data-add="100000">+100.000</button><button class="btn" data-add="-1000">−1.000</button></div></div>
     <div class="sec"><h3>Sterne</h3><div class="row"><input class="inp" id="mStars" type="number" min="0" step="1" value="${a.stars}" aria-label="Sterne"><button class="btn gold" data-act="setStars">Setzen</button></div></div>
+    <div class="sec"><h3>Spiele freigeschaltet</h3><div class="checks">${['mines','tower','plinko','poker'].map(g=>`<label><input type="checkbox" data-game="${g}" ${a.games.includes(g)?'checked':''}>${GAMES[g]}</label>`).join('')}</div><p class="note">Chicken ist immer frei.</p></div>
     <div class="sec"><h3>Vitrine</h3><div class="checks">${Object.entries(ITEMS).map(([k,n])=>`<label><input type="checkbox" data-item="${k}" ${a.items.includes(k)?'checked':''}>${n}</label>`).join('')}</div></div>
     <div class="sec"><h3>Account</h3><div class="row">
       <button class="btn" data-act="cooldown" ${cd?'':'disabled'}>Neustart-Sperre aufheben</button>

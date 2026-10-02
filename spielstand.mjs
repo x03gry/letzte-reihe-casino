@@ -89,6 +89,22 @@ async function logReject(name, reason, oldS, newS) {
 
 export default async (req) => {
   const url = new URL(req.url);
+  // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
+  if (url.searchParams.has("board")) {
+    const admin = getStore("admin");
+    const cached = await admin.get("board", { type: "json" });
+    if (cached && Date.now() - cached.t < 30_000) return json({ players: cached.players });
+    const store = getStore("spielstaende");
+    const { blobs } = await store.list();
+    const players = [];
+    for (const b of blobs.slice(0, 500)) {
+      const rec = await store.get(b.key, { type: "json" });
+      if (!rec || rec.banned || !rec.state) continue;
+      players.push({ n: decodeURIComponent(b.key), b: Math.round(num(rec.state.bal) * 100) / 100, s: num(rec.state.stars), t: num(rec.state.playMs) });
+    }
+    await admin.setJSON("board", { t: Date.now(), players });
+    return json({ players });
+  }
   // Öffentliche Nachricht an alle (vom Admin gesetzt)
   if (url.searchParams.has("msg")) {
     const m = await getStore("admin").get("message", { type: "json" });
@@ -128,12 +144,16 @@ export default async (req) => {
   // Ausnahme: Hat der Admin den Stand geändert, muss das Gerät diesen erst übernehmen.
   if (stored.dev === "admin" && body.rev !== curRev) return json({ error: "admin", state: stored.state, rev: curRev }, 409);
 
-  const err = plausible(stored.state, state, now - (stored.savedAt || 0));
+  const elapsed = now - (stored.savedAt || 0);
+  const err = plausible(stored.state, state, elapsed);
   if (err) {
     await logReject(name, err, stored.state, state);
     return json({ error: err, state: stored.state, rev: curRev }, 422);
   }
 
+  // Spielzeit kann nicht schneller wachsen als die echte Zeit (+1 Minute Puffer) und sinkt nie
+  const oldPlay = num(stored.state && stored.state.playMs);
+  state.playMs = Math.max(oldPlay, Math.min(num(state.playMs), oldPlay + elapsed + 60_000));
   await store.setJSON(key, { state, rev: curRev + 1, savedAt: now });
   return json({ ok: true, rev: curRev + 1 });
 };
