@@ -1,5 +1,5 @@
 // Letzte Reihe Casino – Admin-Schnittstelle.
-// Jede Anfrage braucht das Admin-Passwort aus der Netlify-Umgebungsvariable ADMIN_KEY.
+// Jede Anfrage braucht das Admin-Passwort (ADMIN_KEY in Netlify, sonst das fest eingestellte).
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
@@ -141,6 +141,7 @@ export default async (req) => {
 
   if (action !== "reset") { st.updated = Date.now(); rec.state = st; }
   rec.rev = num(rec.rev) + 1;
+  rec.dev = "admin"; // Geräte müssen die Admin-Änderung übernehmen
   rec.savedAt = Date.now();
   await store.setJSON(key, rec);
   return json({ ok: true, account: summary(key, rec) });

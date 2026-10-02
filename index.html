@@ -345,6 +345,12 @@ canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
 .acctchip b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .acctchip .sync{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
 .acctchip .sync.ok{background:var(--win)} .acctchip .sync.bad{background:var(--loss)}
+.news{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,rgba(255,176,32,.16),rgba(255,176,32,.06));border:1px solid rgba(255,176,32,.45);border-radius:12px;padding:10px 12px 10px 14px;font-size:14px}
+.news svg{width:18px;height:18px;color:var(--brass);flex:none}
+.news span{flex:1;min-width:0}
+.news button{background:none;border:0;color:var(--mute);font-size:20px;line-height:1;padding:4px 8px;min-width:36px;min-height:36px}
+.adminlink{display:flex;align-items:center;gap:8px;margin:0 8px 8px;padding:9px 10px;border-radius:10px;border:1px dashed var(--line2);color:var(--brass);font-size:13px;font-weight:600;text-decoration:none}
+.adminlink:hover{background:var(--panel)}
 /* settings */
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line);text-align:left}
 .setrow:last-child{border-bottom:0}
@@ -453,6 +459,7 @@ button,a,input,select,canvas{touch-action:manipulation}
     <button class="navbtn" data-go="stats" data-nav="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Statistik</button>
     <h3>Spiele</h3>
     <div id="sideGames"></div>
+    <a class="adminlink" id="adminLink" href="/admin" hidden>Admin-Ansicht</a>
     <div class="acctchip" id="acctChip" hidden><span class="sync" id="syncDot"></span><span>Account:</span><b id="acctName"></b></div>
     <p class="foot">Nur Spielgeld. Kein echtes Geld, keine Käufe, keine Auszahlung.</p>
   </aside>
@@ -469,6 +476,7 @@ button,a,input,select,canvas{touch-action:manipulation}
       </div>
     </header>
     <main>
+<div class="news" id="newsBar" hidden role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 001 1h2l5 4V6L6 10H4a1 1 0 00-1 1z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/></svg><span id="newsText"></span><button type="button" id="newsX" aria-label="Nachricht schließen">×</button></div>
 <!-- ======================= LOBBY ======================= -->
 <section id="v-lobby" class="view">
   <div class="starline"><span class="lab">Nächster Stern</span><div class="bar"><i id="starProg" style="width:0%"></i></div><span class="val" id="starVal"></span></div>
@@ -760,6 +768,7 @@ const ACCOUNTS=true;
 const API='/api/spielstand';
 let acct=null,rev=0;try{acct=localStorage.getItem('lr_user');rev=+(localStorage.getItem('lr_rev')||0)}catch(e){}
 let srvT=0,srvBusy=false,srvDirty=false,srvFails=0;
+const DEV=Math.random().toString(36).slice(2,10)+Date.now().toString(36);
 const NAME_RE=/^[a-z0-9äöüß._ -]{3,20}$/;
 const normName=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
 const apiUrl=()=>API+'?name='+encodeURIComponent(acct);
@@ -768,12 +777,13 @@ function setSync(st){const d=$('syncDot');if(d)d.className='sync '+(st==='ok'?'o
 function applyServer(state,r,msg){if(!state)return;adopt(state);setRev(r);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge();if(msg)toast(msg,'bad')}
 function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;setSync('busy');if(srvT)return;srvT=setTimeout(()=>{srvT=0;srvFlush()},1500)}
 async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;
-  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev}),keepalive:!!keep&&JSON.stringify(S).length<60000});
+  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev,dev:DEV}),keepalive:!!keep&&JSON.stringify(S).length<60000});
     const d=await r.json().catch(()=>({}));
     if(r.ok){setRev(d.rev);srvFails=0;setSync(srvDirty?'busy':'ok')}
-    else if(r.status===409&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Auf einem anderen Gerät wurde weitergespielt. Dieser Spielstand wurde geladen.');setSync('ok')}
+    else if(r.status===409&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Mit deinem Account wurde in einem anderen Tab oder auf einem anderen Gerät gespielt. Dieser Stand wurde geladen.');setSync('ok')}
     else if(r.status===422&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Dieser Spielstand war ungültig. Der gespeicherte Stand vom Server wurde geladen.');setSync('ok')}
     else if(r.status===404){srvBusy=false;logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
+    else if(r.status===403){srvBusy=false;logout('Dieser Account wurde gesperrt.');return}
     else throw new Error(r.status)}
   catch(e){srvDirty=true;srvFails++;setSync('bad')}
   srvBusy=false;if(srvDirty&&!keep){clearTimeout(srvT);srvT=setTimeout(()=>{srvT=0;srvFlush()},srvFails?Math.min(30000,1500*Math.pow(2,srvFails)):1500)}}
@@ -781,8 +791,19 @@ async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srv
 addEventListener('pagehide',()=>{if(srvDirty){clearTimeout(srvT);srvT=0;srvFlush(true)}});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(srvDirty){clearTimeout(srvT);srvT=0;srvFlush(true)}}else srvPull()});
 let lastPull=0;
-async function srvPull(){if(!ACCOUNTS||!acct||srvBusy||srvDirty||Date.now()-lastPull<4000)return;lastPull=Date.now();
-  try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(d.exists&&d.rev!==rev&&!srvDirty)applyServer(d.state,d.rev,'Neuer Spielstand von deinem anderen Gerät geladen.')}catch(e){}}
+async function srvPull(){if(!ACCOUNTS||!acct||srvBusy||srvDirty||Date.now()-lastPull<4000)return;lastPull=Date.now();loadNews();
+  const before=rev;
+  try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(d.banned){logout('Dieser Account wurde gesperrt.');return}
+    // nur übernehmen, wenn in der Zwischenzeit hier nichts gespeichert/gespielt wurde und der Server wirklich neuer ist
+    if(d.exists&&d.rev>rev&&rev===before&&!srvDirty&&!srvBusy)applyServer(d.state,d.rev,'Dein Spielstand wurde aktualisiert.')}catch(e){}}
+// Nachricht an alle (vom Admin)
+async function loadNews(){if(!ACCOUNTS)return;try{const r=await fetch(API+'?msg=1',{cache:'no-store'});if(!r.ok)return;const d=await r.json();const m=d.message;let seen='';try{seen=localStorage.getItem('lr_msg_seen')||''}catch(e){}
+  const bar=$('newsBar');if(m&&m.text&&String(m.id)!==seen){$('newsText').textContent=m.text;bar.hidden=false;bar.dataset.id=m.id}else bar.hidden=true}catch(e){}}
+$('newsX').onclick=()=>{const bar=$('newsBar');try{localStorage.setItem('lr_msg_seen',bar.dataset.id||'')}catch(e){}bar.hidden=true};
+setInterval(()=>{if(!document.hidden)loadNews()},300000);
+// Admin-Zugang: Knopf nur, wenn auf diesem Gerät schon das Admin-Passwort eingegeben wurde; sonst 5x aufs Logo tippen
+function showAdminLink(){let k=null;try{k=localStorage.getItem('lr_admin')}catch(e){}$('adminLink').hidden=!(ACCOUNTS&&k)}
+let logoTaps=[];document.querySelectorAll('.logo,.mlogo').forEach(l=>l.addEventListener('click',()=>{if(!ACCOUNTS)return;const t=Date.now();logoTaps=logoTaps.filter(x=>t-x<2500);logoTaps.push(t);if(logoTaps.length>=5){logoTaps=[];location.href='/admin'}}));
 function showAcct(){const c=$('acctChip');if(!c)return;c.hidden=!(ACCOUNTS&&acct);if(acct)$('acctName').textContent=acct}
 function lgMsg(t,bad){const m=$('lgMsg');m.textContent=t;m.className='msg'+(bad?' bad':'')}
 function lgBusy(on){$('lgIn').disabled=on;$('lgNew').disabled=on}
@@ -791,13 +812,14 @@ async function doLogin(create){const name=normName($('lgName').value);
   lgBusy(true);lgMsg(create?'Account wird erstellt …':'Einloggen …');
   try{
     if(create){const snd=S.set.sound;const st=fresh();st.set.sound=snd;
-      const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:st})});
+      const r=await fetch(API+'?name='+encodeURIComponent(name),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({create:true,state:st,dev:DEV})});
       const d=await r.json().catch(()=>({}));
       if(r.status===409){lgMsg('Diesen Namen gibt es schon. Wähle einen anderen oder logge dich damit ein.',true);lgBusy(false);return}
       if(!r.ok)throw new Error(r.status);
       acct=name;S=st;setRev(d.rev)}
     else{const r=await fetch(API+'?name='+encodeURIComponent(name),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
       if(!d.exists){lgMsg('Diesen Account gibt es noch nicht. Klicke auf „Account erstellen“.',true);lgBusy(false);return}
+      if(d.banned){lgMsg('Dieser Account ist gesperrt.',true);lgBusy(false);return}
       acct=name;adopt(d.state);setRev(d.rev)}
     try{localStorage.setItem('lr_user',name);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
     $('login').hidden=true;lgBusy(false);showAcct();setSync('ok');shown=S.bal;refreshAll();renderBadge();
@@ -806,13 +828,14 @@ async function doLogin(create){const name=normName($('lgName').value);
 $('lgForm').addEventListener('submit',e=>{e.preventDefault();doLogin(false)});
 $('lgNew').onclick=()=>doLogin(true);
 $('lgOff').onclick=()=>{try{sessionStorage.setItem('lr_offline','1')}catch(e){}$('login').hidden=true;toast('Du spielst ohne Account. Der Spielstand bleibt nur in diesem Browser.','bad')};
-async function acctBoot(){if(!ACCOUNTS)return;showAcct();
+async function acctBoot(){if(!ACCOUNTS)return;showAcct();showAdminLink();loadNews();
   let off=false;try{off=sessionStorage.getItem('lr_offline')==='1'}catch(e){}
   if(!acct&&off)return;
   if(!acct){$('login').hidden=false;setTimeout(()=>$('lgName').focus(),50);return}
   setSync('busy');
   try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)throw 0;const d=await r.json();
     if(!d.exists){logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
+    if(d.banned){logout('Dieser Account wurde gesperrt.');return}
     applyServer(d.state,d.rev);
     setSync('ok');lastPull=Date.now()}catch(e){setSync('bad')}}
 async function logout(msg){clearTimeout(srvT);srvT=0;if(srvDirty&&!msg)await srvFlush();acct=null;srvDirty=false;try{localStorage.removeItem('lr_user');localStorage.removeItem('lr_rev');localStorage.removeItem(KEY)}catch(e){}
@@ -1044,6 +1067,7 @@ setInterval(()=>{renderBadge();if(cur==='bonus'&&!wSpin){const ae=document.activ
 
 // ================= Einstellungen =================
 $('setBtn').onclick=()=>{modal(`<h2>Einstellungen</h2>
+  ${ACCOUNTS&&(()=>{try{return localStorage.getItem('lr_admin')}catch(e){return null}})()?`<div class="setrow"><div><p>Admin</p><small>Accounts verwalten, Nachricht an alle</small></div><a class="btn" href="/admin" style="text-decoration:none">Admin-Ansicht</a></div>`:''}
   ${ACCOUNTS&&acct?`<div class="setrow"><div><p>Account: ${acct}</p><small>Dein Spielstand wird auf dem Server gespeichert</small></div><button class="btn" id="sLogout">Abmelden</button></div>`:''}
   <div class="setrow"><div><p>Sound</p><small>Klicks, Gewinne, Münzen</small></div><button class="btn" id="sSound">${S.set.sound?'An':'Aus'}</button></div>
   <div class="setrow"><div><p>Pausen-Erinnerung</p><small>Zeigt, wie lange du schon spielst</small></div><div class="seg" id="sReal">${[0,15,30,60].map(v=>`<button data-v="${v}" aria-pressed="${S.set.reality===v}">${v?v+' Min':'Aus'}</button>`).join('')}</div></div>

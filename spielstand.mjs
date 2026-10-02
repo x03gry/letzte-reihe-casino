@@ -78,8 +78,23 @@ function plausible(oldS, newS, elapsedMs) {
   return null;
 }
 
+// Abgelehnte Speicherungen für die Admin-Ansicht mitschreiben (letzte 300)
+async function logReject(name, reason, oldS, newS) {
+  try {
+    const admin = getStore("admin");
+    const log = (await admin.get("rejects", { type: "json" })) || [];
+    log.unshift({ t: Date.now(), name, reason, oldBal: num(oldS && oldS.bal), newBal: num(newS && newS.bal) });
+    await admin.setJSON("rejects", log.slice(0, 300));
+  } catch {}
+}
+
 export default async (req) => {
   const url = new URL(req.url);
+  // Öffentliche Nachricht an alle (vom Admin gesetzt)
+  if (url.searchParams.has("msg")) {
+    const m = await getStore("admin").get("message", { type: "json" });
+    return json({ message: m && m.text ? m : null });
+  }
   const name = (url.searchParams.get("name") || "").trim().toLowerCase().replace(/\s+/g, " ");
   if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
   const store = getStore("spielstaende");
@@ -87,6 +102,7 @@ export default async (req) => {
   const stored = await store.get(key, { type: "json" });
 
   if (req.method === "GET") {
+    if (stored && stored.banned) return json({ exists: true, banned: true, state: null, rev: 0 });
     return json({ exists: !!stored, state: stored ? stored.state : null, rev: stored ? stored.rev || 1 : 0 });
   }
 
@@ -96,25 +112,33 @@ export default async (req) => {
   try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
   const state = body && body.state;
   const now = Date.now();
+  // Zufällige Kennung pro geöffneter Seite: so erkennt der Server, ob wirklich ein anderes Gerät gespeichert hat
+  const dev = typeof body.dev === "string" ? body.dev.slice(0, 40) : "";
 
   if (body.create) {
     if (stored) return json({ error: "vergeben" }, 409);
     const err = basicCheck(state) || (looksFresh(state) ? null : "kein_neuer_spielstand");
     if (err) return json({ error: err }, 422);
-    await store.setJSON(key, { state, rev: 1, savedAt: now });
+    await store.setJSON(key, { state, rev: 1, savedAt: now, dev });
     return json({ ok: true, rev: 1 });
   }
 
   if (!stored) return json({ error: "unbekannt" }, 404);
+  if (stored.banned) return json({ error: "gesperrt" }, 403);
   const curRev = stored.rev || 1;
 
-  // Auf einem anderen Gerät wurde inzwischen gespeichert -> aktuellen Stand zurückgeben
-  if (body.rev !== curRev) return json({ error: "konflikt", state: stored.state, rev: curRev }, 409);
+  // Hat dieselbe Seite zuletzt gespeichert, nur die Antwort ging verloren (Handy gesperrt, WLAN weg),
+  // ist das kein Konflikt. Nur wenn ein anderes Gerät/Tab oder der Admin gespeichert hat, gilt der Server-Stand.
+  const ownLostReply = dev && stored.dev === dev && typeof body.rev === "number" && body.rev < curRev;
+  if (body.rev !== curRev && !ownLostReply) return json({ error: "konflikt", state: stored.state, rev: curRev }, 409);
 
   const err = plausible(stored.state, state, now - (stored.savedAt || 0));
-  if (err) return json({ error: err, state: stored.state, rev: curRev }, 422);
+  if (err) {
+    await logReject(name, err, stored.state, state);
+    return json({ error: err, state: stored.state, rev: curRev }, 422);
+  }
 
-  await store.setJSON(key, { state, rev: curRev + 1, savedAt: now });
+  await store.setJSON(key, { state, rev: curRev + 1, savedAt: now, dev });
   return json({ ok: true, rev: curRev + 1 });
 };
 
