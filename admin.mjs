@@ -1,6 +1,7 @@
 // Letzte Reihe Casino – Admin-Schnittstelle.
 // Jede Anfrage braucht das Admin-Passwort aus der Netlify-Umgebungsvariable ADMIN_KEY.
 import { getStore } from "@netlify/blobs";
+import { createHash } from "node:crypto";
 
 const CAP = 10_000_000;
 const GAMES = ["chicken", "mines", "tower", "plinko"];
@@ -11,6 +12,9 @@ const json = (body, status = 200) =>
 const num = (v) => (typeof v === "number" && isFinite(v) ? v : 0);
 const r2 = (v) => Math.round(v * 100) / 100;
 
+// Admin-Passwort: Netlify-Variable ADMIN_KEY, sonst das fest eingestellte Passwort (nur als Prüfsumme gespeichert)
+const FALLBACK_HASH = "49d180ecf56132819571bf39d9b7b342522a2ac6d23c1418d3338251bfe469c8";
+const sha = (v) => createHash("sha256").update(String(v || "")).digest("hex");
 function adminKey() {
   try { if (globalThis.Netlify && Netlify.env && Netlify.env.get) return Netlify.env.get("ADMIN_KEY") || ""; } catch {}
   return process.env.ADMIN_KEY || "";
@@ -55,17 +59,24 @@ function summary(key, rec) {
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "methode" }, 405);
   const KEY = adminKey();
-  if (!KEY || KEY.length < 6) return json({ error: "ADMIN_KEY fehlt oder ist zu kurz (mind. 6 Zeichen). In Netlify unter Environment variables eintragen." }, 503);
-
   let body;
   try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
-  if (!sameKey(body.key, KEY)) {
-    await new Promise((r) => setTimeout(r, 600)); // Raten bremsen
+
+  // Schutz gegen Durchprobieren: nach 8 falschen Versuchen in 15 Minuten ist 15 Minuten Pause
+  const admin = getStore("admin");
+  const now = Date.now();
+  const fails = ((await admin.get("fails", { type: "json" })) || []).filter((t) => now - t < 15 * 60_000);
+  if (fails.length >= 8) return json({ error: "Zu viele falsche Versuche. Warte 15 Minuten." }, 429);
+
+  const ok = KEY ? sameKey(body.key, KEY) : sameKey(sha(body.key), FALLBACK_HASH);
+  if (!ok) {
+    fails.push(now);
+    await admin.setJSON("fails", fails);
+    await new Promise((r) => setTimeout(r, 800));
     return json({ error: "falsches_passwort" }, 401);
   }
 
   const store = getStore("spielstaende");
-  const admin = getStore("admin");
   const action = body.action;
   const key = body.name ? encodeURIComponent(String(body.name).trim().toLowerCase().replace(/\s+/g, " ")) : null;
 
