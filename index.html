@@ -591,7 +591,6 @@ button,a,input,select,canvas{touch-action:manipulation}
 .st-scorebox{flex:1;min-width:0;text-align:center;transition:opacity .25s}
 .st-root[data-st-state="ready"] .st-scorebox,.st-root[data-st-state="result"] .st-scorebox{opacity:0}
 .st-score{display:inline-block;font:700 56px/1 var(--f-num);font-variant-numeric:tabular-nums;text-shadow:0 3px 0 rgba(0,0,0,.35)}
-.st-score.st-bump{animation:st-bump .22s ease-out}
 @keyframes st-bump{0%{transform:scale(1.2)}100%{transform:scale(1)}}
 .st-scorelabel{margin-top:2px;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
 .st-combo{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:999px;background:rgba(255,176,32,.14);border:1px solid rgba(255,176,32,.45);color:var(--brass-hi);font:700 14px var(--f-num);opacity:0;transform:translateY(-4px);transition:opacity .2s,transform .2s}
@@ -600,7 +599,6 @@ button,a,input,select,canvas{touch-action:manipulation}
 .st-toast-main{font:700 40px var(--f-disp);letter-spacing:.04em;color:var(--brass);text-shadow:0 0 18px rgba(255,176,32,.55),0 3px 0 #7a4c00}
 .st-toast-sub{margin-top:4px;font-size:15px;font-weight:500;color:var(--brass-hi);min-height:1em}
 .st-toast.st-loss .st-toast-main{color:var(--loss);text-shadow:0 0 18px rgba(255,77,106,.5),0 3px 0 #6b1424}
-.st-toast.st-show{animation:st-toast .9s ease-out forwards}
 @keyframes st-toast{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}30%{transform:scale(1)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-14px)}}
 .st-overlay{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:16px 16px 20px;background:linear-gradient(180deg,rgba(15,25,35,0) 0%,rgba(15,25,35,.3) 45%,rgba(15,25,35,.88) 100%)}
 .st-overlay.st-center{justify-content:center;background:rgba(15,25,35,.62);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -634,10 +632,14 @@ button,a,input,select,canvas{touch-action:manipulation}
 .sk-jp small{display:block;margin-top:4px;font-size:12px;color:var(--mute)}
 .sk-jp small+small{margin-top:2px;color:var(--dim)}
 #skTbl tr.on td{color:var(--brass-hi);background:rgba(255,176,32,.08)}
+/* Kein Weichzeichner über dem bewegten Spielfeld: der müsste auf Handy/iPad jedes Bild neu berechnet werden */
+body:has(#v-stapel:not([hidden])) .top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
+body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--side)!important}
+.st-root{contain:layout paint}
+.st-root[data-st-state="play"]{touch-action:none}
 @media (max-width:900px){#v-stapel:not([hidden]){padding-bottom:84px}.st-root{height:min(62vh,540px);min-height:380px}}
 @media (max-width:480px){.st-score{font-size:46px}.st-title{font-size:26px}.st-bigscore{font-size:48px}.st-toast-main{font-size:32px}.sk-jp b{font-size:22px}}
-@media (prefers-reduced-motion:reduce){.st-toast.st-show{animation:st-fade .9s linear forwards}.st-score.st-bump,.st-card{animation:none}}
-@keyframes st-fade{0%{opacity:0}12%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.st-card{animation:none}}
 #modal{grid-template-columns:minmax(0,440px);justify-content:center}.mbox{min-width:0}
 .txform{display:flex;flex-direction:column;gap:6px;text-align:left;margin:4px 0 12px;min-width:0}.txform .betrow button{padding:0 10px;flex:none}
 .txform .lbl{margin-top:6px}.txform .lbl span{text-transform:none;letter-spacing:0;font-weight:600}
@@ -2382,7 +2384,13 @@ const SK=(()=>{
   // ---- Zustand
   let state='ready'; // ready | starting | play | paused | over | result
   let R=null;        // laufende Runde {bet,id,seed,L,st,taps,t0,ended}
-  let tower=[],mv=null,falling=[],ripples=[],chipAge=0;
+  let tower=[],mv=null,falling=[],ripples=[],chipAge=0,spawnAt=0,pausedAt=0,lastPD=0,toastAnim=null;
+  // Tempo hängt an der echten Uhr, nicht an der Bildrate: ruckelt das Gerät, springt der Chip nicht und bremst nicht ab
+  // „Was du siehst, zählt“: gemerkt wird, welche Chip-Position wann auf dem Bildschirm stand.
+  // Beim Tipp gilt das Bild, das im Moment der Berührung zu sehen war (Event-Zeitstempel).
+  let shown=[];
+  const ageAt=ts=>{const now=performance.now(),at=typeof ts==='number'&&ts>0&&Math.abs(ts-now)<1000?ts:now;
+    for(let i=shown.length-1;i>=0;i--)if(shown[i][0]<=at)return shown[i][1];return at-spawnAt};
   let camY=0,camTarget=0,zoom=1,anchorFrac=PLAY_ANCHOR,overT=0,overFrom=null,overTo=null,shakeT=0,resultAt=0;
   let W=0,H=0,dpr=1,baseS=1,EXTRA=0,layerOk=false,layerKey='',layerCam=0,layerCount=0;
   let best=0;try{best=+localStorage.getItem('st_best')||0}catch(e){}
@@ -2446,7 +2454,7 @@ const SK=(()=>{
   // ---- Runde
   function resetTower(){tower=[{x:0,z:0,r:STK.R0,col:4,anim:null}];mv=null;falling=[];ripples=[];chipAge=0;zoom=1;anchorFrac=PLAY_ANCHOR;overT=0;shakeT=0;camY=camTarget=camFor(1);layerOk=false}
   function spawnChip(){const n=tower.length,top=tower[n-1],l=R.L[R.st.h];
-    mv={axis:n%2===1?'x':'z',off:STK.off(l,0),r:top.r,bx:top.x,bz:top.z,col:n%5,y:n*CH,l};chipAge=0;camTarget=camFor(n)}
+    mv={axis:n%2===1?'x':'z',off:STK.off(l,0),r:top.r,bx:top.x,bz:top.z,col:n%5,y:n*CH,l};chipAge=0;spawnAt=performance.now();shown=[];camTarget=camFor(n)}
   async function start(){
     if(state!=='ready'&&state!=='result')return;if(state==='result'&&performance.now()-resultAt<RESULT_GUARD_MS)return;
     ac();const bet=readBet('skBet');if(!take('stapel',bet))return;
@@ -2456,8 +2464,9 @@ const SK=(()=>{
       if(!id)toast('Server nicht erreichbar: Diese Runde zählt nicht für den Jackpot.','bad')}
     R={bet,id,seed:seed||cryptoSeed(),st:STK.fresh(),taps:[],t0:Date.now(),ended:false};R.L=STK.plan(R.seed);
     resetTower();setState('play');spawnChip();renderHud(true);ui();blur();ensureLoop()}
-  function drop(){if(state!=='play'||!mv||chipAge<STK.MIN_MS)return;
-    const t=Math.round(chipAge),res=STK.step(R.st,mv.l,t),top=tower[tower.length-1],d=res.d,ad=Math.abs(d),sign=d<0?-1:1;R.taps.push(t);
+  // ts = Zeitpunkt des Tipps (Event-Zeitstempel), damit genau der Moment des Antippens zählt
+  function drop(ts){if(state!=='play'||!mv)return;const age=ageAt(ts);if(age<STK.MIN_MS)return;
+    const t=Math.round(age),res=STK.step(R.st,mv.l,t),top=tower[tower.length-1],d=res.d,ad=Math.abs(d),sign=d<0?-1:1;R.taps.push(t);
     const x=mv.bx+(mv.axis==='x'?d:0),z=mv.bz+(mv.axis==='z'?d:0);
     if(res.kind==='fall'){R.st=res.st;fall(x,z,sign);return}
     const was=STK.mult(R.st.h);R.st=res.st;
@@ -2484,8 +2493,8 @@ const SK=(()=>{
       setJp(d);if(d.jackpot>0){r.jackpot=d.jackpot;if(state==='result')showResult();
         confetti(300);SND.win();modal(`<p class="eyebrow">Unglaublich</p><h2>JACKPOT!</h2><p class="big num">+${fmt(d.jackpot)}</p><p>100 Chips gestapelt. Der Jackpot wird deinem Guthaben gutgeschrieben.</p><div class="row"><button class="btn gold" data-close>Wahnsinn!</button></div>`);
         srvDirty=true;srvFlush()}}catch(e){}}
-  function pause(){if(state!=='play')return;setState('paused');stopLoop();$('skPauseOv').classList.remove('st-hidden');ui()}
-  function resume(){if(state!=='paused')return;$('skPauseOv').classList.add('st-hidden');setState('play');ac();blur();ui();ensureLoop()}
+  function pause(){if(state!=='play')return;pausedAt=performance.now();setState('paused');stopLoop();$('skPauseOv').classList.remove('st-hidden');ui()}
+  function resume(){if(state!=='paused')return;spawnAt+=performance.now()-pausedAt;shown=[];$('skPauseOv').classList.add('st-hidden');setState('play');ac();blur();ui();ensureLoop()}
 
   // ---- Jackpot
   function setJp(d){if(d&&typeof d.pot==='number'){jp.a=d.pot;jp.last=d.last||null;jp.at=Date.now();renderJp()}}
@@ -2500,9 +2509,10 @@ const SK=(()=>{
   const blur=()=>{const a=document.activeElement;if(a&&a.blur&&a!==document.body)a.blur()};
   function hideOv(){['skStartOv','skResultOv','skPauseOv'].forEach(id=>$(id).classList.add('st-hidden'))}
   function renderHud(bump){const h=R?R.st.h:0,el=$('skScore');el.textContent=String(h);$('skScoreLab').textContent=R&&STK.mult(h)>0?'Höhe · '+fmtX(STK.mult(h)):'Höhe';
-    if(bump&&!reduced){el.classList.remove('st-bump');void el.offsetWidth;el.classList.add('st-bump')}
+    if(bump&&!reduced&&el.animate)el.animate([{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:220,easing:'ease-out'})
     const c=$('skCombo'),cb=R?R.st.combo:0;if(cb>=2){c.textContent='Combo ×'+cb;c.classList.add('st-on')}else c.classList.remove('st-on')}
-  function showToast(main,sub,loss){const t=$('skToast');$('skToastMain').textContent=main;$('skToastSub').textContent=sub||'';t.classList.toggle('st-loss',!!loss);t.classList.remove('st-show');void t.offsetWidth;t.classList.add('st-show')}
+  function showToast(main,sub,loss){const t=$('skToast');$('skToastMain').textContent=main;$('skToastSub').textContent=sub||'';t.classList.toggle('st-loss',!!loss);if(!t.animate)return;if(toastAnim)toastAnim.cancel();
+    toastAnim=t.animate(reduced?[{opacity:0},{opacity:1,offset:.12},{opacity:1,offset:.75},{opacity:0}]:[{opacity:0,transform:'scale(.6)'},{opacity:1,transform:'scale(1.08)',offset:.15},{transform:'scale(1)',offset:.3},{opacity:1,transform:'scale(1)',offset:.75},{opacity:0,transform:'translateY(-14px)'}],{duration:900,easing:'ease-out',fill:'forwards'})}
   function ui(){const inRound=state==='starting'||state==='play'||state==='paused'||state==='over',bet=R&&inRound?R.bet:readBet('skBet'),h=R&&inRound?R.st.h:0,m=STK.mult(h),nx=STK.nextStep(h);
     lockBet('skBet',inRound);
     const go=$('skGo');
@@ -2522,7 +2532,7 @@ const SK=(()=>{
 
   // ---- Schleife
   function update(dt){let i;if(state==='paused')return;
-    if(state==='play'&&mv){chipAge+=dt*1000;mv.off=STK.off(mv.l,chipAge)}
+    if(state==='play'&&mv){chipAge=performance.now()-spawnAt;mv.off=STK.off(mv.l,chipAge)}
     if(state==='over'){overT+=dt;const k=reduced?1:easeInOut(Math.min(1,overT/.9));camY=lerp(overFrom.cam,overTo.cam,k);zoom=lerp(overFrom.zoom,overTo.zoom,k);anchorFrac=lerp(overFrom.anchor,overTo.anchor,k);
       if(overT>=(reduced?.5:1.15)){setState('result');showResult();ui()}}
     else if(state==='play'||state==='ready'||state==='starting'){camY+=(camTarget-camY)*(1-Math.exp(-dt*(reduced?18:8)));if(Math.abs(camTarget-camY)<.02)camY=camTarget}
@@ -2533,18 +2543,23 @@ const SK=(()=>{
   const animating=()=>state!=='paused'&&(state==='play'||state==='over'||falling.length||ripples.length||shakeT>0||(tower.length&&tower[tower.length-1].anim)||Math.abs(camTarget-camY)>.02);
   let raf=0,lastT=0;
   function ensureLoop(){if(!raf){lastT=0;raf=requestAnimationFrame(frame)}}
-  function frame(t){raf=0;const dt=lastT?Math.min((t-lastT)/1000,.05):1/60;lastT=t;update(dt);render();if(animating())raf=requestAnimationFrame(frame)}
+  function frame(t){raf=0;const dt=lastT?Math.min((t-lastT)/1000,.05):1/60;lastT=t;update(dt);render();
+    if(state==='play'&&mv){shown.push([performance.now(),chipAge]);if(shown.length>20)shown.shift()}
+    if(animating())raf=requestAnimationFrame(frame)}
   function stopLoop(){if(raf){cancelAnimationFrame(raf);raf=0}}
-  function resize(){const rc=root.getBoundingClientRect(),w=Math.round(rc.width),h=Math.round(rc.height);if(w<10||h<10)return;const d=Math.min(devicePixelRatio||1,3);if(w===W&&h===H&&d===dpr)return;
+  function resize(){const rc=root.getBoundingClientRect(),w=Math.round(rc.width),h=Math.round(rc.height);if(w<10||h<10)return;const d=Math.min(devicePixelRatio||1,2);if(w===W&&h===H&&d===dpr)return;
     W=w;H=h;dpr=d;canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);EXTRA=Math.round(H*.8);layer.width=Math.round(W*dpr);layer.height=Math.round((H+EXTRA)*dpr);
     baseS=clamp(Math.min(W/540,H/760),.42,1.3);layerOk=false;if(!raf)render()}
   new ResizeObserver(resize).observe(root);
 
   // ---- Eingaben
-  canvas.addEventListener('pointerdown',e=>{if(e.button>0)return;if(state==='play'){e.preventDefault();ac();drop()}});
+  // Ablegen sofort beim Berühren (pointerdown), nicht erst beim Loslassen – auf dem ganzen Spielfeld
+  root.addEventListener('pointerdown',e=>{if(e.button>0||e.target.closest('button'))return;if(state==='play'){e.preventDefault();ac();drop(e.timeStamp)}});
+  root.addEventListener('touchstart',e=>{if(state==='play'&&!e.target.closest('button'))e.preventDefault()},{passive:false});
   ['touchstart','touchend'].forEach(ev=>canvas.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
   canvas.addEventListener('contextmenu',e=>e.preventDefault());root.addEventListener('dblclick',e=>e.preventDefault());
-  $('skGo').onclick=()=>{ac();if(state==='play')drop();else if(state==='paused')resume();else start();blur()};
+  $('skGo').addEventListener('pointerdown',e=>{if(state!=='play'||e.button>0)return;e.preventDefault();ac();lastPD=performance.now();drop(e.timeStamp)});
+  $('skGo').onclick=e=>{if(performance.now()-lastPD<700)return;ac();if(state==='play')drop(e.timeStamp);else if(state==='paused')resume();else start();blur()};
   $('skStartBtn').onclick=()=>{start();blur()};$('skAgain').onclick=()=>{start();blur()};
   $('skPause').onclick=()=>{pause();blur()};$('skResume').onclick=()=>{resume();blur()};
   $('skBet').addEventListener('input',ui);
@@ -2561,7 +2576,7 @@ const SK=(()=>{
     show(){resize();render();ui();loadJp(true)},
     tick(){if(state==='play'&&cur!=='stapel')pause()},
     key(e){const k=e.key;
-      if(e.code==='Space'||k==='Enter'){e.preventDefault();if(e.repeat)return;if(state==='play')drop();else if(state==='paused')resume();else start();return}
+      if(e.code==='Space'||k==='Enter'){e.preventDefault();if(e.repeat)return;if(state==='play')drop(e.timeStamp);else if(state==='paused')resume();else start();return}
       if(k==='p'||k==='P'||k==='Escape'){if(state==='play')pause();else if(state==='paused')resume()}},
     jp:()=>jp.a}})();
 onShow.stapel=SK.show;
