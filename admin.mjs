@@ -1,6 +1,19 @@
 // Letzte Reihe Casino – Admin-Schnittstelle.
 // Jede Anfrage braucht das Admin-Passwort (ADMIN_KEY in Netlify, sonst das fest eingestellte).
-import { getStore } from "@netlify/blobs";
+import { getStore as rawStore } from "@netlify/blobs";
+function getStore(name) {
+  const ev = rawStore(name);
+  let st = null;
+  try { st = rawStore({ name, consistency: "strong" }); } catch {}
+  if (!st) return ev;
+  // Lesen stark konsistent; falls das in dieser Umgebung nicht geht, normal lesen
+  return {
+    get: async (k, o) => { try { return await st.get(k, o); } catch { return ev.get(k, o); } },
+    list: async (o) => { try { return await st.list(o); } catch { return ev.list(o); } },
+    setJSON: (k, v, o) => ev.setJSON(k, v, o),
+    delete: (k) => ev.delete(k),
+  };
+}
 import { createHash } from "node:crypto";
 
 const CAP = 10_000_000;
@@ -53,6 +66,8 @@ function summary(key, rec) {
     savedAt: num(rec && rec.savedAt),
     banned: !!(rec && rec.banned),
     rev: num(rec && rec.rev),
+    sent: num(rec && rec.sentTotal),
+    recv: num(rec && rec.recvTotal),
   };
 }
 
@@ -134,7 +149,8 @@ export default async (req) => {
     if (typeof s.banned === "boolean") rec.banned = s.banned;
   } else if (action === "reset") {
     const t = Date.now();
-    rec.state = { v: 1, bal: 1000, stars: 0, restarts: 0, owned: { games: {}, items: {} }, spent: 0, created: t, updated: t, set: st.set || {} };
+    rec.state = { v: 1, bal: 1000, stars: 0, restarts: 0, owned: { games: {}, items: {} }, spent: 0, created: t, updated: t, set: st.set || {}, sent: 0, recv: 0, playMs: num(st.playMs), playSeed: 1 };
+    rec.sentTotal = 0; rec.recvTotal = 0;
   } else {
     return json({ error: "unbekannte_aktion" }, 400);
   }

@@ -521,6 +521,11 @@ button,a,input,select,canvas{touch-action:manipulation}
 .lbrow.me{border-color:var(--brass);background:var(--panel2)}
 .lbsep{text-align:center;color:var(--dim);font-size:12px;line-height:1}
 @media (max-width:600px){.lbpanel .ph{flex-wrap:wrap;gap:8px}.lbtabs{min-width:0;width:100%}.lbrow{padding:8px 10px;gap:8px;grid-template-columns:30px minmax(0,1fr) auto}}
+#modal{grid-template-columns:minmax(0,440px);justify-content:center}.mbox{min-width:0}
+.txform{display:flex;flex-direction:column;gap:6px;text-align:left;margin:4px 0 12px;min-width:0}.txform .betrow button{padding:0 10px;flex:none}
+.txform .lbl{margin-top:6px}.txform .lbl span{text-transform:none;letter-spacing:0;font-weight:600}
+.txform .inp{width:100%}
+.lbrow[data-send]{cursor:pointer}.lbrow[data-send]:hover{border-color:var(--line2)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 
@@ -663,7 +668,7 @@ button,a,input,select,canvas{touch-action:manipulation}
     </div>
     <div class="stage"><canvas id="chCv" aria-label="Straße"></canvas><div class="banner" id="chBanner" hidden></div></div>
   </div>
-  <details class="odds"><summary>Quoten und Hausvorteil</summary><p>Jede Spur überlebt das Huhn mit fester Wahrscheinlichkeit p. Der Multiplikator nach n Spuren ist 0,95 ÷ pⁿ. Damit liegt die Auszahlungsquote bei jeder Strategie bei 95 %, wie bei vielen echten Spielautomaten.</p><div class="tablewrap"><table id="chOdds"></table></div></details>
+  <details class="odds"><summary>Quoten und Hausvorteil</summary><p>Jede Spur überlebt das Huhn mit fester Wahrscheinlichkeit p. Der Multiplikator nach n Spuren ist 0,97 ÷ pⁿ. Damit liegt die Auszahlungsquote bei jeder Strategie bei 97 %, wie bei vielen echten Spielautomaten.</p><div class="tablewrap"><table id="chOdds"></table></div></details>
 </section>
 
 <!-- ======================= PLINKO ======================= -->
@@ -687,7 +692,7 @@ button,a,input,select,canvas{touch-action:manipulation}
     </div>
     <div class="stage" id="plWrap"><canvas id="plCv" aria-label="Plinko-Brett"></canvas><div class="plhist" id="plHist"></div><div class="pltip" id="plTip" hidden></div></div>
   </div>
-  <details class="odds"><summary>Die Mathe dahinter</summary><p>Jeder Ball fällt an jeder Reihe mit 50 % nach links oder rechts. Die Fächer folgen deshalb der Binomialverteilung: In der Mitte landet fast alles, am Rand fast nie. Die Multiplikator-Tabellen geben bei jeder Einstellung etwa 95 % zurück.</p></details>
+  <details class="odds"><summary>Die Mathe dahinter</summary><p>Jeder Ball fällt an jeder Reihe mit 50 % nach links oder rechts. Die Fächer folgen deshalb der Binomialverteilung: In der Mitte landet fast alles, am Rand fast nie. Die Multiplikator-Tabellen geben bei jeder Einstellung etwa 97 % zurück.</p></details>
 </section>
 
 <!-- ======================= TOWER ======================= -->
@@ -704,7 +709,7 @@ button,a,input,select,canvas{touch-action:manipulation}
     </div>
     <div class="stage" style="padding:22px 16px"><div class="twboard" id="twBoard"></div><div class="banner" id="twBanner" hidden></div></div>
   </div>
-  <details class="odds"><summary>Quoten und Hausvorteil</summary><p>Multiplikator = 0,95 ÷ Überlebenschance. Die Auszahlungsquote liegt bei 95 %, egal wann du auszahlst.</p><div class="tablewrap"><table id="twOdds"></table></div></details>
+  <details class="odds"><summary>Quoten und Hausvorteil</summary><p>Multiplikator = 0,97 ÷ Überlebenschance. Die Auszahlungsquote liegt bei 97 %, egal wann du auszahlst.</p><div class="tablewrap"><table id="twOdds"></table></div></details>
 </section>
 
 <!-- ======================= MINES ======================= -->
@@ -731,13 +736,13 @@ button,a,input,select,canvas{touch-action:manipulation}
   </div>
   <div class="grid2">
     <div class="panel">
-      <div class="ph"><h2>Double or Nothing</h2><span class="chip">49 : 51</span></div>
+      <div class="ph"><h2>Double or Nothing</h2><span class="chip">49,5 : 50,5</span></div>
       <p class="note" id="donText">Nach einem Mines-Gewinn kannst du ihn per Münzwurf verdoppeln oder alles verlieren.</p>
       <div class="coinflip" id="donCoin">?</div>
       <div class="pick"><button class="btn" id="donK" aria-pressed="true">Krone</button><button class="btn" id="donZ" aria-pressed="false">Zahl</button></div>
       <button class="btn gold" id="donBtn" disabled>Münze werfen</button>
     </div>
-    <details class="odds" open><summary>Quoten</summary><p>Bei m Minen ist die Chance, k Diamanten in Folge zu finden, das Produkt (25−m−i)/(25−i). Gespielt wird mit mindestens 3 Minen. Der Multiplikator ist 0,95 geteilt durch diese Chance. Die Münze landet nur zu 49 % auf deiner Seite, der Wurf gibt also im Schnitt 98 % zurück. Er geht höchstens dreimal in Folge und nur bis zum Tischlimit.</p></details>
+    <details class="odds" open><summary>Quoten</summary><p>Bei m Minen ist die Chance, k Diamanten in Folge zu finden, das Produkt (25−m−i)/(25−i). Gespielt wird mit mindestens 3 Minen. Der Multiplikator ist 0,97 geteilt durch diese Chance. Die Münze landet zu 49,5 % auf deiner Seite, der Wurf gibt also im Schnitt 99 % zurück. Er geht höchstens dreimal in Folge und nur bis zum Tischlimit.</p></details>
   </div>
 </section>
 
@@ -764,7 +769,7 @@ button,a,input,select,canvas{touch-action:manipulation}
     </div>
     <div class="stage pkstage"><div class="pktable" id="pkTable"></div><div class="banner" id="pkBanner" hidden></div></div>
   </div>
-  <details class="odds"><summary>Regeln und Quoten</summary><p>Texas Hold'em als Turnier: Du zahlst das Buy-in in Coins, alle starten mit 1.000 Chips. Die Blinds beginnen bei 10/20 und verdoppeln sich alle 8 Hände. Wer alle Chips gewinnt, gewinnt das Turnier. Gewinnst du, bekommst du Buy-in × Faktor. Scheidest du aus oder gibst auf, ist das Buy-in weg. Die Faktoren sind per Simulation so eingestellt, dass auch sehr gute Spieler im Schnitt höchstens etwa 95 % zurückbekommen. Wenn du die Seite neu lädst, geht das Turnier einfach weiter.</p><div class="tablewrap"><table id="pkOdds"></table></div></details>
+  <details class="odds"><summary>Regeln und Quoten</summary><p>Texas Hold'em als Turnier: Du zahlst das Buy-in in Coins, alle starten mit 1.000 Chips. Die Blinds beginnen bei 10/20 und verdoppeln sich alle 8 Hände. Wer alle Chips gewinnt, gewinnt das Turnier. Gewinnst du, bekommst du Buy-in × Faktor. Scheidest du aus oder gibst auf, ist das Buy-in weg. Die Faktoren sind per Simulation so eingestellt, dass auch sehr gute Spieler im Schnitt höchstens etwa 97 % zurückbekommen. Wenn du die Seite neu lädst, geht das Turnier einfach weiter.</p><div class="tablewrap"><table id="pkOdds"></table></div></details>
 </section>
 
     </main>
@@ -818,12 +823,12 @@ const C={line:'#22364a',line2:'#2f4960',mute:'#8ba2b7',dim:'#5d7387',ink:'#e9f0f
 // ================= Spiele-Register =================
 // Neues Spiel: Eintrag hier + Baustein unten (HTML-Section + Modul). Lobby, Seitenleiste, Freischalten und Statistik übernehmen es automatisch.
 const GAMES={
-  chicken:{name:'Chicken Crossing',short:'Chicken',hex:'#c98500',rtp:'95 %',price:0,added:'2026-09-01'},
-  mines:{name:'Mines Royale',short:'Mines',hex:'#3987e5',rtp:'95 %',price:1500,added:'2026-09-01'},
-  tower:{name:'Neon Tower',short:'Tower',hex:'#199e70',rtp:'95 %',price:3000,added:'2026-09-01'},
-  plinko:{name:'Plinko Drop',short:'Plinko',hex:'#d55181',rtp:'95 %',price:6000,added:'2026-09-01'},
-  poker:{name:"Hold'em Turnier",short:'Poker',hex:'#2f9e8f',rtp:'bis 95 %',price:10000,added:'2026-10-03'},
-  double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'98 %',price:0,hidden:true}
+  chicken:{name:'Chicken Crossing',short:'Chicken',hex:'#c98500',rtp:'97 %',price:0,added:'2026-09-01'},
+  mines:{name:'Mines Royale',short:'Mines',hex:'#3987e5',rtp:'97 %',price:1500,added:'2026-09-01'},
+  tower:{name:'Neon Tower',short:'Tower',hex:'#199e70',rtp:'97 %',price:3000,added:'2026-09-01'},
+  plinko:{name:'Plinko Drop',short:'Plinko',hex:'#d55181',rtp:'97 %',price:6000,added:'2026-09-01'},
+  poker:{name:"Hold'em Turnier",short:'Poker',hex:'#2f9e8f',rtp:'bis 97 %',price:10000,added:'2026-10-03'},
+  double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'99 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
 const GK=Object.keys(GAMES);
@@ -838,17 +843,17 @@ const KEY='letztereihe_v1';
 const emptyG=()=>({n:0,w:0,p:0,wins:0,best:0,big:0,e:0});
 function fresh(){const g={};GK.forEach(k=>g[k]=emptyG());const t=Date.now();
   return {v:1,bal:1000,stars:0,restarts:0,owned:{games:{},items:{}},spent:0,created:t,updated:t,games:g,log:[],hist:[[t,1000,'s']],bonus:{},bonusN:{},
-    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1}}
+    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1,sent:0,recv:0}}
 let S=fresh();
-function adopt(o){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object.assign(f,o);if(!o.playSeed)S.playSeed=0;
+function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object.assign(f,o);if(!o.playSeed)S.playSeed=0;
   S.games=Object.assign(f.games,o.games||{});GK.forEach(k=>S.games[k]=Object.assign(emptyG(),S.games[k]||{}));
   S.owned=Object.assign({games:{},items:{}},o.owned||{});S.owned.games=S.owned.games||{};S.owned.items=S.owned.items||{};
   S.set=Object.assign(fresh().set,o.set||{});S.streak=Object.assign(fresh().streak,o.streak||{});
-  ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];migrate()}
+  ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];migrate(live)}
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0;if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):(S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0);if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -857,12 +862,14 @@ const tableLimit=()=>Math.max(1,Math.floor(S.bal*25)/100);
 function payCap(bet,win){return Math.min(win,r2(bet+MAXWIN))}
 function unlock(){} // Platzhalter (Erfolge gibt es nicht mehr)
 
-try{const raw=localStorage.getItem(KEY);if(raw)adopt(JSON.parse(raw))}catch(e){}
+let hadLocal=false;try{const raw=localStorage.getItem(KEY);if(raw){adopt(JSON.parse(raw));hadLocal=true}}catch(e){}
 try{if(!localStorage.getItem(KEY)){const o=JSON.parse(localStorage.getItem('nachtfalter_v1')||'null');if(o&&typeof o.bal==='number'&&o.bal>0){S.bal=Math.min(CAP,Math.round(o.bal*100)/100);S.hist=[[Date.now(),S.bal,'s']]}}}catch(e){}
 
 // ---- Konto-Speicherung (privat pro Person)
 let cloud=null,cloudT=0,cloudBusy=false,cloudDirty=false;
-function save(){S.updated=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}srvSchedule();if(cloud){cloudDirty=true;clearTimeout(cloudT);cloudT=setTimeout(flushCloud,2500)}}
+let lsT=0;function writeLocal(){clearTimeout(lsT);lsT=0;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+addEventListener('pagehide',writeLocal);document.addEventListener('visibilitychange',()=>{if(document.hidden)writeLocal()});
+function save(){S.updated=Date.now();if(!lsT)lsT=setTimeout(writeLocal,500);srvSchedule();if(cloud){cloudDirty=true;clearTimeout(cloudT);cloudT=setTimeout(flushCloud,2500)}}
 async function flushCloud(){if(!cloud||cloudBusy||!cloudDirty)return;cloudBusy=true;cloudDirty=false;
   try{await cloud.set({state:JSON.stringify(S),updated:S.updated})}catch(e){const c=e&&e.code;if(c==='unavailable'){cloudDirty=true}else if(c!=='resource_exhausted'){cloud=null}}
   cloudBusy=false;if(cloudDirty){clearTimeout(cloudT);cloudT=setTimeout(flushCloud,4000)}}
@@ -877,21 +884,35 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&cloud&&clo
 const ACCOUNTS=true;
 const API='/api/spielstand';
 let acct=null,rev=0;try{acct=localStorage.getItem('lr_user');rev=+(localStorage.getItem('lr_rev')||0)}catch(e){}
-let srvT=0,srvBusy=false,srvDirty=false,srvFails=0;
+const localAcct=acct;
+let srvT=0,srvBusy=false,srvDirty=false,srvFails=0,gone=0;
+// Gibt es den Account wirklich nicht mehr? Bei Verbindungsproblemen im Zweifel "ja, gibt es".
+async function stillExists(){try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return true;const d=await r.json();return d.exists!==false}catch(e){return true}}
+// Überweisungen: Korrektur vom Server übernehmen und Eingänge anzeigen
+const giftSeen=new Set();
+function showGifts(g){(g||[]).forEach(x=>{if(!x||giftSeen.has(x.id))return;giftSeen.add(x.id);toast(`💸 <b>${esc(x.f)}</b> hat dir <b class="num">${fmt(x.a)}</b> Coins geschickt!`,'good');SND.coin()})}
+function applyTx(d){if(!d)return;if(typeof d.sent==='number')S.sent=d.sent;if(typeof d.recv==='number')S.recv=d.recv;
+  if(d.adj){S.bal=Math.min(CAP,Math.max(0,r2(S.bal+d.adj)));S.hist.push([Date.now(),S.bal,d.adj>0?'b':'k']);if(S.hist.length>600)S.hist.splice(0,S.hist.length-600);if(d.adj>0)flyText(d.adj);renderWallet();softRefresh()}
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}showGifts(d.gifts)}
 const NAME_RE=/^[a-z0-9äöüß._ -]{3,20}$/;
 const normName=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
 const apiUrl=()=>API+'?name='+encodeURIComponent(acct);
 function setRev(r){rev=r||0;try{localStorage.setItem('lr_rev',String(rev))}catch(e){}}
 function setSync(st){const d=$('syncDot');if(d)d.className='sync '+(st==='ok'?'ok':st==='busy'?'':'bad');const c=$('acctChip');if(c)c.title=st==='ok'?'Gespeichert':st==='busy'?'Speichert …':'Nicht gespeichert, Verbindung fehlt'}
-function applyServer(state,r,msg){if(!state)return;adopt(state);setRev(r);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge();if(msg)toast(msg,'bad')}
+function applyServer(state,r,msg,live=true){if(!state)return;adopt(state,live);setRev(r);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}shown=S.bal;refreshAll();renderBadge();if(msg)toast(msg,'bad')}
 function srvSchedule(){if(!ACCOUNTS||!acct)return;srvDirty=true;setSync('busy');if(srvT)return;srvT=setTimeout(()=>{srvT=0;srvFlush()},1500)}
-async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;
-  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev}),keepalive:!!keep&&JSON.stringify(S).length<60000});
+// Beim Schließen der Seite: höchstens ~60 KB (Grenze für keepalive), notfalls Verlauf kürzen
+function bodyKeep(){let b=JSON.stringify({state:S,rev});if(b.length<60000)return b;const c=Object.assign({},S,{log:S.log.slice(-120),hist:S.hist.slice(-120)});return JSON.stringify({state:c,rev})}
+// Sofort speichern und warten (vor Stern/Zurücksetzen, damit der Server den Stand davor kennt)
+async function flushNow(){if(!ACCOUNTS||!acct)return;for(let i=0;i<50&&srvBusy;i++)await new Promise(z=>setTimeout(z,100));if(srvDirty){clearTimeout(srvT);srvT=0;await srvFlush()}}
+async function srvFlush(keep){if(!ACCOUNTS||!acct||srvBusy||!srvDirty)return;srvBusy=true;srvDirty=false;const me=acct;
+  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:keep?bodyKeep():JSON.stringify({state:S,rev}),keepalive:!!keep});
     const d=await r.json().catch(()=>({}));
-    if(r.ok){setRev(d.rev);srvFails=0;setSync(srvDirty?'busy':'ok')}
+    if(acct!==me){srvBusy=false;return} // inzwischen abgemeldet
+    if(r.ok){setRev(d.rev);srvFails=0;gone=0;applyTx(d);setSync(srvDirty?'busy':'ok')}
     else if(r.status===409&&d.state){srvDirty=false;applyServer(d.state,d.rev,'Ein Admin hat deinen Spielstand geändert.');setSync('ok')}
     else if(r.status===422&&d.state){srvDirty=false;applyServer(d.state,d.rev);setSync('ok')}
-    else if(r.status===404){srvBusy=false;logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
+    else if(r.status===404){srvDirty=true;if(!(await stillExists())&&++gone>=2){srvBusy=false;logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}throw new Error(404)}
     else if(r.status===403){srvBusy=false;logout('Dieser Account wurde gesperrt.');return}
     else throw new Error(r.status)}
   catch(e){srvDirty=true;srvFails++;setSync('bad')}
@@ -904,7 +925,12 @@ async function srvPull(){if(!ACCOUNTS||!acct||srvBusy||srvDirty||Date.now()-last
   const before=rev;
   try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return;const d=await r.json();if(d.banned){logout('Dieser Account wurde gesperrt.');return}
     // nur übernehmen, wenn in der Zwischenzeit hier nichts gespeichert/gespielt wurde und der Server wirklich neuer ist
-    if(d.exists&&d.rev>rev&&rev===before&&!srvDirty&&!srvBusy)applyServer(d.state,d.rev)}catch(e){}}
+    const newGift=(d.gifts||[]).some(x=>!giftSeen.has(x.id));
+    if(!d.exists||rev!==before||srvDirty||srvBusy)return;
+    if(d.rev>rev){applyServer(d.state,d.rev);showGifts(d.gifts)}
+    else if(newGift){srvDirty=true;srvFlush()} // Eingang über normales Speichern abholen (Server rechnet ihn sauber ein)
+  }catch(e){}}
+setInterval(()=>{if(!document.hidden)srvPull()},30000);
 // Nachricht an alle (vom Admin)
 async function loadNews(){if(!ACCOUNTS)return;try{const r=await fetch(API+'?msg=1',{cache:'no-store'});if(!r.ok)return;const d=await r.json();const m=d.message;let seen='';try{seen=localStorage.getItem('lr_msg_seen')||''}catch(e){}
   const bar=$('newsBar');if(m&&m.text&&String(m.id)!==seen){$('newsText').textContent=m.text;bar.hidden=false;bar.dataset.id=m.id}else bar.hidden=true}catch(e){}}
@@ -929,7 +955,7 @@ async function doLogin(create){const name=normName($('lgName').value);
     else{const r=await fetch(API+'?name='+encodeURIComponent(name),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
       if(!d.exists){lgMsg('Diesen Account gibt es noch nicht. Klicke auf „Account erstellen“.',true);lgBusy(false);return}
       if(d.banned){lgMsg('Dieser Account ist gesperrt.',true);lgBusy(false);return}
-      acct=name;adopt(d.state);setRev(d.rev)}
+      acct=name;adopt(d.state);setRev(d.rev);setTimeout(()=>showGifts(d.gifts),600)}
     try{localStorage.setItem('lr_user',name);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
     $('login').hidden=true;lgBusy(false);showAcct();setSync('ok');shown=S.bal;refreshAll();renderBadge();
     toast(create?`Account <b>${name}</b> erstellt. Du startest mit 1.000 Coins. Viel Glück!`:`Willkommen zurück, <b>${name}</b>!`,'good')
@@ -943,12 +969,58 @@ async function acctBoot(){if(!ACCOUNTS)return;showAcct();showAdminLink();loadNew
   if(!acct){$('login').hidden=false;setTimeout(()=>$('lgName').focus(),50);return}
   setSync('busy');
   try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)throw 0;const d=await r.json();
-    if(!d.exists){logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}
+    if(!d.exists){await new Promise(z=>setTimeout(z,2000));if(!(await stillExists())){logout('Dein Account wurde nicht gefunden. Bitte melde dich neu an.');return}setSync('bad');return acctBoot()}
     if(d.banned){logout('Dieser Account wurde gesperrt.');return}
-    applyServer(d.state,d.rev);
+    // Lokaler Stand neuer als der Server (z. B. App geschlossen, bevor gespeichert war)? Dann den lokalen hochladen.
+    const srvR=d.state?Object.values(d.state.games||{}).reduce((t,g)=>t+((g&&g.n)||0),0):0;
+    if(hadLocal&&localAcct===acct&&(S.updated||0)>((d.state&&d.state.updated)||0)+500&&myRounds()>=srvR&&(S.stars||0)>=((d.state&&d.state.stars)||0)){setRev(d.rev);srvDirty=true;srvFlush()}
+    else{applyServer(d.state,d.rev,'',false);showGifts(d.gifts)}
     setSync('ok');lastPull=Date.now()}catch(e){setSync('bad')}}
-async function logout(msg){clearTimeout(srvT);srvT=0;if(srvDirty&&!msg)await srvFlush();acct=null;srvDirty=false;try{localStorage.removeItem('lr_user');localStorage.removeItem('lr_rev');localStorage.removeItem(KEY)}catch(e){}
+async function logout(msg){clearTimeout(srvT);srvT=0;if(!msg)await flushNow();acct=null;srvDirty=false;try{localStorage.removeItem('lr_user');localStorage.removeItem('lr_rev');localStorage.removeItem(KEY)}catch(e){}
   const snd=S.set.sound;S=fresh();S.set.sound=snd;rev=0;shown=S.bal;refreshAll();showAcct();$('lgName').value='';lgMsg(msg||'',!!msg);$('login').hidden=false}
+
+// ================= Coins senden =================
+const TX_ERR={empfaenger_unbekannt:'Diesen Spieler gibt es nicht.',selbst:'Du kannst dir nicht selbst Coins schicken.',zu_wenig:'Mindestens 10 Coins.',zu_neu:'Überweisen geht erst, wenn du 20 Runden gespielt hast.',zu_oft:'Höchstens 20 Überweisungen pro Stunde.',empfaenger_gesperrt:'Dieser Spieler ist gesperrt.',empfaenger_voll:'Der Empfänger hätte dann über 10 Mio.',zu_wenig_guthaben:'So viel Guthaben hast du nicht.',ungueltiger_name:'Diesen Spieler gibt es nicht.'};
+const myRounds=()=>Object.values(S.games).reduce((t,g)=>t+(g.n||0),0);
+let txBusy=false;
+async function sendCoins(to,amt){
+  for(let i=0;i<50&&srvBusy;i++)await new Promise(z=>setTimeout(z,100));
+  if(srvBusy)return{err:'Gerade wird gespeichert. Versuch es gleich nochmal.'};
+  clearTimeout(srvT);srvT=0;srvBusy=true;const wasDirty=srvDirty;srvDirty=false;
+  S.bal=r2(S.bal-amt);S.sent=r2((S.sent||0)+amt);let res;
+  try{const r=await fetch(apiUrl(),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({state:S,rev,transfer:{to,amount:amt}})});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok&&d.txFailed){setRev(d.rev);gone=0;applyTx(d);res={err:'Die Überweisung hat nicht geklappt. Es wurde nichts abgebucht.'}}
+    else if(r.ok){setRev(d.rev);gone=0;S.hist.push([Date.now(),S.bal,'k']);if(S.hist.length>600)S.hist.splice(0,S.hist.length-600);applyTx(d);flyText(-amt);SND.coin();res={ok:true}}
+    else{S.bal=r2(S.bal+amt);S.sent=r2(S.sent-amt);srvDirty=srvDirty||wasDirty;
+      if((r.status===409||r.status===422)&&d.state){applyServer(d.state,d.rev);srvDirty=false}
+      res={err:TX_ERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.'}}}
+  catch(e){S.bal=r2(S.bal+amt);S.sent=r2(S.sent-amt);srvDirty=true;res={err:'Keine Verbindung. Falls die Überweisung doch durchging, wird sie beim nächsten Speichern verrechnet.'}}
+  srvBusy=false;renderWallet();softRefresh();if(srvDirty)srvSchedule();return res}
+function openSend(to){if(!ACCOUNTS||!acct){toast('Coins senden geht nur mit Account.','bad');return}
+  const names=(lbData||[]).map(p=>p.n).filter(n=>n!==acct).sort();
+  modal(`<h2>Coins senden</h2><p>Schick einem anderen Spieler Coins aus deinem Guthaben. Sie kommen an, sobald er online ist.</p>
+  <div class="txform"><label class="lbl" for="txTo">Empfänger</label><input class="inp" id="txTo" list="txList" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Login-Name" value="${esc(to||'')}"><datalist id="txList">${names.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+  <label class="lbl" for="txAmt">Betrag <span>du hast ${fmt(S.bal)}</span></label><div class="betrow"><input id="txAmt" type="number" min="10" step="10" inputmode="decimal" placeholder="mind. 10"><button type="button" data-txq=".1">10 %</button><button type="button" data-txq=".25">25 %</button><button type="button" data-txq=".5">50 %</button></div>
+  <p class="note" id="txMsg">${myRounds()<20?'Überweisen geht erst ab 20 gespielten Runden.':'Überweisungen lassen sich nicht zurückholen.'}</p></div>
+  <div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" id="txGo">Senden</button></div>`);
+  setTimeout(()=>{const f=$(to?'txAmt':'txTo');if(f)f.focus()},60)}
+$('modal').addEventListener('click',async e=>{
+  const q=e.target.closest('[data-txq]');if(q){$('txAmt').value=Math.max(10,Math.floor(S.bal*+q.dataset.txq));$('txGo').dataset.sure='';$('txGo').textContent='Senden';return}
+  if(e.target.id!=='txGo'||txBusy)return;const go=e.target,msg=$('txMsg');
+  const to=normName($('txTo').value),amt=r2(parseFloat(String($('txAmt').value).replace(',','.'))||0);
+  const bad=t=>{msg.textContent=t;msg.style.color='var(--loss)';go.dataset.sure='';go.textContent='Senden'};
+  if(!NAME_RE.test(to))return bad('Gib den Login-Namen des Empfängers ein.');
+  if(to===acct)return bad(TX_ERR.selbst);
+  if(!(amt>=10))return bad(TX_ERR.zu_wenig);
+  if(amt>S.bal+1e-9)return bad(TX_ERR.zu_wenig_guthaben);
+  if(myRounds()<20)return bad(TX_ERR.zu_neu);
+  if(go.dataset.sure!=='1'){go.dataset.sure='1';go.textContent=`${fmt(amt)} an ${to} senden?`;msg.style.color='';msg.textContent='Zum Bestätigen nochmal tippen.';return}
+  txBusy=true;go.disabled=true;go.textContent='Sendet …';
+  const res=await sendCoins(to,amt);txBusy=false;
+  if(res.ok){closeModal();toast(`<b class="num">${fmt(amt)}</b> Coins an <b>${esc(to)}</b> gesendet.`,'good');lbAt=0}
+  else{go.disabled=false;bad(res.err)}});
+$('modal').addEventListener('input',e=>{if(e.target.id==='txTo'||e.target.id==='txAmt'){const g=$('txGo');if(g&&g.dataset.sure){g.dataset.sure='';g.textContent='Senden'}}});
 
 // ================= audio =================
 let AC=null;
@@ -1007,7 +1079,7 @@ function take(game,amount){if(!(amount>0)){toast('Gib einen Einsatz größer als
   S.bal=r2(S.bal-amount);S.inPlay=r2((S.inPlay||0)+amount);session.lastAct=Date.now();renderWallet(true);save();return true}
 function capBal(){if(S.bal>CAP){const lost=r2(S.bal-CAP);S.bal=CAP;toast(`10 Mio. erreicht. <b class="num">${fmt(lost)}</b> Coins verfallen. Hol dir jetzt deinen Stern!`,'good')}}
 function settle(game,bet,payout,mult,rtp){
-  payout=r2(payCap(bet,payout));S.inPlay=Math.max(0,r2((S.inPlay||0)-bet));S.bal=r2(S.bal+payout);capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
+  payout=r2(payCap(bet,payout));const ip=S.inPlay||0,miss=Math.max(0,r2(bet-ip));S.inPlay=Math.max(0,r2(ip-bet));S.bal=Math.max(0,r2(S.bal+payout-miss));capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
   g.n++;g.w=r2(g.w+bet);g.p=r2(g.p+payout);if(payout>bet)g.wins++;if(mult>g.best)g.best=mult;if(net>g.big)g.big=net;g.e=r2(g.e+bet*(1-rtp));
   S.log.push([t,game,bet,payout,Math.round(mult*100)/100,r2(bet*(1-rtp))]);if(S.log.length>600)S.log.splice(0,S.log.length-600);
   S.hist.push([t,S.bal,'g']);if(S.hist.length>600)S.hist.splice(0,S.hist.length-600);
@@ -1025,7 +1097,8 @@ const mmss=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%
 function renderRestart(){const b=$('restartBtn');b.hidden=!(S.bal<1);if(b.hidden)return;const l=cdLeft();b.disabled=l>0;b.textContent=l>0?'Neustart in '+mmss(l):'Neustart';b.title=l>0?'Neustart ist nur alle 60 Minuten möglich':''}
 setInterval(()=>{if(S.bal<1)renderRestart()},1000);
 $('restartBtn').onclick=()=>{if(S.bal>=1)return;if(cdLeft()>0){toast(`Neustart erst wieder in <b class="num">${mmss(cdLeft())}</b> Minuten.`,'bad');return}S.lastRestart=Date.now();S.restarts++;credit('restart',RESTART,'Neustart: <b class="num">+1.000</b> Coins. Der nächste geht erst in 60 Minuten.')};
-$('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Guthaben von 10 Mio. wird gegen einen Stern getauscht. Du startest wieder mit 1.000 Coins. Freigeschaltete Spiele und deine Vitrine bleiben.','Stern holen',()=>{
+$('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Guthaben von 10 Mio. wird gegen einen Stern getauscht. Du startest wieder mit 1.000 Coins. Freigeschaltete Spiele und deine Vitrine bleiben.','Stern holen',async()=>{
+  await flushNow();if(S.bal<CAP){toast('Dein Guthaben liegt nicht mehr bei 10 Mio.','bad');return}
   S.stars++;S.bal=RESTART;S.hist.push([Date.now(),S.bal,'s']);save();shown=S.bal;renderWallet();softRefresh();confetti(260);SND.win();
   modal(`<p class="eyebrow">Geschafft</p><h2>Stern Nr. ${S.stars}</h2><p>Zurück auf 1.000 Coins. Auf ein Neues!</p><div class="row"><button class="btn gold" data-close>Weiter</button></div>`)})};
 
@@ -1045,7 +1118,7 @@ document.addEventListener('click',e=>{const u=e.target.closest('[data-unlock]');
     if(b.dataset.bet==='half')v=Math.max(.1,r2(v/2));else if(b.dataset.bet==='dbl')v=Math.max(.1,Math.min(max,r2(v*2)));else v=Math.max(.1,max);
     inp.value=v;inp.dispatchEvent(new Event('input',{bubbles:true}))}});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h&&h!==cur&&VIEWS.includes(h))go(h)});
-let refreshT=0;function softRefresh(){clearTimeout(refreshT);refreshT=setTimeout(()=>{renderSide();if(cur==='lobby'||cur==='stats'||cur==='vitrine')onShow[cur]();if(cur==='bonus')renderBonus()},250)}
+let refreshT=0;function softRefresh(){clearTimeout(refreshT);refreshT=setTimeout(()=>{renderSide();if(cur==='lobby'||cur==='stats'||cur==='vitrine')onShow[cur]();if(cur==='bonus')renderBonus()},cur==='stats'?1200:250)}
 function refreshAll(){shown=S.bal;renderWallet();renderSide();onShow[cur]&&onShow[cur]()}
 
 // ================= Freischalten =================
@@ -1181,16 +1254,17 @@ setInterval(()=>{renderBadge();if(cur==='bonus'&&!wSpin){const ae=document.activ
 // ================= Einstellungen =================
 $('setBtn').onclick=()=>{modal(`<h2>Einstellungen</h2>
   ${ACCOUNTS&&(()=>{try{return localStorage.getItem('lr_admin')}catch(e){return null}})()?`<div class="setrow"><div><p>Admin</p><small>Accounts verwalten, Nachricht an alle</small></div><a class="btn" href="/admin" style="text-decoration:none">Admin-Ansicht</a></div>`:''}
-  ${ACCOUNTS&&acct?`<div class="setrow"><div><p>Account: ${acct}</p><small>Dein Spielstand wird auf dem Server gespeichert</small></div><button class="btn" id="sLogout">Abmelden</button></div>`:''}
+  ${ACCOUNTS&&acct?`<div class="setrow"><div><p>Account: ${acct}</p><small>Dein Spielstand wird auf dem Server gespeichert</small></div><button class="btn" id="sLogout">Abmelden</button></div><div class="setrow"><div><p>Coins senden</p><small>Einem anderen Spieler etwas von deinem Guthaben schicken</small></div><button class="btn" id="sSend">Senden</button></div>`:''}
   <div class="setrow"><div><p>Sound</p><small>Klicks, Gewinne, Münzen</small></div><button class="btn" id="sSound">${S.set.sound?'An':'Aus'}</button></div>
   <div class="setrow"><div><p>Pausen-Erinnerung</p><small>Zeigt, wie lange du schon spielst</small></div><div class="seg" id="sReal">${[0,15,30,60].map(v=>`<button data-v="${v}" aria-pressed="${S.set.reality===v}">${v?v+' Min':'Aus'}</button>`).join('')}</div></div>
   <div class="setrow"><div><p>Alles zurücksetzen</p><small>Guthaben, Sterne, Vitrine, Statistik. Zählt als Neustart (nur alle 60 Min.)</small></div><button class="btn" id="sReset" style="color:var(--loss)">Zurücksetzen</button></div>
   <div class="row" style="margin-top:6px"><button class="btn gold" data-close>Fertig</button></div>`)};
 $('modal').addEventListener('click',e=>{
   if(e.target.id==='sLogout'){closeModal();logout();return}
+  if(e.target.id==='sSend'){openSend('');return}
   if(e.target.id==='sSound'){S.set.sound=!S.set.sound;save();e.target.textContent=S.set.sound?'An':'Aus'}
   const r=e.target.closest('#sReal button');if(r){S.set.reality=+r.dataset.v;session.lastCheck=Date.now();save();document.querySelectorAll('#sReal button').forEach(b=>b.setAttribute('aria-pressed',b===r))}
-  if(e.target.id==='sReset'){if(cdLeft()>0){closeModal();toast(`Zurücksetzen geht erst in <b class="num">${mmss(cdLeft())}</b> Minuten wieder (gleiche Sperre wie beim Neustart).`,'bad');return}modal(`<h2>Wirklich alles löschen?</h2><p>Guthaben, Sterne, freigeschaltete Spiele, Vitrine und Statistik gehen auf Anfang. Das lässt sich nicht rückgängig machen.</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn stop" data-ok>Alles zurücksetzen</button></div>`,()=>{const snd=S.set.sound;S=fresh();S.set.sound=snd;S.lastRestart=Date.now();save();session={start:Date.now(),net:0,rounds:0,lastAct:Date.now(),lastCheck:Date.now()};simDone=false;refreshAll();toast('Alles zurückgesetzt. Viel Glück!','good')})}});
+  if(e.target.id==='sReset'){if(cdLeft()>0){closeModal();toast(`Zurücksetzen geht erst in <b class="num">${mmss(cdLeft())}</b> Minuten wieder (gleiche Sperre wie beim Neustart).`,'bad');return}modal(`<h2>Wirklich alles löschen?</h2><p>Guthaben, Sterne, freigeschaltete Spiele, Vitrine und Statistik gehen auf Anfang. Das lässt sich nicht rückgängig machen.</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn stop" data-ok>Alles zurücksetzen</button></div>`,async()=>{await flushNow();const snd=S.set.sound,pm=S.playMs||0;S=fresh();S.set.sound=snd;S.playMs=pm;S.lastRestart=S.resetAt=Date.now();save();session={start:Date.now(),net:0,rounds:0,lastAct:Date.now(),lastCheck:Date.now()};simDone=false;refreshAll();toast('Alles zurückgesetzt. Viel Glück!','good')})}});
 setInterval(()=>{const r=S.set.reality;if(!r)return;const now=Date.now();if(now-session.lastAct>180000){session.lastCheck=now;return}
   if(now-session.lastCheck>=r*60000&&$('modal').hidden){session.lastCheck=now;const min=Math.round((now-session.start)/60000);
     modal(`<p class="eyebrow">Kurze Pause?</p><h2>${min} Minuten gespielt</h2><p>In dieser Sitzung: <b style="color:var(--ink)">${fmt0(session.rounds)} Runden</b>, Bilanz <b class="${cls(session.net)}">${sgn(session.net)}</b> Coins.</p><div class="row"><button class="btn gold" data-close>Weiterspielen</button><button class="btn" data-go="stats">Statistik ansehen</button></div>`)}},20000);
@@ -1240,10 +1314,11 @@ function renderBoard(){const L=$('lbList');if(!L)return;document.querySelectorAl
   if(!lbData){L.innerHTML='<p class="note">'+(lbBusy?'Lädt …':'Leaderboard gerade nicht erreichbar.')+'</p>';return}
   const me=acct||'';const list=lbData.map(p=>p.n===me?Object.assign({},p,{b:S.bal,t:Math.max(p.t,S.playMs||0),s:S.stars}):p);
   const key=lbTab==='bal'?(p=>p.b):(p=>p.t);list.sort((a,b)=>key(b)-key(a)||a.n.localeCompare(b.n));
-  const row=(p,i)=>`<div class="lbrow ${i<3?'top'+(i+1):''} ${p.n===me?'me':''}"><span class="rk">${i+1}</span><span class="nm">${esc(p.n)}${p.s?`<small>★${p.s}</small>`:''}</span><span class="vl">${lbTab==='bal'?fmt(p.b):fmtDur(p.t)}</span></div>`;
+  const row=(p,i)=>`<div class="lbrow ${i<3?'top'+(i+1):''} ${p.n===me?'me':''}" ${p.n!==me?`data-send="${esc(p.n)}" title="Coins an ${esc(p.n)} senden"`:''}><span class="rk">${i+1}</span><span class="nm">${esc(p.n)}${p.s?`<small>★${p.s}</small>`:''}</span><span class="vl">${lbTab==='bal'?fmt(p.b):fmtDur(p.t)}</span></div>`;
   const mi=list.findIndex(p=>p.n===me);let h=list.slice(0,10).map(row).join('');if(mi>=10)h+='<div class="lbsep">⋯</div>'+row(list[mi],mi);
   L.innerHTML=h||'<p class="note">Noch niemand da.</p>';
-  $('lbNote').textContent=(lbTab==='bal'?'Aktuelles Guthaben aller Spieler.':'Spielzeit zählt, solange die Seite offen ist und du aktiv spielst. Ältere Spielzeit ist aus deinen Runden geschätzt.')+` ${list.length} Spieler · aktualisiert alle 30 Sekunden.`}
+  $('lbNote').textContent=(lbTab==='bal'?'Aktuelles Guthaben aller Spieler. Tipp auf einen Namen, um ihm Coins zu senden.':'Spielzeit zählt, solange die Seite offen ist und du aktiv spielst. Ältere Spielzeit ist aus deinen Runden geschätzt.')+` ${list.length} Spieler · aktualisiert alle 30 Sekunden.`}
+$('lbList').addEventListener('click',e=>{const r=e.target.closest('[data-send]');if(r)openSend(r.dataset.send)});
 $('lbTabs').addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(!b)return;lbTab=b.dataset.lb;renderBoard();loadBoard()});
 setInterval(()=>{if(cur==='stats'&&!document.hidden)loadBoard()},30000);
 function renderStats(){loadBoard();
@@ -1296,14 +1371,14 @@ $('stExport').onclick=async()=>{const rows=[['Zeit','Spiel','Einsatz','Auszahlun
 
 // simulator
 const SIMS=[
-  ['chicken-m3','Chicken · Mittel · nach 3 Spuren auszahlen',()=>{const p=Math.pow(.88,3);return rnd()<p?.95/p:0},.05],
-  ['chicken-x1','Chicken · Extrem · nach 1 Spur auszahlen',()=>rnd()<.6?.95/.6:0,.05],
+  ['chicken-m3','Chicken · Mittel · nach 3 Spuren auszahlen',()=>{const p=Math.pow(.88,3);return rnd()<p?.97/p:0},.03],
+  ['chicken-x1','Chicken · Extrem · nach 1 Spur auszahlen',()=>rnd()<.6?.97/.6:0,.03],
   ['plinko-m16','Plinko · Mittel · 16 Reihen',()=>{let k=0;for(let i=0;i<16;i++)if(rnd()<.5)k++;return PLT[16].medium[k]},null],
   ['plinko-h16','Plinko · Hoch · 16 Reihen',()=>{let k=0;for(let i=0;i<16;i++)if(rnd()<.5)k++;return PLT[16].high[k]},null],
-  ['tower-e3','Tower · Leicht · 3 Etagen',()=>{const p=Math.pow(.75,3);return rnd()<p?Math.floor(.95/p*100)/100:0},null],
-  ['tower-h5','Tower · Schwer · 5 Etagen',()=>{const p=Math.pow(.5,5);return rnd()<p?Math.floor(.95/p*100)/100:0},null],
-  ['mines-3-5','Mines · 3 Minen · 5 Diamanten',()=>{let p=1;for(let i=0;i<5;i++)p*=(22-i)/(25-i);return rnd()<p?.95/p:0},.05],
-  ['mines-24-1','Mines · 24 Minen · 1 Diamant',()=>rnd()<1/25?.95*25:0,.05]];
+  ['tower-e3','Tower · Leicht · 3 Etagen',()=>{const p=Math.pow(.75,3);return rnd()<p?Math.floor(.97/p*100)/100:0},null],
+  ['tower-h5','Tower · Schwer · 5 Etagen',()=>{const p=Math.pow(.5,5);return rnd()<p?Math.floor(.97/p*100)/100:0},null],
+  ['mines-3-5','Mines · 3 Minen · 5 Diamanten',()=>{let p=1;for(let i=0;i<5;i++)p*=(22-i)/(25-i);return rnd()<p?.97/p:0},.03],
+  ['mines-24-1','Mines · 24 Minen · 1 Diamant',()=>rnd()<1/25?.97*25:0,.03]];
 const simSel=$('simStrat');simSel.innerHTML=SIMS.map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('');let simDone=false;
 function runSim(){simDone=true;const s=SIMS.find(x=>x[0]===simSel.value)||SIMS[0];const N=20,R=500,BET=10;
   let edge=s[3];if(edge==null){let t=0;const M=40000;for(let i=0;i<M;i++)t+=s[2]();edge=1-t/M}
@@ -1322,16 +1397,16 @@ onShow.stats=renderStats;
 // ================= GAME: CHICKEN =================
 const CH=(()=>{
   const DIFF=[{name:'Leicht',p:.96,lanes:24},{name:'Mittel',p:.88,lanes:22},{name:'Schwer',p:.80,lanes:20},{name:'Extrem',p:.60,lanes:15}];
-  const RTP=.95,mult=(d,n)=>n===0?1:RTP/Math.pow(d.p,n);
+  const RTP=.97,mult=(d,n)=>n===0?1:RTP/Math.pow(d.p,n);
   const cv=$('chCv'),ctx=cv.getContext('2d');let W=0,H=0;
   let diff=S.prefs.chDiff??1,round=null;const LANE=110,SIDE=120;
   let chick={x:SIDE/2,tx:SIDE/2,hop:0,dead:false,deadT:0},cam=0,cars=[],barriers=new Set(),killer=null;
   const laneX=i=>SIDE+i*LANE+LANE/2;
   function resize(){const d=devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;if(!W)return;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
   function newRound(){const bet=readBet('chBet');if(!take('chicken',bet))return;round={bet,d:DIFF[diff],pos:0,alive:true,over:false};chick={x:SIDE/2,tx:SIDE/2,hop:0,dead:false,deadT:0};barriers=new Set();killer=null;cars=[];cam=0;$('chBanner').hidden=true;beep(330,.08,'triangle');ui()}
-  function step(){if(!round||round.over)return;const d=round.d,next=round.pos+1;chick.tx=laneX(next-1);chick.hop=1;
+  function step(){if(!round||round.over||round.pending||round.pos>=round.d.lanes)return;const d=round.d,next=round.pos+1;chick.tx=laneX(next-1);chick.hop=1;
     if(rnd()<d.p){round.pos=next;beep(500+next*25,.07,'triangle',.06);cars=cars.filter(c=>!(c.lane===next-1&&c.y<H/2+70));setTimeout(()=>barriers.add(next-1),260);
-      if(round.pos>=d.lanes)setTimeout(()=>cashout(true),350);else{const a=+$('chAuto').value;if(a>0&&round.pos>=a)setTimeout(()=>cashout(),350)}}
+      if(round.pos>=d.lanes){round.pending=true;setTimeout(()=>cashout(true),350)}else{const a=+$('chAuto').value;if(a>0&&round.pos>=a){round.pending=true;setTimeout(()=>cashout(),350)}}}
     else{round.over=true;round.alive=false;round.pos=next;killer={lane:next-1,y:-140,hit:false}}ui()}
   function cashout(fin){if(!round||round.over||round.pos===0)return;const m=mult(round.d,round.pos),win=payCap(round.bet,r2(round.bet*m));round.over=true;settle('chicken',round.bet,win,m,RTP);if(fin===true)unlock('chickenAll');
     banner('chBanner',fin===true?'Ganz rüber!':'Ausgezahlt',`+${fmt(win)} (${fmtX(m)})`,'win');SND.win();ui()}
@@ -1353,6 +1428,7 @@ const CH=(()=>{
     ctx.fillStyle='#f4f1ea';ctx.beginPath();ctx.ellipse(0,0,22,20,0,0,7);ctx.fill();ctx.fillStyle='#dcd6c8';ctx.beginPath();ctx.ellipse(-12,4,9,11,-.5,0,7);ctx.fill();
     ctx.fillStyle='#ff6273';ctx.beginPath();ctx.arc(2,-20,5,0,7);ctx.arc(9,-18,5,0,7);ctx.fill();ctx.fillStyle='#ff9f1c';ctx.beginPath();ctx.moveTo(20,-4);ctx.lineTo(31,0);ctx.lineTo(20,4);ctx.fill();
     ctx.fillStyle='#160d1b';ctx.beginPath();ctx.arc(12,-7,3,0,7);ctx.fill();ctx.restore()}
+  const chLbl={}; // Beschriftungen zwischenspeichern (toLocaleString ist pro Bild teuer)
   function tick(dt){const d=round?round.d:DIFF[diff],total=SIDE+d.lanes*LANE+SIDE;
     chick.x+=(chick.tx-chick.x)*Math.min(1,dt/60);if(chick.hop>0)chick.hop=Math.max(0,chick.hop-dt/260);
     const target=Math.max(0,Math.min(total-W,chick.x-W*.35));cam+=(target-cam)*Math.min(1,dt/120);
@@ -1367,10 +1443,10 @@ const CH=(()=>{
     ctx.fillStyle='#1b2733';ctx.fillRect(SIDE,0,d.lanes*LANE,H);ctx.strokeStyle='#e6b85c';ctx.lineWidth=2;ctx.setLineDash([18,16]);
     for(let i=1;i<d.lanes;i++){const x=SIDE+i*LANE;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}ctx.setLineDash([]);ctx.strokeStyle='#f5ebdf';ctx.lineWidth=4;
     ctx.beginPath();ctx.moveTo(SIDE,0);ctx.lineTo(SIDE,H);ctx.moveTo(SIDE+d.lanes*LANE,0);ctx.lineTo(SIDE+d.lanes*LANE,H);ctx.stroke();
-    for(let i=0;i<d.lanes;i++){const x=laneX(i),y=H/2,m=mult(d,i+1);const passed=round&&round.alive!==false?i<round.pos:(round&&i<round.pos-1);const curL=round&&!round.over&&i===round.pos;
+    for(let i=0;i<d.lanes;i++){const x=laneX(i);if(x<cam-60||x>cam+W+60)continue;const y=H/2,lk=d.p+':'+i,lbl=chLbl[lk]||(chLbl[lk]=fmtX(mult(d,i+1)));const passed=round&&round.alive!==false?i<round.pos:(round&&i<round.pos-1);const curL=round&&!round.over&&i===round.pos;
       ctx.fillStyle=passed?'rgba(67,211,154,.18)':curL?'rgba(230,184,92,.22)':'rgba(245,235,223,.06)';rr(x-40,y-26,80,52,10);ctx.fill();
       ctx.strokeStyle=passed?'#43d39a':curL?'#e6b85c':'rgba(245,235,223,.18)';ctx.lineWidth=2;rr(x-40,y-26,80,52,10);ctx.stroke();
-      ctx.fillStyle=passed?'#43d39a':curL?'#e6b85c':'#b39cb1';ctx.font='600 16px "Chakra Petch", monospace';ctx.textAlign='center';ctx.fillText(fmtX(m),x,y+6)}
+      ctx.fillStyle=passed?'#43d39a':curL?'#e6b85c':'#b39cb1';ctx.font='600 16px "Chakra Petch", monospace';ctx.textAlign='center';ctx.fillText(lbl,x,y+6)}
     barriers.forEach(i=>{const x=laneX(i),y=H/2-78;ctx.fillStyle='#f5ebdf';rr(x-36,y,72,16,4);ctx.fill();ctx.fillStyle='#ff6273';for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(x-30+k*18,y);ctx.lineTo(x-22+k*18,y);ctx.lineTo(x-22+k*18,y+16);ctx.lineTo(x-30+k*18,y+16);ctx.fill()}});
     cars.forEach(c=>drawCar(laneX(c.lane),c.y,c.col));if(killer)drawCar(laneX(killer.lane),killer.y,'#ff6273');
     drawChicken(chick.x,H/2+Math.sin(chick.hop*Math.PI)*-22,chick.dead,chick.deadT);ctx.restore()}
@@ -1390,7 +1466,7 @@ const PLT={
 15:{low:[15,8,3,2,1.5,1.1,1,.7,.7,1,1.1,1.5,2,3,8,15],medium:[88,18,11,5,3,1.3,.5,.3,.3,.5,1.3,3,5,11,18,88],high:[620,83,27,8,3,.5,.2,.2,.2,.2,.5,3,8,27,83,620]},
 16:{low:[16,9,2,1.4,1.4,1.2,1.1,1,.5,1,1.1,1.2,1.4,1.4,2,9,16],medium:[110,41,10,5,3,1.5,1,.5,.3,.5,1,1.5,3,5,10,41,110],high:[1000,130,26,9,4,2,.2,.2,.2,.2,.2,2,4,9,26,130,1000]}};
 (()=>{const b=(n,k)=>{let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return r/2**n};const rd=m=>m>=100?Math.round(m):m>=10?Math.round(m*10)/10:Math.round(m*100)/100;
-  for(const n in PLT)for(const r in PLT[n]){const t=PLT[n][r],q=t.reduce((s,m,k)=>s+m*b(+n,k),0),f=.95/q;PLT[n][r]=t.map(m=>rd(m*f))}})();
+  for(const n in PLT)for(const r in PLT[n]){const t=PLT[n][r],q=t.reduce((s,m,k)=>s+m*b(+n,k),0),f=.97/q;PLT[n][r]=t.map(m=>rd(m*f))}})();
 const PL=(()=>{
   const T=PLT,binom=(n,k)=>{let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return r},prob=(n,k)=>binom(n,k)/2**n,rtp=(n,r)=>T[n][r].reduce((s,m,k)=>s+m*prob(n,k),0);
   const P={rows:S.prefs.plRows||(innerWidth<=600?12:16),risk:S.prefs.plRisk||'medium',skin:S.prefs.plSkin||'gold',turbo:false,mode:'manual',balls:[],flash:new Map(),hit:[],parts:[],floats:[],auto:{on:false,left:0,start:0,timer:0},profit:0};
@@ -1398,7 +1474,7 @@ const PL=(()=>{
   const cv=$('plCv'),ctx=cv.getContext('2d');let G={W:0};
   const rowsSel=$('plRows');for(let n=8;n<=16;n++)rowsSel.insertAdjacentHTML('beforeend',`<option value="${n}">${n}</option>`);rowsSel.value=P.rows;
   const pressed=(seg,v)=>seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
-  function layout(){const wrap=$('plWrap'),W=wrap.clientWidth-16;if(W<=0)return;const n=P.rows,mob=innerWidth<=820;
+  function layout(){P.need=2;const wrap=$('plWrap'),W=wrap.clientWidth-16;if(W<=0)return;const n=P.rows,mob=innerWidth<=820;
     const maxH=mob?Math.max(240,Math.min(innerHeight*.5,W*1.05)):Math.max(320,Math.min(innerHeight*.66,700));const s=Math.min(W/(n+2.2),(maxH-30)/(n*.92+1.6)),H=s*(n*.92+1.45)+12,d=devicePixelRatio||1;
     cv.width=Math.round(W*d);cv.height=Math.round(H*d);cv.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);
     G={W,H,s,n,cx:W/2,top:s*.75,rowH:s*.92,pegR:Math.max(2.2,s*.1),ballR:Math.max(4,s*.24)};G.bucketY=G.top+(n-1)*G.rowH+s*.55;G.bucketH=Math.max(16,s*.72);G.bucketW=s*.9;P.hit=new Array(n+1).fill(0)}
@@ -1429,7 +1505,8 @@ const PL=(()=>{
     for(let i=0;i<P.hit.length;i++)if(P.hit[i]>0)P.hit[i]=Math.max(0,P.hit[i]-dt/300);
     for(let i=P.parts.length-1;i>=0;i--){const p=P.parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.18;p.life-=dt/900;if(p.life<=0)P.parts.splice(i,1)}
     for(let i=P.floats.length-1;i>=0;i--){const f=P.floats[i];f.t+=dt/900;if(f.t>=1)P.floats.splice(i,1)}
-    if(cur!=='plinko'||!G.W)return;draw()}
+    if(cur!=='plinko'||!G.W)return;
+    const active=P.balls.length||P.flash.size||P.parts.length||P.floats.length||P.hit.some(h=>h>0);if(active)P.need=2;if(P.need>0){draw();if(!active)P.need--}}
   function draw(){const{W,H,n,s,pegR,ballR}=G;ctx.clearRect(0,0,W,H);
     for(let i=0;i<n;i++)for(let j=0;j<i+3;j++){const x=pegX(i,j),y=pegY(i),f=P.flash.get(i+':'+j)||0;if(f>0){ctx.beginPath();ctx.arc(x,y,pegR+6*f,0,7);ctx.fillStyle=`rgba(255,200,80,${.35*f})`;ctx.fill()}ctx.beginPath();ctx.arc(x,y,pegR,0,7);ctx.fillStyle=f>0?'#fff':'#c7d0e6';ctx.fill()}
     const m=T[n][P.risk],fs=Math.max(7.5,Math.min(13,s*.3));ctx.textAlign='center';ctx.textBaseline='middle';
@@ -1448,7 +1525,7 @@ const PL=(()=>{
   $('plGo').onclick=()=>{ac();if(P.mode==='auto')P.auto.on?stopAuto():startAuto();else drop()};
   $('plTabM').onclick=()=>{if(P.auto.on)stopAuto();P.mode='manual';$('plTabM').setAttribute('aria-pressed',true);$('plTabA').setAttribute('aria-pressed',false);$('plAuto').hidden=true;setGo()};
   $('plTabA').onclick=()=>{P.mode='auto';$('plTabA').setAttribute('aria-pressed',true);$('plTabM').setAttribute('aria-pressed',false);$('plAuto').hidden=false;setGo()};
-  $('plRisk').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;P.risk=b.dataset.v;S.prefs.plRisk=P.risk;save();pressed($('plRisk'),P.risk);odds()};
+  $('plRisk').onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;P.risk=b.dataset.v;S.prefs.plRisk=P.risk;save();pressed($('plRisk'),P.risk);odds();P.need=2};
   $('plSkin').onclick=e=>{const b=e.target.closest('button');if(!b)return;P.skin=b.dataset.v;S.prefs.plSkin=P.skin;save();pressed($('plSkin'),P.skin)};
   $('plTurbo').onclick=()=>{P.turbo=!P.turbo;$('plTurbo').setAttribute('aria-pressed',P.turbo)};
   rowsSel.onchange=()=>{P.rows=+rowsSel.value;S.prefs.plRows=P.rows;save();layout();odds();$('plHist').innerHTML=''};
@@ -1462,7 +1539,7 @@ onShow.plinko=PL.show;
 
 // ================= GAME: TOWER =================
 const TW=(()=>{
-  const EDGE=.05,ROWS=8,D=[{name:'Leicht',cols:4,traps:1},{name:'Mittel',cols:3,traps:1},{name:'Schwer',cols:2,traps:1},{name:'Experte',cols:3,traps:2},{name:'Meister',cols:4,traps:3}];
+  const EDGE=.03,ROWS=8,D=[{name:'Leicht',cols:4,traps:1},{name:'Mittel',cols:3,traps:1},{name:'Schwer',cols:2,traps:1},{name:'Experte',cols:3,traps:2},{name:'Meister',cols:4,traps:3}];
   const multAt=(d,l)=>l===0?1:Math.floor((1-EDGE)/Math.pow((d.cols-d.traps)/d.cols,l)*100)/100;
   const GEM='<svg viewBox="0 0 24 24" fill="#04261a"><path d="M6 3h12l4 6-10 12L2 9z" opacity=".9"/><path d="M2 9h20L12 21z" fill="#0a3d2b"/></svg>';
   const SKULL='<svg viewBox="0 0 24 24" fill="#2b0710"><path d="M12 2C6.5 2 3 5.8 3 10.5c0 2.6 1.2 4.4 3 5.6V20h3v-2h2v2h2v-2h2v2h3v-3.9c1.8-1.2 3-3 3-5.6C21 5.8 17.5 2 12 2zm-3.5 11a2 2 0 110-4 2 2 0 010 4zm7 0a2 2 0 110-4 2 2 0 010 4z"/></svg>';
@@ -1483,7 +1560,7 @@ const TW=(()=>{
   function start(){const bet=readBet('twBet');if(!take('tower',bet))return;const d=D[diff],traps=[];
     for(let r=0;r<ROWS;r++){const idx=[...Array(d.cols).keys()];for(let i=idx.length-1;i>0;i--){const j=rint(i+1);[idx[i],idx[j]]=[idx[j],idx[i]]}traps.push(idx.slice(0,d.traps))}
     G={bet,diff,level:0,traps,picks:[],over:false,last:-1};$('twBanner').hidden=true;beep(330,.08,'triangle');render()}
-  function pick(c){if(!G||G.over)return;const r=G.level;G.picks[r]=c;G.last=r;
+  function pick(c){if(!G||G.over||G.level>=ROWS)return;const r=G.level;G.picks[r]=c;G.last=r;
     if(G.traps[r].includes(c)){G.over=true;settle('tower',G.bet,0,0,1-EDGE);render();const b=$('twBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');banner('twBanner','Falle!',`−${fmt(G.bet)}`,'lose');SND.lose()}
     else{G.level++;beep(520+G.level*60,.1,'triangle',.07);if(G.level===ROWS){render();setTimeout(cashout,250)}else render()}}
   function cashout(){if(!G||G.over||G.level===0)return;const d=D[G.diff],m=multAt(d,G.level),win=payCap(G.bet,r2(G.bet*m));G.over=true;settle('tower',G.bet,win,m,1-EDGE);if(G.level===ROWS)unlock('towerTop');render();banner('twBanner',fmtX(m),`+${fmt(win)}`,'win');SND.win()}
@@ -1496,7 +1573,7 @@ onShow.tower=TW.show;
 
 // ================= GAME: MINES =================
 const MI=(()=>{
-  const N=25,EDGE=.95;const mult=(k,m)=>{let r=1;for(let i=0;i<k;i++)r*=(N-i)/(N-m-i);return EDGE*r};
+  const N=25,EDGE=.97;const mult=(k,m)=>{let r=1;for(let i=0;i<k;i++)r*=(N-i)/(N-m-i);return EDGE*r};
   const GEM='<svg viewBox="0 0 64 64"><polygon points="32,58 4,24 16,8 48,8 60,24" fill="#39e0b0"/><polygon points="32,58 4,24 60,24" fill="#1fb58c"/><polygon points="16,8 24,24 40,24 48,8" fill="#9dffe4"/><polygon points="24,24 32,58 40,24" fill="#62f0c6"/></svg>';
   const BOMB='<svg viewBox="0 0 64 64"><circle cx="30" cy="38" r="20" fill="#1a0a0e"/><circle cx="23" cy="31" r="6" fill="#ffffff30"/><rect x="36" y="12" width="10" height="10" rx="2" transform="rotate(35 41 17)" fill="#555"/><path d="M44 12 Q50 4 56 8" stroke="#e6b85c" stroke-width="3" fill="none"/><circle cx="57" cy="7" r="4" fill="#ff7a3c"/></svg>';
   let g=null,lastWin=0,side='K',flipping=false;const mi=$('miMines');mi.value=Math.max(MIN_MINES,S.prefs.miMines||3);$('miMinesVal').textContent=mi.value;
@@ -1524,9 +1601,9 @@ const MI=(()=>{
     if(lastWin>0&&(over||done)&&!flipping){$('donText').innerHTML=done?`Drei Würfe in Folge sind das Maximum. Dein Pott von <b class="num">${fmt(lastWin)}</b> ist sicher.`:`Der Pott von <b class="num">${fmt(lastWin)}</b> liegt über deinem Tischlimit. Kein Wurf möglich.`;$('donK').setAttribute('aria-pressed',side==='K');$('donZ').setAttribute('aria-pressed',side==='Z');return}$('donText').innerHTML=lastWin>0?`Im Pott: <b class="num">${fmt(lastWin)}</b> Coins. Wirf die Münze für <b class="num">${fmt(lastWin*2)}</b> oder verliere den Pott.`:'Nach einem Mines-Gewinn kannst du ihn per Münzwurf verdoppeln oder alles verlieren.';
     $('donK').setAttribute('aria-pressed',side==='K');$('donZ').setAttribute('aria-pressed',side==='Z')}
   function flip(){if(!lastWin||flipping||(S.dblRun||0)>=DBL_MAX||lastWin>tableLimit())return;const stake=lastWin;if(!take('double',stake))return;flipping=true;don();const c=$('donCoin');c.classList.remove('flip');void c.offsetWidth;c.classList.add('flip');c.textContent='';
-    [0,120,240,360,480].forEach(d=>setTimeout(()=>SND.tick(900),d));const res=rnd()<.49?side:(side==='K'?'Z':'K');
-    setTimeout(()=>{c.textContent=res==='K'?'♛':'1';flipping=false;if(res===side){settle('double',stake,stake*2,2,.98);lastWin=r2(stake*2);S.dblRun=(S.dblRun||0)+1;if(S.dblRun>=3)unlock('double3');SND.win();toast('Verdoppelt! +'+fmt(stake),'good')}
-      else{settle('double',stake,0,0,.98);lastWin=0;S.dblRun=0;SND.lose();toast('Verloren: '+fmt(stake)+' Coins weg','bad')}don()},reduced?50:900)}
+    [0,120,240,360,480].forEach(d=>setTimeout(()=>SND.tick(900),d));const res=rnd()<.495?side:(side==='K'?'Z':'K');
+    setTimeout(()=>{c.textContent=res==='K'?'♛':'1';flipping=false;if(res===side){settle('double',stake,stake*2,2,.99);lastWin=r2(stake*2);S.dblRun=(S.dblRun||0)+1;if(S.dblRun>=3)unlock('double3');SND.win();toast('Verdoppelt! +'+fmt(stake),'good')}
+      else{settle('double',stake,0,0,.99);lastWin=0;S.dblRun=0;SND.lose();toast('Verloren: '+fmt(stake)+' Coins weg','bad')}don()},reduced?50:900)}
   $('miAutoN').value=S.prefs.miAutoN||0;$('miAutoN').onchange=()=>{S.prefs.miAutoN=Math.max(0,parseInt($('miAutoN').value)||0);$('miAutoN').value=S.prefs.miAutoN;save()};
   mi.oninput=()=>{$('miMinesVal').textContent=mi.value;S.prefs.miMines=+mi.value;stats();ladder()};mi.onchange=save;
   $('miPre').onclick=e=>{const b=e.target.closest('[data-m]');if(!b||b.disabled)return;mi.value=b.dataset.m;mi.oninput();save()};
@@ -1549,8 +1626,8 @@ const PK=(()=>{
   const TN=['Normal','Schnell'];
   const NAMES=['Vegas Vic','Lady Luck','Der Fuchs','Mister Bluff','Kartenhai'];
   // Faktor bei Turniersieg [Schwierigkeit][Bots-1]. Per Simulation so eingestellt, dass auch
-  // sehr gute Spieler im Schnitt höchstens ~95 % zurückbekommen (Hausvorteil wie überall).
-  const MULT=[[1.10,1.30,1.50,1.75,2.00],[1.40,2.00,2.55,3.40,4.20],[1.65,2.35,3.30,3.75,4.95]];
+  // sehr gute Spieler im Schnitt höchstens ~97 % zurückbekommen (Hausvorteil wie überall).
+  const MULT=[[1.10,1.35,1.55,1.80,2.05],[1.45,2.05,2.60,3.45,4.30],[1.70,2.40,3.35,3.85,5.05]];
   const START=1000,EV=759375;
   let bots=Math.min(5,Math.max(1,S.prefs.pkBots||3)),diff=Math.min(2,Math.max(0,S.prefs.pkDiff??1)),tempo=S.prefs.pkTempo?1:0;
   let tmr=0,raiseTo=0,rzOpen=false;
@@ -1648,7 +1725,7 @@ const PK=(()=>{
     else{g.phase='next';if(d)banner('pkBanner',(d>0?'+':'−')+fmt0(Math.abs(d)),'Chips',d>0?'win':'lose');d>0?SND.win():d<0&&beep(330,.3,'sawtooth',.04)}}
   function finish(g,won){g.phase='end';g.won=won;g.turn=-1;
     const pay2=won?payCap(g.bet,r2(g.bet*g.mult)):0;g.payout=pay2;
-    settle('poker',g.bet,pay2,won?g.mult:0,.95);
+    settle('poker',g.bet,pay2,won?g.mult:0,.97);
     if(won){g.msg='Alle Bots sind raus – du gewinnst das Turnier!';banner('pkBanner',fmtX(g.mult),'+'+fmt(pay2)+' Coins','win');SND.win();confetti(140)}
     else{g.msg='Du bist ausgeschieden. Das Buy-in ist weg.';banner('pkBanner','Ausgeschieden','−'+fmt(g.bet)+' Coins','lose');SND.lose()}}
 
