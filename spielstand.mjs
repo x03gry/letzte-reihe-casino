@@ -232,9 +232,125 @@ async function rennen(req, url) {
   return json({ ok: true, now, pot: potOf(bets) });
 }
 
+// ================= Chip-Stapler (/api/spielstand?stapel=1) =================
+// Jede Runde bekommt einen zufälligen Seed. Am Ende spielt der Server die Tipp-Zeiten mit denselben Regeln nach (STK, identisch zur Seite).
+// Einsätze, die unter Höhe 15 verloren gehen, wandern in den Jackpot. Wer 100 Chips stapelt, bekommt ihn (über den Posteingang).
+// ---- Chip-Stapler: gemeinsame Regeln (Seite und Server identisch) ----
+// Gleicher Seed + gleiche Tipp-Zeiten (ms pro Chip) = exakt gleiches Ergebnis. So kann der Server jede Runde nachspielen.
+const STK = (() => {
+  const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 100;
+  const V0 = 380, VS = 9, VMAX = 950;
+  // Auszahlung: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 100 zusätzlich der Jackpot.
+  const STEPS = [[8, 0.3], [10, 0.5], [12, 0.7], [15, 1], [18, 1.2], [20, 1.4], [25, 1.8], [30, 2.5], [35, 3.5], [40, 5], [50, 8], [75, 10]];
+  const POT_BELOW = 15;
+  const mult = (h) => { let m = 0; for (const [s, v] of STEPS) if (h >= s) m = v; return m; };
+  const nextStep = (h) => STEPS.find(([s]) => s > h) || null;
+  function rngOf(seed) {
+    let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762; const str = "stapel|" + seed;
+    for (let i = 0, k; i < str.length; i++) { k = str.charCodeAt(i); h1 = h2 ^ Math.imul(h1 ^ k, 597399067); h2 = h3 ^ Math.imul(h2 ^ k, 2869860233); h3 = h4 ^ Math.imul(h3 ^ k, 951274213); h4 = h1 ^ Math.imul(h4 ^ k, 2716044179); }
+    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067); h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233); h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213); h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
+    h1 ^= (h2 ^ h3 ^ h4); h2 ^= h1; h3 ^= h1; h4 ^= h1; let a = h1 >>> 0, b = h2 >>> 0, c = h3 >>> 0, d = h4 >>> 0;
+    const r = () => { a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; let t = (a + b) | 0; a = b ^ (b >>> 9); b = (c + (c << 3)) | 0; c = (c << 21) | (c >>> 11); d = (d + 1) | 0; t = (t + d) | 0; c = (c + t) | 0; return t >>> 0; };
+    for (let i = 0; i < 15; i++) r(); return r;
+  }
+  // Je Chip (Index = schon gestapelte Höhe): Tempo und Startseite. Ab Höhe 30 schwankt das Tempo um ±10 %.
+  function plan(seed) {
+    const r = rngOf(seed), L = [];
+    for (let k = 0; k < MAXH; k++) {
+      const side = r() % 2, jit = 90 + (r() % 21);
+      let v = Math.min(VMAX, V0 + k * VS); if (k >= 30) v = (v * jit) / 100;
+      L.push({ v, side });
+    }
+    return L;
+  }
+  // Versatz des gleitenden Chips zur Turmmitte nach t ms (pendelt zwischen -AMP und +AMP)
+  function off(l, t) {
+    const p = ((l.v * t) / 1000) % (4 * AMP), o = p < 2 * AMP ? -AMP + p : 3 * AMP - p;
+    return l.side ? -o : o;
+  }
+  const fresh = () => ({ r: R0, combo: 0, h: 0, perf: 0, best: 0 });
+  // Chip absetzen. kind: "perfect" | "cut" | "fall"
+  function step(st, l, t) {
+    const d = off(l, t), ad = Math.abs(d);
+    if (ad <= TOL) {
+      const combo = st.combo + 1, grew = combo >= 3 && st.r < R0;
+      return { kind: "perfect", d, grew, prevR: st.r, st: { r: grew ? Math.min(R0, st.r + GROW) : st.r, combo, h: st.h + 1, perf: st.perf + 1, best: Math.max(st.best, combo) } };
+    }
+    if (ad >= 2 * st.r - 2) return { kind: "fall", d, st: { ...st, combo: 0 } };
+    return { kind: "cut", d, prevR: st.r, st: { r: st.r - ad / 2, combo: 0, h: st.h + 1, perf: st.perf, best: st.best } };
+  }
+  // Ganze Runde nachspielen (Server)
+  function replay(seed, taps) {
+    const L = plan(seed); let st = fresh(), fell = false;
+    for (let i = 0; i < taps.length; i++) {
+      const t = taps[i]; if (!(Number.isInteger(t) && t >= MIN_MS && t <= 600000) || st.h >= MAXH) return { bad: true };
+      const s = step(st, L[st.h], t); st = s.st; if (s.kind === "fall") { fell = true; if (i !== taps.length - 1) return { bad: true }; break; }
+    }
+    return { h: st.h, fell, perf: st.perf };
+  }
+  return { R0, AMP, TOL, MIN_MS, MAXH, STEPS, POT_BELOW, mult, nextStep, plan, off, fresh, step, replay };
+})();
+
+async function stapel(req, url) {
+  const admin = getStore("admin"), now = Date.now();
+  const potRec = async () => (await admin.get("stapelPot", { type: "json" })) || { a: 0, last: null };
+  if (req.method === "GET") { const p = await potRec(); return json({ pot: r2(num(p.a)), last: p.last || null }); }
+  if (req.method !== "POST") return json({ error: "methode" }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
+  const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
+  const key = encodeURIComponent(name);
+  const acc = await getStore("spielstaende").get(key, { type: "json" });
+  if (!acc) return json({ error: "unbekannt" }, 404);
+  if (acc.banned) return json({ error: "gesperrt" }, 403);
+  const st = acc.state || {}, rounds = getStore("stapel");
+
+  if (body.action === "start") {
+    const bet = r2(num(body.bet));
+    // großzügig, weil der gespeicherte Stand ein paar Sekunden alt sein kann
+    if (!(bet > 0) || bet > (num(st.bal) + num(st.inPlay)) * 0.5 + 10) return json({ error: "einsatz" }, 400);
+    const prev = await rounds.get(key, { type: "json" });
+    if (prev && now - prev.t < 700) return json({ error: "zu_schnell" }, 429);
+    const r = { id: randomBytes(8).toString("hex"), seed: randomBytes(16).toString("hex"), bet, t: now };
+    await rounds.setJSON(key, r);
+    const p = await potRec();
+    return json({ id: r.id, seed: r.seed, pot: r2(num(p.a)), last: p.last || null });
+  }
+
+  if (body.action === "end") {
+    const r = await rounds.get(key, { type: "json" });
+    const p = await potRec();
+    if (!r || r.id !== body.id) return json({ error: "runde", pot: r2(num(p.a)), last: p.last || null }, 409);
+    await rounds.delete(key);
+    const taps = Array.isArray(body.taps) ? body.taps.slice(0, STK.MAXH + 1) : [];
+    const res = STK.replay(r.seed, taps);
+    const played = taps.reduce((s, t) => s + (Number(t) || 0), 0);
+    // unmöglich: kaputte Tipp-Zeiten, mehr Spielzeit als echte Zeit, oder Ende ohne Fallen/Auszahlen/Ziel
+    const bad = res.bad || played > now - r.t + 5000 || (!res.fell && !body.cash && res.h < STK.MAXH) || (body.cash && STK.mult(res.h) <= 0 && !res.fell);
+    if (bad) { await logReject(name, "stapel", st, st); return json({ error: "ungueltig", pot: r2(num(p.a)), last: p.last || null }, 422); }
+    const m = res.fell ? 0 : STK.mult(res.h), pay = Math.min(r2(r.bet * m), r2(r.bet + MAXWIN));
+    if (res.h < STK.POT_BELOW) p.a = r2(num(p.a) + Math.max(0, r.bet - pay));
+    let jackpot = 0;
+    if (!res.fell && res.h >= STK.MAXH && num(p.a) > 0) {
+      // nicht über 10 Mio.: Rest bleibt im Topf
+      const pend = (await inbox(key)).filter((it) => !(acc.seen || []).includes(it.id)).reduce((t, it) => t + num(it.a), 0);
+      jackpot = r2(Math.max(0, Math.min(num(p.a), CAP - num(st.bal) - pay - pend)));
+      if (jackpot > 0) {
+        await getStore("posteingang").setJSON(`${key}/${now}-jackpot`, { f: "Jackpot", a: jackpot, t: now });
+        p.a = r2(num(p.a) - jackpot); p.last = { n: name, a: jackpot, t: now };
+      }
+    }
+    await admin.setJSON("stapelPot", p);
+    return json({ ok: true, h: res.h, fell: res.fell, pot: r2(num(p.a)), last: p.last || null, jackpot });
+  }
+  return json({ error: "aktion" }, 400);
+}
+
 export default async (req) => {
   const url = new URL(req.url);
   if (url.searchParams.has("rennen")) return rennen(req, url);
+  if (url.searchParams.has("stapel")) return stapel(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");
