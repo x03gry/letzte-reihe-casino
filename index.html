@@ -2307,7 +2307,7 @@ onShow.rennen=HR.show;
 // Gleicher Seed + gleiche Tipp-Zeiten (ms pro Chip) = exakt gleiches Ergebnis. So kann der Server jede Runde nachspielen.
 const STK = (() => {
   const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 100;
-  const V0 = 380, VS = 9, VMAX = 950;
+  const V0 = 160, VS = 6, VQ = 0.12, VMAX = 1000; // langsam starten, dann immer schneller
   // Auszahlung: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 100 zusätzlich der Jackpot.
   const STEPS = [[8, 0.3], [10, 0.5], [12, 0.7], [15, 1], [18, 1.2], [20, 1.4], [25, 1.8], [30, 2.5], [35, 3.5], [40, 5], [50, 8], [75, 10]];
   const POT_BELOW = 15;
@@ -2326,7 +2326,7 @@ const STK = (() => {
     const r = rngOf(seed), L = [];
     for (let k = 0; k < MAXH; k++) {
       const side = r() % 2, jit = 90 + (r() % 21);
-      let v = Math.min(VMAX, V0 + k * VS); if (k >= 30) v = (v * jit) / 100;
+      let v = Math.min(VMAX, V0 + k * VS + k * k * VQ); if (k >= 30) v = (v * jit) / 100;
       L.push({ v, side });
     }
     return L;
