@@ -3,6 +3,7 @@
 // bekommt den aktuellen Stand zurück (z. B. wenn auf einem anderen Gerät weitergespielt wurde).
 // Außerdem prüft der Server jede Änderung auf unmögliche Sprünge (einfacher Schummelschutz).
 import { getStore as rawStore } from "@netlify/blobs";
+import { createHmac, randomBytes } from "node:crypto";
 
 // Starke Konsistenz: Lesen liefert immer den zuletzt gespeicherten Stand.
 // (Standard bei Netlify ist "eventual": kurz nach dem Speichern konnte der Server noch den alten
@@ -132,8 +133,108 @@ async function logReject(name, reason, oldS, newS) {
   } catch {}
 }
 
+// ================= Pferderennen (/api/spielstand?rennen=1) =================
+// Jede volle Stunde startet ein Rennen. Das Starterfeld (Pferde, Werte, Quoten) ist öffentlich und
+// für alle gleich. Den Ausgang bestimmt ein geheimer Seed, den nur der Server kennt
+// (HMAC aus einem Geheimnis + Rennnummer). Er wird erst beim Start herausgegeben,
+// vorher kann also niemand den Sieger ausrechnen. Die Wetten aller Spieler liegen im Store "rennen" (echter Pot).
+const INTERVAL = 3_600_000;   // ein Rennen pro Stunde (muss zur Seite passen)
+const CLOSE_MS = 30_000;      // Wettschluss 30 s vor dem Start
+const FIELD = 8;              // Pferde pro Rennen
+const MAX_STAKE = 2_500_000;  // 25 % von 10 Mio.
+
+
+// Geheimnis: Netlify-Variable RACE_SECRET, sonst einmalig zufällig erzeugt und gespeichert
+let secretCache = null;
+async function secret() {
+  if (secretCache) return secretCache;
+  let s = "";
+  try { if (globalThis.Netlify && Netlify.env && Netlify.env.get) s = Netlify.env.get("RACE_SECRET") || ""; } catch {}
+  if (!s) s = process.env.RACE_SECRET || "";
+  if (!s) {
+    const admin = getStore("admin");
+    const rec = await admin.get("raceSecret", { type: "json" });
+    if (rec && rec.s) s = rec.s;
+    else {
+      await admin.setJSON("raceSecret", { s: randomBytes(32).toString("hex"), t: Date.now() });
+      const again = await admin.get("raceSecret", { type: "json" }); // falls zwei Aufrufe gleichzeitig erzeugt haben: der gespeicherte gilt
+      s = again.s;
+    }
+  }
+  return (secretCache = s);
+}
+const seedOf = async (id) => createHmac("sha256", await secret()).update("rennen|" + id).digest("hex").slice(0, 32);
+
+// Wetten liegen als leere Einträge mit sprechendem Schlüssel: "<rennen>/<pferd>_<cent>_<name>"
+// So reicht ein einziges list(), um den Pot zu berechnen.
+async function betsOf(id) {
+  const { blobs } = await getStore("rennen").list({ prefix: id + "/" });
+  const out = [];
+  for (const b of blobs) {
+    const m = /^\d+\/(\d+)_(\d+)_(.+)$/.exec(b.key);
+    if (m) out.push({ h: +m[1], a: +m[2] / 100, n: decodeURIComponent(m[3]), key: b.key });
+  }
+  return out;
+}
+function potOf(bets) {
+  const c = new Array(FIELD).fill(0), s = new Array(FIELD).fill(0);
+  for (const b of bets) if (b.h >= 0 && b.h < FIELD) { c[b.h]++; s[b.h] = Math.round((s[b.h] + b.a) * 100) / 100; }
+  return { c, s };
+}
+
+async function rennen(req, url) {
+  const now = Date.now();
+
+  if (req.method === "GET") {
+    const out = { now };
+    // Seeds: nur für Rennen, die schon gestartet sind
+    const ids = String(url.searchParams.get("ids") || "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 30);
+    if (ids.length) {
+      out.seeds = {};
+      for (const id of ids) if (now >= id * INTERVAL) out.seeds[id] = await seedOf(id);
+    }
+    // Pot eines Rennens (+ die eigene Wette, falls ein Name mitkommt)
+    const pid = Number(url.searchParams.get("pot"));
+    if (Number.isInteger(pid) && pid > 0) {
+      const bets = await betsOf(pid);
+      out.pot = potOf(bets);
+      const me = String(url.searchParams.get("name") || "").trim().toLowerCase();
+      const mine = me && bets.find((b) => b.n === me);
+      if (mine) out.mine = { h: mine.h, a: mine.a };
+    }
+    return json(out);
+  }
+
+  if (req.method !== "POST") return json({ error: "methode" }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
+  const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  const id = Number(body.id), h = Number(body.horse), a = Math.round(Number(body.stake) * 100) / 100;
+  if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
+  if (!Number.isInteger(id) || !Number.isInteger(h) || h < 0 || h >= FIELD) return json({ error: "ungueltig" }, 400);
+  if (!(a > 0) || a > MAX_STAKE) return json({ error: "einsatz" }, 400);
+  if (now >= id * INTERVAL - CLOSE_MS) return json({ error: "wettschluss", now }, 409);
+  if (id * INTERVAL - now > INTERVAL + 60_000) return json({ error: "zu_frueh", now }, 409); // nur aufs nächste Rennen
+
+  const acc = await getStore("spielstaende").get(encodeURIComponent(name), { type: "json" });
+  if (!acc) return json({ error: "unbekannt" }, 404);
+  if (acc.banned) return json({ error: "gesperrt" }, 403);
+
+  const bets = await betsOf(id);
+  if (bets.some((b) => b.n === name)) return json({ error: "schon_gesetzt" }, 409);
+  const store = getStore("rennen");
+  await store.setJSON(`${id}/${h}_${Math.round(a * 100)}_${encodeURIComponent(name)}`, { t: now });
+
+  // Aufräumen: Wetten von vor zwei Tagen löschen
+  try { for (const b of await betsOf(id - 48)) await store.delete(b.key); } catch {}
+
+  bets.push({ h, a, n: name });
+  return json({ ok: true, now, pot: potOf(bets) });
+}
+
 export default async (req) => {
   const url = new URL(req.url);
+  if (url.searchParams.has("rennen")) return rennen(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");

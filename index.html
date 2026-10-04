@@ -521,6 +521,60 @@ button,a,input,select,canvas{touch-action:manipulation}
 .lbrow.me{border-color:var(--brass);background:var(--panel2)}
 .lbsep{text-align:center;color:var(--dim);font-size:12px;line-height:1}
 @media (max-width:600px){.lbpanel .ph{flex-wrap:wrap;gap:8px}.lbtabs{min-width:0;width:100%}.lbrow{padding:8px 10px;gap:8px;grid-template-columns:30px minmax(0,1fr) auto}}
+/* ---------- Pferderennen ---------- */
+#v-rennen .stage{justify-content:flex-start;gap:12px}
+.hr-bar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hr-bar h2{font:700 17px var(--f-disp);letter-spacing:.02em}
+.hr-bar .meta{color:var(--mute);font-size:13px}
+.hr-clock{font:700 14px var(--f-num);font-variant-numeric:tabular-nums;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;white-space:nowrap}
+.hr-clock.live{color:var(--loss);border-color:var(--loss)}
+.hr-track{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hr-track canvas{display:block;width:100%}
+.hr-ov{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center}
+.hr-res{background:rgba(11,20,28,.92);border:1px solid var(--line2);border-radius:12px;padding:10px 14px;min-width:210px;font-size:14px}
+.hr-res h3{font:700 14px var(--f-disp);color:var(--brass);margin-bottom:6px}
+.hr-res div{display:flex;justify-content:space-between;gap:16px}
+.hr-cd{font:700 64px/1 var(--f-num);color:var(--brass);text-shadow:0 4px 18px rgba(0,0,0,.6)}
+.hr-wait{background:rgba(11,20,28,.9);border:1px solid var(--line2);border-radius:999px;padding:8px 14px;font-size:13.5px;color:var(--mute)}
+.hr-tick{position:absolute;right:8px;top:8px;background:rgba(11,20,28,.88);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12px;line-height:1.5;pointer-events:none}
+.hr-last{display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;font-size:12px}
+.hr-last::-webkit-scrollbar{display:none}
+.hr-last>span:first-child{color:var(--mute);white-space:nowrap;font-weight:600}
+.hr-lw{display:inline-flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px 8px;white-space:nowrap}
+.hr-lw i{width:9px;height:9px;border-radius:3px}
+.hr-lw b{color:var(--brass-hi);font-family:var(--f-num)}
+.mini-stats.hr-pot{grid-template-columns:repeat(3,minmax(0,1fr))}
+.hr-lh{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap;margin-top:2px}
+.hr-lh h2{font:700 15px var(--f-disp)}
+.hr-lh span{color:var(--dim);font-size:12px}
+.hr-list{display:flex;flex-direction:column;gap:6px}
+.hrh{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px;min-height:58px;overflow:hidden;transition:border-color .15s,background .15s}
+.hrh:hover{border-color:var(--line2)}
+.hrh[aria-pressed="true"]{border-color:var(--brass);background:var(--panel2);box-shadow:inset 3px 0 0 var(--brass)}
+.hrh.mine{border-color:var(--win);box-shadow:inset 3px 0 0 var(--win)}
+.hr-silk{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font:700 16px var(--f-num);flex:none}
+.hr-nm{font-weight:600;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hr-tag{font-size:11px;font-weight:600;border-radius:6px;padding:0 6px;background:var(--panel);border:1px solid var(--line);color:var(--mute)}
+.hr-tag.up{color:var(--win)}.hr-tag.dn{color:var(--loss)}
+.hr-bars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:6px;max-width:270px}
+.hr-bars>span{display:flex;align-items:center;gap:4px;font:700 10px var(--f-num);color:var(--mute)}
+.hr-bars i{flex:1;height:5px;background:var(--panel);border-radius:3px;overflow:hidden}
+.hr-bars i b{display:block;height:100%;background:var(--mute);border-radius:3px}
+.hr-q{text-align:right}
+.hr-q b{display:block;font:700 19px var(--f-num);color:var(--brass);font-variant-numeric:tabular-nums}
+.hr-q small{display:block;font-size:11px;color:var(--mute);white-space:nowrap}
+.hr-share{position:absolute;left:0;bottom:0;height:3px;background:var(--brass);opacity:.55;transition:width .4s}
+.hr-pick{display:flex;align-items:center;gap:10px;min-height:58px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.hr-pick small{color:var(--mute);font-size:12px}
+.hr-pick .ph{color:var(--mute);font-size:13.5px}
+.hr-auto{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:6px}
+.hr-my{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.hr-my>div{display:flex;justify-content:space-between;gap:8px;background:var(--bg2);border-radius:10px;padding:7px 10px}
+.hr-my span{color:var(--mute);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hr-my b{font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hr-formula{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:600 13px/1.75 var(--f-num);color:var(--ink);overflow-wrap:anywhere;margin:10px 0}
+@media (max-width:900px){#v-rennen:not([hidden]){padding-bottom:84px}}
+@media (max-width:480px){.hrh{grid-template-columns:32px minmax(0,1fr) auto;gap:8px;padding:8px}.hr-silk{width:32px;height:32px;font-size:14px}.hr-q b{font-size:17px}.hr-cd{font-size:48px}.hr-res{min-width:0;font-size:13px}.hr-bar h2{font-size:15px}}
 #modal{grid-template-columns:minmax(0,440px);justify-content:center}.mbox{min-width:0}
 .txform{display:flex;flex-direction:column;gap:6px;text-align:left;margin:4px 0 12px;min-width:0}.txform .betrow button{padding:0 10px;flex:none}
 .txform .lbl{margin-top:6px}.txform .lbl span{text-transform:none;letter-spacing:0;font-weight:600}
@@ -772,6 +826,48 @@ button,a,input,select,canvas{touch-action:manipulation}
   <details class="odds"><summary>Regeln und Quoten</summary><p>Texas Hold'em als Turnier: Du zahlst das Buy-in in Coins, alle starten mit 1.000 Chips. Die Blinds beginnen bei 10/20 und verdoppeln sich alle 8 Hände. Wer alle Chips gewinnt, gewinnt das Turnier. Gewinnst du, bekommst du Buy-in × Faktor. Scheidest du aus oder gibst auf, ist das Buy-in weg. Die Faktoren sind per Simulation so eingestellt, dass auch sehr gute Spieler im Schnitt höchstens etwa 97 % zurückbekommen. Wenn du die Seite neu lädst, geht das Turnier einfach weiter.</p><div class="tablewrap"><table id="pkOdds"></table></div></details>
 </section>
 
+<!-- ======================= PFERDERENNEN ======================= -->
+<section id="v-rennen" class="view" hidden>
+  <div class="ghead" data-head="rennen"></div>
+  <div class="game">
+    <div class="rail">
+      <div data-betfield="hrBet" data-def="50"></div>
+      <div class="field"><span class="lbl">Dein Pferd</span><div class="hr-pick" id="hrPick"></div></div>
+      <div class="mini-stats">
+        <div class="ms"><span>Quote</span><b id="hrQ">–</b></div>
+        <div class="ms"><span>Gewinn bei Sieg</span><b id="hrWin">–</b></div>
+        <div class="ms"><span>Siegchance</span><b id="hrP">–</b></div>
+        <div class="ms"><span>Wettschluss in</span><b id="hrClose">–</b></div>
+      </div>
+      <div class="mainact"><button class="btn gold big" id="hrGo">Wetten</button></div>
+      <p class="note" id="hrInfo"></p>
+      <div class="field"><span class="lbl">Auto-Wetten <span id="hrAutoState" style="text-transform:none;letter-spacing:0">aus</span></span>
+        <div class="hr-auto"><select class="inp" id="hrAutoMode" aria-label="Welches Pferd"><option value="fav">Immer Favorit</option><option value="out">Immer Außenseiter</option><option value="rnd">Zufälliges Pferd</option></select><input class="inp" id="hrAutoN" type="number" min="1" max="48" step="1" value="5" inputmode="numeric" aria-label="Anzahl Rennen"></div>
+        <button class="btn" id="hrAuto">Auto starten</button>
+        <small class="note">Setzt deinen Einsatz automatisch auf die nächsten Rennen, solange die Seite offen ist.</small></div>
+      <div class="field"><span class="lbl">Deine Wetten</span><div class="hr-my" id="hrMy"></div></div>
+      <p class="keys"><kbd>Leertaste</kbd> Wetten · <kbd>1</kbd>–<kbd>8</kbd> Pferd wählen</p>
+    </div>
+    <div class="stage">
+      <div class="hr-bar"><div><h2 id="hrTitle">Rennen</h2><div class="meta" id="hrMeta"></div></div><span class="hr-clock" id="hrClock">–</span></div>
+      <div class="hr-track" id="hrWrap"><canvas id="hrCv" aria-label="Rennbahn"></canvas><div class="hr-ov" id="hrOv"></div><div class="hr-tick" id="hrTick" hidden></div><div class="banner" id="hrBanner" hidden></div></div>
+      <div class="hr-last" id="hrLast"></div>
+      <div class="mini-stats hr-pot"><div class="ms"><span>Pot</span><b id="hrPot">–</b></div><div class="ms"><span>Wetten</span><b id="hrCnt">–</b></div><div class="ms"><span>Start</span><b id="hrStart">–</b></div></div>
+      <div class="hr-lh"><h2 id="hrLHead">Starterfeld</h2><span>A = Antritt · S = Speed · D = Ausdauer</span></div>
+      <div class="hr-list" id="hrList"></div>
+    </div>
+  </div>
+  <details class="odds"><summary>Quoten, Fairness und Hausvorteil</summary>
+    <p>Jede volle Stunde startet ein Rennen, für alle Spieler dasselbe. Wettschluss ist 30 Sekunden vor dem Start, pro Rennen gibt es eine Wette. Jedes Pferd bekommt ein Stärke-Gewicht g. Daraus folgt seine genaue Siegchance, und die Quote ist so gewählt, dass jede Wette im Schnitt 97 % zurückzahlt, egal ob Favorit oder Außenseiter.</p>
+    <div class="hr-formula">Wertung = (A·w<sub>A</sub> + S·w<sub>S</sub> + D·w<sub>D</sub>) ÷ 10 + Form + Bodenbonus<br>g = max(12, Wertung − 30)²<br>Siegchance p = g ÷ Σg · Quote = 0,97 ÷ p<br>Erwartung = p × Quote = 0,97</div>
+    <p>Gewichte A/S/D je Distanz: 1.200 m = 5/4/1 · 1.600 m = 3/5/2 · 2.000 m = 2/4/4 · 2.400 m = 1/3/6. Deine Quote steht beim Setzen fest; der Pot zeigt nur, wie viel alle Spieler gesetzt haben.</p>
+    <p id="hrFair"><b style="color:var(--ink)">Fairness:</b> Das Starterfeld ist für alle gleich und vorher bekannt. Den Einlauf würfelt der Server mit einem geheimen Schlüssel aus und verrät ihn erst beim Start. Niemand, auch kein Spieler mit dem Quelltext, kann den Sieger vorher kennen.</p>
+    <div class="tablewrap"><table id="hrOdds"></table></div>
+    <div class="pick" style="margin-top:12px"><button class="btn" id="hrSim">Simulation: 100.000 Rennen</button></div>
+    <p class="note" id="hrSimOut" style="margin-top:8px"></p>
+  </details>
+</section>
+
     </main>
   </div>
 </div>
@@ -828,6 +924,7 @@ const GAMES={
   tower:{name:'Neon Tower',short:'Tower',hex:'#199e70',rtp:'97 %',price:3000,added:'2026-09-01'},
   plinko:{name:'Plinko Drop',short:'Plinko',hex:'#d55181',rtp:'97 %',price:6000,added:'2026-09-01'},
   poker:{name:"Hold'em Turnier",short:'Poker',hex:'#2f9e8f',rtp:'bis 97 %',price:10000,added:'2026-10-03'},
+  rennen:{name:'Pferderennen',short:'Rennen',hex:'#c0773e',rtp:'97 %',price:2000,added:'2026-10-04'},
   double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'99 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
@@ -843,17 +940,18 @@ const KEY='letztereihe_v1';
 const emptyG=()=>({n:0,w:0,p:0,wins:0,best:0,big:0,e:0});
 function fresh(){const g={};GK.forEach(k=>g[k]=emptyG());const t=Date.now();
   return {v:1,bal:1000,stars:0,restarts:0,owned:{games:{},items:{}},spent:0,created:t,updated:t,games:g,log:[],hist:[[t,1000,'s']],bonus:{},bonusN:{},
-    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1,sent:0,recv:0}}
+    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1,sent:0,recv:0,hr:{bets:[],hist:[]}}}
 let S=fresh();
 function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object.assign(f,o);if(!o.playSeed)S.playSeed=0;
   S.games=Object.assign(f.games,o.games||{});GK.forEach(k=>S.games[k]=Object.assign(emptyG(),S.games[k]||{}));
   S.owned=Object.assign({games:{},items:{}},o.owned||{});S.owned.games=S.owned.games||{};S.owned.items=S.owned.items||{};
   S.set=Object.assign(fresh().set,o.set||{});S.streak=Object.assign(fresh().streak,o.streak||{});
-  ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];migrate(live)}
+  ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];
+  S.hr={bets:Array.isArray(o.hr&&o.hr.bets)?o.hr.bets.filter(b=>b&&b.a>0):[],hist:Array.isArray(o.hr&&o.hr.hist)?o.hr.hist.slice(0,10):[]};migrate(live)}
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):(S.pk&&S.pk.v===1&&S.pk.phase!=='end'?r2(+S.pk.bet||0):0);if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -1139,6 +1237,7 @@ const ART={
     ['#ff2a5a','#ff6a4a','#ffa040','#ffc428','#ffa040','#ff6a4a','#ff2a5a'].forEach((c,i)=>s+=`<rect x="${80+(i-3)*14-6}" y="80" width="12" height="9" rx="2" fill="${c}"/>`);return s+'<circle cx="87" cy="42" r="5" fill="#ffb020"/><circle cx="85.5" cy="40.5" r="1.6" fill="#fff" opacity=".7"/></svg>'})(),
   tower:(()=>{let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0d1117"/>';for(let r=0;r<6;r++)for(let c=0;c<3;c++){const y=82-r*14,x=46+c*24;const f=r<3&&c===[1,0,2][r]?'#2fe0a1':r===3&&c===1?'#ff4d6a':'#24304a';s+=`<rect x="${x}" y="${y}" width="20" height="10" rx="2.5" fill="${f}"/>`}return s+'</svg>'})(),
   poker:`<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0f2420"/><ellipse cx="80" cy="64" rx="74" ry="40" fill="#173a33" stroke="#c27d00" stroke-width="2"/><g transform="rotate(-12 64 46)"><rect x="50" y="22" width="30" height="42" rx="4" fill="#f4f6f9"/><text x="56" y="38" font-family="sans-serif" font-weight="700" font-size="13" fill="#16202a">A</text><text x="60" y="55" font-size="15" fill="#16202a">♠</text></g><g transform="rotate(10 96 46)"><rect x="80" y="22" width="30" height="42" rx="4" fill="#f4f6f9"/><text x="86" y="38" font-family="sans-serif" font-weight="700" font-size="13" fill="#d8243f">K</text><text x="90" y="55" font-size="15" fill="#d8243f">♥</text></g><g><ellipse cx="124" cy="80" rx="11" ry="4" fill="#9a6200"/><rect x="113" y="72" width="22" height="8" fill="#ffb020"/><ellipse cx="124" cy="72" rx="11" ry="4" fill="#ffd27a"/><ellipse cx="36" cy="82" rx="10" ry="3.6" fill="#a3122b"/><rect x="26" y="76" width="20" height="6" fill="#ff4d6a"/><ellipse cx="36" cy="76" rx="10" ry="3.6" fill="#ff8a9d"/></g></svg>`,
+  rennen:`<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#14241f"/><g fill="#1a3029"><rect y="14" width="160" height="18"/><rect y="50" width="160" height="18"/></g><path d="M0 14h160M0 32h160M0 50h160M0 68h160M0 86h160" stroke="#22364a"/><g fill="#e9f0f6"><rect x="140" y="14" width="4" height="4"/><rect x="144" y="18" width="4" height="4"/><rect x="140" y="22" width="4" height="4"/><rect x="144" y="26" width="4" height="4"/><rect x="140" y="30" width="4" height="4"/><rect x="144" y="34" width="4" height="4"/><rect x="140" y="38" width="4" height="4"/><rect x="144" y="42" width="4" height="4"/><rect x="140" y="46" width="4" height="4"/><rect x="144" y="50" width="4" height="4"/><rect x="140" y="54" width="4" height="4"/><rect x="144" y="58" width="4" height="4"/><rect x="140" y="62" width="4" height="4"/><rect x="144" y="66" width="4" height="4"/><rect x="140" y="70" width="4" height="4"/><rect x="144" y="74" width="4" height="4"/><rect x="140" y="78" width="4" height="4"/><rect x="144" y="82" width="4" height="4"/></g><g stroke-linecap="round"><g stroke="#a87b52" stroke-width="2.6"><path d="M98 46l-5 9M102 46l4 9M114 46l-4 9M118 46l5 9M88 40q-6 4-5 11"/></g><ellipse cx="106" cy="41" rx="17" ry="7.5" fill="#a87b52"/><path d="M116 37l8-10 6 2-8 14z" fill="#a87b52"/><ellipse cx="128" cy="28" rx="6.5" ry="3.6" transform="rotate(25 128 28)" fill="#a87b52"/><rect x="98" y="30" width="10" height="9" fill="#ffd84d"/><rect x="101" y="21" width="9" height="9" fill="#ffd84d"/><circle cx="109" cy="18" r="3.4" fill="#ffd84d"/></g><g stroke-linecap="round"><g stroke="#5b3a29" stroke-width="2.6"><path d="M50 82l-5 9M54 82l4 9M66 82l-4 9M70 82l5 9M40 76q-6 4-5 11"/></g><ellipse cx="58" cy="77" rx="17" ry="7.5" fill="#5b3a29"/><path d="M68 73l8-10 6 2-8 14z" fill="#5b3a29"/><ellipse cx="80" cy="64" rx="6.5" ry="3.6" transform="rotate(25 80 64)" fill="#5b3a29"/><rect x="50" y="66" width="10" height="9" fill="#ff4d6a"/><rect x="53" y="57" width="9" height="9" fill="#ff4d6a"/><circle cx="61" cy="54" r="3.4" fill="#ff4d6a"/></g><path d="M16 41h40M26 50h22M8 77h22" stroke="#ffb020" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg>`,
   mines:(()=>{let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0c2a2e"/>';for(let r=0;r<3;r++)for(let c=0;c<5;c++){const x=34+c*19,y=18+r*21;const f=(r===1&&c===2)?'#123f45':(r===0&&c===3)?'#5a1424':'#2a6068';s+=`<rect x="${x}" y="${y}" width="16" height="17" rx="3.5" fill="${f}"/>`}
     return s+'<polygon points="72,52 65,44 68,40 76,40 79,44" fill="#39e0b0"/><circle cx="91.5" cy="27" r="5.5" fill="#1a0a0e"/><circle cx="93" cy="21" r="1.6" fill="#ff7a3c"/></svg>'})()};
 const LOCKBIG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
@@ -1272,7 +1371,7 @@ setInterval(()=>{const r=S.set.reality;if(!r)return;const now=Date.now();if(now-
 // ================= Spiel-Bausteine: gemeinsame Teile =================
 document.querySelectorAll('[data-betfield]').forEach(el=>{const id=el.dataset.betfield,d=el.dataset.def;const pv=S.prefs[id]||d;
   el.outerHTML=`<div class="field"><label for="${id}">Einsatz <span style="text-transform:none;letter-spacing:0" class="tl">Coins</span></label><div class="betrow" id="${id}Row"><input id="${id}" type="number" min="5" step="5" value="${pv}" inputmode="decimal"><button type="button" data-bet="half" data-for="${id}" aria-label="Einsatz halbieren">½</button><button type="button" data-bet="dbl" data-for="${id}" aria-label="Einsatz verdoppeln">2×</button><button type="button" data-bet="max" data-for="${id}">Max</button></div></div>`;});
-['chBet','plBet','twBet','miBet','pkBet'].forEach(id=>{if(!$(id))return;$(id).addEventListener('change',()=>{S.prefs[id]=readBet(id)||10;save()});$(id).addEventListener('input',e=>{if(e.isTrusted)maxMode.delete(id)})});
+['chBet','plBet','twBet','miBet','pkBet','hrBet'].forEach(id=>{if(!$(id))return;$(id).addEventListener('change',()=>{S.prefs[id]=readBet(id)||10;save()});$(id).addEventListener('input',e=>{if(e.isTrusted)maxMode.delete(id)})});
 function lockBet(id,on){$(id+'Row').querySelectorAll('input,button').forEach(x=>x.disabled=on)}
 document.querySelectorAll('[data-head]').forEach(el=>{const k=el.dataset.head,G=GAMES[k];
   el.innerHTML=`<button class="back" data-go="lobby">← Spiele</button><div class="gtitle"><i style="background:${G.hex}"></i><h1>${G.name}</h1></div><span class="chip">Auszahlung ${G.rtp}</span><div class="gstats" id="gs-${k}"></div>`});
@@ -1378,7 +1477,9 @@ const SIMS=[
   ['tower-e3','Tower · Leicht · 3 Etagen',()=>{const p=Math.pow(.75,3);return rnd()<p?Math.floor(.97/p*100)/100:0},null],
   ['tower-h5','Tower · Schwer · 5 Etagen',()=>{const p=Math.pow(.5,5);return rnd()<p?Math.floor(.97/p*100)/100:0},null],
   ['mines-3-5','Mines · 3 Minen · 5 Diamanten',()=>{let p=1;for(let i=0;i<5;i++)p*=(22-i)/(25-i);return rnd()<p?.97/p:0},.03],
-  ['mines-24-1','Mines · 24 Minen · 1 Diamant',()=>rnd()<1/25?.97*25:0,.03]];
+  ['mines-24-1','Mines · 24 Minen · 1 Diamant',()=>rnd()<1/25?.97*25:0,.03],
+  ['rennen-fav','Pferderennen · immer Favorit',()=>HR.simRace('fav'),.03],
+  ['rennen-out','Pferderennen · immer Außenseiter',()=>HR.simRace('out'),.03]];
 const simSel=$('simStrat');simSel.innerHTML=SIMS.map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('');let simDone=false;
 function runSim(){simDone=true;const s=SIMS.find(x=>x[0]===simSel.value)||SIMS[0];const N=20,R=500,BET=10;
   let edge=s[3];if(edge==null){let t=0;const M=40000;for(let i=0;i<M;i++)t+=s[2]();edge=1-t/M}
@@ -1819,13 +1920,278 @@ const PK=(()=>{
       if(k==='f'&&$('pkF'))$('pkF').click();if(k==='r'&&$('pkR'))$('pkR').click()}}})();
 onShow.poker=PK.show;
 
+// ================= GAME: PFERDERENNEN =================
+// Jede volle Stunde ein Rennen für alle Spieler. Starterfeld und Quoten folgen aus einem öffentlichen Seed
+// (Rennnummer), der Einlauf aus einem geheimen Seed, den der Server erst beim Start herausgibt (/api/spielstand?rennen=1).
+// Offene Wetten liegen im Spielstand (S.hr.bets) und zählen als Einsatz im Spiel (S.inPlay), bis ihr Rennen entschieden ist.
+const HR=(()=>{
+  const RTP=.97,FIELD=8,INTERVAL=3600000,CLOSE=30000,RESULT=25000,SALT='letzte-reihe-pferde-v4',HAPI='/api/spielstand?rennen=1';
+  const COLORS=[
+    {name:'Rot',silk:'#ff4d6a',ink:'#1d0007'},{name:'Blau',silk:'#4da3ff',ink:'#001226'},{name:'Grün',silk:'#2fe08f',ink:'#00170b'},
+    {name:'Gelb',silk:'#ffd84d',ink:'#1d1300'},{name:'Orange',silk:'#ff8a3d',ink:'#1f0b00'},{name:'Lila',silk:'#b06bff',ink:'#12002a'},
+    {name:'Pink',silk:'#ff6fb5',ink:'#24000f'},{name:'Türkis',silk:'#3dd6c4',ink:'#001a17'},{name:'Weiß',silk:'#e9f0f6',ink:'#0f1923'},
+    {name:'Schwarz',silk:'#3b4652',ink:'#e9f0f6'},{name:'Braun',silk:'#b07a4f',ink:'#1a0c02'},{name:'Oliv',silk:'#a6b23e',ink:'#121500'},
+    {name:'Himmelblau',silk:'#9fdcff',ink:'#001826'},{name:'Bordeaux',silk:'#c2415e',ink:'#fff0f3'}];
+  const COATS=['#8a5a3c','#5b3a29','#a87b52','#3a2a22','#6b4630','#2e2620','#9a9a9a','#c9a27a'];
+  const BODEN=['','','fest','weich'],DIST=[1200,1600,2000,2400],GROUNDS=['fest','gut','weich','schwer'];
+  const WEIGHTS={1200:[5,4,1],1600:[3,5,2],2000:[2,4,4],2400:[1,3,6]},BASE_TIME={1200:22000,1600:25500,2000:29000,2400:32500};
+  const GROUND_BONUS={fest:{fest:5,gut:2,weich:-4,schwer:-6},weich:{fest:-3,gut:0,weich:4,schwer:6},'':{fest:0,gut:0,weich:0,schwer:0}};
+  const HERR={wettschluss:'Wettschluss. Gleich startet das Rennen.',schon_gesetzt:'Auf dieses Rennen hast du schon gesetzt.',zu_frueh:'Auf dieses Rennen kann man noch nicht setzen.',
+    gesperrt:'Dein Account ist gesperrt.',unbekannt:'Dein Account wurde nicht gefunden.',einsatz:'Dieser Einsatz geht nicht.'};
+
+  // ---- Deterministischer Zufall: gleicher Seed = exakt gleiches Ergebnis in jedem Browser (nur Ganzzahl-Arithmetik)
+  function cyrb128(str){let h1=1779033703,h2=3144134277,h3=1013904242,h4=2773480762;
+    for(let i=0,k;i<str.length;i++){k=str.charCodeAt(i);h1=h2^Math.imul(h1^k,597399067);h2=h3^Math.imul(h2^k,2869860233);h3=h4^Math.imul(h3^k,951274213);h4=h1^Math.imul(h4^k,2716044179)}
+    h1=Math.imul(h3^(h1>>>18),597399067);h2=Math.imul(h4^(h2>>>22),2869860233);h3=Math.imul(h1^(h3>>>17),951274213);h4=Math.imul(h2^(h4>>>19),2716044179);
+    h1^=(h2^h3^h4);h2^=h1;h3^=h1;h4^=h1;return[h1>>>0,h2>>>0,h3>>>0,h4>>>0]}
+  function sfc32(a,b,c,d){return()=>{a>>>=0;b>>>=0;c>>>=0;d>>>=0;let t=(a+b)|0;a=b^(b>>>9);b=(c+(c<<3))|0;c=(c<<21)|(c>>>11);d=(d+1)|0;t=(t+d)|0;c=(c+t)|0;return t>>>0}}
+  function makeRng(seed){const s=cyrb128(String(seed)),r=sfc32(s[0],s[1],s[2],s[3]);for(let i=0;i<15;i++)r();return r}
+  const intBelow=(r,n)=>{const lim=4294967296-(4294967296%n);let u;do{u=r()}while(u>=lim);return u%n}; // ohne Verzerrung
+  const cryptoInt=n=>{const a=new Uint32Array(1),lim=4294967296-(4294967296%n);do{crypto.getRandomValues(a)}while(a[0]>=lim);return a[0]%n};
+  const cryptoSeed=()=>{const a=new Uint32Array(4);crypto.getRandomValues(a);return Array.from(a,x=>x.toString(16).padStart(8,'0')).join('')};
+
+  // ---- Starterfeld (öffentlich): 8 Farben, Werte, Siegchance p = g ÷ Σg, feste Quote = 0,97 ÷ p
+  function field(seed){const r=makeRng(seed),idx=COLORS.map((_,i)=>i);
+    for(let i=idx.length-1;i>0;i--){const j=intBelow(r,i+1);[idx[i],idx[j]]=[idx[j],idx[i]]}
+    const distance=DIST[intBelow(r,DIST.length)],ground=GROUNDS[intBelow(r,GROUNDS.length)],w=WEIGHTS[distance];
+    const horses=idx.slice(0,FIELD).map((k,i)=>{const c=COLORS[k];
+      const st=45+intBelow(r,51),sp=45+intBelow(r,51),au=45+intBelow(r,51),boden=BODEN[intBelow(r,BODEN.length)],coat=COATS[intBelow(r,COATS.length)],form=intBelow(r,17)-8;
+      const gb=GROUND_BONUS[boden][ground],rating=Math.floor((st*w[0]+sp*w[1]+au*w[2])/10)+form+gb,base=Math.max(12,rating-30);
+      // nur Optik: Rennverlauf (früher Antritt vs. Endspurt), Wellen
+      const a=Math.max(-.55,Math.min(.55,(st-au)/100*1.1+(intBelow(r,21)-10)/100)),kk=1+intBelow(r,2),b=(kk===1?.06:.045)*intBelow(r,101)/100,phi=intBelow(r,628)/100;
+      return{no:i+1,name:c.name,silk:c.silk,ink:c.ink,coat,st,sp,au,boden,form,gb,rating,weight:base*base,a,k:kk,b,phi}});
+    const total=horses.reduce((s,h)=>s+h.weight,0);horses.forEach(h=>{h.p=h.weight/total;h.odds=RTP*total/h.weight});
+    let fav=0,out=0;horses.forEach((h,i)=>{if(h.weight>horses[fav].weight)fav=i;if(h.weight<horses[out].weight)out=i});
+    return{distance,ground,horses,total,fav,out}}
+  // ---- Einlauf (geheimer Seed): Sieger exakt mit Chance g ÷ Σg, dann die übrigen Plätze genauso
+  function resolve(F,seed){const r=makeRng(seed),left=F.horses.map((_,i)=>i),order=[];
+    while(left.length){let sum=0;for(const i of left)sum+=F.horses[i].weight;let u=intBelow(r,sum),pos=0;for(;pos<left.length;pos++){u-=F.horses[left[pos]].weight;if(u<0)break}order.push(left[pos]);left.splice(pos,1)}
+    const finish=new Array(FIELD);let t=BASE_TIME[F.distance]+intBelow(r,2001);order.forEach((hi,k)=>{if(k>0)t+=120+intBelow(r,900);finish[hi]=t});
+    return{order,winner:order[0],finish,duration:finish[order[FIELD-1]]}}
+  // Anteil der Strecke zur Zeit t (ms), nur Optik; im Ziel genau bei finish[i]
+  function progress(F,R,i,t){if(t<=0||!R)return 0;const ti=R.finish[i],h=F.horses[i];if(t>=ti)return 1+Math.min(.045,(t-ti)/ti*.4);
+    const u=t/ti;return u+h.a*u*(1-u)+h.b*u*(1-u)*Math.sin(2*Math.PI*h.k*u+h.phi)}
+  const floor2=x=>Math.floor(x*100+1e-6)/100;
+  const winOf=(a,o)=>payCap(a,floor2(a*o));
+
+  // ---- Uhr (Serverzeit, falls das Gerät falsch geht) und Rennen
+  let skew=0;const now=()=>Date.now()+skew,cid=()=>Math.floor(now()/INTERVAL);
+  let seeds={};try{seeds=JSON.parse(localStorage.getItem('lr_hr_seeds')||'{}')||{}}catch(e){}
+  function keepSeeds(){const o={};Object.keys(seeds).map(Number).sort((a,b)=>b-a).slice(0,80).forEach(k=>o[k]=seeds[k]);seeds=o;try{localStorage.setItem('lr_hr_seeds',JSON.stringify(o))}catch(e){}}
+  const races=new Map();
+  function race(id){let x=races.get(id);
+    if(!x){x={id,start:id*INTERVAL,close:id*INTERVAL-CLOSE,F:field(SALT+'|'+id),R:null};races.set(id,x);if(races.size>48)races.delete(races.keys().next().value)}
+    if(!x.R&&seeds[id])x.R=resolve(x.F,seeds[id]);return x}
+
+  // ---- Wetten im Spielstand
+  const B=()=>{if(!S.hr||!Array.isArray(S.hr.bets)||!Array.isArray(S.hr.hist))S.hr={bets:[],hist:[]};return S.hr};
+  const myBet=id=>B().bets.find(b=>b.id===id)||B().hist.find(b=>b.id===id);
+  const hhmm=t=>new Date(t).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+
+  // ---- Server: Seeds gestarteter Rennen + Pot des nächsten Rennens
+  let pot=null,potId=0,potAt=0,netBusy=false,netAt=0,netFails=0,offline=false;
+  const visible=()=>cur==='rennen'&&!document.hidden;
+  // Ohne Server (z. B. als Claude-Artifact): Einlauf lokal würfeln, nur für diesen Spieler
+  const LOCAL=!ACCOUNTS;
+  function localSeeds(){const t=now(),c=cid();let n=0;for(let id=c-6;id<=c;id++)if(!seeds[id]&&t>=id*INTERVAL){seeds[id]=cryptoSeed();n++}
+    B().bets.forEach(b=>{if(!seeds[b.id]&&t>=b.id*INTERVAL){seeds[b.id]=cryptoSeed();n++}});
+    if(n){keepSeeds();races.forEach(x=>{if(!x.R&&seeds[x.id])x.R=resolve(x.F,seeds[x.id])})}}
+  async function poll(force){if(LOCAL)return localSeeds();if(netBusy)return;const t=now(),c=cid(),vis=visible();
+    const need=new Set();B().bets.forEach(b=>{if(t>=b.id*INTERVAL&&!seeds[b.id])need.add(b.id)});
+    if(vis)for(let k=0;k<6;k++)if(!seeds[c-k])need.add(c-k);
+    const potDue=vis&&(force||potId!==c+1||Date.now()-potAt>15000);
+    if(!need.size&&!potDue)return;
+    if(!force&&Date.now()-netAt<(netFails?Math.min(60000,2500*2**netFails):2500))return;
+    netBusy=true;netAt=Date.now();const q=[];
+    if(need.size)q.push('ids='+[...need].slice(0,30).join(','));
+    if(potDue){q.push('pot='+(c+1));if(ACCOUNTS&&acct)q.push('name='+encodeURIComponent(acct))}
+    const t0=Date.now();
+    try{const r=await fetch(HAPI+'&'+q.join('&'),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
+      if(typeof d.now==='number')skew=d.now-(t0+Date.now())/2;
+      if(d.seeds&&Object.keys(d.seeds).length){Object.assign(seeds,d.seeds);keepSeeds();races.forEach(x=>{if(!x.R&&seeds[x.id])x.R=resolve(x.F,seeds[x.id])})}
+      if(d.pot){pot=d.pot;potId=c+1;potAt=Date.now()}
+      netFails=0;offline=false}
+    catch(e){netFails++;offline=true}
+    netBusy=false}
+
+  // ---- Setzen
+  let placing=false;
+  async function place(h,a,quiet){const c=cid(),id=c+1,x=race(id);
+    const no=m=>{if(!quiet)toast(m,'bad');return false};
+    if(placing)return false;
+    if(now()>=x.close)return no(HERR.wettschluss);
+    if(myBet(id))return no(HERR.schon_gesetzt);
+    if(h==null||!x.F.horses[h])return no('Tippe zuerst ein Pferd im Starterfeld an.');
+    if(!take('rennen',a))return false;
+    const hz=x.F.horses[h],bet={id,h,a,o:hz.odds};B().bets.push(bet);sel=null;save();SND.tick(1200);
+    if(ACCOUNTS&&acct){placing=true;render();const t0=Date.now();
+      try{const r=await fetch(HAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:acct,id,horse:h,stake:a})});const d=await r.json().catch(()=>({}));
+        if(typeof d.now==='number')skew=d.now-(t0+Date.now())/2;
+        if(r.ok&&d.pot){pot=d.pot;potId=id;potAt=Date.now()}
+        else if(!r.ok&&r.status<500){undo(bet);placing=false;render();return no(HERR[d.error]||'Die Wette wurde nicht angenommen. Versuch es nochmal.')}}
+      catch(e){} // keine Verbindung: die Wette gilt trotzdem, sie fehlt nur im Pot
+      placing=false}
+    if(!quiet)toast(`Wette steht: <b class="num">${fmt(a)}</b> auf <b>#${hz.no} ${esc(hz.name)}</b> · Start ${hhmm(x.start)} Uhr`,'good');
+    render();return true}
+  // Wette zurücknehmen (Server hat abgelehnt): Einsatz zurück, keine Runde gezählt
+  function undo(bet){const L=B().bets,i=L.findIndex(b=>b.id===bet.id&&b.h===bet.h&&b.a===bet.a);if(i<0)return;L.splice(i,1);
+    S.inPlay=Math.max(0,r2((S.inPlay||0)-bet.a));S.bal=r2(S.bal+bet.a);renderWallet();save()}
+
+  // ---- Abrechnen, sobald der Sieger im Ziel ist
+  function settleDue(){const t=now(),L=B();let any=false;
+    for(const b of L.bets.slice()){const x=race(b.id);if(!x.R)continue;const done=x.start+x.R.finish[x.R.winner];if(t<done)continue;
+      const won=b.h===x.R.winner,pay=won?winOf(b.a,b.o):0,mult=pay/b.a,pl=x.R.order.indexOf(b.h)+1,hz=x.F.horses[b.h];
+      L.bets.splice(L.bets.indexOf(b),1);L.hist.unshift({id:b.id,h:b.h,a:b.a,o:b.o,pay,pl});L.hist.length=Math.min(L.hist.length,10);
+      settle('rennen',b.a,pay,mult,RTP);any=true;
+      const fresh=t-done<90000;
+      if(fresh&&visible()){banner('hrBanner',won?'+'+fmt(pay):'−'+fmt(b.a),`${pl}. Platz · #${hz.no} ${esc(hz.name)}`,won?'win':'lose');won?SND.win():SND.lose()}
+      else toast(won?`🏇 <b>#${hz.no} ${esc(hz.name)}</b> hat das Rennen um ${hhmm(x.start)} gewonnen! <b class="num">+${fmt(pay)}</b>`:`🏇 Rennen ${hhmm(x.start)}: <b>#${hz.no} ${esc(hz.name)}</b> wurde ${pl}. <b class="num">−${fmt(b.a)}</b>`,won?'good':'bad',fresh&&cur!=='rennen'?{label:'Ansehen',go:'rennen'}:null)}
+    if(any)render()}
+
+  // ---- Auto-Wetten (solange die Seite offen ist)
+  const auto={on:false,left:0};
+  function autoStep(){if(!auto.on||placing)return;const id=cid()+1,x=race(id);if(myBet(id)||now()>=x.close)return;
+    const mode=$('hrAutoMode').value,hs=x.F.horses,h=mode==='rnd'?cryptoInt(FIELD):mode==='fav'?x.F.fav:x.F.out;
+    place(h,readBet('hrBet'),true).then(ok=>{if(!auto.on)return;if(!ok){stopAuto();toast('Auto-Wetten gestoppt: Der Einsatz ging nicht durch.','bad');return}
+      if(--auto.left<=0){stopAuto();toast('Auto-Wetten: alle Rennen gesetzt.','good')}else render()})}
+  function stopAuto(){auto.on=false;auto.left=0;render()}
+
+  // ---- Starterfeld (einmal pro Rennen aufbauen, danach nur Zahlen tauschen)
+  let sel=null,listFor=0,rows=[];
+  const silk=h=>`<span class="hr-silk" style="background:${h.silk};color:${h.ink}">${h.no}</span>`;
+  function buildList(x){listFor=x.id;sel=null;const F=x.F;
+    $('hrList').innerHTML=F.horses.map((h,i)=>{const fc=h.form>0?'up':h.form<0?'dn':'',bd=h.boden==='fest'?'mag festen Boden':h.boden==='weich'?'mag weichen Boden':'';
+      return `<button class="hrh" data-i="${i}" aria-pressed="false">${silk(h)}<span style="min-width:0"><span class="hr-nm">${esc(h.name)}${i===F.fav?'<span class="hr-tag up">Favorit</span>':''}<span class="hr-tag ${fc}">Form ${h.form>0?'+':''}${h.form}</span>${bd?`<span class="hr-tag ${h.gb>0?'up':h.gb<0?'dn':''}">${bd}</span>`:''}</span>
+        <span class="hr-bars"><span>A<i><b style="width:${h.st}%"></b></i></span><span>S<i><b style="width:${h.sp}%"></b></i></span><span>D<i><b style="width:${h.au}%"></b></i></span></span></span>
+        <span class="hr-q"><b>${fmtX(h.odds)}</b><small>${pct(h.p)} · <span data-c>–</span></small></span><span class="hr-share" data-sh style="width:0"></span></button>`}).join('');
+    rows=[...$('hrList').children].map(el=>({el,c:el.querySelector('[data-c]'),sh:el.querySelector('[data-sh]')}));
+    $('hrLHead').textContent=`Starterfeld ${hhmm(x.start)} Uhr · ${fmt0(F.distance)} m · Boden ${F.ground}`;
+    $('hrOdds').innerHTML='<thead><tr><th>Pferd</th><th>Wertung</th><th>g</th><th>Siegchance</th><th>Quote</th><th>p × Quote</th></tr></thead><tbody>'+F.horses.map(h=>`<tr><td>#${h.no} ${esc(h.name)}</td><td>${h.rating}</td><td>${fmt0(h.weight)}</td><td>${pct(h.p)}</td><td>${fmtX(h.odds)}</td><td>${fmt(h.p*h.odds)}</td></tr>`).join('')+
+      `<tr><td><b>Summe</b></td><td></td><td>${fmt0(F.total)}</td><td>100 %</td><td></td><td><b>${fmt(F.horses.reduce((s,h)=>s+h.p*h.odds,0))}</b></td></tr></tbody>`}
+
+  // ---- Anzeige (nur wenn die Seite offen ist)
+  const setT=(el,t)=>{if(el.textContent!==t)el.textContent=t};
+  const setH=(el,h)=>{if(el._h!==h){el.innerHTML=h;el._h=h}};
+  function render(){if(cur!=='rennen')return;const t=now(),c=cid(),x=race(c+1),F=x.F;
+    if(listFor!==x.id)buildList(x);
+    const mine=B().bets.find(b=>b.id===x.id),hi=mine?mine.h:sel,h=hi!=null?F.horses[hi]:null,stake=readBet('hrBet'),closeIn=x.close-t;
+    // Auswahl
+    rows.forEach((r,i)=>{r.el.setAttribute('aria-pressed',i===hi);r.el.classList.toggle('mine',!!mine&&i===mine.h)});
+    setH($('hrPick'),h?`${silk(h)}<span><b>#${h.no} ${esc(h.name)}</b><br><small>${fmt0(F.distance)} m · Boden ${F.ground} · Start ${hhmm(x.start)}</small></span>`:'<span class="ph">Tippe ein Pferd im Starterfeld an.</span>');
+    const a=mine?mine.a:stake;
+    setT($('hrQ'),h?fmtX(h.odds):'–');setT($('hrWin'),h&&a>0?fmt(winOf(a,h.odds)):'–');setT($('hrP'),h?pct(h.p):'–');setT($('hrClose'),closeIn>0?mmss(closeIn):'zu');
+    // Knopf
+    const go=$('hrGo');let lab='Wetten',dis=false;
+    if(placing){lab='Wird gesetzt …';dis=true}else if(mine){lab='Wette steht ✓';dis=true}else if(closeIn<=0){lab='Wettschluss';dis=true}else if(h==null){lab='Pferd wählen';dis=true}
+    setT(go,lab);go.disabled=dis;go.classList.toggle('cash',!!mine);go.classList.toggle('gold',!mine);
+    const capped=h&&!mine&&stake>0&&stake*h.odds>stake+MAXWIN;
+    setT($('hrInfo'),mine?`${fmt(mine.a)} auf #${F.horses[mine.h].no} ${F.horses[mine.h].name} · Start ${hhmm(x.start)} Uhr. Viel Glück!`
+      :capped?`Gewinn ist auf ${fmt0(MAXWIN)} über dem Einsatz begrenzt. Weniger Einsatz reicht.`
+      :h?`${fmt(stake)} auf #${h.no} ${h.name} · Start ${hhmm(x.start)} Uhr`:`Nächstes Rennen um ${hhmm(x.start)} Uhr. Wettschluss 30 Sekunden vorher.`);
+    // Pot
+    const P=pot&&potId===x.id?pot:null,n=P?P.c.reduce((s,v)=>s+v,0):0,sum=P?P.s.reduce((s,v)=>s+v,0):0;
+    setT($('hrPot'),P?fmt(sum):'–');setT($('hrCnt'),P?fmt0(n):'–');setT($('hrStart'),hhmm(x.start));
+    rows.forEach((r,i)=>{setT(r.c,P?`${P.c[i]} ${P.c[i]===1?'Wette':'Wetten'}`:'–');const w=(P&&sum?P.s[i]/sum*100:0).toFixed(1)+'%';if(r.sh.style.width!==w)r.sh.style.width=w});
+    // Letzte Sieger
+    const chips=[];for(let k=0;k<7&&chips.length<5;k++){const y=race(c-k);if(!y.R||t<y.start+y.R.finish[y.R.winner])continue;const w=y.F.horses[y.R.winner];
+      chips.push(`<span class="hr-lw" title="${hhmm(y.start)} Uhr"><i style="background:${w.silk}"></i>${esc(w.name)} <b>${fmtX(w.odds)}</b></span>`)}
+    setH($('hrLast'),'<span>Letzte Sieger</span>'+(chips.length?chips.join(''):`<span class="hr-lw">${offline?'Server nicht erreichbar':'Noch keine'}</span>`));
+    // Auto
+    setT($('hrAuto'),auto.on?'Auto stoppen':'Auto starten');setT($('hrAutoState'),auto.on?`noch ${auto.left} ${auto.left===1?'Rennen':'Rennen'}`:'aus');
+    $('hrAutoMode').disabled=$('hrAutoN').disabled=auto.on;
+    // Eigene Wetten
+    const L=B(),nm=b=>{const z=race(b.id).F.horses[b.h];return `${hhmm(b.id*INTERVAL)} · #${z.no} ${esc(z.name)}`};
+    const items=L.bets.slice().sort((p,q)=>p.id-q.id).map(b=>`<div><span>${nm(b)}</span><b>${fmt(b.a)} @ ${fmtX(b.o)}</b></div>`)
+      .concat(L.hist.map(b=>`<div><span>${nm(b)} · ${b.pl}.</span><b class="${b.pay>0?'pos':'neg'}">${b.pay>0?'+'+fmt(b.pay):'−'+fmt(b.a)}</b></div>`));
+    setH($('hrMy'),items.length?items.join(''):'<p class="note">Noch keine Wetten.</p>')}
+
+  // ---- Rennbahn
+  const cv=$('hrCv'),ctx=cv.getContext('2d');let W=0,Hh=0,dpr=1,laneH=32;
+  function resize(){const w=$('hrWrap').clientWidth;if(!w)return;dpr=Math.min(2,devicePixelRatio||1);W=w;laneH=W<520?25:32;Hh=26+laneH*FIELD+10;
+    cv.width=Math.round(W*dpr);cv.height=Math.round(Hh*dpr);cv.style.height=Hh+'px'}
+  new ResizeObserver(()=>{resize();draw()}).observe($('hrWrap'));
+  function drawHorse(x,y,s,h,ph,moving){ctx.lineCap='round';ctx.strokeStyle=h.coat;ctx.lineWidth=2.2*s;
+    [-30,-26,-14,-10].forEach((lx,k)=>{const a=moving?Math.sin(ph+(k%2?Math.PI:0)+(k>1?.8:0))*.55:0,bx=x+lx*s,by=y+4*s;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+Math.sin(a)*9*s,by+Math.cos(a)*9*s);ctx.stroke()});
+    ctx.lineWidth=2.6*s;ctx.beginPath();ctx.moveTo(x-34*s,y-2*s);ctx.quadraticCurveTo(x-42*s,y+(moving?Math.sin(ph)*2:0)*s,x-41*s,y+7*s);ctx.stroke();
+    ctx.fillStyle=h.coat;ctx.beginPath();ctx.ellipse(x-20*s,y,15*s,6.5*s,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(x-11*s,y-4*s);ctx.lineTo(x-4*s,y-13*s);ctx.lineTo(x+1*s,y-11*s);ctx.lineTo(x-6*s,y+2*s);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.ellipse(x-1*s,y-11*s,5.5*s,3*s,.45,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=h.silk;ctx.fillRect(x-27*s,y-5*s,9*s,8*s);ctx.fillRect(x-24*s,y-14*s,8*s,8*s);ctx.beginPath();ctx.arc(x-17*s,y-17*s,3*s,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=h.ink;ctx.font=`700 ${Math.round(7*s)}px "Chakra Petch",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h.no,x-22.5*s,y-.5*s)}
+  let bellFor=0,ovKey='',tkKey='';
+  function draw(){if(cur!=='rennen'||!W)return;const t=now(),c=cid(),curR=race(c),dt=t-curR.start;
+    const waiting=!curR.R&&dt<90000,racing=waiting||(curR.R&&dt<curR.R.duration+RESULT);
+    const X=racing?curR:race(c+1),R=racing?X.R:null,tt=racing&&R?dt:0,F=X.F,mine=myBet(X.id);
+    if(R&&dt<1500&&bellFor!==X.id){bellFor=X.id;beep(1320,.7,'sine',.08);beep(1980,.45,'sine',.035,.02)}
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#1b2b3a';ctx.fillRect(0,0,W,Hh);
+    const top=22,s=laneH/34,startX=30+44*s,finishX=W-26;
+    for(let i=0;i<FIELD;i++){ctx.fillStyle=mine&&mine.h===i?'#24384a':i%2?'#1b2b3a':'#152230';ctx.fillRect(0,top+i*laneH,W,laneH)}
+    ctx.strokeStyle='#22364a';ctx.lineWidth=1;for(let i=0;i<=FIELD;i++){ctx.beginPath();ctx.moveTo(0,top+i*laneH+.5);ctx.lineTo(W,top+i*laneH+.5);ctx.stroke()}
+    ctx.fillStyle='#8ba2b7';ctx.font='600 10px Rubik,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.strokeStyle='#24384a';
+    const step=F.distance<=1600?200:400;
+    for(let d=step;d<F.distance;d+=step){const x=startX+(finishX-startX)*d/F.distance;ctx.beginPath();ctx.moveTo(x+.5,top);ctx.lineTo(x+.5,Hh-10);ctx.stroke();if(W>420||d%(step*2)===0)ctx.fillText(fmt0(F.distance-d)+' m',x,11)}
+    ctx.fillStyle='#ffb020';ctx.fillRect(startX-1,top,2,laneH*FIELD);
+    for(let yy=top,k=0;yy<top+laneH*FIELD;yy+=5,k++){ctx.fillStyle=k%2?'#e9f0f6':'#0f1923';ctx.fillRect(finishX,yy,4,5);ctx.fillStyle=k%2?'#0f1923':'#e9f0f6';ctx.fillRect(finishX+4,yy,4,5)}
+    ctx.fillStyle='#e9f0f6';ctx.fillText('ZIEL',finishX+4,11);
+    const prog=F.horses.map((_,i)=>progress(F,R,i,tt));
+    F.horses.forEach((h,i)=>{ctx.fillStyle=h.silk;ctx.font=`700 ${Math.round(11*Math.max(.9,s))}px "Chakra Petch",sans-serif`;ctx.textAlign='left';ctx.textBaseline='middle';
+      ctx.fillText(mine&&mine.h===i?'★'+h.no:h.no,4,top+i*laneH+laneH/2);
+      drawHorse(startX+(finishX-startX)*prog[i],top+i*laneH+laneH*.62,s,h,prog[i]*F.distance/7,!!R&&tt>0&&tt<R.finish[i]+1500)});
+    // Kopfzeile
+    const nx=race(c+1);setT($('hrTitle'),(racing?'Rennen ':'Nächstes Rennen ')+hhmm(X.start)+' Uhr');
+    setT($('hrMeta'),`${fmt0(F.distance)} m · Boden ${F.ground}${mine?' · ★ = dein Pferd':''}`);
+    const ck=$('hrClock');
+    if(racing&&(!R||dt<R.finish[R.winner])){setT(ck,'● LIVE');ck.className='hr-clock live'}else{setT(ck,(racing?'Nächstes in ':'Start in ')+mmss(nx.start-t));ck.className='hr-clock'}
+    // Overlays
+    let ov='',tk='';
+    if(waiting)ov=`<div class="hr-wait">${offline?'Keine Verbindung zum Server …':'Die Boxen öffnen sich …'}</div>`;
+    else if(racing&&dt>=R.finish[R.winner]){const done=R.order.filter(i=>dt>=R.finish[i]).slice(0,3);
+      ov=`<div class="hr-res"><h3>Zieleinlauf ${hhmm(X.start)}</h3>`+done.map((i,k)=>`<div><span>${k+1}. #${F.horses[i].no} ${esc(F.horses[i].name)}${mine&&mine.h===i?' ★':''}</span><b class="num">${k===0?fmtX(F.horses[i].odds):''}</b></div>`).join('')+'</div>'}
+    else if(racing){const ord=prog.map((p,i)=>[p,i]).sort((a,b)=>b[0]-a[0]);tk=ord.slice(0,3).map((o,k)=>`${k+1}. #${F.horses[o[1]].no} ${esc(F.horses[o[1]].name)}`).join('<br>');
+      if(mine){const pos=ord.findIndex(o=>o[1]===mine.h);if(pos>2)tk+=`<br><span style="color:var(--mute)">★ ${pos+1}. ${esc(F.horses[mine.h].name)}</span>`}}
+    else{const left=X.start-t;if(left<=10000&&left>0)ov=`<div class="hr-cd">${Math.ceil(left/1000)}</div>`}
+    if(ov!==ovKey){$('hrOv').innerHTML=ov;ovKey=ov}
+    if(tk!==tkKey){const el=$('hrTick');el.innerHTML=tk;el.hidden=!tk;tkKey=tk}}
+
+  // ---- Simulation (Quotentabelle): echte Zufallsseeds, Einsatz 10
+  function simRace(mode){const F=field(cryptoSeed()),R=resolve(F,cryptoSeed()),h=mode==='fav'?F.fav:mode==='out'?F.out:cryptoInt(FIELD);return h===R.winner?winOf(10,F.horses[h].odds)/10:0}
+  $('hrSim').onclick=()=>{const b=$('hrSim'),N=100000;b.disabled=true;let k=0;const sum={rnd:0,fav:0,out:0},t0=performance.now();
+    const chunk=()=>{for(let e=Math.min(N,k+4000);k<e;k++){sum.rnd+=simRace('rnd');sum.fav+=simRace('fav');sum.out+=simRace('out')}
+      $('hrSimOut').innerHTML=`Simuliere … ${fmt0(k)} von ${fmt0(N)} Rennen`;
+      if(k<N)setTimeout(chunk,0);else{b.disabled=false;$('hrSimOut').innerHTML=`<b>${fmt0(N)} Rennen</b> in ${fmt0(performance.now()-t0)} ms · Auszahlung zufälliges Pferd <b>${pct(sum.rnd/N)}</b> · immer Favorit <b>${pct(sum.fav/N)}</b> · immer Außenseiter <b>${pct(sum.out/N)}</b>`}};
+    setTimeout(chunk,20)};
+
+  // ---- Eingaben
+  function pick(i){if(myBet(cid()+1)){toast('Deine Wette für dieses Rennen steht schon.','bad');return}if(!race(cid()+1).F.horses[i])return;sel=i;SND.tick();render()}
+  $('hrList').addEventListener('click',e=>{const el=e.target.closest('.hrh');if(!el)return;ac();pick(+el.dataset.i);el.blur()});
+  $('hrGo').onclick=()=>{ac();place(sel,readBet('hrBet'))};
+  $('hrBet').addEventListener('input',render);
+  $('hrAuto').onclick=e=>{ac();e.currentTarget.blur();if(auto.on)return stopAuto();
+    const n=Math.max(1,Math.min(48,parseInt($('hrAutoN').value,10)||1));$('hrAutoN').value=n;auto.on=true;auto.left=n;render();autoStep()};
+
+  // ---- Takt: abrechnen, Auto, Server – auch wenn eine andere Seite offen ist
+  function step(){settleDue();autoStep();poll();if(visible())render()}
+  setInterval(step,250);
+  if(LOCAL)$('hrFair').innerHTML='<b style="color:var(--ink)">Ohne Server:</b> In dieser Version gibt es keine Mitspieler. Der Einlauf wird beim Start mit echtem Zufall auf deinem Gerät ausgewürfelt.';
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)step()});
+
+  return{RTP,
+    show(){resize();render();draw();poll(true)},
+    tick(){if(visible())draw()},
+    key(e){if(e.code==='Space'){e.preventDefault();if(e.repeat)return;if(!$('hrGo').disabled)$('hrGo').click();return}
+      if(/^[1-8]$/.test(e.key)){ac();pick(+e.key-1)}},
+    // offene Wetten (für den Einsatz im Spiel beim Laden eines Spielstands)
+    pending:st=>st&&st.hr&&Array.isArray(st.hr.bets)?r2(st.hr.bets.reduce((s,b)=>s+(+b.a||0),0)):0,
+    simRace}})();
+onShow.rennen=HR.show;
+
 
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
-  ({chicken:CH,plinko:PL,tower:TW,mines:MI,poker:PK}[cur])?.key(e)});
+  ({chicken:CH,plinko:PL,tower:TW,mines:MI,poker:PK,rennen:HR}[cur])?.key(e)});
 let last=performance.now();
-function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);fxTick(dt);requestAnimationFrame(loop)}
+function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);HR.tick();fxTick(dt);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(cur==='chicken')CH.show();if(cur==='plinko')PL.relayout();if(cur==='stats')renderStats();if(parts.length)sizeFx()},150)});
 renderWallet();renderSide();renderBadge();
