@@ -640,6 +640,283 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 @media (max-width:900px){#v-stapel:not([hidden]){padding-bottom:84px}.st-root{height:min(62vh,540px);min-height:380px}}
 @media (max-width:480px){.st-score{font-size:46px}.st-title{font-size:26px}.st-bigscore{font-size:48px}.st-toast-main{font-size:32px}.sk-jp b{font-size:22px}}
 @media (prefers-reduced-motion:reduce){.st-card{animation:none}}
+
+/* =====================================================================
+   GOLDENE SIEBEN – Slot für „Letzte Reihe Casino“
+   Alle Klassen/IDs mit Präfix „sl-“. Farben als Variablen am Wurzelelement.
+   ===================================================================== */
+
+.sl-root {
+  --sl-bg: #0f1923;
+  --sl-s1: #152230; --sl-s2: #1b2b3a; --sl-s3: #24384a;
+  --sl-l1: #22364a; --sl-l2: #2f4960;
+  --sl-tx: #e9f0f6; --sl-mu: #8ba2b7;
+  --sl-gold: #ffb020; --sl-gold-l: #ffd27a; --sl-gold-d: #c27d00; --sl-on-gold: #1d1300;
+  --sl-win: #2fe08f; --sl-loss: #ff4d6a;
+  --sl-num: "Chakra Petch", "Rubik", system-ui, sans-serif;
+
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+  color: var(--sl-tx);
+  background: var(--sl-bg);
+  font-family: "Rubik", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  touch-action: manipulation;            /* verhindert Doppeltipp-Zoom */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+.sl-root *, .sl-root *::before, .sl-root *::after { box-sizing: inherit; }
+.sl-root[hidden] { display: none; }
+
+.sl-h { font-family: var(--sl-num); font-weight: 700; letter-spacing: .02em; margin: 0; }
+.sl-num { font-family: var(--sl-num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.sl-muted { color: var(--sl-mu); }
+
+/* ---------- Seitenleiste ---------- */
+.sl-side {
+  background: var(--sl-s1);
+  border: 1px solid var(--sl-l1);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+  align-self: start;
+}
+.sl-label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--sl-mu); margin-bottom: 6px; }
+.sl-balance {
+  background: var(--sl-s2); border: 1px solid var(--sl-l1); border-radius: 12px;
+  padding: 10px 14px; display: flex; justify-content: space-between; align-items: baseline;
+}
+.sl-balance .sl-num { font-size: 22px; color: var(--sl-gold-l); }
+
+.sl-betrow { display: grid; grid-template-columns: 44px 1fr 44px; gap: 8px; }
+.sl-betval {
+  background: var(--sl-bg); border: 1px solid var(--sl-l2); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; height: 44px;
+}
+.sl-btn {
+  font: 500 14px "Rubik", system-ui, sans-serif;
+  color: var(--sl-tx);
+  background: var(--sl-s3);
+  border: 1px solid var(--sl-l2);
+  border-radius: 10px;
+  height: 40px; padding: 0 10px;
+  cursor: pointer;
+  user-select: none; -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: background .12s, border-color .12s, transform .08s;
+}
+.sl-btn:hover { background: #2b4258; }
+.sl-btn:active { transform: scale(.97); }
+.sl-btn:focus-visible { outline: 2px solid var(--sl-gold); outline-offset: 2px; }
+.sl-btn[disabled] { opacity: .4; cursor: not-allowed; transform: none; }
+.sl-btn-pm { height: 44px; font: 700 22px var(--sl-num); padding: 0; }
+.sl-quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+.sl-quick .sl-btn { height: 34px; font-size: 13px; padding: 0; }
+.sl-lineinfo { font-size: 13px; color: var(--sl-mu); background: var(--sl-s2); border-radius: 10px; padding: 8px 12px; border: 1px solid var(--sl-l1); }
+.sl-lineinfo b { color: var(--sl-tx); font-weight: 500; }
+
+/* Drehen-Knopf */
+.sl-spinbar { display: flex; flex-direction: column; gap: 8px; }
+.sl-mobinfo { display: none; }
+.sl-spin {
+  width: 100%; height: 64px;
+  border: 0; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(180deg, var(--sl-gold-l) 0%, var(--sl-gold) 45%, var(--sl-gold-d) 100%);
+  color: var(--sl-on-gold);
+  box-shadow: 0 6px 18px rgba(255,176,32,.25), inset 0 1px 0 rgba(255,255,255,.5);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+  transition: transform .08s, filter .12s;
+}
+.sl-spin:active { transform: scale(.98); }
+.sl-spin:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.sl-spin-main { font: 700 22px var(--sl-num); letter-spacing: .06em; text-transform: uppercase; }
+.sl-spin-sub { font: 500 11px "Rubik", sans-serif; opacity: .7; letter-spacing: .04em; }
+.sl-spin.sl-is-stop { background: linear-gradient(180deg, #3a5470, #24384a); color: var(--sl-tx); box-shadow: inset 0 0 0 1px var(--sl-l2); }
+.sl-spin.sl-is-free { background: linear-gradient(180deg, #8dffcb, var(--sl-win) 50%, #149a5f); color: #04220f; }
+
+/* Schalter */
+.sl-toggles { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.sl-switch {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: var(--sl-s2); border: 1px solid var(--sl-l1); border-radius: 10px;
+  padding: 0 10px; height: 40px; cursor: pointer; color: var(--sl-tx);
+  font: 500 13px "Rubik", sans-serif; user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.sl-switch:focus-visible { outline: 2px solid var(--sl-gold); outline-offset: 2px; }
+.sl-knob { width: 34px; height: 20px; border-radius: 10px; background: var(--sl-l2); position: relative; flex: none; transition: background .15s; }
+.sl-knob::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--sl-tx); transition: transform .15s; }
+.sl-switch[aria-checked="true"] .sl-knob { background: var(--sl-gold); }
+.sl-switch[aria-checked="true"] .sl-knob::after { transform: translateX(14px); background: var(--sl-on-gold); }
+
+/* Auto-Spin */
+.sl-chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.sl-chips .sl-btn { height: 36px; padding: 0; font: 700 14px var(--sl-num); }
+.sl-chips .sl-btn.sl-on { background: var(--sl-gold); color: var(--sl-on-gold); border-color: var(--sl-gold); }
+.sl-stopwin { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--sl-mu); }
+.sl-stopwin input {
+  flex: 1; min-width: 0; height: 36px; border-radius: 10px; border: 1px solid var(--sl-l2);
+  background: var(--sl-bg); color: var(--sl-tx); padding: 0 10px;
+  font: 700 16px var(--sl-num); /* 16px: verhindert iOS-Zoom beim Fokus */
+}
+.sl-stopwin input:focus { outline: 2px solid var(--sl-gold); outline-offset: 1px; }
+
+/* Mini-Statistiken */
+.sl-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sl-stat { background: var(--sl-s2); border: 1px solid var(--sl-l1); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+.sl-stat span { display: block; font-size: 11px; color: var(--sl-mu); text-transform: uppercase; letter-spacing: .06em; }
+.sl-stat b { display: block; font: 700 17px var(--sl-num); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sl-pos { color: var(--sl-win); } .sl-neg { color: var(--sl-loss); }
+
+/* ---------- Spielfläche ---------- */
+.sl-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sl-machine {
+  background: linear-gradient(180deg, var(--sl-s2), var(--sl-s1));
+  border: 1px solid var(--sl-l1);
+  border-radius: 18px;
+  padding: 14px;
+}
+.sl-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; min-height: 32px; }
+.sl-logo { font: 700 22px var(--sl-num); letter-spacing: .1em; text-transform: uppercase;
+  background: linear-gradient(180deg, #fff2c4, var(--sl-gold) 55%, var(--sl-gold-d)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sl-logo small { font-size: 12px; letter-spacing: .08em; color: var(--sl-mu); -webkit-text-fill-color: var(--sl-mu); margin-left: 8px; }
+.sl-fspill {
+  display: none; align-items: center; gap: 8px;
+  background: rgba(47,224,143,.12); border: 1px solid rgba(47,224,143,.5); color: var(--sl-win);
+  border-radius: 999px; padding: 4px 12px; font: 700 13px var(--sl-num); white-space: nowrap;
+}
+.sl-fspill.sl-show { display: inline-flex; }
+
+/* Rahmen um die Walzen: nur statische Effekte, keine Filter über bewegten Flächen */
+.sl-stage {
+  position: relative;
+  max-width: 780px; margin: 0 auto;
+  padding: 8px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--sl-gold-l), var(--sl-gold-d) 50%, #6b4300);
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+.sl-stage-in { position: relative; border-radius: 10px; overflow: hidden; background: #0b141d; }
+.sl-stage canvas { display: block; width: 100%; }
+#sl-fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.sl-stage.sl-free { background: linear-gradient(180deg, #a9ffd8, var(--sl-win) 50%, #0e6e45); }
+
+/* Gewinn-Banner (ohne backdrop-filter) */
+.sl-banner {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(.6);
+  opacity: 0; pointer-events: none;
+  min-width: 62%;
+  text-align: center;
+  padding: 18px 24px 16px;
+  border-radius: 18px;
+  background: radial-gradient(120% 140% at 50% 0%, #2f4960 0%, #152230 60%, #0f1923 100%);
+  border: 2px solid var(--sl-gold);
+  box-shadow: 0 0 0 4px rgba(255,176,32,.18), 0 20px 50px rgba(0,0,0,.6);
+  transition: transform .28s cubic-bezier(.2,1.5,.4,1), opacity .2s;
+  z-index: 3;
+}
+.sl-banner.sl-show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; cursor: pointer; }
+.sl-banner-t { font: 700 clamp(22px, 5vw, 40px) var(--sl-num); text-transform: uppercase; letter-spacing: .06em;
+  background: linear-gradient(180deg, #fff6d8, var(--sl-gold) 55%, var(--sl-gold-d)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sl-banner-a { font: 700 clamp(26px, 6vw, 48px) var(--sl-num); font-variant-numeric: tabular-nums; color: var(--sl-win); margin-top: 4px; }
+.sl-banner-s { font-size: 13px; color: var(--sl-mu); margin-top: 6px; }
+.sl-banner.sl-fs { border-color: var(--sl-win); box-shadow: 0 0 0 4px rgba(47,224,143,.18), 0 20px 50px rgba(0,0,0,.6); }
+
+/* Gewinnleiste */
+.sl-winbar {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  max-width: 780px; margin: 12px auto 0;
+  background: var(--sl-bg); border: 1px solid var(--sl-l1); border-radius: 12px; padding: 10px 14px;
+}
+.sl-msg { color: var(--sl-mu); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; contain: layout paint; }
+.sl-msg.sl-good { color: var(--sl-win); }
+.sl-msg.sl-bad { color: var(--sl-loss); }
+.sl-winamt { text-align: right; contain: layout paint; }
+.sl-winamt span { display: block; font-size: 11px; color: var(--sl-mu); text-transform: uppercase; letter-spacing: .08em; }
+.sl-winamt b { display: block; min-width: 9ch; font: 700 24px var(--sl-num); font-variant-numeric: tabular-nums; color: var(--sl-tx); }
+.sl-winamt b.sl-pos { color: var(--sl-win); }
+
+/* ---------- Gewinntabelle ---------- */
+.sl-pay { background: var(--sl-s1); border: 1px solid var(--sl-l1); border-radius: 16px; }
+.sl-pay > summary {
+  list-style: none; cursor: pointer; padding: 14px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  font: 700 16px var(--sl-num); letter-spacing: .03em;
+  user-select: none; -webkit-user-select: none;
+}
+.sl-pay > summary::-webkit-details-marker { display: none; }
+.sl-pay > summary::after { content: "+"; font-size: 22px; color: var(--sl-gold); line-height: 1; }
+.sl-pay[open] > summary::after { content: "–"; }
+.sl-paybody { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 18px; }
+.sl-paybody h3 { font: 700 14px var(--sl-num); text-transform: uppercase; letter-spacing: .08em; color: var(--sl-gold-l); margin: 0 0 10px; }
+.sl-symgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.sl-symcard { display: flex; align-items: center; gap: 12px; background: var(--sl-s2); border: 1px solid var(--sl-l1); border-radius: 12px; padding: 8px 10px; }
+.sl-symcard canvas { width: 56px; height: 56px; flex: none; }
+.sl-symcard .sl-symname { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
+.sl-payrow { font: 700 13px var(--sl-num); font-variant-numeric: tabular-nums; color: var(--sl-mu); line-height: 1.5; }
+.sl-payrow em { font-style: normal; color: var(--sl-tx); }
+.sl-payrow span { white-space: nowrap; margin-right: 10px; }
+.sl-symdesc { font-size: 12px; color: var(--sl-mu); }
+.sl-linegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.sl-linecard { background: var(--sl-s2); border: 1px solid var(--sl-l1); border-radius: 10px; padding: 6px 6px 4px; text-align: center; }
+.sl-linecard svg { width: 100%; height: auto; display: block; }
+.sl-linecard div { font: 700 12px var(--sl-num); color: var(--sl-mu); margin-top: 2px; }
+.sl-rules { margin: 0; padding-left: 18px; color: var(--sl-mu); font-size: 14px; }
+.sl-rules li { margin-bottom: 4px; }
+.sl-rules b { color: var(--sl-tx); font-weight: 500; }
+.sl-rtp .sl-stat b { white-space: normal; }
+.sl-rtp { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+
+/* ---------- Mobil: untereinander, Drehen-Knopf fest unten ---------- */
+@media (max-width: 900px) {
+  .sl-root {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px 10px calc(96px + env(safe-area-inset-bottom));
+    gap: 12px;
+  }
+  .sl-main { order: -1; }
+  .sl-machine { padding: 10px; }
+  .sl-logo { font-size: 18px; }
+  .sl-stage { padding: 6px; }
+  .sl-spinbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    flex-direction: row; align-items: center; gap: 10px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: #0f1923; border-top: 1px solid var(--sl-l1);
+    box-shadow: 0 -8px 24px rgba(0,0,0,.4);
+  }
+  .sl-mobinfo { display: flex; flex-direction: column; gap: 2px; min-width: 96px; font-size: 11px; color: var(--sl-mu); }
+  .sl-mobinfo b { font: 700 15px var(--sl-num); font-variant-numeric: tabular-nums; color: var(--sl-tx); }
+  .sl-mobinfo b.sl-g { color: var(--sl-gold-l); }
+  .sl-spin { height: 58px; flex: 1; }
+  .sl-spin-sub { display: none; }
+  .sl-spin-main { font-size: 20px; }
+  .sl-msg { white-space: normal; font-size: 13px; line-height: 1.3; min-height: 2.6em; display: flex; align-items: center; }
+  .sl-winamt b { font-size: 21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-root * { transition: none !important; }
+  .sl-banner { transform: translate(-50%, -50%); }
+}
+
+/* ---------- Goldene Sieben: Einbindung ins Casino ---------- */
+.sl-root{padding:0;margin:0;max-width:none;background:transparent}
+.sl-balance{display:none} /* Guthaben steht schon oben in der Kopfzeile */
+@media (max-width:900px){
+  .sl-root{padding:0}
+  .sl-spinbar{bottom:calc(57px + env(safe-area-inset-bottom,0px));padding:10px 12px;z-index:25;background:var(--side);box-shadow:none}
+  #v-slot:not([hidden]){padding-bottom:84px}
+}
+
 #modal{grid-template-columns:minmax(0,440px);justify-content:center}.mbox{min-width:0}
 .txform{display:flex;flex-direction:column;gap:6px;text-align:left;margin:4px 0 12px;min-width:0}.txform .betrow button{padding:0 10px;flex:none}
 .txform .lbl{margin-top:6px}.txform .lbl span{text-transform:none;letter-spacing:0;font-weight:600}
@@ -984,6 +1261,130 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </details>
 </section>
 
+<!-- ======================= GOLDENE SIEBEN (Slot) ======================= -->
+<section id="v-slot" class="view" hidden>
+  <div class="ghead" data-head="slot"></div>
+<div class="sl-root" id="sl-root" hidden>
+  <!-- ============ SEITENLEISTE ============ -->
+  <aside class="sl-side" aria-label="Steuerung">
+    <div class="sl-balance">
+      <span class="sl-muted">Guthaben</span>
+      <span class="sl-num" id="sl-balance">0,00</span>
+    </div>
+
+    <div>
+      <div class="sl-label">Einsatz pro Dreh</div>
+      <div class="sl-betrow">
+        <button class="sl-btn sl-btn-pm" id="sl-bet-minus" aria-label="Einsatz verringern">−</button>
+        <div class="sl-betval sl-num" id="sl-bet">1,00</div>
+        <button class="sl-btn sl-btn-pm" id="sl-bet-plus" aria-label="Einsatz erhöhen">+</button>
+      </div>
+      <div class="sl-quick">
+        <button class="sl-btn" id="sl-bet-min">Min</button>
+        <button class="sl-btn" id="sl-bet-half">½</button>
+        <button class="sl-btn" id="sl-bet-double">2×</button>
+        <button class="sl-btn" id="sl-bet-max">Max</button>
+      </div>
+    </div>
+
+    <div class="sl-lineinfo"><b>10 feste Gewinnlinien</b> · <span id="sl-linebet">0,10</span> pro Linie</div>
+
+    <div class="sl-spinbar">
+      <div class="sl-mobinfo">
+        <span>Guthaben</span><b class="sl-g" id="sl-mob-bal">0,00</b>
+        <span>Einsatz</span><b id="sl-mob-bet">1,00</b>
+      </div>
+      <button class="sl-spin" id="sl-spin" aria-label="Drehen">
+        <span class="sl-spin-main" id="sl-spin-main">Drehen</span>
+        <span class="sl-spin-sub" id="sl-spin-sub">Leertaste</span>
+      </button>
+    </div>
+
+    <div class="sl-toggles">
+      <button class="sl-switch" id="sl-turbo" role="switch" aria-checked="false">Turbo <span class="sl-knob"></span></button>
+    </div>
+
+    <div>
+      <div class="sl-label">Auto-Spin</div>
+      <div class="sl-chips" id="sl-auto">
+        <button class="sl-btn" data-n="10">10</button>
+        <button class="sl-btn" data-n="25">25</button>
+        <button class="sl-btn" data-n="50">50</button>
+        <button class="sl-btn" data-n="100">100</button>
+        <button class="sl-btn" data-n="inf" aria-label="Unbegrenzt">∞</button>
+      </div>
+      <label class="sl-stopwin">Stopp bei Gewinn über
+        <input id="sl-stopwin" type="number" inputmode="decimal" min="0" step="0.1" placeholder="aus">
+      </label>
+    </div>
+
+    <div>
+      <div class="sl-label">Diese Sitzung</div>
+      <div class="sl-stats">
+        <div class="sl-stat"><span>Letzter Gewinn</span><b id="sl-st-last">0,00</b></div>
+        <div class="sl-stat"><span>Freispiele übrig</span><b id="sl-st-fs">0</b></div>
+        <div class="sl-stat"><span>Gespielt</span><b id="sl-st-spins">0 Drehs</b></div>
+        <div class="sl-stat"><span>Ergebnis</span><b id="sl-st-net">0,00</b></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ SPIELFLÄCHE ============ -->
+  <main class="sl-main">
+    <section class="sl-machine">
+      <div class="sl-head">
+        <div class="sl-logo" aria-hidden="true">Goldene Sieben<small>5 × 3 · 10 Linien</small></div>
+        <span class="sl-fspill" id="sl-fspill">Freispiele <span class="sl-num" id="sl-fs-left">0</span> · Gewinn <span class="sl-num" id="sl-fs-win">0,00</span> · ×2</span>
+      </div>
+      <div class="sl-stage" id="sl-stage">
+        <div class="sl-stage-in" id="sl-stage-in">
+          <canvas id="sl-reels" aria-label="Walzen" role="img"></canvas>
+          <canvas id="sl-fx" aria-hidden="true"></canvas>
+          <div class="sl-banner" id="sl-banner" role="status">
+            <div class="sl-banner-t" id="sl-banner-t">Großer Gewinn!</div>
+            <div class="sl-banner-a" id="sl-banner-a"></div>
+            <div class="sl-banner-s" id="sl-banner-s">Tippen zum Fortfahren</div>
+          </div>
+        </div>
+      </div>
+      <div class="sl-winbar">
+        <div class="sl-msg" id="sl-msg" aria-live="polite">Viel Glück! Drei Scatter bringen Freispiele.</div>
+        <div class="sl-winamt"><span>Gewinn</span><b id="sl-win">0,00</b></div>
+      </div>
+    </section>
+
+    <details class="sl-pay" id="sl-pay">
+      <summary>Gewinntabelle und Regeln</summary>
+      <div class="sl-paybody">
+        <div>
+          <h3>Symbole</h3>
+          <div class="sl-symgrid" id="sl-symgrid"></div>
+        </div>
+        <div>
+          <h3>Die 10 Gewinnlinien</h3>
+          <div class="sl-linegrid" id="sl-linegrid"></div>
+        </div>
+        <div>
+          <h3>Regeln</h3>
+          <ul class="sl-rules">
+            <li><b>Gewinne</b> zählen bei 3, 4 oder 5 gleichen Symbolen von links nach rechts auf einer Linie, beginnend auf Walze 1.</li>
+            <li>Pro Linie zählt nur der höchste Gewinn, die Gewinne aller Linien werden addiert.</li>
+            <li>Der <b>Einsatz</b> gilt pro Dreh und wird gleichmäßig auf alle 10 Linien verteilt. Die Beträge oben gelten für deinen aktuellen Einsatz.</li>
+            <li><b>WILD</b> erscheint nur auf Walze 2, 3 und 4 und ersetzt alle Symbole außer Scatter.</li>
+            <li><b>BONUS (Scatter)</b> zählt überall: 3 / 4 / 5 Scatter = 10 / 15 / 20 Freispiele. In Freispielen zählen alle Gewinne doppelt, Freispiele können erneut ausgelöst werden. Gespielt wird mit dem Einsatz, der sie ausgelöst hat.</li>
+            <li>Höchstens 25 % deines Guthabens pro Dreh. Höchstgewinn pro Dreh: Einsatz + 100.000.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Mathematik (exakt berechnet)</h3>
+          <div class="sl-rtp" id="sl-rtp"></div>
+        </div>
+      </div>
+    </details>
+  </main>
+</div>
+</section>
+
     </main>
   </div>
 </div>
@@ -1042,6 +1443,7 @@ const GAMES={
   poker:{name:"Hold'em Turnier",short:'Poker',hex:'#2f9e8f',rtp:'bis 97 %',price:10000,added:'2026-10-03'},
   rennen:{name:'Pferderennen',short:'Rennen',hex:'#c0773e',rtp:'97 %',price:2000,added:'2026-10-04'},
   stapel:{name:'Chip-Stapler',short:'Stapler',hex:'#8b6cf0',rtp:'je nach Können',price:4000,added:'2026-10-04'},
+  slot:{name:'Goldene Sieben',short:'Sieben',hex:'#e2453c',rtp:'97 %',price:3000,added:'2026-10-05'},
   double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'99 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
@@ -1068,7 +1470,7 @@ function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=O
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -1282,7 +1684,7 @@ function tweenBal(){const el=$('wBal');const from=shown,to=S.bal;cancelAnimation
 function flyText(v){if(reduced)return;const el=document.createElement('span');el.className='fly '+(v>=0?'pos':'neg');el.textContent=(v>=0?'+':'−')+short(Math.abs(v));$('wallet').appendChild(el);setTimeout(()=>el.remove(),1150)}
 const maxMode=new Set();const maxBet=()=>Math.max(.1,Math.min(tableLimit(),Math.floor(S.bal*100)/100));
 function applyMax(){maxMode.forEach(id=>{const i=$(id);if(i)i.value=maxBet()})}
-function renderWallet(fromTake){tweenBal();if(!fromTake)applyMax();$('starNum').textContent=S.stars;
+function renderWallet(fromTake){tweenBal();if(!fromTake)applyMax();$('starNum').textContent=S.stars;const slb=$('sl-mob-bal');if(slb)slb.textContent=fmt(S.bal);
   renderRestart();$('starBtn').hidden=!(S.bal>=CAP);
   PLAY.forEach(k=>{const el=$('gs-'+k);if(!el)return;const g=S.games[k];el.innerHTML=`<span class="chip">Runden <b class="num">${fmt0(g.n)}</b></span><span class="chip">Netto <b class="num ${cls(g.p-g.w)}">${sgn(g.p-g.w)}</b></span>`});
   const tl='max '+fmt(tableLimit())+' pro Runde';document.querySelectorAll('.tl').forEach(e=>e.textContent=tl);
@@ -1358,6 +1760,9 @@ const ART={
   stapel:(()=>{const C=[['#2c333c','#14181d'],['#22ad6b','#126c42'],['#2f6be0','#1b4594'],['#d83a48','#9a1f2b']];let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#14182a"/><ellipse cx="80" cy="64" rx="70" ry="40" fill="#8b6cf0" opacity=".12"/><ellipse cx="76" cy="90" rx="36" ry="10" fill="#000" opacity=".35"/><rect x="44" y="76" width="64" height="10" fill="#1b2b3a"/><ellipse cx="76" cy="86" rx="32" ry="9" fill="#1b2b3a"/><ellipse cx="76" cy="76" rx="32" ry="9" fill="#24384a" stroke="#ffb020" stroke-opacity=".5"/>';
     C.forEach((c,i)=>{const y=66-i*8,r=24-i*1.2,x=76+(i%2?2:-1);s+=`<rect x="${x-r}" y="${y}" width="${2*r}" height="7" fill="${c[1]}"/><ellipse cx="${x}" cy="${y+7}" rx="${r}" ry="7" fill="${c[1]}"/><ellipse cx="${x}" cy="${y}" rx="${r}" ry="7" fill="${c[0]}"/><ellipse cx="${x}" cy="${y}" rx="${r*.55}" ry="3.9" fill="none" stroke="#f4f1ea" stroke-opacity=".5"/>`});
     return s+'<path d="M96 20h22" stroke="#ffb020" stroke-width="2" stroke-dasharray="3 4" opacity=".6"/><rect x="104" y="22" width="40" height="7" fill="#b77300"/><ellipse cx="124" cy="29" rx="20" ry="6.5" fill="#b77300"/><ellipse cx="124" cy="22" rx="20" ry="6.5" fill="#ffb020"/><ellipse cx="124" cy="22" rx="11" ry="3.6" fill="none" stroke="#fff6e0" stroke-opacity=".7"/></svg>'})(),
+  slot:(()=>{let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="slg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset=".5" stop-color="#c27d00"/><stop offset="1" stop-color="#6b4300"/></linearGradient><linearGradient id="slr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8080"/><stop offset=".55" stop-color="#e3101e"/><stop offset="1" stop-color="#8c0008"/></linearGradient></defs><rect width="160" height="100" fill="#1d1215"/><ellipse cx="80" cy="50" rx="78" ry="44" fill="#e2453c" opacity=".1"/><rect x="22" y="22" width="116" height="58" rx="10" fill="url(#slg)"/><rect x="27" y="27" width="106" height="48" rx="6" fill="#0b141d"/>';
+    [0,1,2].forEach(i=>{const x=31+i*34;s+=`<rect x="${x}" y="30" width="30" height="42" rx="4" fill="#1b2b3a"/><path d="M${x+7} 41h16v4l-8 18h-6l7-16h-9z" fill="url(#slr)" stroke="#4a0000" stroke-width="1.2" stroke-linejoin="round"/>`});
+    return s+'<rect x="27" y="49" width="106" height="3" fill="#ffb020" opacity=".55"/><path d="M144 58V30" stroke="#8ba2b7" stroke-width="3" stroke-linecap="round"/><circle cx="144" cy="27" r="6" fill="#e2453c"/><circle cx="142.5" cy="25.5" r="2" fill="#fff" opacity=".6"/><text x="80" y="17" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="10" letter-spacing="2" fill="#ffd27a">777</text></svg>'})(),
   mines:(()=>{let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0c2a2e"/>';for(let r=0;r<3;r++)for(let c=0;c<5;c++){const x=34+c*19,y=18+r*21;const f=(r===1&&c===2)?'#123f45':(r===0&&c===3)?'#5a1424':'#2a6068';s+=`<rect x="${x}" y="${y}" width="16" height="17" rx="3.5" fill="${f}"/>`}
     return s+'<polygon points="72,52 65,44 68,40 76,40 79,44" fill="#39e0b0"/><circle cx="91.5" cy="27" r="5.5" fill="#1a0a0e"/><circle cx="93" cy="21" r="1.6" fill="#ff7a3c"/></svg>'})()};
 const LOCKBIG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
@@ -1599,7 +2004,8 @@ const SIMS=[
   ['mines-3-5','Mines · 3 Minen · 5 Diamanten',()=>{let p=1;for(let i=0;i<5;i++)p*=(22-i)/(25-i);return rnd()<p?.97/p:0},.03],
   ['mines-24-1','Mines · 24 Minen · 1 Diamant',()=>rnd()<1/25?.97*25:0,.03],
   ['rennen-fav','Pferderennen · immer Favorit',()=>HR.simRace('fav'),.03],
-  ['rennen-out','Pferderennen · immer Außenseiter',()=>HR.simRace('out'),.03]];
+  ['rennen-out','Pferderennen · immer Außenseiter',()=>HR.simRace('out'),.03],
+  ['slot','Goldene Sieben · 1 Dreh inkl. Freispiele',()=>SL.simOne(),.03]];
 const simSel=$('simStrat');simSel.innerHTML=SIMS.map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('');let simDone=false;
 function runSim(){simDone=true;const s=SIMS.find(x=>x[0]===simSel.value)||SIMS[0];const N=20,R=500,BET=10;
   let edge=s[3];if(edge==null){let t=0;const M=40000;for(let i=0;i<M;i++)t+=s[2]();edge=1-t/M}
@@ -2581,13 +2987,1213 @@ const SK=(()=>{
     jp:()=>jp.a}})();
 onShow.stapel=SK.show;
 
+// ================= GAME: GOLDENE SIEBEN (Slot) =================
+
+/* =====================================================================
+   GOLDENE SIEBEN – Spiel-Logik
+   Einziges globales Objekt: SLOT { show(), key(event), simulate(n) }
+   (dazu getState/setState/useWallet als Komfort-Funktionen für die Einbindung)
+   ===================================================================== */
+const SL=(()=>{
+
+  /* ------------------------------------------------------------------
+     1) DEMO-WALLET  –  später durch das Casino-Wallet ersetzen
+     Beträge in Coins (2 Nachkommastellen). Das Spiel rechnet intern in
+     Cent (Ganzzahlen) und rechnet nur an dieser Schnittstelle um.
+     ------------------------------------------------------------------ */
+  // Casino-Guthaben: Einsatz über take(), Abrechnung über settle() (zählt Runde, Statistik, Speichern)
+  const wallet = {
+    getBalance: () => S.bal,
+    take: (betrag) => take('slot', r2(betrag)),
+    settle: (einsatz, auszahlung, multiplikator) => settle('slot', r2(einsatz), r2(auszahlung), multiplikator, 0.97)
+  };
+
+  /* ------------------------------------------------------------------
+     2) MATHEMATIK: Symbole, Walzenstreifen, Gewinntabelle
+     Symbol-IDs: 0 Kirsche, 1 Zitrone, 2 Traube, 3 Glocke, 4 Diamant,
+                 5 Goldbarren, 6 Rote 7, 7 WILD, 8 SCATTER
+     ------------------------------------------------------------------ */
+  const WILD = 7, SCAT = 8;
+  const SYMBOLS = ['Kirsche', 'Zitrone', 'Traube', 'Glocke', 'Diamant', 'Goldbarren', 'Rote 7', 'WILD', 'BONUS (Scatter)'];
+
+  // Echte Walzenstreifen. Länge 37/38/38/38/37. Rote 7 und WILD liegen als 3er-Stapel,
+  // pro Walze genau ein Scatter. Häufigkeiten je Walze (Ki,Zi,Tr,Gl,Di,Go,7,W,Sc):
+  // Walze 1+5: 7,7,6,6,4,3,3,0,1   Walze 2–4: 7,6,6,5,4,3,3,3,1
+  const STRIPS = [
+    [2,1,2,3,1,2,3,1,0,6,6,6,0,8,3,0,1,3,1,2,4,1,3,0,4,0,4,0,5,1,5,2,5,4,2,3,0],
+    [5,8,6,6,6,2,3,2,3,5,0,4,2,0,1,3,7,7,7,0,2,0,1,2,4,3,1,0,5,4,3,0,1,2,0,1,4,1],
+    [3,1,4,2,3,1,0,2,7,7,7,3,0,1,2,1,0,8,4,1,2,0,5,0,1,5,4,2,3,4,6,6,6,5,2,0,3,0],
+    [3,5,3,5,4,6,6,6,0,1,7,7,7,0,1,5,2,0,3,1,2,1,0,1,0,1,4,2,4,2,4,0,2,3,8,3,0,2],
+    [1,2,1,3,2,0,1,2,3,6,6,6,4,0,3,4,5,3,5,3,2,5,1,2,1,0,8,1,0,4,3,0,4,2,0,1,0]
+  ];
+
+  // Gewinntabelle in Vielfachen des LINIEN-Einsatzes (= Einsatz / 10) für 3 / 4 / 5 gleiche.
+  // Abgestimmt auf RTP 97 % (exakt: 96,99995 %, siehe exactStats()).
+  const PAY = [
+    [6, 12, 40],     // Kirsche
+    [6, 15, 50],     // Zitrone
+    [10, 25, 80],    // Traube
+    [13, 30, 150],   // Glocke
+    [18, 70, 300],   // Diamant
+    [25, 130, 600],  // Goldbarren
+    [40, 200, 1250]  // Rote 7
+  ];
+  const FS_AWARD = { 3: 10, 4: 15, 5: 20 };   // Scatter → Freispiele
+  const FS_MULT = 2;                           // Gewinne in Freispielen doppelt
+  const MAX_SHARE = 0.25;                      // max. 25 % des Guthabens pro Dreh
+  const WIN_CAP_EXTRA = 10000000;              // Kappung: Einsatz + 100.000 Coins (in Cent)
+
+  // 10 feste Gewinnlinien: Reihe (0 oben, 1 Mitte, 2 unten) je Walze
+  const LINES = [
+    [1,1,1,1,1], [0,0,0,0,0], [2,2,2,2,2], [0,1,2,1,0], [2,1,0,1,2],
+    [0,0,1,2,2], [2,2,1,0,0], [1,0,0,0,1], [1,2,2,2,1], [1,0,1,2,1]
+  ];
+  const LINE_COLORS = ['#ffb020','#2fe08f','#4db8ff','#ff4d6a','#c58bff','#ffd27a','#3ee6e6','#ff8f3d','#9be15d','#ff7ac8'];
+
+  // Einsatzstufen in Cent (alle durch 10 teilbar → Linieneinsatz ist ein ganzer Cent-Betrag)
+  const BET_STEPS = [10,20,30,50,100,200,300,500,1000,2000,3000,5000,10000,20000,30000,50000,100000,200000,500000,1000000];
+
+  // Trefferquote aus vollständiger Durchzählung aller 37·38·38·38·37 = 75.119.768 Walzenstellungen
+  // (vorab berechnet, weil die Durchzählung auf dem Handy mehrere Sekunden dauern würde).
+  const HIT_EXACT = { hits: 24345926, total: 75119768 };
+
+  /* ------------------------------------------------------------------
+     3) ZUFALL: crypto.getRandomValues + Rejection Sampling (ohne Verzerrung)
+     ------------------------------------------------------------------ */
+  const rngBuf = new Uint32Array(1024);
+  let rngPos = rngBuf.length;
+  function u32() {
+    if (rngPos >= rngBuf.length) { crypto.getRandomValues(rngBuf); rngPos = 0; }
+    return rngBuf[rngPos++];
+  }
+  function randInt(n) {
+    const limit = Math.floor(4294967296 / n) * n;   // größtes Vielfaches von n ≤ 2^32
+    let x;
+    do { x = u32(); } while (x >= limit);            // Werte darüber verwerfen
+    return x % n;
+  }
+
+  /* ------------------------------------------------------------------
+     4) SPIEL-KERN (ohne Grafik) – auch von simulate() benutzt
+     ------------------------------------------------------------------ */
+  function rollStops() { return STRIPS.map(st => randInt(st.length)); }
+
+  // Sichtbares Fenster: grid[walze][reihe]
+  function gridFromStops(stops) {
+    return stops.map((s, i) => { const st = STRIPS[i], L = st.length; return [st[s], st[(s + 1) % L], st[(s + 2) % L]]; });
+  }
+
+  // Bewertet ein Fenster. units = Summe der Liniengewinne in Linieneinsatz-Vielfachen.
+  // Da WILD nie auf Walze 1 liegt, bestimmt Walze 1 das Liniensymbol eindeutig –
+  // pro Linie gibt es also genau einen (= den höchsten) möglichen Gewinn.
+  function evaluate(g, detail) {
+    let units = 0;
+    const wins = detail ? [] : null;
+    for (let li = 0; li < 10; li++) {
+      const ln = LINES[li];
+      const s = g[0][ln[0]];
+      if (s === SCAT) continue;
+      let k = 1;
+      while (k < 5) { const v = g[k][ln[k]]; if (v === s || v === WILD) k++; else break; }
+      if (k >= 3) {
+        const p = PAY[s][k - 3];
+        units += p;
+        if (detail) wins.push({ line: li, sym: s, count: k, units: p });
+      }
+    }
+    let sc = 0;
+    const scCells = detail ? [] : null;
+    for (let r = 0; r < 5; r++) for (let row = 0; row < 3; row++) {
+      if (g[r][row] === SCAT) { sc++; if (detail) scCells.push([r, row]); }
+    }
+    const fs = sc >= 5 ? FS_AWARD[5] : (FS_AWARD[sc] || 0);
+    return { units, wins, sc, scCells, fs };
+  }
+
+  // Exakte kombinatorische Berechnung (läuft in Millisekunden):
+  //  - Jede Linie liest pro Walze eine gleichverteilte Position → alle 10 Linien haben dieselbe
+  //    Verteilung, RTP der Linien = Erwartungswert EINER Linie (in Linieneinsatz-Einheiten) .
+  //  - Scatter-Verteilung exakt aus allen Fenstern je Walze (Faltung über die 5 Walzen).
+  //  - Freispiele: Wert v eines Freispiels = 2·Rl + T·v → v = 2·Rl/(1−T),
+  //    RTP = Rl + T·v = Rl·(1+T)/(1−T), mit T = erwartete Anzahl ausgelöster Freispiele pro Dreh.
+  function exactStats() {
+    const L = STRIPS.map(s => s.length);
+    const cnt = STRIPS.map(st => { const c = new Array(9).fill(0); st.forEach(v => c[v]++); return c; });
+    let rl = 0;
+    for (let s = 0; s < 7; s++) {
+      const p1 = cnt[0][s] / L[0];
+      const q = i => (cnt[i][s] + cnt[i][WILD]) / L[i];
+      const P3 = p1 * q(1) * q(2) * (1 - q(3));
+      const P4 = p1 * q(1) * q(2) * q(3) * (1 - q(4));
+      const P5 = p1 * q(1) * q(2) * q(3) * q(4);
+      rl += P3 * PAY[s][0] + P4 * PAY[s][1] + P5 * PAY[s][2];
+    }
+    let dist = [1];
+    STRIPS.forEach((st, i) => {
+      const d = [0, 0, 0, 0];
+      for (let p = 0; p < L[i]; p++) {
+        let c = 0; for (let r = 0; r < 3; r++) if (st[(p + r) % L[i]] === SCAT) c++;
+        d[c] += 1 / L[i];
+      }
+      const nd = new Array(dist.length + 3).fill(0);
+      dist.forEach((a, k) => d.forEach((b, j) => { nd[k + j] += a * b; }));
+      dist = nd;
+    });
+    let pTrig = 0, T = 0;
+    dist.forEach((p, k) => { if (k >= 3) { pTrig += p; T += p * (k >= 5 ? FS_AWARD[5] : FS_AWARD[k]); } });
+    const rtpExact = rl + T * (FS_MULT * rl / (1 - T));
+    const fsPerTrigger = (T / pTrig) / (1 - T);
+    return {
+      rtp: rtpExact, rtpLines: rl, rtpFree: rtpExact - rl, T, pTrig,
+      triggerEvery: 1 / pTrig, fsPerTrigger,
+      hitRate: HIT_EXACT.hits / HIT_EXACT.total,
+      maxWin: 10 * PAY[6][2] / 10, maxWinFree: 10 * PAY[6][2] / 10 * FS_MULT
+    };
+  }
+
+  /* simulate(n): n bezahlte Drehs inkl. aller Freispiele, Einsatz 1 pro Dreh */
+  function simulate(n) {
+    n = Math.max(1, Math.floor(n || 1000000));
+    const t0 = performance.now();
+    let wagered = 0, won = 0, hits = 0, triggers = 0, freeSpins = 0, maxMult = 0;
+    for (let i = 0; i < n; i++) {
+      wagered += 1;
+      let w = 0;
+      const r = evaluate(gridFromStops(rollStops()), false);
+      w += r.units / 10;
+      if (r.units > 0 || r.fs > 0) hits++;
+      let fs = r.fs;
+      if (fs > 0) triggers++;
+      while (fs > 0) {
+        fs--; freeSpins++;
+        const f = evaluate(gridFromStops(rollStops()), false);
+        w += f.units / 10 * FS_MULT;
+        fs += f.fs;
+      }
+      won += w;
+      if (w > maxMult) maxMult = w;
+    }
+    const ex = exactStats();
+    const res = {
+      drehs: n,
+      rtp: won / wagered,
+      rtpProzent: (won / wagered * 100).toFixed(3) + ' %',
+      rtpExaktProzent: (ex.rtp * 100).toFixed(5) + ' %',
+      trefferquote: (hits / n * 100).toFixed(2) + ' %',
+      freispielAusloesungAlle: (n / Math.max(1, triggers)).toFixed(1) + ' Drehs',
+      freispieleGesamt: freeSpins,
+      hoechsterGewinn: maxMult.toFixed(1) + '× Einsatz',
+      dauer: Math.round(performance.now() - t0) + ' ms'
+    };
+    if (typeof console !== 'undefined') console.table(res);
+    return res;
+  }
+
+  /* ------------------------------------------------------------------
+     5) SPIEL-ZUSTAND – alles, was zum Fortsetzen gespeichert werden muss.
+     Beträge in Cent. Änderungsstellen sind mit „// ZUSTAND:“ markiert.
+     ------------------------------------------------------------------ */
+  const state = {
+    betCents: 100,          // gewählter Einsatz pro Dreh
+    freeSpins: 0,           // verbleibende Freispiele
+    fsBetCents: 0,          // Einsatz, mit dem die laufenden Freispiele gespielt werden
+    fsWinCents: 0,          // bisheriger Gewinn der laufenden Freispielserie
+    fsPlayed: 0,            // gespielte Freispiele der laufenden Serie
+    stops: [0, 9, 30, 5, 9],// aktuelle Walzenstellungen (nur Anzeige)
+    pending: null,          // Dreh, der schon feststeht, aber noch NICHT abgerechnet ist
+    session: { spins: 0, wageredCents: 0, wonCents: 0, lastWinCents: 0 }
+  };
+
+  /* ------------------------------------------------------------------
+     6) HILFSFUNKTIONEN
+     ------------------------------------------------------------------ */
+  const $ = id => document.getElementById(id);
+  const nf = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = cents => nf.format(cents / 100);
+  const toCents = coins => Math.round(coins * 100);
+  const mod = (a, n) => ((a % n) + n) % n;
+  const balanceCents = () => toCents(wallet.getBalance());
+  let reducedMotion = false;
+
+  /* ------------------------------------------------------------------
+     7) TON (Web Audio, keine Dateien)
+     ------------------------------------------------------------------ */
+  let actx = null, master = null, muted = false;
+  // Nutzt den Ton des Casinos (inkl. Ton-Einstellung)
+  function audio() {
+    const a = ac(); if (!a) return null;
+    if (!master || actx !== a) { actx = a; master = a.createGain(); master.gain.value = 0.7; master.connect(a.destination); }
+    return a;
+  }
+  function tone(freq, dur, type, vol, when, slideTo) {
+    if (muted) return;
+    const a = audio(); if (!a) return;
+    const t = a.currentTime + (when || 0);
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.1, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.03);
+  }
+  const SFX = {
+    click()   { tone(880, 0.045, 'square', 0.04); },
+    start()   { tone(220, 0.12, 'triangle', 0.08, 0, 440); },
+    stop()    { tone(150, 0.09, 'triangle', 0.16, 0, 80); },
+    scatter() { tone(988, 0.16, 'sine', 0.12); tone(1480, 0.22, 'sine', 0.1, 0.07); },
+    tease()   { tone(330, 0.5, 'sawtooth', 0.025, 0, 660); },
+    win()     { [523, 659, 784].forEach((f, i) => tone(f, 0.14, 'triangle', 0.11, i * 0.07)); },
+    tick()    { tone(1600, 0.02, 'square', 0.018); },
+    big()     { [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.26, 'triangle', 0.12, i * 0.09)); },
+    fs()      { [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, 0.3, 'sine', 0.12, i * 0.1)); },
+    error()   { tone(220, 0.16, 'sawtooth', 0.05, 0, 140); }
+  };
+
+  /* ------------------------------------------------------------------
+     8) SYMBOL-GRAFIK (Canvas-Pfade, Koordinaten −50…50)
+     ------------------------------------------------------------------ */
+  function lin(c, x0, y0, x1, y1, stops) {
+    const g = c.createLinearGradient(x0, y0, x1, y1);
+    stops.forEach((col, i) => g.addColorStop(i / (stops.length - 1), col)); return g;
+  }
+  function rad(c, x0, y0, r0, x1, y1, r1, stops) {
+    const g = c.createRadialGradient(x0, y0, r0, x1, y1, r1);
+    stops.forEach((col, i) => g.addColorStop(i / (stops.length - 1), col)); return g;
+  }
+  function rrect(c, x, y, w, h, r) {
+    c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function spark(c, x, y, r) {
+    c.fillStyle = 'rgba(255,255,255,.95)';
+    c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r);
+    c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill();
+  }
+  const NUMFONT = '"Chakra Petch", "Rubik", sans-serif';
+
+  const DRAW = [
+    // 0 Kirsche
+    c => {
+      c.lineCap = 'round'; c.strokeStyle = '#2f8f3a'; c.lineWidth = 4.5;
+      c.beginPath(); c.moveTo(-17, 8); c.quadraticCurveTo(-10, -22, 10, -40); c.stroke();
+      c.beginPath(); c.moveTo(19, 4); c.quadraticCurveTo(19, -20, 10, -40); c.stroke();
+      c.fillStyle = lin(c, 10, -50, 40, -30, ['#9cf06a', '#2c8a35']);
+      c.beginPath(); c.moveTo(10, -40); c.quadraticCurveTo(24, -56, 42, -42); c.quadraticCurveTo(26, -28, 10, -40); c.fill();
+      c.strokeStyle = 'rgba(20,80,20,.6)'; c.lineWidth = 1.2;
+      c.beginPath(); c.moveTo(12, -40); c.quadraticCurveTo(26, -44, 40, -42); c.stroke();
+      [[-17, 22], [19, 18]].forEach(([x, y]) => {
+        c.fillStyle = rad(c, x - 7, y - 8, 2, x, y, 21, ['#ff9aa4', '#e5142c', '#8a0615']);
+        c.beginPath(); c.arc(x, y, 20, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = 'rgba(90,0,10,.5)'; c.lineWidth = 1.5; c.stroke();
+        c.fillStyle = 'rgba(255,255,255,.6)';
+        c.beginPath(); c.ellipse(x - 7, y - 9, 6, 3.5, -0.6, 0, Math.PI * 2); c.fill();
+      });
+    },
+    // 1 Zitrone
+    c => {
+      c.save(); c.rotate(-0.35);
+      c.fillStyle = rad(c, -14, -12, 4, 0, 0, 50, ['#fff8b0', '#ffd60a', '#c69200']);
+      c.beginPath(); c.moveTo(-48, 0);
+      c.bezierCurveTo(-44, -32, 44, -32, 48, 0); c.bezierCurveTo(44, 32, -44, 32, -48, 0); c.closePath(); c.fill();
+      c.strokeStyle = 'rgba(140,100,0,.6)'; c.lineWidth = 1.5; c.stroke();
+      c.fillStyle = '#e0b000';
+      c.beginPath(); c.ellipse(-48, 0, 5, 4, 0, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.ellipse(48, 0, 5, 4, 0, 0, Math.PI * 2); c.fill();
+      c.fillStyle = 'rgba(160,110,0,.25)';
+      for (let i = 0; i < 14; i++) { const a = i * 2.39, r = 8 + (i * 7) % 22; c.beginPath(); c.arc(Math.cos(a) * r * 1.4, Math.sin(a) * r * .8, 1.3, 0, 7); c.fill(); }
+      c.restore();
+      c.fillStyle = lin(c, -10, -46, 10, -26, ['#9cf06a', '#2c8a35']);
+      c.beginPath(); c.moveTo(-14, -24); c.quadraticCurveTo(-8, -46, 12, -44); c.quadraticCurveTo(4, -28, -14, -24); c.fill();
+    },
+    // 2 Traube
+    c => {
+      c.strokeStyle = '#7a4a1e'; c.lineWidth = 4; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(0, -24); c.quadraticCurveTo(2, -36, 8, -44); c.stroke();
+      c.fillStyle = lin(c, -30, -46, -4, -26, ['#9cf06a', '#2c8a35']);
+      c.beginPath(); c.moveTo(-2, -30); c.quadraticCurveTo(-26, -50, -38, -32); c.quadraticCurveTo(-18, -20, -2, -30); c.fill();
+      const pos = [[-24,-14],[-8,-16],[8,-16],[24,-14],[-16,2],[0,0],[16,2],[-8,18],[8,18],[0,34]];
+      pos.forEach(([x, y]) => {
+        c.fillStyle = rad(c, x - 4, y - 4, 1, x, y, 12, ['#e2b8ff', '#8d40e6', '#3c0d75']);
+        c.beginPath(); c.arc(x, y, 11.5, 0, Math.PI * 2); c.fill();
+        c.strokeStyle = 'rgba(30,0,60,.55)'; c.lineWidth = 1.2; c.stroke();
+        c.fillStyle = 'rgba(255,255,255,.55)';
+        c.beginPath(); c.ellipse(x - 4, y - 5, 3.2, 2, -0.6, 0, Math.PI * 2); c.fill();
+      });
+    },
+    // 3 Glocke
+    c => {
+      const metal = lin(c, -36, 0, 36, 0, ['#6b4300', '#ffd27a', '#ffb020', '#c27d00', '#5a3800']);
+      c.fillStyle = rad(c, -2, 34, 1, 0, 36, 10, ['#ffe9a8', '#b07000', '#4a2e00']);
+      c.beginPath(); c.arc(0, 36, 9, 0, Math.PI * 2); c.fill();
+      c.fillStyle = metal;
+      c.beginPath(); c.arc(0, -38, 6.5, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.moveTo(-34, 24);
+      c.bezierCurveTo(-30, 6, -30, -10, -22, -24); c.bezierCurveTo(-14, -38, 14, -38, 22, -24);
+      c.bezierCurveTo(30, -10, 30, 6, 34, 24); c.closePath(); c.fill();
+      c.strokeStyle = 'rgba(80,45,0,.6)'; c.lineWidth = 1.5; c.stroke();
+      c.fillStyle = lin(c, -42, 0, 42, 0, ['#5a3800', '#ffd27a', '#ffb020', '#a86a00', '#4a2e00']);
+      c.beginPath(); c.ellipse(0, 25, 42, 8, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.strokeStyle = 'rgba(255,240,200,.55)'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(-26, 6); c.quadraticCurveTo(0, 12, 26, 6); c.stroke();
+    },
+    // 4 Diamant
+    c => {
+      const T1 = [-26, -30], T2 = [26, -30], R = [46, -8], B = [0, 42], Lp = [-46, -8], M1 = [-15, -8], M2 = [15, -8], Tm = [0, -30];
+      const poly = (pts, fill) => { c.fillStyle = fill; c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); pts.slice(1).forEach(p => c.lineTo(p[0], p[1])); c.closePath(); c.fill(); };
+      poly([Lp, T1, T2, R], lin(c, 0, -30, 0, -8, ['#f0fcff', '#86dbff']));
+      poly([Lp, R, B], lin(c, 0, -8, 0, 42, ['#3aaaf7', '#0a4f9a']));
+      poly([M1, M2, B], 'rgba(255,255,255,.22)');
+      poly([Lp, M1, B], 'rgba(0,30,90,.28)');
+      poly([T1, Tm, M1], 'rgba(255,255,255,.35)');
+      poly([T2, R, M2], 'rgba(0,60,120,.18)');
+      c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 1.4;
+      [[T1, M1], [Tm, M1], [Tm, M2], [T2, M2], [Lp, R], [M1, B], [M2, B], [Lp, M1], [R, M2]].forEach(([a, b]) => { c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke(); });
+      c.strokeStyle = '#c9f2ff'; c.lineWidth = 2.2; c.lineJoin = 'round';
+      c.beginPath(); c.moveTo(Lp[0], Lp[1]); [T1, T2, R, B].forEach(p => c.lineTo(p[0], p[1])); c.closePath(); c.stroke();
+      spark(c, 30, -34, 8);
+    },
+    // 5 Goldbarren
+    c => {
+      c.lineJoin = 'round';
+      c.fillStyle = lin(c, 0, 12, 0, 30, ['#e09a10', '#7a4c00']);
+      c.beginPath(); c.moveTo(-44, 12); c.lineTo(44, 12); c.lineTo(48, 30); c.lineTo(-48, 30); c.closePath(); c.fill();
+      c.fillStyle = lin(c, -40, -26, 40, 12, ['#fff2c4', '#ffd27a', '#ffb020', '#c27d00']);
+      c.beginPath(); c.moveTo(-30, -26); c.lineTo(30, -26); c.lineTo(44, 12); c.lineTo(-44, 12); c.closePath(); c.fill();
+      c.strokeStyle = '#6b4300'; c.lineWidth = 1.6; c.stroke();
+      c.strokeStyle = 'rgba(255,250,230,.75)'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(-20, -16); c.lineTo(20, -16); c.lineTo(28, 4); c.lineTo(-28, 4); c.closePath(); c.stroke();
+      c.fillStyle = 'rgba(120,70,0,.55)'; c.font = '700 13px ' + NUMFONT; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('999,9', 0, -5);
+      spark(c, -26, -28, 7);
+    },
+    // 6 Rote 7
+    c => {
+      const seven = () => { c.beginPath(); c.moveTo(-32, -40); c.lineTo(34, -40); c.lineTo(34, -27); c.lineTo(5, 42); c.lineTo(-17, 42); c.lineTo(12, -23); c.lineTo(-32, -23); c.closePath(); };
+      c.lineJoin = 'round';
+      seven(); c.strokeStyle = '#4a0000'; c.lineWidth = 11; c.stroke();
+      seven(); c.strokeStyle = lin(c, 0, -40, 0, 42, ['#fff2c4', '#ffb020', '#c27d00']); c.lineWidth = 6; c.stroke();
+      seven(); c.fillStyle = lin(c, 0, -40, 0, 42, ['#ff8080', '#e3101e', '#8c0008']); c.fill();
+      c.strokeStyle = 'rgba(255,220,220,.6)'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(-27, -35); c.lineTo(28, -35); c.stroke();
+      spark(c, 34, -42, 7);
+    },
+    // 7 WILD
+    c => {
+      rrect(c, -47, -31, 94, 62, 13); c.fillStyle = lin(c, 0, -31, 0, 31, ['#4a2a8a', '#1b0f3a']); c.fill();
+      c.strokeStyle = lin(c, 0, -31, 0, 31, ['#fff2c4', '#ffb020', '#c27d00']); c.lineWidth = 4; c.stroke();
+      rrect(c, -40, -24, 80, 48, 8); c.strokeStyle = 'rgba(255,210,122,.35)'; c.lineWidth = 1.2; c.stroke();
+      c.font = '700 31px ' + NUMFONT; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.lineWidth = 4; c.strokeStyle = '#1d1300'; c.strokeText('WILD', 0, 2);
+      c.fillStyle = lin(c, 0, -14, 0, 16, ['#fff6d8', '#ffb020', '#c27d00']); c.fillText('WILD', 0, 2);
+      spark(c, -38, -30, 7); spark(c, 39, 28, 6);
+    },
+    // 8 SCATTER (BONUS)
+    c => {
+      c.beginPath();
+      for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 21 : 47; c.lineTo(Math.cos(a) * r, Math.sin(a) * r + 2); }
+      c.closePath();
+      c.fillStyle = rad(c, -8, -10, 2, 0, 2, 48, ['#d6fff0', '#2fe08f', '#0a6e46']); c.fill();
+      c.strokeStyle = '#ffd27a'; c.lineWidth = 3.5; c.lineJoin = 'round'; c.stroke();
+      rrect(c, -38, -8, 76, 22, 7); c.fillStyle = '#0f1923'; c.fill(); c.strokeStyle = '#ffb020'; c.lineWidth = 2; c.stroke();
+      c.font = '700 15px ' + NUMFONT; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#ffd27a'; c.fillText('BONUS', 0, 3.5);
+      spark(c, 30, -30, 7);
+    }
+  ];
+
+  // Zeichnet ein Symbol auf eigene Leinwand: Form → Glanz (nur auf dem Symbol) → Schatten
+  function renderSymbol(id, w, h, scale) {
+    const tmp = document.createElement('canvas'); tmp.width = w; tmp.height = h;
+    const t = tmp.getContext('2d');
+    const s = Math.min(w, h) * (scale || 0.8);
+    t.save(); t.translate(w / 2, h / 2); t.scale(s / 100, s / 100); DRAW[id](t); t.restore();
+    t.globalCompositeOperation = 'source-atop';
+    const g = t.createLinearGradient(0, h * 0.12, 0, h * 0.55);
+    g.addColorStop(0, 'rgba(255,255,255,0.32)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    t.fillStyle = g; t.beginPath(); t.ellipse(w * 0.46, h * 0.24, w * 0.4, h * 0.26, -0.25, 0, Math.PI * 2); t.fill();
+    const out = document.createElement('canvas'); out.width = w; out.height = h;
+    const o = out.getContext('2d');
+    o.shadowColor = 'rgba(0,0,0,0.55)'; o.shadowBlur = s * 0.07; o.shadowOffsetY = s * 0.04;
+    o.drawImage(tmp, 0, 0);
+    return out;
+  }
+  // Bewegungsunschärfe: Symbol mehrfach senkrecht versetzt übereinander (einmalig vorberechnet)
+  function renderBlur(src) {
+    const c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+    const x = c.getContext('2d');
+    const offs = [-0.14, -0.07, 0, 0.07, 0.14];
+    offs.forEach(o => { x.globalAlpha = 0.32; x.drawImage(src, 0, o * src.height); });
+    return c;
+  }
+
+  /* ------------------------------------------------------------------
+     9) WALZEN-RENDERING & ANIMATION (Canvas, zeitbasiert)
+     ------------------------------------------------------------------ */
+  let cv, ctx, fx, fctx, stageIn;
+  let dpr = 1, W = 0, H = 0, CW = 0, CH = 0, GAP = 6;
+  let sprites = [], blurs = [], bgCanvas = null, shadeCanvas = null, coinSprite = null;
+  let pendingResize = false;
+
+  // Walzen-Zustand: p = Position in Symbol-Einheiten (wächst → Symbole laufen nach unten),
+  // off = ganzzahliger Versatz in den Streifen (wird beim Landen neu gesetzt)
+  const reels = STRIPS.map((st, i) => ({ p: 0, off: state.stops[i], phase: 'idle', vel: 0, lastP: 0,
+    t0: 0, p0: 0, tStop: 0, land: null, target: 0, antic: false, scat: 0 }));
+
+  const TIMING = {
+    normal: { v: 24, ta: 0.14, first: 650, step: 230, antic: 1250, dist: 2.6 },
+    turbo:  { v: 32, ta: 0.08, first: 260, step: 90,  antic: 700,  dist: 2.0 },
+    reduced:{ v: 30, ta: 0.04, first: 140, step: 60,  antic: 250,  dist: 1.2 }
+  };
+  let turbo = false;
+  const timing = () => reducedMotion ? TIMING.reduced : (turbo ? TIMING.turbo : TIMING.normal);
+
+  // Landekurve mit kleinem Nachfedern (easeOutBack, c1 = 1.2) – Anfangssteigung 4.2
+  function landEase(u) {
+    if (reducedMotion) return 1 - Math.pow(1 - u, 3);
+    const y = u - 1; return 1 + 2.2 * y * y * y + 1.2 * y * y;
+  }
+  const LAND_SLOPE = () => reducedMotion ? 3 : 4.2;
+
+  function resize() {
+    if (phase === 'spinning') { pendingResize = true; return; }   // nie während der Animation neu layouten
+    pendingResize = false;
+    const w = Math.round(stageIn.clientWidth);
+    if (!w) return;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    GAP = w < 500 ? 4 : 6;
+    W = w;
+    CW = (W - GAP * 4) / 5;
+    CH = Math.round(CW * 0.92);
+    H = CH * 3;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cv.style.height = H + 'px';
+    fx.width = cv.width; fx.height = cv.height;
+    buildSprites();
+    draw(performance.now());
+  }
+
+  function buildSprites() {
+    const sw = Math.round(CW * dpr), sh = Math.round(CH * dpr);
+    sprites = DRAW.map((_, i) => renderSymbol(i, sw, sh, 0.78));
+    blurs = sprites.map(renderBlur);
+    // Hintergrund der Walzen
+    bgCanvas = document.createElement('canvas'); bgCanvas.width = cv.width; bgCanvas.height = cv.height;
+    const b = bgCanvas.getContext('2d'); b.scale(dpr, dpr);
+    b.fillStyle = '#0b141d'; b.fillRect(0, 0, W, H);
+    for (let i = 0; i < 5; i++) {
+      const x = i * (CW + GAP);
+      const g = b.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#152230'); g.addColorStop(0.5, '#22364a'); g.addColorStop(1, '#152230');
+      b.fillStyle = g; b.fillRect(x, 0, CW, H);
+      const g2 = b.createLinearGradient(x, 0, x + CW, 0);
+      g2.addColorStop(0, 'rgba(0,0,0,.22)'); g2.addColorStop(0.15, 'rgba(0,0,0,0)'); g2.addColorStop(0.85, 'rgba(0,0,0,0)'); g2.addColorStop(1, 'rgba(0,0,0,.22)');
+      b.fillStyle = g2; b.fillRect(x, 0, CW, H);
+    }
+    // Schattierung oben/unten (Walzen-Wölbung), wird über die Symbole gelegt
+    shadeCanvas = document.createElement('canvas'); shadeCanvas.width = cv.width; shadeCanvas.height = cv.height;
+    const s = shadeCanvas.getContext('2d'); s.scale(dpr, dpr);
+    const sg = s.createLinearGradient(0, 0, 0, H);
+    sg.addColorStop(0, 'rgba(5,10,16,.55)'); sg.addColorStop(0.12, 'rgba(5,10,16,0)');
+    sg.addColorStop(0.88, 'rgba(5,10,16,0)'); sg.addColorStop(1, 'rgba(5,10,16,.55)');
+    s.fillStyle = sg; s.fillRect(0, 0, W, H);
+    for (let i = 1; i < 5; i++) { s.fillStyle = 'rgba(255,210,122,.12)'; s.fillRect(i * (CW + GAP) - GAP / 2 - 0.5, 0, 1, H); }
+    // Münze für den Münzregen
+    const cs = Math.round(26 * dpr);
+    coinSprite = document.createElement('canvas'); coinSprite.width = cs; coinSprite.height = cs;
+    const k = coinSprite.getContext('2d'); k.translate(cs / 2, cs / 2); k.scale(cs / 100, cs / 100);
+    k.fillStyle = rad(k, -14, -14, 4, 0, 0, 50, ['#fff6d8', '#ffb020', '#8a5a00']); k.beginPath(); k.arc(0, 0, 47, 0, 7); k.fill();
+    k.strokeStyle = '#c27d00'; k.lineWidth = 6; k.beginPath(); k.arc(0, 0, 36, 0, 7); k.stroke();
+    k.fillStyle = '#c27d00'; k.font = '700 46px ' + NUMFONT; k.textAlign = 'center'; k.textBaseline = 'middle'; k.fillText('7', 0, 3);
+  }
+
+  // Hauptzeichnung: Hintergrund → Symbole → Schattierung → Effekte
+  function draw(now) {
+    if (!ctx || !W) return;
+    const c = ctx;
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.drawImage(bgCanvas, 0, 0, W, H);
+    for (let i = 0; i < 5; i++) {
+      const R = reels[i], st = STRIPS[i], L = st.length;
+      const x = i * (CW + GAP);
+      const base = Math.floor(R.p), frac = R.p - base;
+      const fast = R.vel > 9;
+      for (let r = -1; r <= 2; r++) {
+        const sym = st[mod(r - base + R.off, L)];
+        c.drawImage(fast ? blurs[sym] : sprites[sym], x, (r + frac) * CH, CW, CH);
+      }
+      // Spannung: Walze glüht, wenn schon 2 Scatter liegen
+      if (R.antic && R.phase !== 'idle') {
+        const a = 0.55 + 0.35 * Math.sin(now / 90);
+        c.strokeStyle = 'rgba(47,224,143,' + a.toFixed(3) + ')'; c.lineWidth = 8; c.strokeRect(x + 4, 4, CW - 8, H - 8);
+        c.strokeStyle = 'rgba(255,210,122,' + (a * 0.9).toFixed(3) + ')'; c.lineWidth = 2.5; c.strokeRect(x + 4, 4, CW - 8, H - 8);
+      }
+    }
+    c.drawImage(shadeCanvas, 0, 0, W, H);
+    if (present) drawPresent(c, now);
+  }
+
+  const cellX = r => r * (CW + GAP);
+  const cellCX = r => r * (CW + GAP) + CW / 2;
+  const cellCY = row => row * CH + CH / 2;
+
+  // Gewinnanzeige: Linie zeichnen, Nicht-Gewinnfelder abdunkeln, Gewinnfelder umrahmen
+  function drawPresent(c, now) {
+    const P = present;
+    const t = (now - P.t0) / 1000;
+    const showAll = P.idx < 0;
+    const set = showAll ? P.wins : (P.wins.length ? [P.wins[P.idx]] : []);
+    const cells = new Set();
+    set.forEach(w => { for (let k = 0; k < w.count; k++) cells.add(k * 3 + LINES[w.line][k]); });
+    if (P.scatterShow) P.scCells.forEach(([r, row]) => cells.add(r * 3 + row));
+    if (!cells.size) return;
+    c.fillStyle = 'rgba(8,14,20,.55)';
+    for (let r = 0; r < 5; r++) for (let row = 0; row < 3; row++) if (!cells.has(r * 3 + row)) c.fillRect(cellX(r), row * CH, CW, CH);
+    // Linien
+    set.forEach(w => {
+      const ln = LINES[w.line], col = LINE_COLORS[w.line];
+      c.lineJoin = 'round'; c.lineCap = 'round';
+      const path = () => { c.beginPath(); c.moveTo(0, cellCY(ln[0])); for (let k = 0; k < 5; k++) c.lineTo(cellCX(k), cellCY(ln[k])); c.lineTo(W, cellCY(ln[4])); };
+      path(); c.strokeStyle = 'rgba(0,0,0,.55)'; c.lineWidth = 9; c.stroke();
+      path(); c.strokeStyle = col; c.globalAlpha = 0.35; c.lineWidth = 12; c.stroke(); c.globalAlpha = 1;
+      path(); c.strokeStyle = col; c.lineWidth = 4; c.stroke();
+    });
+    // Rahmen um Gewinnsymbole (pulsierend, ohne shadowBlur)
+    const pulse = reducedMotion ? 1 : 0.75 + 0.25 * Math.sin(t * 7);
+    cells.forEach(id => {
+      const r = Math.floor(id / 3), row = id % 3;
+      const x = cellX(r) + 3, y = row * CH + 3, w = CW - 6, h = CH - 6;
+      rrect(c, x, y, w, h, 10); c.strokeStyle = 'rgba(255,176,32,' + (0.35 * pulse).toFixed(3) + ')'; c.lineWidth = 8; c.stroke();
+      rrect(c, x, y, w, h, 10); c.strokeStyle = 'rgba(255,226,150,' + pulse.toFixed(3) + ')'; c.lineWidth = 3; c.stroke();
+    });
+  }
+
+  /* ---------- Animations-Schleife (läuft nur, wenn etwas animiert wird) ---------- */
+  let rafId = 0;
+  function kick() { if (!rafId) rafId = requestAnimationFrame(loop); }
+  function loop(now) {
+    rafId = 0;
+    let active = false;
+    if (phase === 'spinning') { updateReels(now); active = true; }
+    if (present) { updatePresent(now); if (now - present.t0 < 12000) active = true; }
+    if (countUp) { updateCount(now); active = active || !!countUp; }
+    draw(now);
+    if (coins.length) { updateCoins(now); active = true; }
+    if (active) kick();
+  }
+
+  /* ------------------------------------------------------------------
+     10) DREH-ABLAUF
+     ------------------------------------------------------------------ */
+  let phase = 'idle';            // 'idle' | 'spinning' | 'present'
+  let present = null;            // laufende Gewinnanzeige
+  let autoLeft = 0;              // verbleibende Auto-Spins (Infinity = ∞)
+  let nextTimer = 0;             // Zeitgeber für nächsten Auto-/Freispiel-Dreh
+  let bannerDone = null;         // Fortsetzung nach Banner
+
+  function spin() {
+    if (phase === 'spinning') return false;
+    clearTimeout(nextTimer); nextTimer = 0;
+    hideBanner(false);
+    endPresent();
+
+    const isFree = state.freeSpins > 0;
+    let betCents;
+    if (isFree) {
+      betCents = state.fsBetCents;
+      state.freeSpins--;                                   // ZUSTAND: Freispiel wird verbraucht
+      state.fsPlayed++;                                    // ZUSTAND
+    } else {
+      betCents = state.betCents;
+      const bal = balanceCents();
+      if (betCents > bal * MAX_SHARE + 1e-9) {
+        const allowed = maxBetFor(bal);
+        stopAuto();
+        if (!allowed) { message('Dein Guthaben reicht nicht für den Mindesteinsatz (0,10 bei max. 25 %).', 'bad'); SFX.error(); return false; }
+        state.betCents = allowed;                          // ZUSTAND: Einsatz automatisch gesenkt
+        updateBetUI();
+        message('Höchstens 25 % deines Guthabens pro Dreh – Einsatz auf ' + fmt(allowed) + ' gesenkt.', 'bad'); SFX.error();
+        return false;
+      }
+      if (!wallet.take(betCents / 100)) {
+        stopAuto();
+        message('Nicht genug Guthaben für diesen Einsatz. Wähle einen kleineren Einsatz.', 'bad'); SFX.error();
+        return false;
+      }
+      if (autoLeft > 0) autoLeft--;
+      state.session.wageredCents += betCents;              // ZUSTAND: Sitzungsstatistik
+    }
+
+    // Ergebnis steht fest, BEVOR sich die Walzen drehen
+    const stops = rollStops();
+    const grid = gridFromStops(stops);
+    const ev = evaluate(grid, true);
+    let payout = Math.round(ev.units * betCents / 10) * (isFree ? FS_MULT : 1);
+    payout = Math.min(payout, (isFree ? 0 : betCents) + WIN_CAP_EXTRA);   // Kappung wie im Casino: Einsatz + 100.000 (Freispiel = Einsatz 0)
+    state.pending = {                                      // ZUSTAND: festgelegter, noch nicht abgerechneter Dreh
+      free: isFree, betCents, stops, payoutCents: payout,
+      mult: Math.round(payout / betCents * 100) / 100, fs: ev.fs
+    };
+    state.stops = stops;                                   // ZUSTAND: neue Walzenstellung
+
+    startReels(stops, grid, ev);
+    phase = 'spinning';
+    updateStats();   // Freispiele übrig, Knöpfe sperren, Knopf-Beschriftung
+    updateBalance();
+    message(isFree ? 'Freispiel ' + state.fsPlayed + ' – alle Gewinne zählen doppelt!' : 'Viel Glück!', isFree ? 'good' : '');
+    setWin(0);
+    SFX.start();
+    return true;
+  }
+
+  function startReels(stops, grid, ev) {
+    const T = timing(), now = performance.now();
+    // Scatter je Walze → Spannung, sobald vor einer Walze schon 2 Scatter liegen
+    let before = 0, extra = 0;
+    for (let i = 0; i < 5; i++) {
+      const R = reels[i];
+      const sc = grid[i].filter(v => v === SCAT).length;
+      R.antic = before >= 2;
+      if (R.antic) extra += T.antic;
+      before += sc;
+      R.scat = sc;
+      R.target = stops[i];
+      R.phase = 'spin'; R.t0 = now; R.p0 = R.p; R.lastT = now; R.vel = 0; R.land = null; R.teased = false;
+      R.tStop = now + T.first + i * T.step + extra;
+    }
+    kick();
+  }
+
+  function updateReels(now) {
+    const T = timing();
+    let allIdle = true;
+    for (let i = 0; i < 5; i++) {
+      const R = reels[i];
+      if (R.phase === 'idle') continue;
+      allIdle = false;
+      const prev = R.p;
+      if (R.phase === 'spin') {
+        const t = (now - R.t0) / 1000;
+        const vMax = T.v;
+        R.p = t < T.ta ? R.p0 + 0.5 * vMax * t * t / T.ta : R.p0 + 0.5 * vMax * T.ta + vMax * (t - T.ta);
+        if (R.antic && i > 0 && reels[i - 1].phase === 'idle' && !R.teased) { R.teased = true; SFX.tease(); }
+        if (now >= R.tStop) beginLanding(R, now, T.v, T.dist);
+      }
+      if (R.phase === 'land') {
+        const L = R.land, u = Math.min(1, (now - L.t0) / L.dur);
+        R.p = L.from + (L.to - L.from) * landEase(u);
+        if (u >= 1) {
+          // Walze steht: Position normalisieren, Streifen-Versatz = Zielstopp
+          R.p = 0; R.off = R.target; R.phase = 'idle'; R.vel = 0; R.antic = false; R.teased = false;
+          SFX.stop();
+          if (R.scat) SFX.scatter();
+          continue;
+        }
+      }
+      const dt = Math.max(0.001, (now - (R.lastT || now)) / 1000);
+      R.vel = Math.abs(R.p - prev) / dt;
+      R.lastT = now;
+    }
+    if (allIdle || reels.every(R => R.phase === 'idle')) finishSpin();
+  }
+
+  // Landung: Zielposition D Symbole voraus. Damit dort genau der Zielstopp erscheint,
+  // wird der Streifen-Versatz (off) passend gesetzt – das passiert bei voller Geschwindigkeit
+  // unter der Bewegungsunschärfe und ist nicht sichtbar.
+  function beginLanding(R, now, v, dist) {
+    const from = R.p;
+    const to = Math.ceil(from + dist);
+    // oberste Reihe bei p = to zeigt Index (−to + off) mod L → soll R.target sein
+    R.off = R.target + to;
+    R.land = { from, to, t0: now, dur: Math.max(90, (to - from) * LAND_SLOPE() / v * 1000) };
+    R.phase = 'land';
+  }
+
+  // Quick-Stop: alle noch drehenden Walzen sofort landen lassen
+  function quickStop() {
+    if (phase !== 'spinning') return;
+    const now = performance.now(), T = timing();
+    reels.forEach(R => { if (R.phase === 'spin') { R.antic = false; beginLanding(R, now, T.v * 1.6, 1.15); } });
+    kick();
+  }
+
+  // Alle Walzen stehen: genau EINMAL abrechnen, dann Gewinn zeigen
+  function finishSpin() {
+    if (phase !== 'spinning') return;
+    const P = state.pending;
+    if (pendingResize) setTimeout(resize, 0);
+    if (!P) { phase = 'idle'; setSpinButton(); return; }
+    settlePending();                                      // Abrechnung (genau einmal)
+    const ev = evaluate(gridFromStops(P.stops), true);
+    phase = 'present';
+
+    // Freispiele auslösen / nachlegen
+    let fsNew = 0;
+    if (P.fs > 0) {
+      if (!P.free) {                                     // ZUSTAND: neue Freispielserie mit diesem Einsatz
+        state.fsBetCents = P.betCents; state.fsWinCents = 0; state.fsPlayed = 0;
+      }
+      state.freeSpins += P.fs;                           // ZUSTAND: Freispiele gutschreiben (auch Nachlegen)
+      fsNew = P.fs;
+      stopAuto();                                        // Auto-Spin stoppt bei Freispielen
+    }
+    if (P.free) state.fsWinCents += P.payoutCents;       // ZUSTAND: Gewinn der Serie
+    updateStats();
+
+    const mult = P.payoutCents / P.betCents;
+    startPresent(ev, P);
+    if (P.payoutCents > 0) {
+      const big = mult >= 100 ? 'mega' : mult >= 20 ? 'big' : '';
+      const T = turbo || reducedMotion;
+      countTo(P.payoutCents, big ? (T ? 1500 : 3200) : (T ? 350 : 800));
+      if (big) {
+        SFX.big();
+        showBanner(big === 'mega' ? 'Mega Gewinn!' : 'Großer Gewinn!', P.payoutCents, (T ? 2000 : 4200),
+          () => afterWin(P, fsNew), true);
+        if (big === 'mega' && !reducedMotion) startCoins();
+        return;
+      }
+      SFX.win();
+    }
+    afterWin(P, fsNew);
+  }
+
+  function settlePending() {
+    const P = state.pending;
+    if (!P) return;
+    if (P.free) wallet.settle(0, P.payoutCents / 100, P.mult);
+    else wallet.settle(P.betCents / 100, P.payoutCents / 100, P.mult);
+    state.session.spins++;                               // ZUSTAND: Sitzungsstatistik
+    state.session.wonCents += P.payoutCents;
+    state.session.lastWinCents = P.payoutCents;
+    state.pending = null;                                // ZUSTAND: Dreh ist abgerechnet
+    persist();
+    updateBalance();
+  }
+
+  // Nach der Gewinnanzeige: Freispiel-Banner, nächster Freispiel- oder Auto-Dreh
+  function afterWin(P, fsNew) {
+    const T = turbo || reducedMotion;
+    if (fsNew > 0) {
+      SFX.fs();
+      showBanner(P.free ? '+' + fsNew + ' Freispiele!' : fsNew + ' Freispiele!', null, T ? 1600 : 2600, () => schedule(T ? 150 : 400), false, 'Alle Gewinne zählen doppelt');
+      return;
+    }
+    if (P.free && state.freeSpins === 0) {
+      // Serie beendet
+      const total = state.fsWinCents;
+      state.fsBetCents = 0; state.fsPlayed = 0;          // ZUSTAND: Freispielserie abgeschlossen
+      updateStats();
+      setTimeout(() => {
+        if (phase !== 'present') return;
+        showBanner('Freispiele beendet', total, T ? 1800 : 3000, () => { state.fsWinCents = 0; updateStats(); schedule(400); }, false, 'Gesamtgewinn der Freispiele');
+      }, T ? 300 : 700);
+      return;
+    }
+    if (state.freeSpins > 0) { schedule(P.payoutCents > 0 ? (T ? 700 : 1300) : (T ? 250 : 550)); return; }
+    if (autoLeft > 0) {
+      const stopAt = parseFloat(($('sl-stopwin').value || '').replace(',', '.'));
+      if (stopAt > 0 && P.payoutCents > toCents(stopAt)) { stopAuto(); message('Auto-Spin gestoppt: Gewinn über ' + fmt(toCents(stopAt)) + '.', 'good'); return; }
+      schedule(P.payoutCents > 0 ? (T ? 600 : 1200) : (T ? 120 : 350));
+    }
+  }
+
+  function schedule(ms) {
+    clearTimeout(nextTimer);
+    nextTimer = setTimeout(() => {
+      nextTimer = 0;
+      if (phase === 'spinning') return;
+      // Nicht im Hintergrund weiterdrehen: weiter geht's, sobald das Spiel wieder offen ist
+      if (cur !== 'slot' || document.hidden) { resumeLater = true; setSpinButton(); return; }
+      if (state.freeSpins > 0 || autoLeft > 0) spin();
+    }, ms);
+    setSpinButton();
+  }
+
+  /* ---------- Gewinnanzeige ---------- */
+  function startPresent(ev, P) {
+    const wins = ev.wins;
+    present = { wins, scCells: ev.scCells, scatterShow: ev.fs > 0, idx: -1, t0: performance.now(), lastStep: performance.now(), P };
+    if (!wins.length && !ev.fs) { present = null; if (P.free) message('Kein Gewinn in diesem Freispiel.'); else message('Kein Gewinn – nächster Versuch!'); return; }
+    if (ev.fs && !wins.length) message(ev.sc + ' Scatter – ' + ev.fs + ' Freispiele!', 'good');
+    else if (wins.length === 1) message(winText(wins[0], P), 'good');
+    else message(wins.length + ' Gewinnlinien' + (ev.fs ? ' + ' + ev.fs + ' Freispiele' : '') + ' · ' + fmt(P.payoutCents), 'good');
+    kick();
+  }
+  function winText(w, P) {
+    const amt = Math.round(w.units * P.betCents / 10) * (P.free ? FS_MULT : 1);
+    return 'Linie ' + (w.line + 1) + ' · ' + w.count + '× ' + SYMBOLS[w.sym] + ' · ' + fmt(amt);
+  }
+  function updatePresent(now) {
+    const P = present; if (!P) return;
+    const step = (turbo || reducedMotion) ? 700 : 1100;
+    if (P.wins.length > 1 && now - P.lastStep > step) {
+      P.lastStep = now;
+      P.idx = P.idx + 1 >= P.wins.length ? -1 : P.idx + 1;
+      if (P.idx >= 0) message(winText(P.wins[P.idx], P.P), 'good');
+    }
+    // Nach 12 s bleibt die Anzeige stehen (Schleife pausiert, spart Akku)
+  }
+  function endPresent() { present = null; countUp = null; }
+
+  /* ---------- Betrag hochzählen ---------- */
+  let countUp = null;
+  function countTo(cents, ms) { countUp = { to: cents, t0: performance.now(), ms, lastTick: 0 }; kick(); }
+  function updateCount(now) {
+    const C = countUp; if (!C) return;
+    const u = Math.min(1, (now - C.t0) / C.ms);
+    const v = Math.round(C.to * (1 - Math.pow(1 - u, 3)));
+    setWin(v);
+    if (bannerShown && bannerCount) $('sl-banner-a').textContent = fmt(v);
+    if (now - C.lastTick > 70 && u < 1) { C.lastTick = now; SFX.tick(); }
+    if (u >= 1) countUp = null;
+  }
+
+  /* ---------- Banner ---------- */
+  let bannerShown = false, bannerCount = false, bannerTimer = 0;
+  function showBanner(title, cents, ms, done, count, sub) {
+    const b = $('sl-banner');
+    $('sl-banner-t').textContent = title;
+    $('sl-banner-a').textContent = cents == null ? '' : (count ? fmt(0) : fmt(cents));
+    $('sl-banner-a').style.display = cents == null ? 'none' : '';
+    $('sl-banner-s').textContent = sub || 'Tippen zum Fortfahren';
+    b.classList.toggle('sl-fs', cents == null || /Freispiel/.test(title));
+    b.classList.add('sl-show');
+    bannerShown = true; bannerCount = !!count; bannerDone = done;
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(() => hideBanner(true), ms);
+  }
+  function hideBanner(runDone) {
+    if (!bannerShown) return;
+    clearTimeout(bannerTimer);
+    $('sl-banner').classList.remove('sl-show');
+    bannerShown = false;
+    if (bannerCount && countUp) { setWin(countUp.to); countUp = null; }
+    const d = bannerDone; bannerDone = null;
+    if (runDone && d) d();
+  }
+
+  /* ---------- Münzregen ---------- */
+  let coins = [], coinT = 0;
+  function startCoins() {
+    coins = []; coinT = performance.now();
+    for (let i = 0; i < 70; i++) {
+      coins.push({ x: Math.random() * W, y: -30 - Math.random() * H * 1.2, vx: (Math.random() - 0.5) * 80,
+        vy: 80 + Math.random() * 160, rot: Math.random() * 6.28, vr: 4 + Math.random() * 8, s: 0.7 + Math.random() * 0.6 });
+    }
+    kick();
+  }
+  function updateCoins(now) {
+    const dt = Math.min(0.05, (now - coinT) / 1000); coinT = now;
+    const c = fctx; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, W, H);
+    let alive = 0;
+    for (const k of coins) {
+      k.vy += 900 * dt; k.x += k.vx * dt; k.y += k.vy * dt; k.rot += k.vr * dt;
+      if (k.y > H + 30) continue;
+      alive++;
+      const sx = Math.abs(Math.cos(k.rot)) * 0.85 + 0.15, size = 26 * k.s;
+      c.setTransform(dpr * sx, 0, 0, dpr, dpr * k.x, dpr * k.y);
+      c.drawImage(coinSprite, -size / 2, -size / 2, size, size);
+    }
+    if (!alive) { coins = []; c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, fx.width, fx.height); }
+  }
+
+  /* ------------------------------------------------------------------
+     11) BEDIENUNG & ANZEIGE
+     ------------------------------------------------------------------ */
+  function maxBetFor(balCents) {
+    let best = 0;
+    for (const s of BET_STEPS) if (s <= balCents * MAX_SHARE + 1e-9) best = s;
+    return best;
+  }
+  function setBet(cents) {
+    if (state.freeSpins > 0 || phase === 'spinning') return;
+    const max = maxBetFor(balanceCents());
+    if (max && cents > max) { cents = max; message('Höchstens 25 % deines Guthabens pro Dreh.', 'bad'); }
+    state.betCents = Math.max(BET_STEPS[0], cents);       // ZUSTAND: Einsatz geändert
+    updateBetUI();
+  }
+  function stepBet(dir) {
+    const i = BET_STEPS.indexOf(state.betCents);
+    const idx = i < 0 ? BET_STEPS.findIndex(s => s >= state.betCents) : i;
+    setBet(BET_STEPS[Math.max(0, Math.min(BET_STEPS.length - 1, idx + dir))]);
+  }
+  function nearestStep(c) { let b = BET_STEPS[0]; for (const s of BET_STEPS) if (s <= c) b = s; return b; }
+
+  function updateBetUI() {
+    const b = state.freeSpins > 0 ? state.fsBetCents : state.betCents;
+    $('sl-bet').textContent = fmt(b);
+    $('sl-mob-bet').textContent = fmt(b);
+    $('sl-linebet').textContent = fmt(b / 10);
+    const lock = state.freeSpins > 0 || phase === 'spinning';
+    ['sl-bet-minus', 'sl-bet-plus', 'sl-bet-min', 'sl-bet-half', 'sl-bet-double', 'sl-bet-max'].forEach(id => { $(id).disabled = lock; });
+    if ($('sl-pay').open) fillPaytable();
+    persist();
+  }
+  function updateBalance() {
+    const t = fmt(balanceCents());
+    $('sl-balance').textContent = t; $('sl-mob-bal').textContent = t;
+  }
+  function updateStats() {
+    const s = state.session;
+    $('sl-st-last').textContent = fmt(s.lastWinCents);
+    $('sl-st-fs').textContent = String(state.freeSpins);
+    $('sl-st-spins').textContent = s.spins.toLocaleString('de-DE') + (s.spins === 1 ? ' Dreh' : ' Drehs');
+    const net = s.wonCents - s.wageredCents, el = $('sl-st-net');
+    el.textContent = (net > 0 ? '+' : '') + fmt(net);
+    el.className = net > 0 ? 'sl-pos' : net < 0 ? 'sl-neg' : '';
+    const fsOn = state.freeSpins > 0 || state.fsBetCents > 0;
+    $('sl-fspill').classList.toggle('sl-show', fsOn);
+    $('sl-stage').classList.toggle('sl-free', fsOn);
+    $('sl-fs-left').textContent = String(state.freeSpins);
+    $('sl-fs-win').textContent = fmt(state.fsWinCents);
+    updateBetUI();
+    setSpinButton();
+  }
+  function setWin(cents) {
+    const el = $('sl-win');
+    el.textContent = fmt(cents);
+    el.classList.toggle('sl-pos', cents > 0);
+  }
+  function message(text, kind) {
+    const el = $('sl-msg');
+    el.textContent = text;
+    el.className = 'sl-msg' + (kind ? ' sl-' + kind : '');
+  }
+  function setSpinButton() {
+    const btn = $('sl-spin'), main = $('sl-spin-main'), sub = $('sl-spin-sub');
+    btn.classList.remove('sl-is-stop', 'sl-is-free');
+    if (autoLeft > 0) {
+      btn.classList.add('sl-is-stop');
+      main.textContent = 'Auto stoppen';
+      sub.textContent = autoLeft === Infinity ? 'unbegrenzt' : 'noch ' + autoLeft;
+    } else if (state.freeSpins > 0 || (phase === 'spinning' && state.pending && state.pending.free)) {
+      btn.classList.add('sl-is-free');
+      main.textContent = phase === 'spinning' ? 'Stopp' : 'Freispiel';
+      sub.textContent = state.freeSpins + ' übrig · Gewinne ×2';
+    } else if (phase === 'spinning') {
+      main.textContent = 'Stopp'; sub.textContent = 'sofort anhalten';
+    } else {
+      main.textContent = 'Drehen'; sub.textContent = 'Leertaste';
+    }
+    document.querySelectorAll('#sl-auto .sl-btn').forEach(b => {
+      const n = b.dataset.n === 'inf' ? Infinity : +b.dataset.n;
+      b.classList.toggle('sl-on', autoLeft > 0 && autoPick === n);
+    });
+  }
+
+  let autoPick = 0;
+  function startAuto(n) {
+    if (state.freeSpins > 0) return;
+    autoLeft = n; autoPick = n;
+    setSpinButton();
+    if (phase !== 'spinning') spin();
+  }
+  function stopAuto() { autoLeft = 0; autoPick = 0; if (!state.freeSpins) { clearTimeout(nextTimer); nextTimer = 0; } setSpinButton(); }
+
+  // Haupt-Knopf / Leertaste
+  function onSpinPress() {
+    audio();
+    if (bannerShown) { hideBanner(true); return; }     // Banner überspringen
+    if (autoLeft > 0) { stopAuto(); if (phase === 'spinning') quickStop(); return; }
+    if (phase === 'spinning') { quickStop(); return; }
+    spin();
+  }
+
+  // Sofort auf pointerdown reagieren; click nur für Tastatur-Aktivierung (detail === 0)
+  function tap(el, fn) {
+    el.addEventListener('pointerdown', e => { if (e.button !== 0) return; e.preventDefault(); fn(e); });
+    el.addEventListener('click', e => { if (e.detail === 0) fn(e); });
+  }
+
+  /* ---------- Gewinntabelle ---------- */
+  function fillPaytable() {
+    const lineBet = (state.freeSpins > 0 ? state.fsBetCents : state.betCents) / 10;
+    document.querySelectorAll('#sl-symgrid [data-sym]').forEach(el => {
+      const s = +el.dataset.sym;
+      el.innerHTML = [2, 1, 0].map(k => '<span><em>' + (k + 3) + '×</em> ' + fmt(PAY[s][k] * lineBet) + '</span>').join('');
+    });
+  }
+  function buildPaytable() {
+    const grid = $('sl-symgrid'); grid.innerHTML = '';
+    const order = [6, 5, 4, 3, 2, 1, 0, 7, 8];
+    const px = Math.round(56 * dpr);
+    order.forEach(s => {
+      const card = document.createElement('div'); card.className = 'sl-symcard';
+      const img = renderSymbol(s, px, px, 0.86);
+      const box = document.createElement('div');
+      let html = '<div class="sl-symname">' + SYMBOLS[s] + '</div>';
+      if (s < 7) html += '<div class="sl-payrow" data-sym="' + s + '"></div><div class="sl-symdesc">' + PAY[s][2] + ' / ' + PAY[s][1] + ' / ' + PAY[s][0] + ' × Linieneinsatz</div>';
+      else if (s === WILD) html += '<div class="sl-symdesc">Nur Walze 2–4, ersetzt alle Symbole außer Scatter</div>';
+      else html += '<div class="sl-symdesc">3 / 4 / 5 überall = 10 / 15 / 20 Freispiele, Gewinne ×2</div>';
+      box.innerHTML = html;
+      card.appendChild(img); card.appendChild(box); grid.appendChild(card);
+    });
+    // Linien als Grafik
+    const lg = $('sl-linegrid'); lg.innerHTML = '';
+    LINES.forEach((ln, i) => {
+      let svg = '<svg viewBox="0 0 100 60" aria-hidden="true">';
+      for (let r = 0; r < 5; r++) for (let row = 0; row < 3; row++) {
+        const on = ln[r] === row;
+        svg += '<rect x="' + (r * 20 + 2) + '" y="' + (row * 20 + 2) + '" width="16" height="16" rx="3" fill="' + (on ? LINE_COLORS[i] : '#24384a') + '" opacity="' + (on ? '.35' : '1') + '"/>';
+      }
+      svg += '<polyline fill="none" stroke="' + LINE_COLORS[i] + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="' + ln.map((row, r) => (r * 20 + 10) + ',' + (row * 20 + 10)).join(' ') + '"/></svg>';
+      const d = document.createElement('div'); d.className = 'sl-linecard';
+      d.innerHTML = svg + '<div>Linie ' + (i + 1) + '</div>';
+      lg.appendChild(d);
+    });
+    // Mathematik
+    const ex = exactStats();
+    const pct = (v, d) => new Intl.NumberFormat('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }).format(v * 100) + ' %';
+    const tiles = [
+      ['Auszahlungsquote (RTP)', pct(ex.rtp, 5)],
+      ['davon Freispiele', pct(ex.rtpFree, 2)],
+      ['Trefferquote', pct(ex.hitRate, 2)],
+      ['Freispiele im Schnitt', 'alle ' + new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 }).format(ex.triggerEvery) + ' Drehs'],
+      ['Freispiele pro Auslösung', 'Ø ' + new Intl.NumberFormat('de-DE', { maximumFractionDigits: 2 }).format(ex.fsPerTrigger)],
+      ['Höchstgewinn', new Intl.NumberFormat('de-DE').format(ex.maxWin) + '× (Freispiel ' + new Intl.NumberFormat('de-DE').format(ex.maxWinFree) + '×)']
+    ];
+    $('sl-rtp').innerHTML = tiles.map(t => '<div class="sl-stat"><span>' + t[0] + '</span><b>' + t[1] + '</b></div>').join('');
+    fillPaytable();
+  }
+
+  /* ------------------------------------------------------------------
+     12) START
+     ------------------------------------------------------------------ */
+  let inited = false;
+  function init() {
+    if (inited) return; inited = true;
+    cv = $('sl-reels'); ctx = cv.getContext('2d');
+    fx = $('sl-fx'); fctx = fx.getContext('2d');
+    stageIn = $('sl-stage-in');
+
+    const mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    reducedMotion = !!(mq && mq.matches);
+    if (mq && mq.addEventListener) mq.addEventListener('change', e => { reducedMotion = e.matches; });
+
+    tap($('sl-spin'), onSpinPress);
+    tap($('sl-bet-minus'), () => { SFX.click(); stepBet(-1); });
+    tap($('sl-bet-plus'), () => { SFX.click(); stepBet(1); });
+    tap($('sl-bet-min'), () => { SFX.click(); setBet(BET_STEPS[0]); });
+    tap($('sl-bet-half'), () => { SFX.click(); setBet(nearestStep(state.betCents / 2)); });
+    tap($('sl-bet-double'), () => { SFX.click(); setBet(nearestStep(state.betCents * 2)); });
+    tap($('sl-bet-max'), () => { SFX.click(); const m = maxBetFor(balanceCents()); if (m) setBet(m); else message('Guthaben zu niedrig für den Mindesteinsatz.', 'bad'); });
+    tap($('sl-turbo'), e => { turbo = !turbo; e.currentTarget.setAttribute('aria-checked', String(turbo)); SFX.click(); });
+    document.querySelectorAll('#sl-auto .sl-btn').forEach(b => tap(b, () => {
+      SFX.click(); audio();
+      const n = b.dataset.n === 'inf' ? Infinity : +b.dataset.n;
+      if (autoLeft > 0 && autoPick === n) stopAuto(); else startAuto(n);
+    }));
+    tap($('sl-banner'), () => hideBanner(true));
+    $('sl-pay').addEventListener('toggle', () => { if ($('sl-pay').open) fillPaytable(); });
+
+    // iOS: Audio erst nach echter Nutzer-Aktivierung (pointerup/touchend) freischalten
+    const root = $('sl-root');
+    const unlock = () => { if (!muted) audio(); };
+    root.addEventListener('pointerup', unlock, { passive: true });
+    root.addEventListener('touchend', unlock, { passive: true });
+
+    if (window.ResizeObserver) new ResizeObserver(() => resize()).observe(stageIn);
+    else window.addEventListener('resize', resize);
+
+    // Schrift für WILD/BONUS: Symbole neu zeichnen, sobald Chakra Petch geladen ist
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('700 30px "Chakra Petch"').then(() => { if (W) { buildSprites(); buildPaytable(); draw(performance.now()); } }).catch(() => {});
+    }
+
+    updateBetUI(); updateBalance(); updateStats();
+  }
+
+  /* ---------- Spielstand im Casino (S.sl): wird mitgespeichert, auch auf dem Server ---------- */
+  let synced = false, resumeLater = false;
+  const DEF = () => ({ betCents: 100, freeSpins: 0, fsBetCents: 0, fsWinCents: 0, fsPlayed: 0, stops: [0, 9, 30, 5, 9], pending: null });
+  function persist() {
+    if (!synced) return;
+    const o = JSON.parse(JSON.stringify(state)); delete o.session;
+    S.sl = o; save();
+  }
+  // Zustand aus S.sl übernehmen (beim Öffnen, nach Login/Server-Abgleich). Ein unterbrochener Dreh wird nachträglich abgerechnet.
+  function restore(s) {
+    if (!s || phase === 'spinning') return;
+    const P = s.pending ? JSON.parse(JSON.stringify(s.pending)) : null;
+    Object.assign(state, JSON.parse(JSON.stringify(s)));
+    if (P) {
+      settlePending();
+      if (P.fs > 0) { if (!P.free) { state.fsBetCents = P.betCents; state.fsWinCents = 0; state.fsPlayed = 0; } state.freeSpins += P.fs; }
+      if (P.free) state.fsWinCents += P.payoutCents;
+      if (P.free && !state.freeSpins && !(P.fs > 0)) { state.fsBetCents = 0; state.fsPlayed = 0; state.fsWinCents = 0; }
+      persist();
+    }
+    state.stops.forEach((v, i) => { reels[i].off = v; reels[i].p = 0; });
+    if (inited) { updateStats(); updateBalance(); draw(performance.now()); }
+  }
+  function sync() {
+    if (phase === 'spinning') return;
+    synced = true;
+    const st = Object.assign(DEF(), S.sl && typeof S.sl === 'object' ? S.sl : {}, { session: state.session });
+    if (!BET_STEPS.includes(st.betCents)) st.betCents = 100;
+    restore(st);
+  }
+  function resume() {
+    if (!resumeLater || phase === 'spinning' || cur !== 'slot' || document.hidden) return;
+    resumeLater = false;
+    if (state.freeSpins > 0 || autoLeft > 0) schedule(500); else setSpinButton();
+  }
+  document.addEventListener('visibilitychange', resume);
+
+  // Ein bezahlter Dreh inkl. aller Freispiele, Ergebnis in Vielfachen des Einsatzes (für den Simulator in der Statistik)
+  function simOne() {
+    const r = evaluate(gridFromStops(rollStops()), false);
+    let w = r.units / 10, fs = r.fs;
+    while (fs > 0) { fs--; const f = evaluate(gridFromStops(rollStops()), false); w += f.units / 10 * FS_MULT; fs += f.fs; }
+    return w;
+  }
+
+  function show() {
+    init();
+    sync();
+    $('sl-root').hidden = false;
+    resize();
+    buildPaytable();
+    updateBalance();
+    resume();
+  }
+
+  // Tastatur: Leertaste = Drehen / Stopp (in Eingabefeldern ignorieren)
+  function key(e) {
+    if (!e || (e.code !== 'Space' && e.key !== ' ')) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    if ($('sl-root').hidden) return;
+    e.preventDefault();
+    if (e.repeat) return;
+    onSpinPress();
+  }
+
+  /* ------------------------------------------------------------------
+     13) ÖFFENTLICHE SCHNITTSTELLE – einziges globales Objekt
+     ------------------------------------------------------------------ */
+  return {
+    show,
+    key,
+    simulate,
+    simOne,
+    stats: exactStats,
+    // läuft jedes Bild: Auto-Spin stoppt, wenn man das Spiel verlässt
+    tick() { if (cur !== 'slot' && autoLeft > 0) stopAuto(); }
+  };
+})();
+onShow.slot=SL.show;
+
 
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
-  ({chicken:CH,plinko:PL,tower:TW,mines:MI,poker:PK,rennen:HR,stapel:SK}[cur])?.key(e)});
+  ({chicken:CH,plinko:PL,tower:TW,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL}[cur])?.key(e)});
 let last=performance.now();
-function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);HR.tick();SK.tick();fxTick(dt);requestAnimationFrame(loop)}
+function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);HR.tick();SK.tick();SL.tick();fxTick(dt);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(cur==='chicken')CH.show();if(cur==='plinko')PL.relayout();if(cur==='stats')renderStats();if(parts.length)sizeFx()},150)});
 renderWallet();renderSide();renderBadge();

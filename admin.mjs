@@ -17,7 +17,7 @@ function getStore(name) {
 import { createHash } from "node:crypto";
 
 const CAP = 10_000_000;
-const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel"];
+const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel", "slot"];
 const ITEMS = ["kette", "uhr", "auto", "villa", "yacht", "jet", "insel"];
 
 const json = (body, status = 200) =>
