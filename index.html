@@ -608,6 +608,7 @@ button,a,input,select,canvas{touch-action:manipulation}
 .st-kicker{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
 .st-title{margin:6px 0;font:700 32px/1.05 var(--f-disp)}
 .st-text{margin:0 0 12px;font-size:14.5px;line-height:1.45;color:var(--mute)}
+.st-text.sk-rich{color:var(--loss);font-weight:600}
 .st-bestline{margin:0 0 12px;font-size:13px;color:var(--mute);display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
 .st-bestline b{font-family:var(--f-num);color:var(--brass-hi);font-size:15px}
 .st-card .btn{width:100%}
@@ -1239,6 +1240,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
           <div class="st-kicker">Skill-Spiel</div><h2 class="st-title">Chip-Stapler</h2>
           <p class="st-text">Tipp, wenn der Chip genau über dem Turm schwebt. Was übersteht, fliegt weg. Je höher dein Turm, wenn ein Chip danebenfällt, desto mehr bekommst du.</p>
           <p class="st-bestline"><span>Jackpot <b id="skJpStart">…</b></span><span>Dein Rekord <b id="skBestStart">0</b></span></p>
+          <p class="st-text sk-rich" id="skRich" hidden>Chip-Stapler ist nur mit weniger als 100.000 Coins Guthaben spielbar.</p>
           <button class="btn gold big" id="skStartBtn" type="button">Start</button>
           <div class="st-hint">Im Spiel: aufs Spielfeld tippen oder Leertaste</div></div></div>
         <div class="st-overlay st-center st-hidden" id="skPauseOv"><div class="st-card">
@@ -1256,7 +1258,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   <details class="odds"><summary>Auszahlung, Jackpot und Regeln</summary>
     <p>Jeder Chip pendelt über dem Turm, jede Etage ein Stück schneller. Was übersteht, wird abgeschnitten, der Turm wird also schmaler. Triffst du genau, wird nichts abgeschnitten, und ab drei Perfekten in Folge wächst der Chip wieder. Die Runde läuft, bis ein Chip danebenfällt. Dann bekommst du automatisch Einsatz × Faktor deiner erreichten Höhe. Die Chips starten langsam und werden mit jeder Etage schneller, ab Höhe 30 schwankt das Tempo leicht.</p>
     <p><b style="color:var(--ink)">Jackpot:</b> Was unter Höhe 15 verloren geht (Einsatz minus Auszahlung), wandert in den Jackpot. Wer 75 Chips stapelt, bekommt 10× und den kompletten Jackpot, die Runde endet dann. Der Server spielt jede Runde anhand deiner Tipp-Zeiten nach, bevor er ihn auszahlt.</p>
-    <p>Dies ist ein Skill-Spiel: Wie viel du im Schnitt zurückbekommst, hängt von deinem Können ab. In Simulationen kommen Gelegenheitsspieler auf etwa 50–90 %, sehr gute Spieler auch über 100 %.</p>
+    <p>Dies ist ein Skill-Spiel: Wie viel du im Schnitt zurückbekommst, hängt von deinem Können ab. In Simulationen kommen Gelegenheitsspieler auf etwa 50–90 %, sehr gute Spieler auch über 100 %. Weil man hier mit Können dauerhaft gewinnen kann, ist der Chip-Stapler nur mit weniger als 100.000 Coins Guthaben spielbar.</p>
     <div class="tablewrap"><table id="skTbl"></table></div>
   </details>
 </section>
@@ -1372,7 +1374,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
             <li>Der <b>Einsatz</b> gilt pro Dreh und wird gleichmäßig auf alle 10 Linien verteilt. Die Beträge oben gelten für deinen aktuellen Einsatz.</li>
             <li><b>WILD</b> erscheint nur auf Walze 2, 3 und 4 und ersetzt alle Symbole außer Scatter.</li>
             <li><b>BONUS (Scatter)</b> zählt überall: 3 / 4 / 5 Scatter = 10 / 15 / 20 Freispiele. In Freispielen zählen alle Gewinne doppelt, Freispiele können erneut ausgelöst werden. Gespielt wird mit dem Einsatz, der sie ausgelöst hat.</li>
-            <li>Höchstens 25 % deines Guthabens pro Dreh. Höchstgewinn pro Dreh: Einsatz + 100.000.</li>
+            <li>Höchstens 25 % deines Guthabens pro Dreh.</li>
           </ul>
         </div>
         <div>
@@ -1474,9 +1476,8 @@ function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.ow
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
-const CAP=10000000,MAXWIN=100000,MIN_MINES=3,DBL_MAX=3,RESTART=1000;
+const CAP=10000000,SK_MAXBAL=100000,MIN_MINES=3,DBL_MAX=3,RESTART=1000;
 const tableLimit=()=>Math.max(1,Math.floor(S.bal*25)/100);
-function payCap(bet,win){return Math.min(win,r2(bet+MAXWIN))}
 function unlock(){} // Platzhalter (Erfolge gibt es nicht mehr)
 
 let hadLocal=false;try{const raw=localStorage.getItem(KEY);if(raw){adopt(JSON.parse(raw));hadLocal=true}}catch(e){}
@@ -1696,7 +1697,7 @@ function take(game,amount){if(!(amount>0)){toast('Gib einen Einsatz größer als
   S.bal=r2(S.bal-amount);S.inPlay=r2((S.inPlay||0)+amount);session.lastAct=Date.now();renderWallet(true);save();return true}
 function capBal(){if(S.bal>CAP){const lost=r2(S.bal-CAP);S.bal=CAP;toast(`10 Mio. erreicht. <b class="num">${fmt(lost)}</b> Coins verfallen. Hol dir jetzt deinen Stern!`,'good')}}
 function settle(game,bet,payout,mult,rtp){
-  payout=r2(payCap(bet,payout));const ip=S.inPlay||0,miss=Math.max(0,r2(bet-ip));S.inPlay=Math.max(0,r2(ip-bet));S.bal=Math.max(0,r2(S.bal+payout-miss));capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
+  payout=r2(payout);const ip=S.inPlay||0,miss=Math.max(0,r2(bet-ip));S.inPlay=Math.max(0,r2(ip-bet));S.bal=Math.max(0,r2(S.bal+payout-miss));capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
   g.n++;g.w=r2(g.w+bet);g.p=r2(g.p+payout);if(payout>bet)g.wins++;if(mult>g.best)g.best=mult;if(net>g.big)g.big=net;g.e=r2(g.e+bet*(1-rtp));
   S.log.push([t,game,bet,payout,Math.round(mult*100)/100,r2(bet*(1-rtp))]);if(S.log.length>600)S.log.splice(0,S.log.length-600);
   S.hist.push([t,S.bal,'g']);if(S.hist.length>600)S.hist.splice(0,S.hist.length-600);
@@ -1768,7 +1769,7 @@ const ART={
 const LOCKBIG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
 function renderLobby(){
   $('gameCards').innerHTML=PLAY.map(k=>{const G=GAMES[k],g=S.games[k],o=owns(k);
-    const jpv=k==='stapel'&&SK.jp()!=null?`Jackpot <b>${short(SK.jp())}</b> · `:'';const rec=jpv+(g.n?`Rekord <b>${fmtX(g.best)}</b> · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Noch nicht gespielt');
+    const jpv=k==='stapel'&&SK.jp()!=null?`Jackpot <b>${short(SK.jp())}</b> · `:'';const rec=k==='stapel'&&S.bal>=SK_MAXBAL?jpv+'Gesperrt ab <b>100.000</b> Coins Guthaben':jpv+(g.n?`Rekord <b>${fmtX(g.best)}</b> · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Noch nicht gespielt');
     return `<button class="gcard ${o?'':'locked'}" ${o?`data-go="${k}"`:`data-unlock="${k}"`} style="--gc:${G.hex}"><div class="art">${ART[k]||''}${o?'':`<div class="lockov"><span>${LOCKBIG}${fmt0(G.price)} Coins</span></div>`}</div><div class="body"><h3><span class="dot" style="background:${G.hex}"></span>${G.short}${o&&isNew(k)?'<span class="newtag">NEU</span>':''}</h3><span class="rec">${o?rec:jpv+'Gesperrt · Auszahlung '+G.rtp}</span><span class="cta"><span class="btn ${o?'gold':''}" style="display:inline-block;padding:7px 14px">${o?'Spielen':(S.bal>=G.price?'Freischalten':'Noch '+short(G.price-S.bal))}</span></span></div></button>`}).join('');
   const last=S.log.slice(-6).reverse();$('feed').innerHTML=last.length?last.map(r=>{const G=GAMES[r[1]];const n=r[3]-r[2];return `<div class="frow"><span class="dot" style="background:${G.hex}"></span><span>${G.short}</span><b>${fmtX(r[4])}</b><b class="${cls(n)}">${sgn(n)}</b></div>`}).join(''):'<p class="empty">Noch keine Runden. Such dir oben ein Spiel aus.</p>'}
 onShow.lobby=renderLobby;
@@ -2035,7 +2036,7 @@ const CH=(()=>{
     if(rnd()<d.p){round.pos=next;beep(500+next*25,.07,'triangle',.06);cars=cars.filter(c=>!(c.lane===next-1&&c.y<H/2+70));setTimeout(()=>barriers.add(next-1),260);
       if(round.pos>=d.lanes){round.pending=true;setTimeout(()=>cashout(true),350)}else{const a=+$('chAuto').value;if(a>0&&round.pos>=a){round.pending=true;setTimeout(()=>cashout(),350)}}}
     else{round.over=true;round.alive=false;round.pos=next;killer={lane:next-1,y:-140,hit:false}}ui()}
-  function cashout(fin){if(!round||round.over||round.pos===0)return;const m=mult(round.d,round.pos),win=payCap(round.bet,r2(round.bet*m));round.over=true;settle('chicken',round.bet,win,m,RTP);if(fin===true)unlock('chickenAll');
+  function cashout(fin){if(!round||round.over||round.pos===0)return;const m=mult(round.d,round.pos),win=r2(round.bet*m);round.over=true;settle('chicken',round.bet,win,m,RTP);if(fin===true)unlock('chickenAll');
     banner('chBanner',fin===true?'Ganz rüber!':'Ausgezahlt',`+${fmt(win)} (${fmtX(m)})`,'win');SND.win();ui()}
   function lose(){settle('chicken',round.bet,0,0,RTP);banner('chBanner','Überfahren!',`−${fmt(round.bet)}`,'lose');SND.lose();ui()}
   function ui(){const active=round&&!round.over;$('chPlay').textContent=active?'Weiter →':'Start';const can=active&&round.pos>0;$('chCash').disabled=!can;
@@ -2115,7 +2116,7 @@ const PL=(()=>{
     for(let i=0;i<n;i++){pts.push({x:pegX(i,j)+(rnd()-.5)*G.s*.18,y:pegY(i)-G.pegR-G.ballR*.9,row:i,peg:j});j+=dirs[i]}
     const bucket=dirs.reduce((a,b)=>a+b,0);pts.push({x:bX(bucket),y:G.bucketY+G.bucketH*.25,row:n});
     P.balls.push({pts,seg:0,t:0,bet,bucket,risk:P.risk,n,skin:P.skin,x:pts[0].x,y:pts[0].y});lock();return true}
-  function land(b){const m=T[b.n][b.risk][b.bucket],win=payCap(b.bet,r2(b.bet*m));P.profit=r2(P.profit+win-b.bet);settle('plinko',b.bet,win,m,rtp(b.n,b.risk));
+  function land(b){const m=T[b.n][b.risk][b.bucket],win=r2(b.bet*m);P.profit=r2(P.profit+win-b.bet);settle('plinko',b.bet,win,m,rtp(b.n,b.risk));
     if(b.n!==G.n)return;P.hit[b.bucket]=1;
     const a=ac();if(a){const base=m>=10?660:m>=1?520:260;(m>=10?[1,1.25,1.5,2]:m>=1?[1,1.5]:[1]).forEach((f,i)=>beep(base*f,.22,m>=1?'sine':'square',m>=1?.07:.025,i*.07))}
     const h=$('plHist'),d=document.createElement('div');d.textContent=fmtX(m);d.style.background=bCol(b.bucket);h.prepend(d);while(h.children.length>(G.s<24?5:7))h.lastChild.remove();
@@ -2190,7 +2191,7 @@ const TW=(()=>{
   function pick(c){if(!G||G.over||G.level>=ROWS)return;const r=G.level;G.picks[r]=c;G.last=r;
     if(G.traps[r].includes(c)){G.over=true;settle('tower',G.bet,0,0,1-EDGE);render();const b=$('twBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');banner('twBanner','Falle!',`−${fmt(G.bet)}`,'lose');SND.lose()}
     else{G.level++;beep(520+G.level*60,.1,'triangle',.07);if(G.level===ROWS){render();setTimeout(cashout,250)}else render()}}
-  function cashout(){if(!G||G.over||G.level===0)return;const d=D[G.diff],m=multAt(d,G.level),win=payCap(G.bet,r2(G.bet*m));G.over=true;settle('tower',G.bet,win,m,1-EDGE);if(G.level===ROWS)unlock('towerTop');render();banner('twBanner',fmtX(m),`+${fmt(win)}`,'win');SND.win()}
+  function cashout(){if(!G||G.over||G.level===0)return;const d=D[G.diff],m=multAt(d,G.level),win=r2(G.bet*m);G.over=true;settle('tower',G.bet,win,m,1-EDGE);if(G.level===ROWS)unlock('towerTop');render();banner('twBanner',fmtX(m),`+${fmt(win)}`,'win');SND.win()}
   $('twDiff').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;diff=+b.dataset.i;S.prefs.twDiff=diff;save();G=null;render()});
   $('twBoard').addEventListener('click',e=>{const t=e.target.closest('.twrow.active .tt');if(t)pick(+t.dataset.c)});
   $('twMain').onclick=()=>{ac();G&&!G.over?cashout():start()};$('twRand').onclick=()=>{if(G&&!G.over)pick(rint(D[G.diff].cols))};
@@ -2216,7 +2217,7 @@ const MI=(()=>{
   function reveal(i){if(!g||g.busy||g.open.has(i))return;g.open.add(i);const t=tile(i);t.disabled=true;
     if(g.bombs.has(i)){t.className='mt bomb';t.innerHTML=BOMB;SND.lose();const b=$('miBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');end(false);return}
     g.found++;t.className='mt gem';t.innerHTML=GEM;beep(520+g.found*60,.12,'triangle',.07);beep(780+g.found*60,.1,'triangle',.06,.06);stats();ladder();if(g.found===N-g.mines){end(true);return}const an=parseInt($('miAutoN').value)||0;if(an>0&&g.found>=an){g.busy=true;setTimeout(()=>{if(g){g.busy=false;end(true)}},350)}}
-  function end(win){const G2=g,m=win?mult(G2.found,G2.mines):0,pay=win?payCap(G2.bet,r2(G2.bet*m)):0;
+  function end(win){const G2=g,m=win?mult(G2.found,G2.mines):0,pay=win?r2(G2.bet*m):0;
     for(let i=0;i<N;i++){const t=tile(i);t.disabled=true;if(G2.open.has(i))continue;t.className='mt dim '+(G2.bombs.has(i)?'bomb':'gem');t.style.animation='none';t.innerHTML=G2.bombs.has(i)?BOMB:GEM}
     g=null;settle('mines',G2.bet,pay,m,EDGE);if(win){SND.win();lastWin=pay;if(G2.mines===24)unlock('mines24')}
     const o=document.createElement('div');o.className='banner '+(win?'win':'lose');o.innerHTML=`<b>${win?fmtX(m):'BOOM!'}</b><span>${win?'+'+fmt(pay):'−'+fmt(G2.bet)}</span>`;$('miBoard').appendChild(o);setTimeout(()=>o.remove(),2400);
@@ -2351,7 +2352,7 @@ const PK=(()=>{
     else if(P.slice(1).every(p=>p.chips<=0))finish(g,true);
     else{g.phase='next';if(d)banner('pkBanner',(d>0?'+':'−')+fmt0(Math.abs(d)),'Chips',d>0?'win':'lose');d>0?SND.win():d<0&&beep(330,.3,'sawtooth',.04)}}
   function finish(g,won){g.phase='end';g.won=won;g.turn=-1;
-    const pay2=won?payCap(g.bet,r2(g.bet*g.mult)):0;g.payout=pay2;
+    const pay2=won?r2(g.bet*g.mult):0;g.payout=pay2;
     settle('poker',g.bet,pay2,won?g.mult:0,.97);
     if(won){g.msg='Alle Bots sind raus – du gewinnst das Turnier!';banner('pkBanner',fmtX(g.mult),'+'+fmt(pay2)+' Coins','win');SND.win();confetti(140)}
     else{g.msg='Du bist ausgeschieden. Das Buy-in ist weg.';banner('pkBanner','Ausgeschieden','−'+fmt(g.bet)+' Coins','lose');SND.lose()}}
@@ -2400,7 +2401,7 @@ const PK=(()=>{
     $('pkDiff').innerHTML=DN.map((t,i)=>`<button data-i="${i}" aria-pressed="${i===diff}">${t}</button>`).join('');
     $('pkTempo').innerHTML=TN.map((t,i)=>`<button data-t="${i}" aria-pressed="${i===tempo}">${t}</button>`).join('');
     $('pkDiffNote').textContent=DD[diff];prize()}
-  function prize(){const g=G(),m=g?g.mult:multOf(diff,bots),b=g?g.bet:readBet('pkBet');$('pkMult').textContent=fmtX(m);$('pkPrize').textContent=b?fmt(payCap(b,r2(b*m))):'–'}
+  function prize(){const g=G(),m=g?g.mult:multOf(diff,bots),b=g?g.bet:readBet('pkBet');$('pkMult').textContent=fmtX(m);$('pkPrize').textContent=b?fmt(r2(b*m)):'–'}
   function controls(g){const c=$('pkAct');let h='',big=false;
     if(!g){h='<button class="btn gold big pkprim" id="pkStart">Turnier starten</button>'}
     else if(g.phase==='end'){h='<button class="btn gold big pkprim" id="pkNew">Neues Turnier</button>'}
@@ -2498,7 +2499,7 @@ const HR=(()=>{
   function progress(F,R,i,t){if(t<=0||!R)return 0;const ti=R.finish[i],h=F.horses[i];if(t>=ti)return 1+Math.min(.045,(t-ti)/ti*.4);
     const u=t/ti;return u+h.a*u*(1-u)+h.b*u*(1-u)*Math.sin(2*Math.PI*h.k*u+h.phi)}
   const floor2=x=>Math.floor(x*100+1e-6)/100;
-  const winOf=(a,o)=>payCap(a,floor2(a*o));
+  const winOf=(a,o)=>floor2(a*o);
 
   // ---- Uhr (Serverzeit, falls das Gerät falsch geht) und Rennen
   let skew=0;const now=()=>Date.now()+skew,cid=()=>Math.floor(now()/INTERVAL);
@@ -2610,9 +2611,7 @@ const HR=(()=>{
     const go=$('hrGo');let lab='Wetten',dis=false;
     if(placing){lab='Wird gesetzt …';dis=true}else if(mine){lab='Wette steht ✓';dis=true}else if(closeIn<=0){lab='Wettschluss';dis=true}else if(h==null){lab='Pferd wählen';dis=true}
     setT(go,lab);go.disabled=dis;go.classList.toggle('cash',!!mine);go.classList.toggle('gold',!mine);
-    const capped=h&&!mine&&stake>0&&stake*h.odds>stake+MAXWIN;
     setT($('hrInfo'),mine?`${fmt(mine.a)} auf #${F.horses[mine.h].no} ${F.horses[mine.h].name} · Start ${hhmm(x.start)} Uhr. Viel Glück!`
-      :capped?`Gewinn ist auf ${fmt0(MAXWIN)} über dem Einsatz begrenzt. Weniger Einsatz reicht.`
       :h?`${fmt(stake)} auf #${h.no} ${h.name} · Start ${hhmm(x.start)} Uhr`:`Nächstes Rennen um ${hhmm(x.start)} Uhr. Wettschluss 30 Sekunden vorher.`);
     // Pot
     const P=pot&&potId===x.id?pot:null,n=P?P.c.reduce((s,v)=>s+v,0):0,sum=P?P.s.reduce((s,v)=>s+v,0):0;
@@ -2861,12 +2860,24 @@ const SK=(()=>{
   function resetTower(){tower=[{x:0,z:0,r:STK.R0,col:4,anim:null}];mv=null;falling=[];ripples=[];chipAge=0;zoom=1;anchorFrac=PLAY_ANCHOR;overT=0;shakeT=0;camY=camTarget=camFor(1);layerOk=false}
   function spawnChip(){const n=tower.length,top=tower[n-1],l=R.L[R.st.h];
     mv={axis:n%2===1?'x':'z',off:STK.off(l,0),r:top.r,bx:top.x,bz:top.z,col:n%5,y:n*CH,l};chipAge=0;spawnAt=performance.now();shown=[];camTarget=camFor(n)}
+  // Ab 100.000 Coins gesperrt (geprüft vor dem Einsatz, laufende Runden bleiben unberührt)
+  const RICH_MSG=`Chip-Stapler ist nur mit weniger als <b class="num">${fmt0(SK_MAXBAL)}</b> Coins Guthaben spielbar.`;
+  const rich=()=>S.bal>=SK_MAXBAL;let wasRich=null;
   async function start(){
     if(state!=='ready'&&state!=='result')return;if(state==='result'&&performance.now()-resultAt<RESULT_GUARD_MS)return;
-    ac();const bet=readBet('skBet');if(!take('stapel',bet))return;
+    ac();if(rich()){toast(RICH_MSG,'bad');ui();return}
+    const bet=readBet('skBet');if(!take('stapel',bet))return;
     setState('starting');hideOv();ui();let seed=null,id=null;
-    if(online()){try{const r=await fetch(SAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'start',name:acct,bet})});const d=await r.json().catch(()=>({}));
-      if(r.ok&&d.seed){seed=d.seed;id=d.id;setJp(d)}}catch(e){}
+    if(online()){
+      // Server kennt evtl. noch einen älteren Stand: bei "zu_reich" einmal sofort speichern und erneut fragen
+      for(let i=0;i<2&&!id;i++){let d={};
+        try{const r=await fetch(SAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'start',name:acct,bet})});d=await r.json().catch(()=>({}));
+          if(r.ok&&d.seed){seed=d.seed;id=d.id;setJp(d)}}catch(e){}
+        if(d.error!=='zu_reich')break;
+        if(i===0){await flushNow();continue}
+        // Server bleibt dabei: Einsatz zurück, keine Runde
+        S.inPlay=Math.max(0,r2((S.inPlay||0)-bet));S.bal=r2(S.bal+bet);renderWallet(true);save();
+        setState('ready');$('skStartOv').classList.remove('st-hidden');ui();toast(RICH_MSG,'bad');return}
       if(!id)toast('Server nicht erreichbar: Diese Runde zählt nicht für den Jackpot.','bad')}
     R={bet,id,seed:seed||cryptoSeed(),st:STK.fresh(),taps:[],t0:Date.now(),ended:false};R.L=STK.plan(R.seed);
     resetTower();setState('play');spawnChip();renderHud(true);ui();blur();ensureLoop()}
@@ -2887,7 +2898,7 @@ const SK=(()=>{
     spawnChip();ui();ensureLoop()}
   function fall(x,z,sign){falling.push({x,z,y:mv.y,r:mv.r,col:mv.col,axis:mv.axis,cut:null,sign,t:0});mv=null;sfxOver();buzz([60,40,90]);shakeT=.3;showToast('DANEBEN!','',true);end('fall')}
   // Runde abrechnen und Kamera rausfahren; Server spielt nach (Jackpot-Topf)
-  function end(kind){if(R.ended)return;R.ended=true;const h=R.st.h,m=STK.mult(h),pay=payCap(R.bet,r2(R.bet*m));
+  function end(kind){if(R.ended)return;R.ended=true;const h=R.st.h,m=STK.mult(h),pay=r2(R.bet*m);
     R.kind=kind;R.m=m;R.pay=pay;settle('stapel',R.bet,pay,m,RTP);
     if(pay>R.bet){setTimeout(()=>SND.win(),450);if(m>=4)confetti(m>=8?200:110)}
     if(h>best){best=h;R.record=true;try{localStorage.setItem('st_best',String(best))}catch(e){}}
@@ -2923,10 +2934,11 @@ const SK=(()=>{
     lockBet('skBet',inRound);
     const go=$('skGo');
     if(state==='play'){go.textContent='Ablegen';go.disabled=false}else if(state==='paused'){go.textContent='Weiter';go.disabled=false}
-    else if(state==='starting'||state==='over'){go.textContent=state==='starting'?'Startet …':'…';go.disabled=true}else{go.textContent='Start';go.disabled=false}
-    $('skH').textContent=inRound?String(h):'–';$('skM').textContent=inRound?fmtX(m):'–';$('skWin').textContent=inRound&&m>0?fmt(payCap(bet,r2(bet*m))):'–';
+    else if(state==='starting'||state==='over'){go.textContent=state==='starting'?'Startet …':'…';go.disabled=true}else if(rich()){go.textContent='Gesperrt ab 100.000 Coins';go.disabled=true}else{go.textContent='Start';go.disabled=false}
+    $('skH').textContent=inRound?String(h):'–';$('skM').textContent=inRound?fmtX(m):'–';$('skWin').textContent=inRound&&m>0?fmt(r2(bet*m)):'–';
     $('skNext').textContent=!inRound?'5 → 0,10×':nx&&nx[0]<STK.MAXH?`${nx[0]} → ${fmtX(nx[1])}`:h<STK.MAXH?`${STK.MAXH} → Jackpot`:'Geschafft';
-    $('skStartBtn').textContent=`Start · Einsatz ${fmt(readBet('skBet'))}`;
+    const lk=rich()&&!inRound,sb=$('skStartBtn');sb.textContent=lk?'Gesperrt ab 100.000 Coins':`Start · Einsatz ${fmt(readBet('skBet'))}`;sb.disabled=lk;
+    $('skAgain').disabled=lk;$('skAgain').textContent=lk?'Gesperrt ab 100.000 Coins':'Nochmal';$('skRich').hidden=!lk;
     $('skTbl').querySelectorAll('tr[data-h]').forEach(tr=>{const s=+tr.dataset.h,nxs=STK.STEPS.find(([q])=>q>s);tr.classList.toggle('on',inRound&&h>=s&&(!nxs||h<nxs[0]))})}
   function showResult(){const r=R;if(!r)return;const won=r.pay>0;
     $('skResKick').textContent=r.jackpot?'Jackpot geknackt!':r.kind==='top'?STK.MAXH+' Chips!':r.pay>r.bet?'Gewonnen':won?'Teilweise zurück':'Daneben';
@@ -2980,7 +2992,7 @@ const SK=(()=>{
 
   return{RTP,
     show(){resize();render();ui();loadJp(true)},
-    tick(){if(state==='play'&&cur!=='stapel')pause()},
+    tick(){if(state==='play'&&cur!=='stapel')pause();if((state==='ready'||state==='result')&&rich()!==wasRich){wasRich=rich();ui()}},
     key(e){const k=e.key;
       if(e.code==='Space'||k==='Enter'){e.preventDefault();if(e.repeat)return;if(state==='play')drop(e.timeStamp);else if(state==='paused')resume();else start();return}
       if(k==='p'||k==='P'||k==='Escape'){if(state==='play')pause();else if(state==='paused')resume()}},
@@ -3041,7 +3053,6 @@ const SL=(()=>{
   const FS_AWARD = { 3: 10, 4: 15, 5: 20 };   // Scatter → Freispiele
   const FS_MULT = 2;                           // Gewinne in Freispielen doppelt
   const MAX_SHARE = 0.25;                      // max. 25 % des Guthabens pro Dreh
-  const WIN_CAP_EXTRA = 10000000;              // Kappung: Einsatz + 100.000 Coins (in Cent)
 
   // 10 feste Gewinnlinien: Reihe (0 oben, 1 Mitte, 2 unten) je Walze
   const LINES = [
@@ -3631,7 +3642,6 @@ const SL=(()=>{
     const grid = gridFromStops(stops);
     const ev = evaluate(grid, true);
     let payout = Math.round(ev.units * betCents / 10) * (isFree ? FS_MULT : 1);
-    payout = Math.min(payout, (isFree ? 0 : betCents) + WIN_CAP_EXTRA);   // Kappung wie im Casino: Einsatz + 100.000 (Freispiel = Einsatz 0)
     state.pending = {                                      // ZUSTAND: festgelegter, noch nicht abgerechneter Dreh
       free: isFree, betCents, stops, payoutCents: payout,
       mult: Math.round(payout / betCents * 100) / 100, fs: ev.fs

@@ -24,7 +24,7 @@ function getStore(name) {
 
 const NAME_RE = /^[a-z0-9äöüß._ -]{3,20}$/;
 const CAP = 10_000_000;          // Vermögensgrenze
-const MAXWIN = 100_000;          // Höchstgewinn pro Runde
+const SK_MAXBAL = 100_000;      // Chip-Stapler nur unter 100.000 Coins Guthaben
 const RESTART_CD = 3_600_000;    // Neustart nur alle 60 Minuten
 const BONUS_PER_SAVE = 15_000;   // Boni, die zwischen zwei Speicherungen höchstens dazukommen können
 const TX_MIN = 10;              // Mindestbetrag pro Überweisung
@@ -74,7 +74,6 @@ function plausible(oldS, newS, elapsedMs) {
   }
 
   const dNet = gameNet(newS) - gameNet(oldS);
-  if (dNet > Math.max(dRounds, 1) * MAXWIN + 1) return "gewinn_zu_hoch";
 
   const oldBonus = oldS.bonus || {}, newBonus = newS.bonus || {};
   const dBonus = sumObj(newBonus, "sell") - sumObj(oldBonus, "sell");
@@ -310,6 +309,8 @@ async function stapel(req, url) {
     const bet = r2(num(body.bet));
     // großzügig, weil der gespeicherte Stand ein paar Sekunden alt sein kann
     if (!(bet > 0) || bet > (num(st.bal) + num(st.inPlay)) * 0.5 + 10) return json({ error: "einsatz" }, 400);
+    // ab 100.000 Coins gesperrt (gespeicherter Stand vor oder direkt nach dem Einsatz)
+    if (num(st.bal) >= SK_MAXBAL) return json({ error: "zu_reich" }, 403);
     const prev = await rounds.get(key, { type: "json" });
     if (prev && now - prev.t < 700) return json({ error: "zu_schnell" }, 429);
     const r = { id: randomBytes(8).toString("hex"), seed: randomBytes(16).toString("hex"), bet, t: now };
@@ -329,7 +330,7 @@ async function stapel(req, url) {
     // unmöglich: kaputte Tipp-Zeiten, mehr Spielzeit als echte Zeit, oder Ende ohne Fallen und ohne Ziel
     const bad = res.bad || played > now - r.t + 5000 || (!res.fell && res.h < STK.MAXH);
     if (bad) { await logReject(name, "stapel", st, st); return json({ error: "ungueltig", pot: r2(num(p.a)), last: p.last || null }, 422); }
-    const m = STK.mult(res.h), pay = Math.min(r2(r.bet * m), r2(r.bet + MAXWIN));
+    const m = STK.mult(res.h), pay = r2(r.bet * m);
     if (res.h < STK.POT_BELOW) p.a = r2(num(p.a) + Math.max(0, r.bet - pay));
     let jackpot = 0;
     if (!res.fell && res.h >= STK.MAXH && num(p.a) > 0) {
