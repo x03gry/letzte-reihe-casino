@@ -71,6 +71,106 @@ function summary(key, rec) {
   };
 }
 
+// ================= Wetten =================
+// Gleiches Format wie in spielstand.mjs: e/<id> = Frage, b/<id>/<antwort>_<cent>_<zeit>_<name> = Tipp, v/<name>/<id> = Vorschlag.
+// Bei der Auflösung werden Topf (P) und Summe der richtigen Tipps (W) festgeschrieben; die Geräte rechnen damit ab.
+const W_ID = /^[a-z0-9]{6,24}$/;
+const wClean = (s, max) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
+function wSanitize(q, opts) {
+  q = wClean(q, 140);
+  if (q.length < 5) return { err: "Die Frage braucht mindestens 5 Zeichen." };
+  if (!Array.isArray(opts)) return { err: "Antworten fehlen." };
+  const out = [], seen = new Set();
+  for (const o of opts.slice(0, 12)) { const t = wClean(o, 40); if (t && !seen.has(t.toLowerCase())) { seen.add(t.toLowerCase()); out.push(t); } }
+  if (out.length < 2 || out.length > 6) return { err: "Es braucht 2 bis 6 verschiedene Antworten." };
+  return { q, opts: out };
+}
+const wStatus = (e, now) => (e.status === "open" && e.closeAt && now >= e.closeAt ? "closed" : e.status);
+function wParse(key) {
+  const m = /^b\/([^/]+)\/(\d+)_(\d+)_(\d+)_(.+)$/.exec(key);
+  return m ? { id: m[1], o: +m[2], c: +m[3], t: +m[4], n: decodeURIComponent(m[5]), key } : null;
+}
+const wClose = (v, now) => { const t = Math.round(num(v)); return t > now ? t : 0; };
+async function wBets(store, id) {
+  const { blobs } = await store.list({ prefix: id ? `b/${id}/` : "b/" });
+  return blobs.map((b) => wParse(b.key)).filter(Boolean);
+}
+async function wetten(action, body, now) {
+  const store = getStore("wetten");
+  const id = String(body.id || "");
+  const getE = async () => (W_ID.test(id) ? await store.get(`e/${id}`, { type: "json" }) : null);
+  const newId = () => now.toString(36) + Math.random().toString(36).slice(2, 6).padEnd(4, "0");
+
+  if (action === "wList") {
+    const [{ blobs: eb }, { blobs: vb }, bets] = await Promise.all([store.list({ prefix: "e/" }), store.list({ prefix: "v/" }), wBets(store)]);
+    const events = (await Promise.all(eb.map((b) => store.get(b.key, { type: "json" }).catch(() => null)))).filter((e) => e && e.id);
+    const sugg = (await Promise.all(vb.map((b) => store.get(b.key, { type: "json" }).then((v) => (v ? { ...v, key: b.key } : null)).catch(() => null)))).filter(Boolean);
+    const out = events.map((e) => {
+      const list = bets.filter((b) => b.id === e.id), k = e.opts.length, c = new Array(k).fill(0), s = new Array(k).fill(0);
+      for (const b of list) if (b.o >= 0 && b.o < k) { c[b.o]++; s[b.o] += b.c; }
+      return { ...e, st: wStatus(e, now), c, s: s.map((v) => v / 100), P: num(e.P) / 100, W: num(e.W) / 100 };
+    }).sort((a, b) => num(b.t) - num(a.t));
+    return json({ now, events: out, sugg: sugg.sort((a, b) => a.t - b.t) });
+  }
+
+  if (action === "wCreate" || action === "wActivate") {
+    let v = null;
+    if (action === "wActivate") {
+      const sk = String(body.sugg || "");
+      if (!/^v\/[^/]+\/[a-z0-9]{6,24}$/.test(sk)) return json({ error: "Vorschlag ungültig." }, 400);
+      v = await store.get(sk, { type: "json" });
+      if (!v) return json({ error: "Den Vorschlag gibt es nicht mehr." }, 404);
+      v.key = sk;
+    }
+    const s = wSanitize(body.q ?? (v && v.q), body.opts ?? (v && v.opts));
+    if (s.err) return json({ error: s.err }, 400);
+    const e = { id: newId(), q: s.q, opts: s.opts, status: "open", closeAt: wClose(body.closeAt, now), t: now, by: v ? v.by : null };
+    await store.setJSON(`e/${e.id}`, e);
+    if (v) await store.delete(v.key);
+    return json({ ok: true, event: e });
+  }
+
+  if (action === "wReject") {
+    const sk = String(body.sugg || "");
+    if (!/^v\/[^/]+\/[a-z0-9]{6,24}$/.test(sk)) return json({ error: "Vorschlag ungültig." }, 400);
+    await store.delete(sk);
+    return json({ ok: true });
+  }
+
+  const e = await getE();
+  if (!e) return json({ error: "Die Frage gibt es nicht (mehr)." }, 404);
+  const st = wStatus(e, now);
+  const done = st === "resolved" || st === "cancelled";
+
+  if (action === "wStop") {             // Wettschluss sofort
+    if (done) return json({ error: "Die Frage ist schon erledigt." }, 409);
+    e.status = "closed"; e.closeAt = 0;
+  } else if (action === "wDeadline") {  // neuer Wettschluss (0 = offen ohne Frist), öffnet wieder
+    if (done) return json({ error: "Die Frage ist schon erledigt." }, 409);
+    e.status = "open"; e.closeAt = wClose(body.closeAt, now);
+  } else if (action === "wResolve") {   // richtige Antwort festlegen: endgültig
+    if (done) return json({ error: "Die Frage ist schon aufgelöst." }, 409);
+    const win = Number(body.win);
+    if (!Number.isInteger(win) || win < 0 || win >= e.opts.length) return json({ error: "Antwort ungültig." }, 400);
+    const list = await wBets(store, e.id);
+    e.status = "resolved"; e.win = win; e.doneAt = now; e.closeAt = Math.min(num(e.closeAt) || now, now);
+    e.P = list.reduce((t, b) => t + b.c, 0);
+    e.W = list.filter((b) => b.o === win).reduce((t, b) => t + b.c, 0);
+    e.n = list.length; e.nw = list.filter((b) => b.o === win).length;
+  } else if (action === "wCancel") {    // abbrechen: alle bekommen ihren Einsatz zurück
+    if (done) return json({ error: "Die Frage ist schon erledigt." }, 409);
+    e.status = "cancelled"; e.doneAt = now;
+  } else if (action === "wDelete") {    // nur erledigte Fragen entfernen (Geräte haben 14 Tage zum Abrechnen)
+    if (!done) return json({ error: "Nur aufgelöste oder abgebrochene Fragen kann man entfernen." }, 409);
+    for (const b of await wBets(store, e.id)) { try { await store.delete(b.key); } catch {} }
+    await store.delete(`e/${e.id}`);
+    return json({ ok: true });
+  } else return json({ error: "unbekannte_aktion" }, 400);
+
+  await store.setJSON(`e/${e.id}`, e);
+  return json({ ok: true, event: e });
+}
+
 export default async (req) => {
   if (req.method !== "POST") return json({ error: "methode" }, 405);
   const KEY = adminKey();
@@ -118,6 +218,8 @@ export default async (req) => {
     await admin.setJSON("message", m);
     return json({ ok: true, message: m });
   }
+
+  if (String(action || "").startsWith("w")) return wetten(action, body, now);
 
   if (!key) return json({ error: "kein_name" }, 400);
   const rec = await store.get(key, { type: "json" });

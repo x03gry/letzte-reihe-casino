@@ -118,6 +118,23 @@ h1,h2,h3{margin:0}
 .checks input{accent-color:var(--brass);width:16px;height:16px}
 textarea.inp{min-height:90px;resize:vertical}
 .preview{background:linear-gradient(90deg,rgba(255,176,32,.16),rgba(255,176,32,.06));border:1px solid rgba(255,176,32,.45);border-radius:12px;padding:10px 14px;font-size:14px}
+/* wetten */
+.wcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.wcard+.wcard{margin-top:10px}
+.wcard .wq{font-weight:700;font-size:15.5px;overflow-wrap:anywhere}
+.wcard .chips{display:flex;gap:6px;flex-wrap:wrap}
+.wopts{display:flex;flex-direction:column;gap:6px}
+.wopt{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 8px 7px 12px;position:relative;overflow:hidden}
+.wopt .n{font-weight:600;overflow-wrap:anywhere}
+.wopt .v{font:600 13px var(--f-disp);color:var(--mute);white-space:nowrap;text-align:right}
+.wopt .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--brass);opacity:.6}
+.wopt.win{border-color:var(--win)} .wopt.win .bar{background:var(--win)}
+.wopt .btn{min-height:34px;padding:6px 10px;font-size:13px}
+.wcard textarea.inp{min-height:70px}
+.wcard .inp{font-size:15px}
+.dl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dl .inp{flex:1;min-width:190px;width:auto}
+@media (max-width:600px){.wopt{grid-template-columns:minmax(0,1fr) auto}.wopt .v{grid-column:1;text-align:left}.wopt .btn{grid-column:2;grid-row:1/3}}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line2);border-left:4px solid var(--win);border-radius:10px;padding:10px 14px;z-index:60;font-size:14px;max-width:calc(100vw - 32px)}
 #toast.bad{border-left-color:var(--loss)}
 @media (max-width:600px){.stats{grid-template-columns:1fr 1fr}.head .r .btn{padding:8px 10px}}
@@ -145,6 +162,7 @@ textarea.inp{min-height:90px;resize:vertical}
   <div class="tabs" role="tablist">
     <button role="tab" data-tab="acc" aria-selected="true">Accounts</button>
     <button role="tab" data-tab="rej" aria-selected="false">Schummel-Log<span class="cnt" id="rejCnt" hidden></span></button>
+    <button role="tab" data-tab="wet" aria-selected="false">Wetten<span class="cnt" id="wetCnt" hidden></span></button>
     <button role="tab" data-tab="msg" aria-selected="false">Nachricht an alle</button>
   </div>
 
@@ -173,6 +191,21 @@ textarea.inp{min-height:90px;resize:vertical}
     </div>
   </section>
 
+  <section id="t-wet" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="panel">
+      <h2 style="font-size:16px">Neue Frage</h2>
+      <p class="note">Frage zu einem Ereignis, das erst noch passiert, und 2 bis 6 Antworten (eine pro Zeile). Ohne Wettschluss bleibt die Frage offen, bis du sie schließt oder auflöst.</p>
+      <input class="inp" id="wQ" maxlength="140" placeholder="z. B. Wer gewinnt das Finale am Sonntag?" autocomplete="off">
+      <textarea class="inp" id="wO" placeholder="Antwort 1&#10;Antwort 2&#10;Antwort 3"></textarea>
+      <div class="dl"><span class="note">Wettschluss (optional)</span><input class="inp" id="wC" type="datetime-local"><button class="btn gold" id="wCreate">Frage starten</button></div>
+    </div>
+    <div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="font-size:16px">Vorschläge von Spielern</h2><span class="note" id="wSuggN"></span></div>
+      <p class="note">Du kannst Frage, Antworten und Wettschluss noch anpassen. „Aktivieren“ macht daraus eine offene Frage für alle.</p><div id="wSugg"></div></div>
+    <div class="panel"><h2 style="font-size:16px">Laufende Fragen</h2>
+      <p class="note">Sobald das Ereignis feststeht: bei der richtigen Antwort auf „Richtig“ tippen (zweimal, endgültig). Der Topf wird dann unter allen richtigen Tippern nach Einsatz aufgeteilt. Liegt niemand richtig, bekommen alle ihren Einsatz zurück.</p><div id="wRun"></div></div>
+    <div class="panel"><h2 style="font-size:16px">Erledigt</h2><p class="note">Spieler sehen erledigte Fragen 14 Tage lang. Entfernen erst, wenn alle abgerechnet haben; wer bis dahin nicht online war, bekommt seinen Einsatz zurück.</p><div id="wDone"></div></div>
+  </section>
+
   <section id="t-msg" hidden style="display:flex;flex-direction:column;gap:14px">
     <div class="panel">
       <h2 style="font-size:16px">Nachricht an alle</h2>
@@ -196,7 +229,7 @@ const fmt=v=>(+v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractio
 const fmt0=v=>Math.round(v).toLocaleString('de-DE');
 const sgn=v=>(v>0.004?'+':v<-0.004?'−':'')+fmt(Math.abs(v));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const GAMES={chicken:'Chicken',mines:'Mines',tower:'Tower',plinko:'Plinko',poker:'Poker',rennen:'Pferderennen',stapel:'Chip-Stapler',slot:'Goldene Sieben',double:'Münzwurf'};
+const GAMES={wetten:'Wetten',chicken:'Chicken',mines:'Mines',tower:'Tower',plinko:'Plinko',poker:'Poker',rennen:'Pferderennen',stapel:'Chip-Stapler',slot:'Goldene Sieben',double:'Münzwurf'};
 const ITEMS={kette:'Goldkette',uhr:'Luxusuhr',auto:'Sportwagen',villa:'Villa',yacht:'Yacht',jet:'Privatjet',insel:'Privatinsel'};
 const REASONS={guthaben_unerklaerlich:'Guthaben gestiegen ohne Grund',gewinn_zu_hoch:'Gewinn höher als möglich',zu_viele_runden:'Zu viele Runden zu schnell',runden:'Rundenzahl gesunken',sterne:'Sterne manipuliert',stern_ohne_10mio:'Stern ohne 10 Mio.',neustart_zu_frueh:'Neustart vor Ablauf der Sperre',neustarts:'Zu viele Neustarts',bonus:'Zu viel Bonus auf einmal',verkauf:'Verkauf ohne Gegenstand',ausgaben:'Ausgaben verringert',einsatz:'Einsatz negativ',guthaben:'Guthaben ungültig',zu_gross:'Spielstand zu groß',kein_spielstand:'Spielstand fehlt',stapel:'Chip-Stapler: unmögliche Runde'};
 let KEY='';try{KEY=localStorage.getItem('lr_admin')||''}catch(e){}
@@ -224,8 +257,8 @@ $('logout').onclick=()=>logout('');
 // ---------- Tabs ----------
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;
   document.querySelectorAll('.tabs [data-tab]').forEach(x=>x.setAttribute('aria-selected',x===b));
-  ['acc','rej','msg'].forEach(t=>$('t-'+t).hidden=t!==b.dataset.tab);
-  if(b.dataset.tab==='rej')loadRejects();if(b.dataset.tab==='msg')loadMsg()});
+  ['acc','rej','wet','msg'].forEach(t=>$('t-'+t).hidden=t!==b.dataset.tab);
+  if(b.dataset.tab==='rej')loadRejects();if(b.dataset.tab==='msg')loadMsg();if(b.dataset.tab==='wet')loadW()});
 
 // ---------- Accounts ----------
 async function loadAccounts(){try{const d=await api('list');ACC=d.accounts||[];renderAccounts()}catch(e){if(e.message!=='401')toast('Laden fehlgeschlagen: '+e.message,true)}}
@@ -238,7 +271,7 @@ function renderAccounts(){
     <td class="meta">★ ${a.stars} · ${fmt0(a.rounds)} Runden · ${ago(a.savedAt)}${a.banned?' · <b class="neg">gesperrt</b>':''}</td></tr>`).join(''):`<tr><td class="empty" colspan="8">${ACC.length?'Kein Account passt zur Suche.':'Noch keine Accounts.'}</td></tr>`}
 $('q').oninput=renderAccounts;$('sort').onchange=renderAccounts;
 $('rows').addEventListener('click',e=>{const tr=e.target.closest('tr[data-n]');if(tr)openAccount(tr.dataset.n)});
-$('reload').onclick=()=>{loadAccounts();const t=document.querySelector('.tabs [aria-selected="true"]').dataset.tab;if(t==='rej')loadRejects();if(t==='msg')loadMsg();toast('Aktualisiert')};
+$('reload').onclick=()=>{loadAccounts();const t=document.querySelector('.tabs [aria-selected="true"]').dataset.tab;if(t==='rej')loadRejects();if(t==='msg')loadMsg();if(t==='wet')loadW();toast('Aktualisiert')};
 
 // ---------- Detail ----------
 function closeModal(){$('modal').hidden=true;$('modal').innerHTML='';current=null}
@@ -289,8 +322,59 @@ function showMsg(m){$('msgCur').innerHTML=m&&m.text?`<div class="preview">${esc(
 $('msgSend').onclick=async()=>{const t=$('msgText').value.trim();if(!t){toast('Schreib zuerst eine Nachricht.',true);return}try{const d=await api('setMessage',{text:t});showMsg(d.message);$('msgText').value='';toast('Nachricht gesendet')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 $('msgDel').onclick=async()=>{try{await api('setMessage',{text:''});showMsg(null);toast('Nachricht entfernt')}catch(e){}};
 
+// ---------- Wetten ----------
+let WD={events:[],sugg:[]};
+const dtl=t=>{if(!t)return'';const d=new Date(t),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`};
+const fromDtl=v=>{if(!v)return 0;const t=new Date(v).getTime();return isFinite(t)?t:0};
+const when=t=>new Date(t).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' Uhr';
+const lines=v=>String(v||'').split('\n').map(x=>x.trim()).filter(Boolean);
+const WERR={frage:'Die Frage braucht mindestens 5 Zeichen.',antworten:'Es braucht 2 bis 6 verschiedene Antworten.'};
+// Zweimal klicken für Endgültiges
+function arm(b,label){if(b.classList.contains('armed'))return true;const old=b.textContent;b.classList.add('armed');b.textContent=label;setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent=old}},4000);return false}
+async function loadW(){try{WD=await api('wList');renderW()}catch(e){if(e.message!=='401')toast('Wetten laden fehlgeschlagen: '+e.message,true)}}
+async function wAct(action,data,msg){try{await api(action,data);toast(msg);await loadW();return true}catch(e){if(e.message!=='401')toast(WERR[e.message]||e.message,true);return false}}
+function wCheck(q,opts){if(q.trim().length<5){toast(WERR.frage,true);return false}const o=opts.map(x=>x.toLowerCase());if(o.length<2||o.length>6||new Set(o).size!==o.length){toast(WERR.antworten,true);return false}return true}
+function renderW(){const S=WD.sugg||[],E=WD.events||[];
+  const c=$('wetCnt');c.hidden=!S.length;c.textContent=S.length;$('wSuggN').textContent=S.length?S.length+' offen':'';
+  $('wSugg').innerHTML=S.length?S.map(v=>`<div class="wcard" data-sugg="${esc(v.key)}">
+      <div class="chips"><span class="chip">von <b style="color:var(--ink)">&nbsp;${esc(v.by)}</b></span><span class="chip">${ago(v.t)}</span></div>
+      <input class="inp" data-f="q" maxlength="140" value="${esc(v.q)}" aria-label="Frage">
+      <textarea class="inp" data-f="o" aria-label="Antworten, eine pro Zeile">${esc(v.opts.join('\n'))}</textarea>
+      <div class="dl"><span class="note">Wettschluss</span><input class="inp" data-f="c" type="datetime-local"><button class="btn gold" data-w="activate">Aktivieren</button><button class="btn red" data-w="reject">Ablehnen</button></div></div>`).join('')
+    :'<p class="empty">Keine Vorschläge offen.</p>';
+  const run=E.filter(e=>e.st==='open'||e.st==='closed'),done=E.filter(e=>e.st==='resolved'||e.st==='cancelled');
+  const card=e=>{const P=e.s.reduce((t,v)=>t+v,0),n=e.c.reduce((t,v)=>t+v,0),fin=e.st==='resolved'||e.st==='cancelled';
+    const chips=[e.st==='open'?'<span class="chip on">Offen</span>':e.st==='closed'?'<span class="chip ban">Wettschluss</span>':e.st==='cancelled'?'<span class="chip">Abgebrochen</span>':'<span class="chip on">Aufgelöst</span>',
+      e.closeAt&&!fin?`<span class="chip">Schluss ${when(e.closeAt)}</span>`:'',`<span class="chip">Topf ${fmt(fin&&e.st==='resolved'?e.P:P)}</span>`,`<span class="chip">${n} ${n===1?'Tipp':'Tipps'}</span>`,
+      e.by?`<span class="chip">Vorschlag von ${esc(e.by)}</span>`:'',fin?`<span class="chip">${ago(e.doneAt)}</span>`:''].join('');
+    const opts=e.opts.map((o,i)=>{const sh=P?e.s[i]/P:0;return `<div class="wopt ${e.st==='resolved'&&e.win===i?'win':''}"><span class="n">${e.st==='resolved'&&e.win===i?'✓ ':''}${esc(o)}</span><span class="v">${e.c[i]} · ${fmt(e.s[i])} · ${(sh*100).toFixed(0)} %${P&&e.s[i]?` · ${fmt(P/e.s[i])}×`:''}</span>${fin?'':`<button class="btn green" data-w="resolve" data-o="${i}">Richtig</button>`}<span class="bar" style="width:${(sh*100).toFixed(1)}%"></span></div>`}).join('');
+    let foot='';
+    if(!fin)foot=`<div class="dl"><span class="note">Wettschluss</span><input class="inp" data-f="c" type="datetime-local" value="${dtl(e.closeAt)}"><button class="btn" data-w="deadline">${e.st==='closed'?'Wieder öffnen':'Setzen'}</button>${e.st==='open'?'<button class="btn" data-w="stop">Jetzt schließen</button>':''}<button class="btn red" data-w="cancel">Abbrechen</button></div>`;
+    else{const res=e.st==='cancelled'?'Abgebrochen: alle haben ihren Einsatz zurückbekommen.':e.W>0?`${e.nw} richtige ${e.nw===1?'Tipp':'Tipps'} teilen sich ${fmt(e.P)} (Quote ${fmt(e.P/e.W)}×).`:'Niemand lag richtig: alle bekommen ihren Einsatz zurück.';
+      foot=`<div class="dl"><span class="note" style="flex:1">${res}</span><button class="btn red" data-w="delete">Entfernen</button></div>`}
+    return `<div class="wcard" data-id="${esc(e.id)}"><div class="wq">${esc(e.q)}</div><div class="chips">${chips}</div><div class="wopts">${opts}</div>${foot}</div>`};
+  $('wRun').innerHTML=run.length?run.map(card).join(''):'<p class="empty">Keine laufenden Fragen. Starte oben eine neue oder aktiviere einen Vorschlag.</p>';
+  $('wDone').innerHTML=done.length?done.sort((a,b)=>b.doneAt-a.doneAt).map(card).join(''):'<p class="empty">Noch nichts erledigt.</p>'}
+$('wCreate').onclick=async()=>{const q=$('wQ').value,opts=lines($('wO').value);if(!wCheck(q,opts))return;const c=fromDtl($('wC').value);
+  if($('wC').value&&c<=Date.now()){toast('Der Wettschluss liegt in der Vergangenheit.',true);return}
+  $('wCreate').disabled=true;if(await wAct('wCreate',{q,opts,closeAt:c},'Frage ist online')){$('wQ').value='';$('wO').value='';$('wC').value=''}$('wCreate').disabled=false};
+$('t-wet').addEventListener('click',async e=>{const b=e.target.closest('[data-w]');if(!b||b.disabled)return;const w=b.dataset.w;
+  const sc=b.closest('[data-sugg]'),ec=b.closest('[data-id]');
+  if(sc){const sugg=sc.dataset.sugg;
+    if(w==='reject'){if(!arm(b,'Wirklich ablehnen?'))return;b.disabled=true;await wAct('wReject',{sugg},'Vorschlag abgelehnt');return}
+    const q=sc.querySelector('[data-f="q"]').value,opts=lines(sc.querySelector('[data-f="o"]').value),cv=sc.querySelector('[data-f="c"]').value,c=fromDtl(cv);
+    if(!wCheck(q,opts))return;if(cv&&c<=Date.now()){toast('Der Wettschluss liegt in der Vergangenheit.',true);return}
+    b.disabled=true;if(!(await wAct('wActivate',{sugg,q,opts,closeAt:c},'Vorschlag ist jetzt online')))b.disabled=false;return}
+  if(!ec)return;const id=ec.dataset.id,ev=(WD.events||[]).find(x=>x.id===id);if(!ev)return;
+  if(w==='resolve'){const o=+b.dataset.o;if(!arm(b,'Sicher?'))return;b.disabled=true;await wAct('wResolve',{id,win:o},`Aufgelöst: „${ev.opts[o]}“ ist richtig`);return}
+  if(w==='stop'){b.disabled=true;await wAct('wStop',{id},'Wettschluss gesetzt');return}
+  if(w==='deadline'){const cv=ec.querySelector('[data-f="c"]').value,c=fromDtl(cv);if(cv&&c<=Date.now()){toast('Der Wettschluss liegt in der Vergangenheit.',true);return}
+    b.disabled=true;await wAct('wDeadline',{id,closeAt:c},c?'Wettschluss: '+when(c):'Offen ohne Wettschluss');return}
+  if(w==='cancel'){if(!arm(b,'Alle Einsätze zurück?'))return;b.disabled=true;await wAct('wCancel',{id},'Frage abgebrochen, Einsätze gehen zurück');return}
+  if(w==='delete'){if(!arm(b,'Wirklich entfernen?'))return;b.disabled=true;await wAct('wDelete',{id},'Frage entfernt')}});
+
 // ---------- Start ----------
-function start(){$('login').hidden=true;$('app').hidden=false;loadAccounts();loadRejects()}
+function start(){$('login').hidden=true;$('app').hidden=false;loadAccounts();loadRejects();loadW()}
 if(KEY){api('login').then(start).catch(()=>{})}else setTimeout(()=>$('lgKey').focus(),50);
 setInterval(()=>{if(KEY&&!document.hidden&&$('modal').hidden)loadAccounts()},60000);
 })();

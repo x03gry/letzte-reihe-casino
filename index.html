@@ -575,6 +575,63 @@ button,a,input,select,canvas{touch-action:manipulation}
 .hr-formula{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:600 13px/1.75 var(--f-num);color:var(--ink);overflow-wrap:anywhere;margin:10px 0}
 @media (max-width:900px){#v-rennen:not([hidden]){padding-bottom:84px}}
 @media (max-width:480px){.hrh{grid-template-columns:32px minmax(0,1fr) auto;gap:8px;padding:8px}.hr-silk{width:32px;height:32px;font-size:14px}.hr-q b{font-size:17px}.hr-cd{font-size:48px}.hr-res{min-width:0;font-size:13px}.hr-bar h2{font-size:15px}}
+/* ---------- Wetten ---------- */
+#v-wetten .stage{justify-content:flex-start;gap:12px}
+#wtSuggest{white-space:nowrap;flex:none}
+.wt-list{display:flex;flex-direction:column;gap:10px}
+.wtc{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.wtc.mine{border-color:rgba(47,224,143,.5)}
+.wtc.sel{border-color:var(--brass)}
+.wtc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px 12px;flex-wrap:wrap}
+.wtc-h h3{font:700 16px/1.3 var(--f-disp);letter-spacing:.01em;overflow-wrap:anywhere;min-width:0;flex:1 1 220px}
+.wt-cd{font:700 12.5px var(--f-num);font-variant-numeric:tabular-nums;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap;color:var(--mute)}
+.wt-cd.soon{color:var(--brass);border-color:var(--brass-lo)}
+.wt-cd.shut{color:var(--loss);border-color:rgba(255,77,106,.45)}
+.wt-cd.ok{color:var(--win);border-color:rgba(47,224,143,.45)}
+.wtc-meta{display:flex;gap:4px 12px;flex-wrap:wrap;color:var(--mute);font-size:12.5px}
+.wtc-meta b{color:var(--ink);font-family:var(--f-num);font-weight:700}
+.wtc-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px}
+.wto{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px 11px;min-height:52px;overflow:hidden;transition:border-color .15s,background .15s}
+.wto:hover:not(:disabled){border-color:var(--line2);background:var(--panel2)}
+.wto:disabled{cursor:default}
+.wto[aria-pressed="true"]{border-color:var(--brass);background:var(--panel2);box-shadow:inset 3px 0 0 var(--brass)}
+.wto.mine{border-color:var(--win);box-shadow:inset 3px 0 0 var(--win)}
+.wto.right{border-color:var(--win);background:rgba(47,224,143,.1)}
+.wto.wrong{opacity:.55}
+.wto-n{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.wto-q{text-align:right;flex:none}
+.wto-q b{display:block;font:700 16px var(--f-num);color:var(--brass);font-variant-numeric:tabular-nums}
+.wto.right .wto-q b{color:var(--win)}
+.wto-q small{display:block;font-size:11px;color:var(--mute);white-space:nowrap}
+.wto-sh{position:absolute;left:0;bottom:0;height:3px;background:var(--brass);opacity:.55;transition:width .4s}
+.wto.right .wto-sh{background:var(--win)}
+.wtc-mine{display:flex;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;font-size:13px;background:var(--panel);border-radius:10px;padding:7px 10px;color:var(--mute)}
+.wtc-mine b{color:var(--ink);font-family:var(--f-num)}
+.wt-done{margin-top:2px}
+.wt-done summary{display:flex;justify-content:space-between;align-items:baseline;gap:10px;cursor:pointer;list-style:none;padding:4px 0}
+.wt-done summary::-webkit-details-marker{display:none}
+.wt-done summary h2{font:700 15px var(--f-disp)}
+.wt-done summary h2::before{content:"▸";display:inline-block;margin-right:6px;color:var(--mute);transition:transform .15s}
+.wt-done[open] summary h2::before{transform:rotate(90deg)}
+.wt-done summary span{color:var(--dim);font-size:12px}
+.wt-done[open] .wt-list{margin-top:8px}
+.wt-empty{background:var(--bg2);border:1px dashed var(--line2);border-radius:14px;padding:22px 16px;text-align:center;color:var(--mute);font-size:14px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.wt-empty b{color:var(--ink)}
+.wt-pick{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:58px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.wt-pick b{overflow-wrap:anywhere}
+.wt-pick small{color:var(--mute);font-size:12px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wt-pick .ph{color:var(--mute);font-size:13.5px}
+.hr-my .wt-x{background:none;border:0;color:var(--mute);font-size:16px;line-height:1;padding:0 2px;margin-left:4px}
+.hr-my .wt-x:hover{color:var(--loss)}
+.wt-form{display:flex;flex-direction:column;gap:8px;text-align:left}
+.wt-form .lbl{margin-top:4px}
+.wt-form .inp{font:500 15px var(--f-body)}
+.wt-orow{display:flex;gap:6px}
+.wt-orow .inp{flex:1}
+.wt-orow button{flex:none;width:40px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--mute);font-size:18px}
+.wt-form .msg{min-height:18px;font-size:13px;color:var(--loss);margin:0}
+@media (max-width:900px){#v-wetten:not([hidden]){padding-bottom:84px}}
+@media (max-width:480px){.wtc{padding:10px}.wtc-opts{grid-template-columns:1fr}.wtc-h h3{font-size:15px}}
 /* ---------- Chip-Stapler ---------- */
 #v-stapel .stage.sk-stage{padding:0;justify-content:flex-start;background:none}
 .st-root{position:relative;width:100%;height:clamp(440px,68vh,620px);overflow:hidden;isolation:isolate;color:var(--ink);
@@ -1211,6 +1268,40 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </details>
 </section>
 
+<!-- ======================= WETTEN ======================= -->
+<section id="v-wetten" class="view" hidden>
+  <div class="ghead" data-head="wetten"></div>
+  <div class="game">
+    <div class="rail">
+      <div data-betfield="wtBet" data-def="50"></div>
+      <div class="field"><span class="lbl">Dein Tipp</span><div class="wt-pick" id="wtPick"></div></div>
+      <div class="mini-stats">
+        <div class="ms"><span>Topf</span><b id="wtPot">–</b></div>
+        <div class="ms"><span>Quote jetzt</span><b id="wtQ">–</b></div>
+        <div class="ms"><span>Gewinn wenn richtig</span><b id="wtWin">–</b></div>
+        <div class="ms"><span>Wettschluss</span><b id="wtClose">–</b></div>
+      </div>
+      <div class="mainact"><button class="btn gold big" id="wtGo" disabled>Tipp abgeben</button></div>
+      <p class="note" id="wtInfo"></p>
+      <div class="field"><span class="lbl">Deine Tipps</span><div class="hr-my" id="wtMy"></div></div>
+      <div class="field"><span class="lbl">Deine Vorschläge</span><div class="hr-my" id="wtSug"></div>
+        <button class="btn" id="wtSuggest2" type="button">Frage vorschlagen</button></div>
+      <p class="keys"><kbd>Leertaste</kbd> Tipp abgeben</p>
+    </div>
+    <div class="stage">
+      <div class="hr-bar"><div><h2>Offene Fragen</h2><div class="meta" id="wtMeta">Lädt …</div></div><button class="btn" id="wtSuggest" type="button">+ Vorschlagen</button></div>
+      <div class="wt-list" id="wtList"></div>
+      <details class="wt-done" id="wtDoneHead" hidden><summary><h2>Aufgelöst</h2><span id="wtDoneN"></span></summary><div class="wt-list" id="wtDone"></div></details>
+    </div>
+  </div>
+  <details class="odds"><summary>So funktionieren Wetten</summary>
+    <p>Der Admin stellt Fragen zu Ereignissen, die noch passieren werden, jeweils mit mehreren Antworten. Pro Frage gibst du einen Tipp ab: eine Antwort und einen Einsatz (höchstens 25 % deines Guthabens). Alle Einsätze einer Frage landen in einem gemeinsamen Topf.</p>
+    <p><b style="color:var(--ink)">Auszahlung:</b> Sobald das Ereignis feststeht, wählt der Admin die richtige Antwort. Der komplette Topf wird unter allen aufgeteilt, die richtig getippt haben, und zwar im Verhältnis ihrer Einsätze: Wer 10 % der richtigen Einsätze gesetzt hat, bekommt 10 % vom Topf. Das Haus behält nichts. Hat niemand richtig getippt oder wird eine Frage abgebrochen, bekommen alle ihren Einsatz zurück.</p>
+    <div class="hr-formula">Gewinn = Topf × dein Einsatz ÷ Summe aller richtigen Einsätze<br>Quote jetzt = Topf ÷ Einsätze auf diese Antwort</div>
+    <p>Die Quote ändert sich mit jedem neuen Tipp bis zum Wettschluss. Erst dann steht fest, wie viel es gibt. Eigene Ideen kannst du mit „Frage vorschlagen“ einreichen; der Admin prüft sie und schaltet sie frei.</p>
+  </details>
+</section>
+
 <!-- ======================= CHIP-STAPLER ======================= -->
 <section id="v-stapel" class="view" hidden>
   <div class="ghead" data-head="stapel"></div>
@@ -1446,6 +1537,7 @@ const GAMES={
   rennen:{name:'Pferderennen',short:'Rennen',hex:'#c0773e',rtp:'97 %',price:2000,added:'2026-10-04'},
   stapel:{name:'Chip-Stapler',short:'Stapler',hex:'#8b6cf0',rtp:'je nach Können',price:4000,added:'2026-10-04'},
   slot:{name:'Goldene Sieben',short:'Sieben',hex:'#e2453c',rtp:'97 %',price:3000,added:'2026-10-05'},
+  wetten:{name:'Wetten',short:'Wetten',hex:'#7cb342',rtp:'100 %',price:0,added:'2026-10-05'},
   double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'99 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
@@ -1461,18 +1553,19 @@ const KEY='letztereihe_v1';
 const emptyG=()=>({n:0,w:0,p:0,wins:0,best:0,big:0,e:0});
 function fresh(){const g={};GK.forEach(k=>g[k]=emptyG());const t=Date.now();
   return {v:1,bal:1000,stars:0,restarts:0,owned:{games:{},items:{}},spent:0,created:t,updated:t,games:g,log:[],hist:[[t,1000,'s']],bonus:{},bonusN:{},
-    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1,sent:0,recv:0,hr:{bets:[],hist:[]}}}
+    streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1,sent:0,recv:0,hr:{bets:[],hist:[]},wt:{bets:[],hist:[],done:[]}}}
 let S=fresh();
 function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=Object.assign(f,o);if(!o.playSeed)S.playSeed=0;
   S.games=Object.assign(f.games,o.games||{});GK.forEach(k=>S.games[k]=Object.assign(emptyG(),S.games[k]||{}));
   S.owned=Object.assign({games:{},items:{}},o.owned||{});S.owned.games=S.owned.games||{};S.owned.items=S.owned.items||{};
   S.set=Object.assign(fresh().set,o.set||{});S.streak=Object.assign(fresh().streak,o.streak||{});
   ['bonus','bonusN','prefs','cd'].forEach(k=>S[k]=S[k]||{});S.quiz=Object.assign({streak:0,ok:0,hour:0,hourN:0},o.quiz||{});S.daily=Object.assign({last:'',n:0},o.daily||{});if(!Array.isArray(S.log))S.log=[];if(!Array.isArray(S.hist))S.hist=[];
-  S.hr={bets:Array.isArray(o.hr&&o.hr.bets)?o.hr.bets.filter(b=>b&&b.a>0):[],hist:Array.isArray(o.hr&&o.hr.hist)?o.hr.hist.slice(0,10):[]};migrate(live)}
+  S.hr={bets:Array.isArray(o.hr&&o.hr.bets)?o.hr.bets.filter(b=>b&&b.a>0):[],hist:Array.isArray(o.hr&&o.hr.hist)?o.hr.hist.slice(0,10):[]};
+  const wt=o.wt||{};S.wt={bets:Array.isArray(wt.bets)?wt.bets.filter(b=>b&&b.id&&b.a>0):[],hist:Array.isArray(wt.hist)?wt.hist.slice(0,15):[],done:Array.isArray(wt.done)?wt.done.slice(-200):[]};migrate(live)}
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -1504,6 +1597,7 @@ const API='/api/spielstand';
 let acct=null,rev=0;try{acct=localStorage.getItem('lr_user');rev=+(localStorage.getItem('lr_rev')||0)}catch(e){}
 const localAcct=acct;
 let srvT=0,srvBusy=false,srvDirty=false,srvFails=0,gone=0;
+let srvReady=false; // Stand vom Server geladen (vorher nichts mit Server-Daten verrechnen)
 // Gibt es den Account wirklich nicht mehr? Bei Verbindungsproblemen im Zweifel "ja, gibt es".
 async function stillExists(){try{const r=await fetch(apiUrl(),{cache:'no-store'});if(!r.ok)return true;const d=await r.json();return d.exists!==false}catch(e){return true}}
 // Überweisungen: Korrektur vom Server übernehmen und Eingänge anzeigen
@@ -1575,7 +1669,7 @@ async function doLogin(create){const name=normName($('lgName').value);
       if(d.banned){lgMsg('Dieser Account ist gesperrt.',true);lgBusy(false);return}
       acct=name;adopt(d.state);setRev(d.rev);setTimeout(()=>showGifts(d.gifts),600)}
     try{localStorage.setItem('lr_user',name);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-    $('login').hidden=true;lgBusy(false);showAcct();setSync('ok');shown=S.bal;refreshAll();renderBadge();
+    srvReady=true;$('login').hidden=true;lgBusy(false);showAcct();setSync('ok');shown=S.bal;refreshAll();renderBadge();
     toast(create?`Account <b>${name}</b> erstellt. Du startest mit 1.000 Coins. Viel Glück!`:`Willkommen zurück, <b>${name}</b>!`,'good')
   }catch(e){lgBusy(false);lgMsg('Der Server ist gerade nicht erreichbar. Versuch es gleich noch einmal.',true);$('lgOff').hidden=false}}
 $('lgForm').addEventListener('submit',e=>{e.preventDefault();doLogin(false)});
@@ -1593,7 +1687,7 @@ async function acctBoot(){if(!ACCOUNTS)return;showAcct();showAdminLink();loadNew
     const srvR=d.state?Object.values(d.state.games||{}).reduce((t,g)=>t+((g&&g.n)||0),0):0;
     if(hadLocal&&localAcct===acct&&(S.updated||0)>((d.state&&d.state.updated)||0)+500&&myRounds()>=srvR&&(S.stars||0)>=((d.state&&d.state.stars)||0)){setRev(d.rev);srvDirty=true;srvFlush()}
     else{applyServer(d.state,d.rev,'',false);showGifts(d.gifts)}
-    setSync('ok');lastPull=Date.now()}catch(e){setSync('bad')}}
+    setSync('ok');lastPull=Date.now();srvReady=true}catch(e){setSync('bad')}}
 async function logout(msg){clearTimeout(srvT);srvT=0;if(!msg)await flushNow();acct=null;srvDirty=false;try{localStorage.removeItem('lr_user');localStorage.removeItem('lr_rev');localStorage.removeItem(KEY)}catch(e){}
   const snd=S.set.sound;S=fresh();S.set.sound=snd;rev=0;shown=S.bal;refreshAll();showAcct();$('lgName').value='';lgMsg(msg||'',!!msg);$('login').hidden=false}
 
@@ -1752,6 +1846,13 @@ function renderSide(){$('sideGames').innerHTML=PLAY.map(k=>`<button class="navbt
 
 // ================= Lobby =================
 const ART={
+  wetten:'<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#15241a"/><ellipse cx="80" cy="56" rx="72" ry="44" fill="#7cb342" opacity=".1"/>'+
+    '<rect x="22" y="16" width="86" height="68" rx="9" fill="#1b2b3a" stroke="#2f4960"/><rect x="30" y="24" width="52" height="5" rx="2.5" fill="#8ba2b7"/><rect x="30" y="32" width="38" height="4" rx="2" fill="#5d7387"/>'+
+    '<rect x="30" y="43" width="70" height="11" rx="4" fill="#24384a"/><rect x="30" y="43" width="46" height="11" rx="4" fill="#7cb342"/><path d="M90 46.5l2.6 2.6 4.6-4.8" fill="none" stroke="#e9f0f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<rect x="30" y="58" width="70" height="11" rx="4" fill="#24384a"/><rect x="30" y="58" width="22" height="11" rx="4" fill="#5d7387"/>'+
+    '<rect x="30" y="73" width="70" height="5" rx="2.5" fill="#24384a"/><rect x="30" y="73" width="12" height="5" rx="2.5" fill="#5d7387"/>'+
+    '<g transform="translate(122 58)"><ellipse cx="0" cy="18" rx="17" ry="5.5" fill="#000" opacity=".35"/><rect x="-14" y="2" width="28" height="13" fill="#b77300"/><ellipse cx="0" cy="15" rx="14" ry="4.6" fill="#b77300"/><ellipse cx="0" cy="2" rx="14" ry="4.6" fill="#ffb020"/>'+
+    '<rect x="-12" y="-9" width="24" height="9" fill="#b77300"/><ellipse cx="0" cy="0" rx="12" ry="4" fill="#b77300"/><ellipse cx="0" cy="-9" rx="12" ry="4" fill="#ffd27a"/><ellipse cx="0" cy="-9" rx="6.5" ry="2.1" fill="none" stroke="#fff6e0" stroke-opacity=".7"/></g></svg>',
   chicken:`<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#1b2733"/><rect width="34" height="100" fill="#2e3d4c"/><g stroke="#ffb020" stroke-width="2" stroke-dasharray="7 6" opacity=".8"><path d="M66 0v100M98 0v100M130 0v100"/></g><path d="M34 0v100" stroke="#e9f0f6" stroke-width="3"/><rect x="104" y="10" width="20" height="34" rx="6" fill="#4cc9f0"/><rect x="107" y="32" width="14" height="8" rx="2" fill="#0f1923"/><rect x="72" y="58" width="20" height="34" rx="6" fill="#ff5c8a"/><rect x="75" y="80" width="14" height="8" rx="2" fill="#0f1923"/><ellipse cx="50" cy="62" rx="12" ry="11" fill="#f4f1ea"/><circle cx="52" cy="50" r="3.5" fill="#ff4d6a"/><circle cx="57" cy="51" r="3.5" fill="#ff4d6a"/><path d="M61 59l8 3-8 3z" fill="#ff9f1c"/><circle cx="55" cy="57" r="2" fill="#0f1923"/></svg>`,
   plinko:(()=>{let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#141c2e"/>';for(let r=0;r<6;r++)for(let j=0;j<r+3;j++)s+=`<circle cx="${80+(j-(r+2)/2)*14}" cy="${14+r*11}" r="2.2" fill="#c7d0e6"/>`;
     ['#ff2a5a','#ff6a4a','#ffa040','#ffc428','#ffa040','#ff6a4a','#ff2a5a'].forEach((c,i)=>s+=`<rect x="${80+(i-3)*14-6}" y="80" width="12" height="9" rx="2" fill="${c}"/>`);return s+'<circle cx="87" cy="42" r="5" fill="#ffb020"/><circle cx="85.5" cy="40.5" r="1.6" fill="#fff" opacity=".7"/></svg>'})(),
@@ -1769,7 +1870,7 @@ const ART={
 const LOCKBIG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
 function renderLobby(){
   $('gameCards').innerHTML=PLAY.map(k=>{const G=GAMES[k],g=S.games[k],o=owns(k);
-    const jpv=k==='stapel'&&SK.jp()!=null?`Jackpot <b>${short(SK.jp())}</b> · `:'';const rec=k==='stapel'&&S.bal>=SK_MAXBAL?jpv+'Gesperrt ab <b>100.000</b> Coins Guthaben':jpv+(g.n?`Rekord <b>${fmtX(g.best)}</b> · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Noch nicht gespielt');
+    const jpv=k==='stapel'&&SK.jp()!=null?`Jackpot <b>${short(SK.jp())}</b> · `:'';const rec=k==='wetten'?WT.lobby(g):k==='stapel'&&S.bal>=SK_MAXBAL?jpv+'Gesperrt ab <b>100.000</b> Coins Guthaben':jpv+(g.n?`Rekord <b>${fmtX(g.best)}</b> · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Noch nicht gespielt');
     return `<button class="gcard ${o?'':'locked'}" ${o?`data-go="${k}"`:`data-unlock="${k}"`} style="--gc:${G.hex}"><div class="art">${ART[k]||''}${o?'':`<div class="lockov"><span>${LOCKBIG}${fmt0(G.price)} Coins</span></div>`}</div><div class="body"><h3><span class="dot" style="background:${G.hex}"></span>${G.short}${o&&isNew(k)?'<span class="newtag">NEU</span>':''}</h3><span class="rec">${o?rec:jpv+'Gesperrt · Auszahlung '+G.rtp}</span><span class="cta"><span class="btn ${o?'gold':''}" style="display:inline-block;padding:7px 14px">${o?'Spielen':(S.bal>=G.price?'Freischalten':'Noch '+short(G.price-S.bal))}</span></span></div></button>`}).join('');
   const last=S.log.slice(-6).reverse();$('feed').innerHTML=last.length?last.map(r=>{const G=GAMES[r[1]];const n=r[3]-r[2];return `<div class="frow"><span class="dot" style="background:${G.hex}"></span><span>${G.short}</span><b>${fmtX(r[4])}</b><b class="${cls(n)}">${sgn(n)}</b></div>`}).join(''):'<p class="empty">Noch keine Runden. Such dir oben ein Spiel aus.</p>'}
 onShow.lobby=renderLobby;
@@ -1897,7 +1998,7 @@ setInterval(()=>{const r=S.set.reality;if(!r)return;const now=Date.now();if(now-
 // ================= Spiel-Bausteine: gemeinsame Teile =================
 document.querySelectorAll('[data-betfield]').forEach(el=>{const id=el.dataset.betfield,d=el.dataset.def;const pv=S.prefs[id]||d;
   el.outerHTML=`<div class="field"><label for="${id}">Einsatz <span style="text-transform:none;letter-spacing:0" class="tl">Coins</span></label><div class="betrow" id="${id}Row"><input id="${id}" type="number" min="5" step="5" value="${pv}" inputmode="decimal"><button type="button" data-bet="half" data-for="${id}" aria-label="Einsatz halbieren">½</button><button type="button" data-bet="dbl" data-for="${id}" aria-label="Einsatz verdoppeln">2×</button><button type="button" data-bet="max" data-for="${id}">Max</button></div></div>`;});
-['chBet','plBet','twBet','miBet','pkBet','hrBet','skBet'].forEach(id=>{if(!$(id))return;$(id).addEventListener('change',()=>{S.prefs[id]=readBet(id)||10;save()});$(id).addEventListener('input',e=>{if(e.isTrusted)maxMode.delete(id)})});
+['chBet','plBet','twBet','miBet','pkBet','hrBet','skBet','wtBet'].forEach(id=>{if(!$(id))return;$(id).addEventListener('change',()=>{S.prefs[id]=readBet(id)||10;save()});$(id).addEventListener('input',e=>{if(e.isTrusted)maxMode.delete(id)})});
 function lockBet(id,on){$(id+'Row').querySelectorAll('input,button').forEach(x=>x.disabled=on)}
 document.querySelectorAll('[data-head]').forEach(el=>{const k=el.dataset.head,G=GAMES[k];
   el.innerHTML=`<button class="back" data-go="lobby">← Spiele</button><div class="gtitle"><i style="background:${G.hex}"></i><h1>${G.name}</h1></div><span class="chip">Auszahlung ${G.rtp}</span><div class="gstats" id="gs-${k}"></div>`});
@@ -2998,6 +3099,195 @@ const SK=(()=>{
       if(k==='p'||k==='P'||k==='Escape'){if(state==='play')pause();else if(state==='paused')resume()}},
     jp:()=>jp.a}})();
 onShow.stapel=SK.show;
+
+// ================= GAME: WETTEN =================
+// Der Admin stellt Fragen zu kommenden Ereignissen. Pro Frage ein Tipp (Antwort + Einsatz). Alle Einsätze kommen in einen Topf,
+// die richtigen Tipper teilen ihn sich im Verhältnis ihrer Einsätze (Server rechnet aus, das Gerät rechnet damit ab).
+// Offene Tipps liegen im Spielstand (S.wt.bets) und zählen als Einsatz im Spiel (S.inPlay), bis die Frage erledigt ist.
+const WT=(()=>{
+  const WAPI='/api/spielstand?wetten=1',RTP=1,MAXSUG=3;
+  const ERR={wettschluss:'Für diese Frage ist schon Wettschluss.',schon_gesetzt:'Auf diese Frage hast du schon getippt.',weg:'Diese Frage gibt es nicht mehr.',einsatz:'Dieser Einsatz geht nicht.',
+    gesperrt:'Dein Account ist gesperrt.',unbekannt:'Dein Account wurde nicht gefunden.',frage:'Die Frage braucht mindestens 5 Zeichen.',antworten:'Gib 2 bis 6 verschiedene Antworten an.',
+    zu_viele_vorschlaege:`Du hast schon ${MAXSUG} Vorschläge offen. Warte, bis der Admin sie geprüft hat.`,voll:'Gerade liegen zu viele Vorschläge beim Admin. Versuch es später nochmal.'};
+  const W=()=>{if(!S.wt||!Array.isArray(S.wt.bets))S.wt={bets:[],hist:[],done:[]};if(!Array.isArray(S.wt.hist))S.wt.hist=[];if(!Array.isArray(S.wt.done))S.wt.done=[];return S.wt};
+  const online=()=>ACCOUNTS&&!!acct;
+  const visible=()=>cur==='wetten'&&!document.hidden;
+  let EV=[],SUG=[],loadedFor=null,offline=false,busy=false,at=0,fails=0,skew=0,sel=null,placing=false,sugBusy=false;
+  const now=()=>Date.now()+skew;
+  const stOf=e=>e.st==='open'&&e.closeAt&&now()>=e.closeAt?'closed':e.st;
+  const potOf=e=>r2(e.s.reduce((t,v)=>t+v,0));
+  const myBet=e=>W().bets.find(b=>b.id===e.id)||(e.mine&&typeof e.mine.pay!=='number'?{id:e.id,o:e.mine.o,a:e.mine.a}:null);
+  const when=t=>new Date(t).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  function left(ms){if(ms<=0)return'zu';const m=Math.floor(ms/60000);if(m>=1440)return`${Math.floor(m/1440)} T ${Math.floor(m%1440/60)} Std.`;if(m>=60)return`${Math.floor(m/60)}:${String(m%60).padStart(2,'0')} Std.`;return mmss(ms)}
+  const tips=n=>`${fmt0(n)} ${n===1?'Tipp':'Tipps'}`;
+
+  // ---- Server holen (offen: alle 15 s, sonst seltener; mit offenen Tipps jede Minute zum Abrechnen)
+  async function poll(force){if(!online()||busy)return;
+    if(loadedFor!==acct){EV=[];SUG=[];sel=null;loadedFor=acct;at=0;fails=0}
+    const gap=fails?Math.min(120000,5000*2**fails):visible()?15000:W().bets.length?60000:180000;
+    if(!force&&Date.now()-at<gap)return;busy=true;at=Date.now();const me=acct,t0=Date.now();
+    try{const r=await fetch(WAPI+'&name='+encodeURIComponent(me),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
+      if(acct!==me)throw new Error('user');
+      if(typeof d.now==='number')skew=d.now-(t0+Date.now())/2;
+      EV=Array.isArray(d.events)?d.events:[];SUG=Array.isArray(d.sugg)?d.sugg:[];loadedFor=me;offline=false;fails=0;
+      if(sel&&!EV.some(e=>e.id===sel.id&&stOf(e)==='open'))sel=null;sync()}
+    catch(e){if(e.message!=='user'){fails++;offline=true}}
+    busy=false;render();if(cur==='lobby')softRefresh()}
+
+  // ---- Abgleich mit dem Server: fehlende Tipps nachtragen, erledigte Fragen abrechnen
+  const markDone=id=>{const L=W();if(!L.done.includes(id))L.done.push(id);if(L.done.length>200)L.done.splice(0,L.done.length-200)};
+  const addHist=h=>{const L=W();L.hist.unshift(h);if(L.hist.length>15)L.hist.length=15};
+  function giveBack(b){S.inPlay=Math.max(0,r2((S.inPlay||0)-b.a));S.bal=r2(S.bal+b.a);capBal()}
+  function sync(){if(!srvReady)return;const L=W(),byId=new Map(EV.map(e=>[e.id,e]));let changed=false;
+    // Tipp, den der Server kennt, der hier aber fehlt (z. B. Antwort beim Setzen verloren): jetzt abbuchen
+    for(const e of EV){const m=e.mine;if(!m||L.bets.some(b=>b.id===e.id)||L.done.includes(e.id))continue;
+      if(m.t<(S.created||0)||S.bal+1e-9<m.a)continue; // Tipp von vor einem Neustart des Spielstands
+      S.bal=r2(S.bal-m.a);S.inPlay=r2((S.inPlay||0)+m.a);L.bets.push({id:e.id,o:m.o,a:m.a,t:m.t,q:e.q,on:e.opts[m.o]});changed=true}
+    for(const b of L.bets.slice()){const e=byId.get(b.id);
+      if(!e){ // Frage vom Admin entfernt: Einsatz zurück
+        if(now()-(b.t||0)<120000)continue;
+        L.bets.splice(L.bets.indexOf(b),1);markDone(b.id);giveBack(b);addHist({id:b.id,q:b.q||'Entfernte Frage',on:b.on||'',a:b.a,pay:b.a,k:'back'});changed=true;
+        toast(`Eine Frage wurde entfernt. Dein Einsatz von <b class="num">${fmt(b.a)}</b> ist zurück.`,'good');continue}
+      const m=e.mine;if(!m||typeof m.pay!=='number')continue;
+      const st=stOf(e),pay=r2(m.pay),a=b.a,on=e.opts[m.o]||b.on||'',fresh=now()-(e.doneAt||0)<3600000,act=cur!=='wetten'&&fresh?{label:'Ansehen',go:'wetten'}:null;
+      L.bets.splice(L.bets.indexOf(b),1);markDone(b.id);changed=true;
+      if(st==='cancelled'||(m.o!==e.win&&pay>0)){ // abgebrochen / niemand lag richtig: Einsatz zurück, keine Runde
+        giveBack(b);addHist({id:e.id,q:e.q,on,a,pay:a,k:st==='cancelled'?'cancel':'none'});
+        toast(st==='cancelled'?`Frage abgebrochen: „${esc(e.q)}“. Dein Einsatz von <b class="num">${fmt(a)}</b> ist zurück.`:`Bei „${esc(e.q)}“ lag niemand richtig. Dein Einsatz von <b class="num">${fmt(a)}</b> ist zurück.`,'good',act);continue}
+      const won=m.o===e.win;settle('wetten',a,pay,a>0?pay/a:0,RTP);addHist({id:e.id,q:e.q,on,a,pay,k:won?'win':'lose',w:e.opts[e.win]});
+      if(won){toast(`🎯 Richtig getippt bei „${esc(e.q)}“: <b class="num">+${fmt(pay)}</b>`,'good',act);if(visible()){SND.win();if(pay>=a*2)confetti(pay>=a*5?180:90)}}
+      else{toast(`„${esc(e.q)}“: Richtig war <b>${esc(e.opts[e.win])}</b>. <b class="num">−${fmt(a)}</b>`,'bad',act);if(visible())SND.lose()}}
+    if(changed){renderWallet();save();softRefresh()}}
+
+  // ---- Tipp abgeben
+  async function place(){if(placing)return;
+    if(!online()){toast('Wetten gibt es nur mit Account.','bad');return}
+    const e=sel&&EV.find(x=>x.id===sel.id);
+    if(!e){toast('Tippe zuerst bei einer Frage auf eine Antwort.','bad');return}
+    if(stOf(e)!=='open'){toast(ERR.wettschluss,'bad');sel=null;render();return}
+    if(myBet(e)){toast(ERR.schon_gesetzt,'bad');sel=null;render();return}
+    const o=sel.o,a=readBet('wtBet');if(!take('wetten',a))return;
+    placing=true;render();let d={},st=0;
+    try{const r=await fetch(WAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'bet',name:acct,id:e.id,opt:o,a})});st=r.status;d=await r.json().catch(()=>({}));if(!r.ok||!d.ok)throw 0}
+    catch(err){placing=false;giveBack({a});renderWallet();save();
+      toast(st?(ERR[d.error]||'Der Tipp wurde nicht angenommen. Versuch es nochmal.'):'Keine Verbindung. Dein Tipp wurde nicht gesetzt.','bad');if(st)poll(true);render();return}
+    placing=false;if(typeof d.now==='number')skew=d.now-Date.now();
+    W().bets.push({id:e.id,o,a,t:d.now||now(),q:e.q,on:e.opts[o]});save();
+    if(d.ev){const i=EV.findIndex(x=>x.id===e.id);if(i>=0)EV[i]=d.ev}
+    sel=null;SND.coin();toast(`Tipp steht: <b class="num">${fmt(a)}</b> auf <b>${esc(e.opts[o])}</b>`,'good');render();softRefresh()}
+
+  // ---- Frage vorschlagen
+  function suggestBox(){if(!online()){toast('Vorschläge gehen nur mit Account.','bad');return}
+    if(SUG.length>=MAXSUG){toast(ERR.zu_viele_vorschlaege,'bad');return}
+    modal(`<p class="eyebrow">Wetten</p><h2>Frage vorschlagen</h2><p>Eine Frage zu etwas, das erst noch passiert, mit 2 bis 6 möglichen Antworten. Der Admin prüft deinen Vorschlag und schaltet ihn frei.</p>
+      <div class="wt-form"><label class="lbl" for="wtQIn">Frage</label><input class="inp" id="wtQIn" maxlength="140" autocomplete="off" placeholder="z. B. Wer gewinnt am Samstag das Derby?">
+        <span class="lbl">Antworten</span><div class="wt-form" id="wtOptIn" style="gap:6px"></div>
+        <button class="btn" type="button" id="wtAddOpt">+ Antwort</button><p class="msg" id="wtSugMsg" role="status"></p></div>
+      <div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" type="button" id="wtSend">Vorschlagen</button></div>`);
+    addOpt();addOpt();setTimeout(()=>{const q=$('wtQIn');if(q)q.focus()},40)}
+  function addOpt(){const box=$('wtOptIn');if(!box)return;const n=box.children.length;if(n>=6)return;
+    const row=document.createElement('div');row.className='wt-orow';row.innerHTML=`<input class="inp" maxlength="40" autocomplete="off" placeholder="Antwort ${n+1}"><button type="button" class="wt-delopt" aria-label="Antwort entfernen">×</button>`;
+    box.appendChild(row);optUi();return row.querySelector('input')}
+  function optUi(){const box=$('wtOptIn');if(!box)return;const n=box.children.length;$('wtAddOpt').hidden=n>=6;
+    [...box.children].forEach((r,i)=>{r.querySelector('button').disabled=n<=2;r.querySelector('input').placeholder='Antwort '+(i+1)})}
+  async function sendSuggest(){if(sugBusy)return;const msg=$('wtSugMsg'),q=$('wtQIn').value.replace(/\s+/g,' ').trim(),opts=[...$('wtOptIn').querySelectorAll('input')].map(i=>i.value.replace(/\s+/g,' ').trim()).filter(Boolean);
+    if(q.length<5){msg.textContent=ERR.frage;$('wtQIn').focus();return}
+    if(opts.length<2||new Set(opts.map(o=>o.toLowerCase())).size!==opts.length){msg.textContent=ERR.antworten;return}
+    sugBusy=true;$('wtSend').disabled=true;msg.textContent='';
+    try{const r=await fetch(WAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'suggest',name:acct,q,opts})});const d=await r.json().catch(()=>({}));
+      if(!r.ok||!d.ok){msg.textContent=ERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.';throw 0}
+      SUG.unshift(d.sugg);closeModal();toast('Danke! Dein Vorschlag liegt jetzt beim Admin.','good');render()}
+    catch(e){if(!msg.textContent)msg.textContent='Keine Verbindung. Versuch es gleich nochmal.'}
+    sugBusy=false;const b=$('wtSend');if(b)b.disabled=false}
+  async function unsuggest(id){try{const r=await fetch(WAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'unsuggest',name:acct,id})});if(!r.ok)throw 0;
+      SUG=SUG.filter(v=>v.id!==id);toast('Vorschlag zurückgezogen.','good');render()}catch(e){toast('Das hat nicht geklappt.','bad')}}
+
+  // ---- Anzeige
+  const setT=(el,t)=>{if(el.textContent!==t)el.textContent=t};
+  const setH=(el,h)=>{if(el._h!==h){el.innerHTML=h;el._h=h}};
+  function optBtn(e,i,o){const P=potOf(e),so=e.s[i]||0,sh=P?so/P:0,q=so>0?P/so:0,st=stOf(e),done=st==='resolved'||st==='cancelled',mb=myBet(e)||(e.mine?{o:e.mine.o}:null);
+    const cls=[mb&&mb.o===i?'mine':'',st==='resolved'?(i===e.win?'right':'wrong'):''].join(' ');
+    const can=st==='open'&&!myBet(e)&&online()&&!placing,pr=!!sel&&sel.id===e.id&&sel.o===i;
+    return `<button class="wto ${cls}" data-id="${e.id}" data-o="${i}" aria-pressed="${pr}" ${can?'':'disabled'}><span class="wto-n">${st==='resolved'&&i===e.win?'✓ ':''}${esc(o)}</span>`+
+      `<span class="wto-q"><b>${q?fmtX(q):'–'}</b><small>${tips(e.c[i]||0)} · ${pct(sh,0)}</small></span><span class="wto-sh" style="width:${(sh*100).toFixed(1)}%"></span></button>`}
+  function card(e){const st=stOf(e),P=potOf(e),n=e.c.reduce((t,v)=>t+v,0),mb=myBet(e),done=st==='resolved'||st==='cancelled';
+    let badge;
+    if(st==='open')badge=e.closeAt?`<span class="wt-cd ${e.closeAt-now()<3600000?'soon':''}" data-cd="${e.closeAt}" title="Wettschluss ${when(e.closeAt)} Uhr">${left(e.closeAt-now())}</span>`:'<span class="wt-cd ok">Offen</span>';
+    else if(st==='closed')badge='<span class="wt-cd shut">Wettschluss</span>';
+    else if(st==='cancelled')badge='<span class="wt-cd">Abgebrochen</span>';
+    else badge='<span class="wt-cd ok">Aufgelöst</span>';
+    const meta=[`Topf <b>${fmt(P)}</b>`,tips(n)];
+    if(st==='open'&&e.closeAt)meta.push(`Wettschluss ${when(e.closeAt)} Uhr`);
+    if(st==='closed')meta.push('wartet auf die Auflösung');
+    if(st==='resolved')meta.push((e.c[e.win]||0)?`${tips(e.c[e.win])} richtig`:'niemand lag richtig – alle Einsätze zurück');
+    if(st==='cancelled')meta.push('alle Einsätze zurück');
+    if(e.by)meta.push(`Vorschlag von <b>${esc(e.by)}</b>`);
+    let mine='';
+    if(done){const h=W().hist.find(x=>x.id===e.id),m=e.mine;
+      if(h||m){const a=h?h.a:m.a,pay=h?h.pay:m.pay,on=h?h.on:e.opts[m.o];
+        mine=`<div class="wtc-mine"><span>Dein Tipp: <b>${esc(on)}</b> · <b>${fmt(a)}</b></span><span>${pay>a?`<b class="pos">+${fmt(pay)}</b>`:pay===a?'<b>Einsatz zurück</b>':`<b class="neg">−${fmt(a)}</b>`}</span></div>`}}
+    else if(mb){const so=Math.max(e.s[mb.o]||0,mb.a),Pp=Math.max(P,so),est=Pp*mb.a/so;
+      mine=`<div class="wtc-mine"><span>Dein Tipp: <b>${esc(e.opts[mb.o])}</b> · <b>${fmt(mb.a)}</b></span><span>wenn richtig, Stand jetzt <b class="pos">+${fmt(Math.floor(est*100)/100)}</b></span></div>`}
+    return `<article class="wtc ${mb&&!done?'mine':''} ${sel&&sel.id===e.id?'sel':''}"><div class="wtc-h"><h3>${esc(e.q)}</h3>${badge}</div><div class="wtc-meta">${meta.map(x=>`<span>${x}</span>`).join('')}</div>`+
+      `<div class="wtc-opts">${e.opts.map((o,i)=>optBtn(e,i,o)).join('')}</div>${mine}</article>`}
+  function render(){if(cur!=='wetten')return;
+    const act=EV.filter(e=>{const s=stOf(e);return s==='open'||s==='closed'}),done=EV.filter(e=>{const s=stOf(e);return s==='resolved'||s==='cancelled'}).slice(0,12),nOpen=act.filter(e=>stOf(e)==='open').length;
+    // Liste
+    let list;
+    if(!ACCOUNTS)list='<div class="wt-empty"><b>Wetten gibt es nur auf der Website mit Accounts.</b>Alle Spieler tippen dort in einen gemeinsamen Topf, die Fragen stellt der Admin.</div>';
+    else if(!acct)list='<div class="wt-empty"><b>Melde dich an, um mitzuwetten.</b>Wetten laufen über deinen Account, weil alle Spieler in einen gemeinsamen Topf tippen.</div>';
+    else if(loadedFor!==acct||(!EV.length&&busy))list=`<div class="wt-empty">${offline?'Server nicht erreichbar. Neuer Versuch läuft …':'Fragen werden geladen …'}</div>`;
+    else if(!act.length)list='<div class="wt-empty"><b>Gerade gibt es keine offenen Fragen.</b>Hast du eine Idee? Schlag eine Frage vor, der Admin schaltet sie frei.<button class="btn gold" type="button" data-wtsugg>Frage vorschlagen</button></div>';
+    else list=act.map(card).join('');
+    setH($('wtList'),list);setH($('wtDone'),done.map(card).join(''));$('wtDoneHead').hidden=!done.length;setT($('wtDoneN'),`${done.length} · letzte 14 Tage`);
+    setT($('wtMeta'),!online()?'Nur mit Account':offline&&loadedFor===acct?'Server nicht erreichbar':loadedFor!==acct?'Lädt …':nOpen?`${nOpen} ${nOpen===1?'Frage':'Fragen'} offen · ${W().bets.length?`${W().bets.length} ${W().bets.length===1?'Tipp':'Tipps'} von dir laufen`:'Tippe eine Antwort an'}`:'Keine offenen Fragen');
+    $('wtSuggest').hidden=$('wtSuggest2').hidden=!online();
+    // Seitenleiste
+    const e=sel&&EV.find(x=>x.id===sel.id),a=readBet('wtBet');
+    if(e){const P=potOf(e),so=e.s[sel.o]||0,est=(P+a)*a/(so+a);
+      setH($('wtPick'),`<b>${esc(e.opts[sel.o])}</b><small>${esc(e.q)}</small>`);
+      setT($('wtPot'),fmt(P));setT($('wtQ'),so>0?fmtX(P/so):'–');setT($('wtWin'),a>0?'+'+fmt(Math.floor(est*100)/100):'–');setT($('wtClose'),e.closeAt?left(e.closeAt-now()):'offen');
+      setT($('wtInfo'),`${fmt(a)} auf „${e.opts[sel.o]}“. Wie viel es am Ende gibt, hängt davon ab, wie die anderen bis zum Wettschluss tippen.`)}
+    else{setH($('wtPick'),`<span class="ph">${online()?'Tippe bei einer offenen Frage auf eine Antwort.':'Nur mit Account.'}</span>`);['wtPot','wtQ','wtWin','wtClose'].forEach(id=>setT($(id),'–'));
+      setT($('wtInfo'),online()&&nOpen?'Der ganze Topf geht an alle, die richtig liegen, im Verhältnis ihrer Einsätze.':'')}
+    const go=$('wtGo');let lab='Tipp abgeben',dis=false;
+    if(!online()){lab='Nur mit Account';dis=true}else if(placing){lab='Wird gesetzt …';dis=true}else if(!e){lab='Antwort wählen';dis=true}
+    setT(go,lab);go.disabled=dis;lockBet('wtBet',placing);
+    // Eigene Tipps + Vorschläge
+    const L=W(),res=h=>h.k==='win'?`<b class="pos">+${fmt(h.pay)}</b>`:h.k==='lose'?`<b class="neg">−${fmt(h.a)}</b>`:'<b>zurück</b>';
+    const items=L.bets.map(b=>{const ev=EV.find(x=>x.id===b.id),q=ev?ev.q:b.q||'',on=ev?ev.opts[b.o]:b.on||'';return `<div title="${esc(q)}"><span>${esc(on)} · ${esc(q)}</span><b>${fmt(b.a)}</b></div>`})
+      .concat(L.hist.slice(0,8).map(h=>`<div title="${esc(h.q)}"><span>${esc(h.on)} · ${esc(h.q)}</span>${res(h)}</div>`));
+    setH($('wtMy'),items.length?items.join(''):'<p class="note">Noch keine Tipps.</p>');
+    setH($('wtSug'),SUG.length?SUG.map(v=>`<div title="${esc(v.q)}"><span>${esc(v.q)}</span><b style="color:var(--mute);font-family:inherit;font-weight:600">wartet<button class="wt-x" type="button" data-unsug="${esc(v.id)}" aria-label="Vorschlag zurückziehen">×</button></b></div>`).join(''):`<p class="note">${online()?'Keine offenen Vorschläge.':'Nur mit Account.'}</p>`);
+    $('wtSuggest2').disabled=SUG.length>=MAXSUG;
+    tickCd()}
+  // Countdowns jede Sekunde nur als Text (Liste bleibt stehen, Fokus geht nicht verloren)
+  function tickCd(){if(cur!=='wetten')return;let flip=false;
+    document.querySelectorAll('#v-wetten [data-cd]').forEach(el=>{const ms=+el.dataset.cd-now();if(ms<=0)flip=true;setT(el,left(ms));el.classList.toggle('soon',ms<3600000)});
+    const e=sel&&EV.find(x=>x.id===sel.id);if(e&&e.closeAt)setT($('wtClose'),left(e.closeAt-now()));
+    if(flip){if(sel&&e&&stOf(e)!=='open')sel=null;render()}}
+
+  // ---- Eingaben
+  function pick(id,o){const e=EV.find(x=>x.id===id);if(!e||stOf(e)!=='open'||myBet(e))return;sel=sel&&sel.id===id&&sel.o===o?null:{id,o};SND.tick();render()}
+  $('v-wetten').addEventListener('click',ev=>{const b=ev.target.closest('.wto');if(b&&!b.disabled){ac();pick(b.dataset.id,+b.dataset.o);b.blur();return}
+    if(ev.target.closest('[data-wtsugg]'))suggestBox();const u=ev.target.closest('[data-unsug]');if(u)unsuggest(u.dataset.unsug)});
+  $('wtGo').onclick=()=>{ac();place()};
+  $('wtSuggest').onclick=$('wtSuggest2').onclick=()=>suggestBox();
+  $('wtBet').addEventListener('input',render);
+  $('modal').addEventListener('click',ev=>{if(ev.target.closest('#wtAddOpt')){const i=addOpt();if(i)i.focus();return}
+    const d=ev.target.closest('.wt-delopt');if(d&&!d.disabled){d.parentElement.remove();optUi();return}
+    if(ev.target.closest('#wtSend'))sendSuggest()});
+  $('modal').addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target.closest('.wt-form')&&ev.target.tagName==='INPUT'){ev.preventDefault();sendSuggest()}});
+  setInterval(()=>{poll();if(visible())tickCd()},1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll(cur==='wetten')});
+
+  return{RTP,
+    show(){render();poll(true)},
+    key(e){if(e.code==='Space'){e.preventDefault();if(e.repeat)return;if(!$('wtGo').disabled)place()}},
+    lobby(g){if(!ACCOUNTS)return'Nur online mit Account';if(loadedFor!==acct)return g.n?`${fmt0(g.n)} Tipps ausgewertet`:'Tippe mit allen auf echte Ereignisse';
+      const n=EV.filter(e=>stOf(e)==='open').length,m=W().bets.length;
+      return (n?`<b>${n}</b> ${n===1?'Frage':'Fragen'} offen`:'Gerade keine offenen Fragen')+(m?` · <b>${m}</b> ${m===1?'Tipp':'Tipps'} von dir`:'')}}})();
+onShow.wetten=WT.show;
 
 // ================= GAME: GOLDENE SIEBEN (Slot) =================
 
@@ -4201,7 +4491,7 @@ onShow.slot=SL.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
-  ({chicken:CH,plinko:PL,tower:TW,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL}[cur])?.key(e)});
+  ({chicken:CH,plinko:PL,tower:TW,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL,wetten:WT}[cur])?.key(e)});
 let last=performance.now();
 function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);HR.tick();SK.tick();SL.tick();fxTick(dt);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);

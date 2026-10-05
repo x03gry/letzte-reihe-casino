@@ -231,6 +231,140 @@ async function rennen(req, url) {
   return json({ ok: true, now, pot: potOf(bets) });
 }
 
+// ================= Wetten (/api/spielstand?wetten=1) =================
+// Der Admin stellt Fragen zu Ereignissen mit mehreren Antworten (oder aktiviert Vorschläge von Spielern).
+// Alle Tipps einer Frage landen in einem Topf. Nach der Auflösung teilen sich alle, die richtig getippt haben,
+// den ganzen Topf im Verhältnis ihrer Einsätze. Hat niemand richtig getippt oder wird die Frage abgebrochen,
+// gibt es die Einsätze zurück. Abgerechnet wird auf dem Gerät mit dem Betrag, den der Server ausrechnet.
+// Store "wetten":  e/<id> = Frage · b/<id>/<antwort>_<cent>_<zeit>_<name> = Tipp (leer, alles im Schlüssel)
+//                  v/<name>/<id> = Vorschlag eines Spielers
+const W_ID = /^[a-z0-9]{6,24}$/;
+const W_SUGG_PER_USER = 3, W_SUGG_MAX = 100, W_SHOW_DONE = 14 * 86_400_000;
+const wClean = (s, max) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
+// Frage + Antworten prüfen und säubern (gleiche Regeln wie im Admin)
+function wSanitize(q, opts) {
+  q = wClean(q, 140);
+  if (q.length < 5) return { err: "frage" };
+  if (!Array.isArray(opts)) return { err: "antworten" };
+  const out = [], seen = new Set();
+  for (const o of opts.slice(0, 12)) { const t = wClean(o, 40); if (t && !seen.has(t.toLowerCase())) { seen.add(t.toLowerCase()); out.push(t); } }
+  if (out.length < 2 || out.length > 6) return { err: "antworten" };
+  return { q, opts: out };
+}
+const wStatus = (e, now) => (e.status === "open" && e.closeAt && now >= e.closeAt ? "closed" : e.status);
+function wParse(key) {
+  const m = /^b\/([^/]+)\/(\d+)_(\d+)_(\d+)_(.+)$/.exec(key);
+  return m ? { id: m[1], o: +m[2], c: +m[3], t: +m[4], n: decodeURIComponent(m[5]), key } : null;
+}
+// Auszahlung eines Tipps in Cent (null = noch offen)
+function wPay(e, b) {
+  if (e.status === "cancelled") return b.c;
+  if (e.status !== "resolved") return null;
+  if (b.t > num(e.doneAt) || !(num(e.W) > 0)) return b.c;      // nach der Auflösung gesetzt / niemand lag richtig: zurück
+  if (b.o !== e.win) return 0;
+  return Number((BigInt(Math.round(e.P)) * BigInt(b.c)) / BigInt(Math.round(e.W))); // abgerundet auf den Cent
+}
+function wPublic(e, list, now, me) {
+  const k = e.opts.length, c = new Array(k).fill(0), s = new Array(k).fill(0);
+  for (const b of list) if (b.o >= 0 && b.o < k) { c[b.o]++; s[b.o] += b.c; }
+  const st = wStatus(e, now);
+  const out = { id: e.id, q: e.q, opts: e.opts, st, closeAt: num(e.closeAt), t: num(e.t), by: e.by || null, c, s: s.map((v) => v / 100) };
+  if (st === "resolved") { out.win = e.win; out.doneAt = num(e.doneAt); }
+  if (st === "cancelled") out.doneAt = num(e.doneAt);
+  if (me) {
+    const mb = list.find((b) => b.n === me);
+    if (mb) { out.mine = { o: mb.o, a: mb.c / 100, t: mb.t }; const p = wPay(e, mb); if (p != null) out.mine.pay = p / 100; }
+  }
+  return out;
+}
+async function wLoad(store) {
+  const [{ blobs: eb }, { blobs: bb }] = await Promise.all([store.list({ prefix: "e/" }), store.list({ prefix: "b/" })]);
+  const events = (await Promise.all(eb.map((b) => store.get(b.key, { type: "json" }).catch(() => null)))).filter((e) => e && e.id);
+  const bets = {};
+  for (const b of bb) { const p = wParse(b.key); if (p) (bets[p.id] ||= []).push(p); }
+  return { events, bets };
+}
+
+async function wetten(req, url) {
+  const now = Date.now(), store = getStore("wetten");
+
+  if (req.method === "GET") {
+    const raw = String(url.searchParams.get("name") || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const me = NAME_RE.test(raw) ? raw : "";
+    const { events, bets } = await wLoad(store);
+    const rank = { open: 0, closed: 1, resolved: 2, cancelled: 2 };
+    const shown = events.filter((e) => {
+      const st = wStatus(e, now);
+      if (st === "open" || st === "closed") return true;
+      // erledigte Fragen 14 Tage zeigen, eigene Tipps immer (damit das Gerät noch abrechnen kann)
+      return now - num(e.doneAt) < W_SHOW_DONE || (me && (bets[e.id] || []).some((b) => b.n === me));
+    }).sort((a, b) => {
+      const sa = rank[wStatus(a, now)], sb = rank[wStatus(b, now)];
+      if (sa !== sb) return sa - sb;
+      if (sa === 2) return num(b.doneAt) - num(a.doneAt);
+      return (num(a.closeAt) || 9e15) - (num(b.closeAt) || 9e15) || num(b.t) - num(a.t);
+    }).filter((e, i) => i < 60 || (me && (bets[e.id] || []).some((b) => b.n === me))); // eigene Tipps nie abschneiden
+    const out = { now, events: shown.map((e) => wPublic(e, bets[e.id] || [], now, me)) };
+    if (me) {
+      const { blobs } = await store.list({ prefix: `v/${encodeURIComponent(me)}/` });
+      out.sugg = (await Promise.all(blobs.map((b) => store.get(b.key, { type: "json" }).catch(() => null)))).filter(Boolean)
+        .map((v) => ({ id: v.id, q: v.q, opts: v.opts, t: v.t })).sort((a, b) => b.t - a.t);
+    }
+    return json(out);
+  }
+
+  if (req.method !== "POST") return json({ error: "methode" }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
+  const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
+  const key = encodeURIComponent(name);
+  const acc = await getStore("spielstaende").get(key, { type: "json" });
+  if (!acc) return json({ error: "unbekannt" }, 404);
+  if (acc.banned) return json({ error: "gesperrt" }, 403);
+  const st = acc.state || {};
+
+  if (body.action === "bet") {
+    const id = String(body.id || ""), o = Number(body.opt), c = Math.round(num(body.a) * 100);
+    if (!W_ID.test(id)) return json({ error: "ungueltig" }, 400);
+    const e = await store.get(`e/${id}`, { type: "json" });
+    if (!e) return json({ error: "weg" }, 404);
+    if (wStatus(e, now) !== "open") return json({ error: "wettschluss" }, 409);
+    if (!Number.isInteger(o) || o < 0 || o >= e.opts.length) return json({ error: "ungueltig" }, 400);
+    // großzügig, weil der gespeicherte Stand ein paar Sekunden alt sein kann (25 % prüft die Seite)
+    if (!(c >= 1) || c > 250_000_000 || c / 100 > (num(st.bal) + num(st.inPlay)) * 0.5 + 10) return json({ error: "einsatz" }, 400);
+    const { blobs } = await store.list({ prefix: `b/${id}/` });
+    const list = blobs.map((b) => wParse(b.key)).filter(Boolean);
+    if (list.some((b) => b.n === name)) return json({ error: "schon_gesetzt" }, 409);
+    const b = { id, o, c, t: now, n: name, key: `b/${id}/${o}_${c}_${now}_${key}` };
+    await store.setJSON(b.key, {});
+    list.push(b);
+    return json({ ok: true, now, ev: wPublic(e, list, now, name) });
+  }
+
+  if (body.action === "suggest") {
+    const s = wSanitize(body.q, body.opts);
+    if (s.err) return json({ error: s.err }, 400);
+    const mine = await store.list({ prefix: `v/${key}/` });
+    if (mine.blobs.length >= W_SUGG_PER_USER) return json({ error: "zu_viele_vorschlaege" }, 429);
+    const all = await store.list({ prefix: "v/" });
+    if (all.blobs.length >= W_SUGG_MAX) return json({ error: "voll" }, 429);
+    const id = now.toString(36) + randomBytes(3).toString("hex");
+    const v = { id, q: s.q, opts: s.opts, by: name, t: now };
+    await store.setJSON(`v/${key}/${id}`, v);
+    return json({ ok: true, sugg: { id, q: v.q, opts: v.opts, t: now } });
+  }
+
+  if (body.action === "unsuggest") {
+    const id = String(body.id || "");
+    if (!W_ID.test(id)) return json({ error: "ungueltig" }, 400);
+    await store.delete(`v/${key}/${id}`);
+    return json({ ok: true });
+  }
+
+  return json({ error: "unbekannte_aktion" }, 400);
+}
+
 // ================= Chip-Stapler (/api/spielstand?stapel=1) =================
 // Jede Runde bekommt einen zufälligen Seed. Am Ende spielt der Server die Tipp-Zeiten mit denselben Regeln nach (STK, identisch zur Seite).
 // Was unter Höhe 15 verloren geht, wandern in den Jackpot. Wer 75 Chips stapelt, bekommt ihn (über den Posteingang).
@@ -352,6 +486,7 @@ export default async (req) => {
   const url = new URL(req.url);
   if (url.searchParams.has("rennen")) return rennen(req, url);
   if (url.searchParams.has("stapel")) return stapel(req, url);
+  if (url.searchParams.has("wetten")) return wetten(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");
