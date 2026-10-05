@@ -237,7 +237,8 @@ async function rennen(req, url) {
 // den ganzen Topf im Verhältnis ihrer Einsätze. Hat niemand richtig getippt oder wird die Frage abgebrochen,
 // gibt es die Einsätze zurück. Abgerechnet wird auf dem Gerät mit dem Betrag, den der Server ausrechnet.
 // Store "wetten":  e/<id> = Frage · b/<id>/<antwort>_<cent>_<zeit>_<name> = Tipp (leer, alles im Schlüssel)
-//                  v/<name>/<id> = Vorschlag eines Spielers
+//                  v/<name>/<id> = Vorschlag eines Spielers · bans = vom Admin ausgeschlossene Spieler {name: zeit}
+// Ausgeschlossene (ganz oder nur für eine Frage, e.ex) können nicht tippen; ihre offenen Tipps löscht der Admin-Server, das Gerät gibt den Einsatz zurück.
 const W_ID = /^[a-z0-9]{6,24}$/;
 const W_SUGG_PER_USER = 3, W_SUGG_MAX = 100, W_SHOW_DONE = 14 * 86_400_000;
 const wClean = (s, max) => String(s || "").replace(/\s+/g, " ").trim().slice(0, max);
@@ -265,12 +266,14 @@ function wPay(e, b) {
   return Number((BigInt(Math.round(e.P)) * BigInt(b.c)) / BigInt(Math.round(e.W))); // abgerundet auf den Cent
 }
 function wPublic(e, list, now, me) {
+  const ex = me && Array.isArray(e.ex) && e.ex.includes(me);
   const k = e.opts.length, c = new Array(k).fill(0), s = new Array(k).fill(0);
   for (const b of list) if (b.o >= 0 && b.o < k) { c[b.o]++; s[b.o] += b.c; }
   const st = wStatus(e, now);
   const out = { id: e.id, q: e.q, opts: e.opts, st, closeAt: num(e.closeAt), t: num(e.t), by: e.by || null, c, s: s.map((v) => v / 100) };
   if (st === "resolved") { out.win = e.win; out.doneAt = num(e.doneAt); }
   if (st === "cancelled") out.doneAt = num(e.doneAt);
+  if (ex) out.ex = true;
   if (me) {
     const mb = list.find((b) => b.n === me);
     if (mb) { out.mine = { o: mb.o, a: mb.c / 100, t: mb.t }; const p = wPay(e, mb); if (p != null) out.mine.pay = p / 100; }
@@ -306,6 +309,8 @@ async function wetten(req, url) {
     }).filter((e, i) => i < 60 || (me && (bets[e.id] || []).some((b) => b.n === me))); // eigene Tipps nie abschneiden
     const out = { now, events: shown.map((e) => wPublic(e, bets[e.id] || [], now, me)) };
     if (me) {
+      const bans = (await store.get("bans", { type: "json" })) || {};
+      if (bans[me]) out.banned = true;
       const { blobs } = await store.list({ prefix: `v/${encodeURIComponent(me)}/` });
       out.sugg = (await Promise.all(blobs.map((b) => store.get(b.key, { type: "json" }).catch(() => null)))).filter(Boolean)
         .map((v) => ({ id: v.id, q: v.q, opts: v.opts, t: v.t })).sort((a, b) => b.t - a.t);
@@ -323,6 +328,10 @@ async function wetten(req, url) {
   if (!acc) return json({ error: "unbekannt" }, 404);
   if (acc.banned) return json({ error: "gesperrt" }, 403);
   const st = acc.state || {};
+  if (body.action === "bet" || body.action === "suggest") {
+    const bans = (await store.get("bans", { type: "json" })) || {};
+    if (bans[name]) return json({ error: "ausgeschlossen" }, 403);
+  }
 
   if (body.action === "bet") {
     const id = String(body.id || ""), o = Number(body.opt), c = Math.round(num(body.a) * 100);
@@ -330,6 +339,7 @@ async function wetten(req, url) {
     const e = await store.get(`e/${id}`, { type: "json" });
     if (!e) return json({ error: "weg" }, 404);
     if (wStatus(e, now) !== "open") return json({ error: "wettschluss" }, 409);
+    if (Array.isArray(e.ex) && e.ex.includes(name)) return json({ error: "ausgeschlossen_frage" }, 403);
     if (!Number.isInteger(o) || o < 0 || o >= e.opts.length) return json({ error: "ungueltig" }, 400);
     // großzügig, weil der gespeicherte Stand ein paar Sekunden alt sein kann (25 % prüft die Seite)
     if (!(c >= 1) || c > 250_000_000 || c / 100 > (num(st.bal) + num(st.inPlay)) * 0.5 + 10) return json({ error: "einsatz" }, 400);

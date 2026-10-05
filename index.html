@@ -888,9 +888,65 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .sl-banner-s { font-size: 13px; color: var(--sl-mu); margin-top: 6px; }
 .sl-banner.sl-fs { border-color: var(--sl-win); box-shadow: 0 0 0 4px rgba(47,224,143,.18), 0 20px 50px rgba(0,0,0,.6); }
 
+/* Risiko (Rot oder Schwarz): liegt in derselben Rasterzelle wie die Walzen und deckt sie ab */
+.sl-stage-in { display: grid; }
+.sl-stage-in > #sl-reels, .sl-gamble { grid-area: 1 / 1; }
+.sl-gamble {
+  position: relative; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 14px 12px; background: radial-gradient(120% 90% at 50% 0%, #1f3a2c 0%, #12251b 55%, #0b1710 100%);
+  border-radius: 10px; text-align: center;
+}
+.sl-gamble[hidden] { display: none; }
+.sl-g-head { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 460px; }
+.sl-g-title { font: 700 18px var(--sl-num); letter-spacing: .14em; text-transform: uppercase;
+  background: linear-gradient(180deg, #fff6d8, var(--sl-gold) 55%, var(--sl-gold-d)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sl-g-step { font: 700 12px var(--sl-num); color: var(--sl-mu); background: rgba(0,0,0,.3); border: 1px solid var(--sl-l1); border-radius: 999px; padding: 3px 10px; }
+.sl-g-body { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; width: 100%; max-width: 460px; }
+.sl-g-amt span { display: block; font-size: 11px; color: var(--sl-mu); text-transform: uppercase; letter-spacing: .08em; }
+.sl-g-amt b { display: block; font-size: clamp(17px, 3.4vw, 24px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.sl-card { width: clamp(70px, 15vw, 104px); aspect-ratio: 5 / 7; perspective: 700px; }
+.sl-card-in { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .45s cubic-bezier(.3,1.3,.5,1); }
+.sl-card.sl-up .sl-card-in { transform: rotateY(180deg); }
+.sl-card.sl-reset .sl-card-in { transition: none; }
+.sl-card-back, .sl-card-front { position: absolute; inset: 0; border-radius: 9px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 8px 18px rgba(0,0,0,.45); }
+.sl-card-back { border: 3px solid #f4f1ea;
+  background: repeating-linear-gradient(45deg, var(--sl-gold-d) 0 5px, #8a5800 5px 10px), var(--sl-gold-d); }
+.sl-card-back::after { content: "7"; position: absolute; inset: 0; display: grid; place-items: center; font: 700 clamp(26px, 6vw, 40px) var(--sl-num); color: #fff6d8; text-shadow: 0 2px 0 #6b4300; }
+.sl-card-front { transform: rotateY(180deg); background: #f8f6f0; border: 1px solid #d9d2c3; color: #1b2b3a; display: grid; place-items: center; }
+.sl-card-front.sl-r { color: #d0101c; }
+.sl-card-front .sl-cs { font-size: clamp(34px, 8vw, 54px); line-height: 1; }
+.sl-card-front .sl-cr { position: absolute; top: 5px; left: 7px; font: 700 clamp(13px, 2.6vw, 17px)/1 var(--sl-num); text-align: center; }
+.sl-card-front .sl-cr.sl-b { top: auto; left: auto; bottom: 5px; right: 7px; transform: rotate(180deg); }
+.sl-g-hist { display: flex; gap: 5px; min-height: 26px; justify-content: center; }
+.sl-g-hist span { width: 20px; height: 26px; border-radius: 4px; background: #f8f6f0; color: #1b2b3a; font-size: 13px; line-height: 26px; box-shadow: 0 2px 4px rgba(0,0,0,.4); }
+.sl-g-hist span.sl-r { color: #d0101c; }
+.sl-g-hist span.sl-x { outline: 2px solid var(--sl-loss); }
+.sl-g-hist span.sl-o { outline: 2px solid var(--sl-win); }
+.sl-g-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 460px; }
+.sl-gpick { height: 52px; border-radius: 12px; border: 0; cursor: pointer; font: 700 18px var(--sl-num); letter-spacing: .08em; text-transform: uppercase; touch-action: manipulation; transition: transform .1s, filter .15s; }
+.sl-gpick span { font-size: 15px; letter-spacing: 0; margin-left: 4px; }
+.sl-gpick.sl-red { background: linear-gradient(180deg, #ff6d78, #d0101c 55%, #8c0008); color: #fff; box-shadow: 0 4px 0 #5a0006; }
+.sl-gpick.sl-black { background: linear-gradient(180deg, #4a5e73, #24384a 55%, #111c26); color: #fff; box-shadow: 0 4px 0 #070d12; }
+.sl-gpick:hover:not(:disabled) { filter: brightness(1.08); }
+.sl-gpick:active:not(:disabled) { transform: translateY(2px); }
+.sl-gpick:disabled { opacity: .45; cursor: default; }
+.sl-gpick:focus-visible, .sl-gbtn:focus-visible { outline: 2px solid var(--sl-gold); outline-offset: 2px; }
+.sl-g-take { width: 100%; max-width: 460px; height: 42px; font: 700 15px var(--sl-num); }
+.sl-g-take:not(:disabled) { background: var(--sl-win); color: #04220f; border-color: var(--sl-win); }
+.sl-g-note { font-size: 12.5px; color: var(--sl-mu); min-height: 1.3em; }
+.sl-g-note.sl-good { color: var(--sl-win); font-weight: 700; } .sl-g-note.sl-bad { color: var(--sl-loss); font-weight: 700; }
+.sl-gbtn { height: 40px; padding: 0 14px; border-radius: 10px; cursor: pointer; white-space: nowrap; touch-action: manipulation;
+  font: 700 14px var(--sl-num); letter-spacing: .06em; text-transform: uppercase; color: var(--sl-on-gold); border: 0;
+  background: linear-gradient(180deg, var(--sl-gold-l), var(--sl-gold) 50%, var(--sl-gold-d)); box-shadow: 0 0 0 0 rgba(255,176,32,.5); animation: slgPulse 1.6s ease-out infinite; }
+.sl-gbtn[hidden] { display: none; }
+@keyframes slgPulse { 0% { box-shadow: 0 0 0 0 rgba(255,176,32,.55); } 70%,100% { box-shadow: 0 0 0 10px rgba(255,176,32,0); } }
+@media (prefers-reduced-motion: reduce) { .sl-card-in { transition: none; } .sl-gbtn { animation: none; } }
+@media (max-width: 900px) { .sl-winbar { grid-template-columns: minmax(0, 1fr) auto; } .sl-gbtn { grid-column: 1 / -1; grid-row: 2; width: 100%; height: 46px; font-size: 15px; } }
+@media (max-width: 520px) { .sl-gamble { gap: 8px; padding: 10px 10px 10px; } .sl-g-body { gap: 8px; } .sl-gpick { height: 46px; font-size: 16px; } .sl-g-take { height: 40px; } .sl-gbtn { padding: 0 10px; font-size: 13px; } }
+
 /* Gewinnleiste */
 .sl-winbar {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px;
   max-width: 780px; margin: 12px auto 0;
   background: var(--sl-bg); border: 1px solid var(--sl-l1); border-radius: 12px; padding: 10px 14px;
 }
@@ -1298,7 +1354,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     <p>Der Admin stellt Fragen zu Ereignissen, die noch passieren werden, jeweils mit mehreren Antworten. Pro Frage gibst du einen Tipp ab: eine Antwort und einen Einsatz (höchstens 25 % deines Guthabens). Alle Einsätze einer Frage landen in einem gemeinsamen Topf.</p>
     <p><b style="color:var(--ink)">Auszahlung:</b> Sobald das Ereignis feststeht, wählt der Admin die richtige Antwort. Der komplette Topf wird unter allen aufgeteilt, die richtig getippt haben, und zwar im Verhältnis ihrer Einsätze: Wer 10 % der richtigen Einsätze gesetzt hat, bekommt 10 % vom Topf. Das Haus behält nichts. Hat niemand richtig getippt oder wird eine Frage abgebrochen, bekommen alle ihren Einsatz zurück.</p>
     <div class="hr-formula">Gewinn = Topf × dein Einsatz ÷ Summe aller richtigen Einsätze<br>Quote jetzt = Topf ÷ Einsätze auf diese Antwort</div>
-    <p>Die Quote ändert sich mit jedem neuen Tipp bis zum Wettschluss. Erst dann steht fest, wie viel es gibt. Eigene Ideen kannst du mit „Frage vorschlagen“ einreichen; der Admin prüft sie und schaltet sie frei.</p>
+    <p>Die Quote ändert sich mit jedem neuen Tipp bis zum Wettschluss. Erst dann steht fest, wie viel es gibt. Eigene Ideen kannst du mit „Frage vorschlagen“ einreichen; der Admin prüft sie und schaltet sie frei. Der Admin kann Spieler von einer Frage oder ganz von Wetten ausschließen (z. B. wenn jemand die Antwort schon kennt); offene Tipps bekommen sie dann zurück.</p>
   </details>
 </section>
 
@@ -1438,10 +1494,23 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
             <div class="sl-banner-a" id="sl-banner-a"></div>
             <div class="sl-banner-s" id="sl-banner-s">Tippen zum Fortfahren</div>
           </div>
+          <div class="sl-gamble" id="sl-gamble" hidden role="dialog" aria-label="Risiko: Rot oder Schwarz">
+            <div class="sl-g-head"><span class="sl-g-title">Risiko</span><span class="sl-g-step" id="sl-g-step">Karte 1 von 5</span></div>
+            <div class="sl-g-body">
+              <div class="sl-g-amt"><span>Im Spiel</span><b class="sl-num" id="sl-g-cur">0,00</b></div>
+              <div class="sl-card" id="sl-card" aria-live="polite"><div class="sl-card-in"><div class="sl-card-back"></div><div class="sl-card-front" id="sl-card-front"></div></div></div>
+              <div class="sl-g-amt"><span>Bei Treffer</span><b class="sl-num sl-pos" id="sl-g-next">0,00</b></div>
+            </div>
+            <div class="sl-g-hist" id="sl-g-hist" aria-label="Zuletzt gezogene Karten"></div>
+            <div class="sl-g-pick"><button class="sl-gpick sl-red" id="sl-g-red" type="button">Rot <span aria-hidden="true">♥♦</span></button><button class="sl-gpick sl-black" id="sl-g-black" type="button">Schwarz <span aria-hidden="true">♠♣</span></button></div>
+            <button class="sl-btn sl-g-take" id="sl-g-take" type="button">Einsammeln</button>
+            <div class="sl-g-note" id="sl-g-note">Richtig: Gewinn verdoppelt · Falsch: alles weg</div>
+          </div>
         </div>
       </div>
       <div class="sl-winbar">
         <div class="sl-msg" id="sl-msg" aria-live="polite">Viel Glück! Drei Scatter bringen Freispiele.</div>
+        <button class="sl-gbtn" id="sl-gamble-btn" type="button" hidden>Risiko <span aria-hidden="true">♥♠</span></button>
         <div class="sl-winamt"><span>Gewinn</span><b id="sl-win">0,00</b></div>
       </div>
     </section>
@@ -1466,6 +1535,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
             <li><b>WILD</b> erscheint nur auf Walze 2, 3 und 4 und ersetzt alle Symbole außer Scatter.</li>
             <li><b>BONUS (Scatter)</b> zählt überall: 3 / 4 / 5 Scatter = 10 / 15 / 20 Freispiele. In Freispielen zählen alle Gewinne doppelt, Freispiele können erneut ausgelöst werden. Gespielt wird mit dem Einsatz, der sie ausgelöst hat.</li>
             <li>Höchstens 25 % deines Guthabens pro Dreh.</li>
+            <li><b>Risiko:</b> Nach einem Gewinn im Grundspiel kannst du ihn riskieren. Eine Karte wird verdeckt gezogen: Tippst du die Farbe richtig (Rot oder Schwarz), verdoppelt sich der Betrag, liegst du falsch, ist er weg. Bis zu 5 Karten hintereinander (höchstens ×32), einsammeln jederzeit. Rot und Schwarz sind genau 50 : 50, Auszahlung 100 %.</li>
           </ul>
         </div>
         <div>
@@ -1565,7 +1635,7 @@ function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=O
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -3108,11 +3178,12 @@ const WT=(()=>{
   const WAPI='/api/spielstand?wetten=1',RTP=1,MAXSUG=3;
   const ERR={wettschluss:'Für diese Frage ist schon Wettschluss.',schon_gesetzt:'Auf diese Frage hast du schon getippt.',weg:'Diese Frage gibt es nicht mehr.',einsatz:'Dieser Einsatz geht nicht.',
     gesperrt:'Dein Account ist gesperrt.',unbekannt:'Dein Account wurde nicht gefunden.',frage:'Die Frage braucht mindestens 5 Zeichen.',antworten:'Gib 2 bis 6 verschiedene Antworten an.',
-    zu_viele_vorschlaege:`Du hast schon ${MAXSUG} Vorschläge offen. Warte, bis der Admin sie geprüft hat.`,voll:'Gerade liegen zu viele Vorschläge beim Admin. Versuch es später nochmal.'};
+    zu_viele_vorschlaege:`Du hast schon ${MAXSUG} Vorschläge offen. Warte, bis der Admin sie geprüft hat.`,voll:'Gerade liegen zu viele Vorschläge beim Admin. Versuch es später nochmal.',
+    ausgeschlossen:'Der Admin hat dich von Wetten ausgeschlossen.',ausgeschlossen_frage:'Der Admin hat dich von dieser Frage ausgeschlossen.'};
   const W=()=>{if(!S.wt||!Array.isArray(S.wt.bets))S.wt={bets:[],hist:[],done:[]};if(!Array.isArray(S.wt.hist))S.wt.hist=[];if(!Array.isArray(S.wt.done))S.wt.done=[];return S.wt};
   const online=()=>ACCOUNTS&&!!acct;
   const visible=()=>cur==='wetten'&&!document.hidden;
-  let EV=[],SUG=[],loadedFor=null,offline=false,busy=false,at=0,fails=0,skew=0,sel=null,placing=false,sugBusy=false;
+  let EV=[],SUG=[],BAN=false,srvNow=0,loadedFor=null,offline=false,busy=false,at=0,fails=0,skew=0,sel=null,placing=false,sugBusy=false;
   const now=()=>Date.now()+skew;
   const stOf=e=>e.st==='open'&&e.closeAt&&now()>=e.closeAt?'closed':e.st;
   const potOf=e=>r2(e.s.reduce((t,v)=>t+v,0));
@@ -3123,14 +3194,14 @@ const WT=(()=>{
 
   // ---- Server holen (offen: alle 15 s, sonst seltener; mit offenen Tipps jede Minute zum Abrechnen)
   async function poll(force){if(!online()||busy)return;
-    if(loadedFor!==acct){EV=[];SUG=[];sel=null;loadedFor=acct;at=0;fails=0}
+    if(loadedFor!==acct){EV=[];SUG=[];BAN=false;sel=null;loadedFor=acct;at=0;fails=0}
     const gap=fails?Math.min(120000,5000*2**fails):visible()?15000:W().bets.length?60000:180000;
     if(!force&&Date.now()-at<gap)return;busy=true;at=Date.now();const me=acct,t0=Date.now();
     try{const r=await fetch(WAPI+'&name='+encodeURIComponent(me),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
       if(acct!==me)throw new Error('user');
       if(typeof d.now==='number')skew=d.now-(t0+Date.now())/2;
-      EV=Array.isArray(d.events)?d.events:[];SUG=Array.isArray(d.sugg)?d.sugg:[];loadedFor=me;offline=false;fails=0;
-      if(sel&&!EV.some(e=>e.id===sel.id&&stOf(e)==='open'))sel=null;sync()}
+      EV=Array.isArray(d.events)?d.events:[];SUG=Array.isArray(d.sugg)?d.sugg:[];BAN=!!d.banned;srvNow=+d.now||0;loadedFor=me;offline=false;fails=0;
+      if(sel&&(BAN||!EV.some(e=>e.id===sel.id&&stOf(e)==='open'&&!e.ex)))sel=null;sync()}
     catch(e){if(e.message!=='user'){fails++;offline=true}}
     busy=false;render();if(cur==='lobby')softRefresh()}
 
@@ -3144,11 +3215,15 @@ const WT=(()=>{
       if(m.t<(S.created||0)||S.bal+1e-9<m.a)continue; // Tipp von vor einem Neustart des Spielstands
       S.bal=r2(S.bal-m.a);S.inPlay=r2((S.inPlay||0)+m.a);L.bets.push({id:e.id,o:m.o,a:m.a,t:m.t,q:e.q,on:e.opts[m.o]});changed=true}
     for(const b of L.bets.slice()){const e=byId.get(b.id);
-      if(!e){ // Frage vom Admin entfernt: Einsatz zurück
-        if(now()-(b.t||0)<120000)continue;
-        L.bets.splice(L.bets.indexOf(b),1);markDone(b.id);giveBack(b);addHist({id:b.id,q:b.q||'Entfernte Frage',on:b.on||'',a:b.a,pay:b.a,k:'back'});changed=true;
-        toast(`Eine Frage wurde entfernt. Dein Einsatz von <b class="num">${fmt(b.a)}</b> ist zurück.`,'good');continue}
-      const m=e.mine;if(!m||typeof m.pay!=='number')continue;
+      // Frage oder Tipp gibt es beim Server nicht mehr (Frage entfernt / Spieler ausgeschlossen): Einsatz zurück.
+      // Nur wenn die Server-Antwort sicher nach dem Setzen entstanden ist.
+      if(!e||!e.mine){
+        if(!srvNow||srvNow<(b.t||0)+3000)continue;
+        L.bets.splice(L.bets.indexOf(b),1);markDone(b.id);giveBack(b);addHist({id:b.id,q:e?e.q:b.q||'Entfernte Frage',on:e?e.opts[b.o]:b.on||'',a:b.a,pay:b.a,k:'back'});changed=true;
+        toast(!e?`Eine Frage wurde entfernt. Dein Einsatz von <b class="num">${fmt(b.a)}</b> ist zurück.`
+          :e.ex||BAN?`Der Admin hat dich von „${esc(e.q)}“ ausgeschlossen. Dein Einsatz von <b class="num">${fmt(b.a)}</b> ist zurück.`
+          :`Dein Tipp bei „${esc(e.q)}“ wurde entfernt. Dein Einsatz von <b class="num">${fmt(b.a)}</b> ist zurück.`,'good');continue}
+      const m=e.mine;if(typeof m.pay!=='number')continue;
       const st=stOf(e),pay=r2(m.pay),a=b.a,on=e.opts[m.o]||b.on||'',fresh=now()-(e.doneAt||0)<3600000,act=cur!=='wetten'&&fresh?{label:'Ansehen',go:'wetten'}:null;
       L.bets.splice(L.bets.indexOf(b),1);markDone(b.id);changed=true;
       if(st==='cancelled'||(m.o!==e.win&&pay>0)){ // abgebrochen / niemand lag richtig: Einsatz zurück, keine Runde
@@ -3162,8 +3237,10 @@ const WT=(()=>{
   // ---- Tipp abgeben
   async function place(){if(placing)return;
     if(!online()){toast('Wetten gibt es nur mit Account.','bad');return}
+    if(BAN){toast(ERR.ausgeschlossen,'bad');return}
     const e=sel&&EV.find(x=>x.id===sel.id);
     if(!e){toast('Tippe zuerst bei einer Frage auf eine Antwort.','bad');return}
+    if(e.ex){toast(ERR.ausgeschlossen_frage,'bad');sel=null;render();return}
     if(stOf(e)!=='open'){toast(ERR.wettschluss,'bad');sel=null;render();return}
     if(myBet(e)){toast(ERR.schon_gesetzt,'bad');sel=null;render();return}
     const o=sel.o,a=readBet('wtBet');if(!take('wetten',a))return;
@@ -3178,6 +3255,7 @@ const WT=(()=>{
 
   // ---- Frage vorschlagen
   function suggestBox(){if(!online()){toast('Vorschläge gehen nur mit Account.','bad');return}
+    if(BAN){toast(ERR.ausgeschlossen,'bad');return}
     if(SUG.length>=MAXSUG){toast(ERR.zu_viele_vorschlaege,'bad');return}
     modal(`<p class="eyebrow">Wetten</p><h2>Frage vorschlagen</h2><p>Eine Frage zu etwas, das erst noch passiert, mit 2 bis 6 möglichen Antworten. Der Admin prüft deinen Vorschlag und schaltet ihn frei.</p>
       <div class="wt-form"><label class="lbl" for="wtQIn">Frage</label><input class="inp" id="wtQIn" maxlength="140" autocomplete="off" placeholder="z. B. Wer gewinnt am Samstag das Derby?">
@@ -3207,7 +3285,7 @@ const WT=(()=>{
   const setH=(el,h)=>{if(el._h!==h){el.innerHTML=h;el._h=h}};
   function optBtn(e,i,o){const P=potOf(e),so=e.s[i]||0,sh=P?so/P:0,q=so>0?P/so:0,st=stOf(e),done=st==='resolved'||st==='cancelled',mb=myBet(e)||(e.mine?{o:e.mine.o}:null);
     const cls=[mb&&mb.o===i?'mine':'',st==='resolved'?(i===e.win?'right':'wrong'):''].join(' ');
-    const can=st==='open'&&!myBet(e)&&online()&&!placing,pr=!!sel&&sel.id===e.id&&sel.o===i;
+    const can=st==='open'&&!myBet(e)&&online()&&!placing&&!BAN&&!e.ex,pr=!!sel&&sel.id===e.id&&sel.o===i;
     return `<button class="wto ${cls}" data-id="${e.id}" data-o="${i}" aria-pressed="${pr}" ${can?'':'disabled'}><span class="wto-n">${st==='resolved'&&i===e.win?'✓ ':''}${esc(o)}</span>`+
       `<span class="wto-q"><b>${q?fmtX(q):'–'}</b><small>${tips(e.c[i]||0)} · ${pct(sh,0)}</small></span><span class="wto-sh" style="width:${(sh*100).toFixed(1)}%"></span></button>`}
   function card(e){const st=stOf(e),P=potOf(e),n=e.c.reduce((t,v)=>t+v,0),mb=myBet(e),done=st==='resolved'||st==='cancelled';
@@ -3226,6 +3304,7 @@ const WT=(()=>{
     if(done){const h=W().hist.find(x=>x.id===e.id),m=e.mine;
       if(h||m){const a=h?h.a:m.a,pay=h?h.pay:m.pay,on=h?h.on:e.opts[m.o];
         mine=`<div class="wtc-mine"><span>Dein Tipp: <b>${esc(on)}</b> · <b>${fmt(a)}</b></span><span>${pay>a?`<b class="pos">+${fmt(pay)}</b>`:pay===a?'<b>Einsatz zurück</b>':`<b class="neg">−${fmt(a)}</b>`}</span></div>`}}
+    else if(e.ex)mine='<div class="wtc-mine"><span>Der Admin hat dich von dieser Frage ausgeschlossen.</span></div>';
     else if(mb){const so=Math.max(e.s[mb.o]||0,mb.a),Pp=Math.max(P,so),est=Pp*mb.a/so;
       mine=`<div class="wtc-mine"><span>Dein Tipp: <b>${esc(e.opts[mb.o])}</b> · <b>${fmt(mb.a)}</b></span><span>wenn richtig, Stand jetzt <b class="pos">+${fmt(Math.floor(est*100)/100)}</b></span></div>`}
     return `<article class="wtc ${mb&&!done?'mine':''} ${sel&&sel.id===e.id?'sel':''}"><div class="wtc-h"><h3>${esc(e.q)}</h3>${badge}</div><div class="wtc-meta">${meta.map(x=>`<span>${x}</span>`).join('')}</div>`+
@@ -3239,19 +3318,20 @@ const WT=(()=>{
     else if(loadedFor!==acct||(!EV.length&&busy))list=`<div class="wt-empty">${offline?'Server nicht erreichbar. Neuer Versuch läuft …':'Fragen werden geladen …'}</div>`;
     else if(!act.length)list='<div class="wt-empty"><b>Gerade gibt es keine offenen Fragen.</b>Hast du eine Idee? Schlag eine Frage vor, der Admin schaltet sie frei.<button class="btn gold" type="button" data-wtsugg>Frage vorschlagen</button></div>';
     else list=act.map(card).join('');
+    if(BAN&&online()&&loadedFor===acct)list='<div class="wt-empty"><b>Der Admin hat dich von Wetten ausgeschlossen.</b>Du kannst die Fragen ansehen, aber nicht tippen und nichts vorschlagen.</div>'+(act.length?list:'');
     setH($('wtList'),list);setH($('wtDone'),done.map(card).join(''));$('wtDoneHead').hidden=!done.length;setT($('wtDoneN'),`${done.length} · letzte 14 Tage`);
-    setT($('wtMeta'),!online()?'Nur mit Account':offline&&loadedFor===acct?'Server nicht erreichbar':loadedFor!==acct?'Lädt …':nOpen?`${nOpen} ${nOpen===1?'Frage':'Fragen'} offen · ${W().bets.length?`${W().bets.length} ${W().bets.length===1?'Tipp':'Tipps'} von dir laufen`:'Tippe eine Antwort an'}`:'Keine offenen Fragen');
-    $('wtSuggest').hidden=$('wtSuggest2').hidden=!online();
+    setT($('wtMeta'),BAN&&online()?'Du bist von Wetten ausgeschlossen':!online()?'Nur mit Account':offline&&loadedFor===acct?'Server nicht erreichbar':loadedFor!==acct?'Lädt …':nOpen?`${nOpen} ${nOpen===1?'Frage':'Fragen'} offen · ${W().bets.length?`${W().bets.length} ${W().bets.length===1?'Tipp':'Tipps'} von dir laufen`:'Tippe eine Antwort an'}`:'Keine offenen Fragen');
+    $('wtSuggest').hidden=$('wtSuggest2').hidden=!online()||BAN;
     // Seitenleiste
     const e=sel&&EV.find(x=>x.id===sel.id),a=readBet('wtBet');
     if(e){const P=potOf(e),so=e.s[sel.o]||0,est=(P+a)*a/(so+a);
       setH($('wtPick'),`<b>${esc(e.opts[sel.o])}</b><small>${esc(e.q)}</small>`);
       setT($('wtPot'),fmt(P));setT($('wtQ'),so>0?fmtX(P/so):'–');setT($('wtWin'),a>0?'+'+fmt(Math.floor(est*100)/100):'–');setT($('wtClose'),e.closeAt?left(e.closeAt-now()):'offen');
       setT($('wtInfo'),`${fmt(a)} auf „${e.opts[sel.o]}“. Wie viel es am Ende gibt, hängt davon ab, wie die anderen bis zum Wettschluss tippen.`)}
-    else{setH($('wtPick'),`<span class="ph">${online()?'Tippe bei einer offenen Frage auf eine Antwort.':'Nur mit Account.'}</span>`);['wtPot','wtQ','wtWin','wtClose'].forEach(id=>setT($(id),'–'));
-      setT($('wtInfo'),online()&&nOpen?'Der ganze Topf geht an alle, die richtig liegen, im Verhältnis ihrer Einsätze.':'')}
+    else{setH($('wtPick'),`<span class="ph">${!online()?'Nur mit Account.':BAN?'Du bist von Wetten ausgeschlossen.':'Tippe bei einer offenen Frage auf eine Antwort.'}</span>`);['wtPot','wtQ','wtWin','wtClose'].forEach(id=>setT($(id),'–'));
+      setT($('wtInfo'),online()&&nOpen&&!BAN?'Der ganze Topf geht an alle, die richtig liegen, im Verhältnis ihrer Einsätze.':'')}
     const go=$('wtGo');let lab='Tipp abgeben',dis=false;
-    if(!online()){lab='Nur mit Account';dis=true}else if(placing){lab='Wird gesetzt …';dis=true}else if(!e){lab='Antwort wählen';dis=true}
+    if(!online()){lab='Nur mit Account';dis=true}else if(BAN){lab='Ausgeschlossen';dis=true}else if(placing){lab='Wird gesetzt …';dis=true}else if(!e){lab='Antwort wählen';dis=true}
     setT(go,lab);go.disabled=dis;lockBet('wtBet',placing);
     // Eigene Tipps + Vorschläge
     const L=W(),res=h=>h.k==='win'?`<b class="pos">+${fmt(h.pay)}</b>`:h.k==='lose'?`<b class="neg">−${fmt(h.a)}</b>`:'<b>zurück</b>';
@@ -3268,7 +3348,7 @@ const WT=(()=>{
     if(flip){if(sel&&e&&stOf(e)!=='open')sel=null;render()}}
 
   // ---- Eingaben
-  function pick(id,o){const e=EV.find(x=>x.id===id);if(!e||stOf(e)!=='open'||myBet(e))return;sel=sel&&sel.id===id&&sel.o===o?null:{id,o};SND.tick();render()}
+  function pick(id,o){const e=EV.find(x=>x.id===id);if(BAN||!e||e.ex||stOf(e)!=='open'||myBet(e))return;sel=sel&&sel.id===id&&sel.o===o?null:{id,o};SND.tick();render()}
   $('v-wetten').addEventListener('click',ev=>{const b=ev.target.closest('.wto');if(b&&!b.disabled){ac();pick(b.dataset.id,+b.dataset.o);b.blur();return}
     if(ev.target.closest('[data-wtsugg]'))suggestBox();const u=ev.target.closest('[data-unsug]');if(u)unsuggest(u.dataset.unsug)});
   $('wtGo').onclick=()=>{ac();place()};
@@ -3285,6 +3365,7 @@ const WT=(()=>{
     show(){render();poll(true)},
     key(e){if(e.code==='Space'){e.preventDefault();if(e.repeat)return;if(!$('wtGo').disabled)place()}},
     lobby(g){if(!ACCOUNTS)return'Nur online mit Account';if(loadedFor!==acct)return g.n?`${fmt0(g.n)} Tipps ausgewertet`:'Tippe mit allen auf echte Ereignisse';
+      if(BAN)return'Vom Admin von Wetten ausgeschlossen';
       const n=EV.filter(e=>stOf(e)==='open').length,m=W().bets.length;
       return (n?`<b>${n}</b> ${n===1?'Frage':'Fragen'} offen`:'Gerade keine offenen Fragen')+(m?` · <b>${m}</b> ${m===1?'Tipp':'Tipps'} von dir`:'')}}})();
 onShow.wetten=WT.show;
@@ -3895,7 +3976,9 @@ const SL=(()=>{
   let bannerDone = null;         // Fortsetzung nach Banner
 
   function spin() {
-    if (phase === 'spinning') return false;
+    if (phase === 'spinning' || state.gamble) return false;
+    offerGamble(0);
+    if (!$('sl-gamble').hidden) { clearTimeout(gTimer); gBusy = false; $('sl-gamble').hidden = true; flipTo(null); }
     clearTimeout(nextTimer); nextTimer = 0;
     hideBanner(false);
     endPresent();
@@ -4026,6 +4109,7 @@ const SL=(()=>{
     if (pendingResize) setTimeout(resize, 0);
     if (!P) { phase = 'idle'; setSpinButton(); return; }
     settlePending();                                      // Abrechnung (genau einmal)
+    offerGamble(canGamble(P) ? P.payoutCents : 0);        // Gewinn darf riskiert werden
     const ev = evaluate(gridFromStops(P.stops), true);
     phase = 'present';
 
@@ -4227,7 +4311,7 @@ const SL=(()=>{
     $('sl-bet').textContent = fmt(b);
     $('sl-mob-bet').textContent = fmt(b);
     $('sl-linebet').textContent = fmt(b / 10);
-    const lock = state.freeSpins > 0 || phase === 'spinning';
+    const lock = state.freeSpins > 0 || phase === 'spinning' || !!state.gamble;
     ['sl-bet-minus', 'sl-bet-plus', 'sl-bet-min', 'sl-bet-half', 'sl-bet-double', 'sl-bet-max'].forEach(id => { $(id).disabled = lock; });
     if ($('sl-pay').open) fillPaytable();
     persist();
@@ -4265,7 +4349,10 @@ const SL=(()=>{
   function setSpinButton() {
     const btn = $('sl-spin'), main = $('sl-spin-main'), sub = $('sl-spin-sub');
     btn.classList.remove('sl-is-stop', 'sl-is-free');
-    if (autoLeft > 0) {
+    if (state.gamble) {
+      btn.classList.add('sl-is-free');
+      main.textContent = 'Einsammeln'; sub.textContent = fmt(state.gamble.cur);
+    } else if (autoLeft > 0) {
       btn.classList.add('sl-is-stop');
       main.textContent = 'Auto stoppen';
       sub.textContent = autoLeft === Infinity ? 'unbegrenzt' : 'noch ' + autoLeft;
@@ -4286,7 +4373,8 @@ const SL=(()=>{
 
   let autoPick = 0;
   function startAuto(n) {
-    if (state.freeSpins > 0) return;
+    if (state.freeSpins > 0 || state.gamble) return;
+    offerGamble(0);
     autoLeft = n; autoPick = n;
     setSpinButton();
     if (phase !== 'spinning') spin();
@@ -4297,6 +4385,7 @@ const SL=(()=>{
   function onSpinPress() {
     audio();
     if (bannerShown) { hideBanner(true); return; }     // Banner überspringen
+    if (state.gamble) { gCollect(); return; }          // im Risiko: einsammeln
     if (autoLeft > 0) { stopAuto(); if (phase === 'spinning') quickStop(); return; }
     if (phase === 'spinning') { quickStop(); return; }
     spin();
@@ -4406,9 +4495,125 @@ const SL=(()=>{
     updateBetUI(); updateBalance(); updateStats();
   }
 
+  /* ---------- Risiko: Rot oder Schwarz ----------
+     Nach einem Gewinn im Grundspiel (kein Freispiel, kein Auto-Spin, keine neuen Freispiele) kann der Gewinn riskiert werden.
+     Der Betrag geht dafür als Einsatz ins Spiel (S.inPlay). Jede Karte: richtige Farbe = verdoppelt, falsche = alles weg.
+     Höchstens G_MAX Karten, einsammeln jederzeit. Das Ergebnis jeder Karte wird gespeichert, BEVOR sie sich umdreht.
+     Abgerechnet wird als eigene Runde: Einsatz = riskierter Gewinn, Auszahlung = eingesammelter Betrag (fair, 50 : 50). */
+  const G_MAX = 5;
+  const G_SUITS = ['♥', '♦', '♠', '♣'], G_RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'B', 'D', 'K', 'A'];
+  let gOffer = 0, gBusy = false, gTimer = 0;
+  const gValid = g => g && g.base > 0 && g.cur >= 0 && Number.isInteger(g.step) && Array.isArray(g.hist);
+  function canGamble(P) { return P && !P.free && !(P.fs > 0) && P.payoutCents > 0 && autoLeft === 0 && state.freeSpins === 0 && !state.fsBetCents; }
+  function offerGamble(cents) { gOffer = cents > 0 ? cents : 0; $('sl-gamble-btn').hidden = !gOffer; }
+  function drawCard() { // 52 Karten, ohne Verzerrung
+    const a = new Uint32Array(1), lim = 4294967296 - (4294967296 % 52);
+    do { crypto.getRandomValues(a); } while (a[0] >= lim);
+    return a[0] % 52;
+  }
+  function cardHtml(c) {
+    const s = c % 4, r = G_RANKS[Math.floor(c / 4)];
+    return '<span class="sl-cr">' + r + '<br>' + G_SUITS[s] + '</span><span class="sl-cs">' + G_SUITS[s] + '</span><span class="sl-cr sl-b">' + r + '<br>' + G_SUITS[s] + '</span>';
+  }
+  function flipTo(c) {
+    const card = $('sl-card'), front = $('sl-card-front');
+    card.classList.add('sl-reset'); card.classList.remove('sl-up'); void card.offsetWidth; card.classList.remove('sl-reset');
+    if (c == null) return;
+    front.innerHTML = cardHtml(c); front.classList.toggle('sl-r', c % 4 < 2);
+    void card.offsetWidth; card.classList.add('sl-up');
+  }
+  function gNote(t, kind) { const n = $('sl-g-note'); n.textContent = t; n.className = 'sl-g-note' + (kind ? ' sl-' + kind : ''); }
+  function gRender(g = state.gamble) {
+    const box = $('sl-gamble');
+    if (!g) { box.hidden = true; return; }
+    box.hidden = false;
+    $('sl-g-cur').textContent = fmt(g.cur);
+    $('sl-g-next').textContent = g.step < G_MAX ? fmt(g.cur * 2) : '–';
+    $('sl-g-step').textContent = g.step < G_MAX ? 'Karte ' + (g.step + 1) + ' von ' + G_MAX : 'Fertig';
+    $('sl-g-hist').innerHTML = g.hist.slice(0, 8).map(h => '<span class="' + (h[0] % 4 < 2 ? 'sl-r ' : '') + (h[1] ? 'sl-o' : 'sl-x') + '" title="' + G_RANKS[Math.floor(h[0] / 4)] + ' ' + G_SUITS[h[0] % 4] + '">' + G_SUITS[h[0] % 4] + '</span>').join('');
+    $('sl-g-red').disabled = $('sl-g-black').disabled = gBusy || g.step >= G_MAX || g.cur <= 0;
+    const t = $('sl-g-take'); t.disabled = gBusy || g.cur <= 0; t.textContent = 'Einsammeln · ' + fmt(g.cur);
+    setSpinButton();
+  }
+  // Gewinn riskieren: Betrag geht als Einsatz ins Spiel
+  function openGamble() {
+    audio();
+    if (!gOffer || state.gamble || phase === 'spinning' || autoLeft > 0 || state.freeSpins > 0) return;
+    const c = gOffer;
+    offerGamble(0);
+    if (balanceCents() < c) { message('Der Gewinn ist nicht mehr im Guthaben.', 'bad'); return; }
+    if (bannerShown) hideBanner(true);
+    endPresent();
+    S.bal = r2(S.bal - c / 100); S.inPlay = r2((S.inPlay || 0) + c / 100);    // ZUSTAND: Gewinn steht jetzt im Risiko
+    state.gamble = { base: c, cur: c, step: 0, hist: [] };
+    persist(); renderWallet(); updateBalance(); updateBetUI();
+    flipTo(null); gNote('Richtig: Gewinn verdoppelt · Falsch: alles weg');
+    gRender(); SFX.click();
+    message('Risiko: Rot oder Schwarz? ' + fmt(c) + ' stehen im Spiel.', '');
+  }
+  function gPick(red) {
+    const g = state.gamble;
+    if (!g || gBusy || g.step >= G_MAX || g.cur <= 0) return;
+    audio();
+    const c = drawCard(), ok = (c % 4 < 2) === red;
+    g.hist.unshift([c, ok ? 1 : 0]); if (g.hist.length > 8) g.hist.length = 8;
+    // Ergebnis sofort festschreiben (Neuladen ändert nichts mehr)
+    if (ok) { g.cur *= 2; g.step++; persist(); }
+    else { const lost = g.cur; g.cur = 0; gSettle(g); g.lost = lost; }
+    gBusy = true; gRender(g); SFX.click();
+    flipTo(c);
+    clearTimeout(gTimer);
+    gTimer = setTimeout(() => {
+      gBusy = false;
+      if (ok) {
+        SFX.win(); setWin(g.cur); message('Richtig! ' + fmt(g.cur) + ' stehen jetzt im Spiel.', 'good');
+        if (g.step >= G_MAX) { gNote('Höchststufe erreicht!', 'good'); gRender(); gTimer = setTimeout(gCollect, reducedMotion ? 300 : 900); return; }
+        gNote('Richtig! Jetzt ' + fmt(g.cur) + ' · weiter oder einsammeln', 'good'); gRender();
+      } else {
+        SFX.error(); setWin(0); gRender(g);
+        gNote('Falsch! ' + fmt(g.lost) + ' sind weg.', 'bad');
+        message('Risiko verloren: ' + fmt(g.lost) + '.', 'bad');
+        $('sl-g-red').disabled = $('sl-g-black').disabled = $('sl-g-take').disabled = true;
+        gTimer = setTimeout(() => { $('sl-gamble').hidden = true; flipTo(null); setSpinButton(); }, reducedMotion ? 600 : 1500);
+      }
+    }, reducedMotion ? 120 : 520);
+  }
+  // Abrechnung der Risiko-Runde (genau einmal)
+  function gSettle(g) {
+    state.gamble = null;                                   // ZUSTAND: Risiko beendet
+    if (g.step === 0 && g.cur === g.base) {                // nichts gezogen: Betrag einfach zurück
+      S.inPlay = Math.max(0, r2((S.inPlay || 0) - g.base / 100)); S.bal = r2(S.bal + g.base / 100); capBal(); renderWallet(); save();
+    } else {
+      settle('slot', g.base / 100, g.cur / 100, g.cur / g.base, 1);
+      state.session.wageredCents += g.base; state.session.wonCents += g.cur; state.session.lastWinCents = g.cur;
+    }
+    persist(); updateBalance(); updateStats();
+  }
+  function gCollect() {
+    const g = state.gamble;
+    if (!g || gBusy || g.cur <= 0) return;
+    clearTimeout(gTimer);
+    gSettle(g);
+    $('sl-gamble').hidden = true; flipTo(null); setWin(g.cur);
+    if (g.step > 0) { SFX.win(); message('Eingesammelt: ' + fmt(g.cur) + ' (' + Math.pow(2, g.step) + '×)', 'good'); if (g.step >= 3 && !reducedMotion) startCoins(); }
+    else message('Gewinn eingesammelt: ' + fmt(g.cur), 'good');
+    setSpinButton();
+  }
+  // Nach Laden / Zurückkommen: laufendes Risiko wieder anzeigen
+  function gResume() {
+    gBusy = false; clearTimeout(gTimer); offerGamble(0);
+    if (state.gamble && !gValid(state.gamble)) state.gamble = null;
+    if (state.gamble) { flipTo(null); gNote(state.gamble.step ? 'Weiter geht\'s: ' + fmt(state.gamble.cur) + ' im Spiel' : 'Richtig: Gewinn verdoppelt · Falsch: alles weg'); gRender(); }
+    else $('sl-gamble').hidden = true;
+  }
+  tap($('sl-gamble-btn'), openGamble);
+  tap($('sl-g-red'), () => gPick(true));
+  tap($('sl-g-black'), () => gPick(false));
+  tap($('sl-g-take'), gCollect);
+
   /* ---------- Spielstand im Casino (S.sl): wird mitgespeichert, auch auf dem Server ---------- */
   let synced = false, resumeLater = false;
-  const DEF = () => ({ betCents: 100, freeSpins: 0, fsBetCents: 0, fsWinCents: 0, fsPlayed: 0, stops: [0, 9, 30, 5, 9], pending: null });
+  const DEF = () => ({ betCents: 100, freeSpins: 0, fsBetCents: 0, fsWinCents: 0, fsPlayed: 0, stops: [0, 9, 30, 5, 9], pending: null, gamble: null });
   function persist() {
     if (!synced) return;
     const o = JSON.parse(JSON.stringify(state)); delete o.session;
@@ -4427,6 +4632,7 @@ const SL=(()=>{
       persist();
     }
     state.stops.forEach((v, i) => { reels[i].off = v; reels[i].p = 0; });
+    gResume();
     if (inited) { updateStats(); updateBalance(); draw(performance.now()); }
   }
   function sync() {
@@ -4463,6 +4669,8 @@ const SL=(()=>{
 
   // Tastatur: Leertaste = Drehen / Stopp (in Eingabefeldern ignorieren)
   function key(e) {
+    if (e && state.gamble && !$('sl-root').hidden && !e.repeat && /^[rRsS]$/.test(e.key)) { gPick(/^[rR]$/.test(e.key)); return; }
+    if (e && gOffer && !state.gamble && !$('sl-root').hidden && !e.repeat && /^[rR]$/.test(e.key)) { openGamble(); return; }
     if (!e || (e.code !== 'Space' && e.key !== ' ')) return;
     const t = e.target;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;

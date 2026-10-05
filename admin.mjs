@@ -95,6 +95,21 @@ async function wBets(store, id) {
   const { blobs } = await store.list({ prefix: id ? `b/${id}/` : "b/" });
   return blobs.map((b) => wParse(b.key)).filter(Boolean);
 }
+const NAME_RE = /^[a-z0-9äöüß._ -]{3,20}$/;
+// Offene Tipps eines Spielers löschen (alle offenen Fragen oder nur eine). Das Gerät des Spielers sieht den Tipp
+// dann nicht mehr beim Server und gibt den Einsatz zurück. Erledigte Fragen bleiben unangetastet.
+async function wDropBets(store, n, onlyId, now) {
+  const bets = (await wBets(store, onlyId)).filter((b) => b.n === n);
+  let removed = 0;
+  for (const b of bets) {
+    const e = await store.get(`e/${b.id}`, { type: "json" });
+    if (!e) continue;
+    const st = wStatus(e, now);
+    if (st === "resolved" || st === "cancelled") continue;
+    try { await store.delete(b.key); removed++; } catch {}
+  }
+  return removed;
+}
 async function wetten(action, body, now) {
   const store = getStore("wetten");
   const id = String(body.id || "");
@@ -110,7 +125,8 @@ async function wetten(action, body, now) {
       for (const b of list) if (b.o >= 0 && b.o < k) { c[b.o]++; s[b.o] += b.c; }
       return { ...e, st: wStatus(e, now), c, s: s.map((v) => v / 100), P: num(e.P) / 100, W: num(e.W) / 100 };
     }).sort((a, b) => num(b.t) - num(a.t));
-    return json({ now, events: out, sugg: sugg.sort((a, b) => a.t - b.t) });
+    const bans = (await store.get("bans", { type: "json" })) || {};
+    return json({ now, events: out, sugg: sugg.sort((a, b) => a.t - b.t), bans: Object.keys(bans).sort() });
   }
 
   if (action === "wCreate" || action === "wActivate") {
@@ -130,6 +146,25 @@ async function wetten(action, body, now) {
     return json({ ok: true, event: e });
   }
 
+  // Spieler ganz von Wetten ausschließen (oder wieder zulassen): offene Tipps und Vorschläge werden entfernt
+  if (action === "wBan") {
+    const n = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (!NAME_RE.test(n)) return json({ error: "Ungültiger Name." }, 400);
+    const bans = (await store.get("bans", { type: "json" })) || {};
+    if (body.on) {
+      if (!(await getStore("spielstaende").get(encodeURIComponent(n), { type: "json" }))) return json({ error: "Diesen Spieler gibt es nicht." }, 404);
+      bans[n] = now;
+      const removed = await wDropBets(store, n, null, now);
+      const { blobs } = await store.list({ prefix: `v/${encodeURIComponent(n)}/` });
+      for (const b of blobs) { try { await store.delete(b.key); } catch {} }
+      await store.setJSON("bans", bans);
+      return json({ ok: true, bans: Object.keys(bans), removed });
+    }
+    delete bans[n];
+    await store.setJSON("bans", bans);
+    return json({ ok: true, bans: Object.keys(bans) });
+  }
+
   if (action === "wReject") {
     const sk = String(body.sugg || "");
     if (!/^v\/[^/]+\/[a-z0-9]{6,24}$/.test(sk)) return json({ error: "Vorschlag ungültig." }, 400);
@@ -141,6 +176,21 @@ async function wetten(action, body, now) {
   if (!e) return json({ error: "Die Frage gibt es nicht (mehr)." }, 404);
   const st = wStatus(e, now);
   const done = st === "resolved" || st === "cancelled";
+
+  if (action === "wExclude") {          // Spieler nur von dieser Frage ausschließen (oder wieder zulassen)
+    if (done) return json({ error: "Die Frage ist schon erledigt." }, 409);
+    const n = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (!NAME_RE.test(n)) return json({ error: "Ungültiger Name." }, 400);
+    const ex = new Set(Array.isArray(e.ex) ? e.ex : []);
+    let removed = 0;
+    if (body.on) {
+      if (!(await getStore("spielstaende").get(encodeURIComponent(n), { type: "json" }))) return json({ error: "Diesen Spieler gibt es nicht." }, 404);
+      ex.add(n); removed = await wDropBets(store, n, e.id, now);
+    } else ex.delete(n);
+    e.ex = [...ex];
+    await store.setJSON(`e/${e.id}`, e);
+    return json({ ok: true, event: e, removed });
+  }
 
   if (action === "wStop") {             // Wettschluss sofort
     if (done) return json({ error: "Die Frage ist schon erledigt." }, 409);
@@ -225,7 +275,10 @@ export default async (req) => {
   const rec = await store.get(key, { type: "json" });
   if (!rec) return json({ error: "unbekannt" }, 404);
 
-  if (action === "get") return json({ account: summary(key, rec), state: rec.state });
+  if (action === "get") {
+    const bans = (await getStore("wetten").get("bans", { type: "json" })) || {};
+    return json({ account: { ...summary(key, rec), wBanned: !!bans[decodeURIComponent(key)] }, state: rec.state });
+  }
 
   if (action === "delete") { await store.delete(key); return json({ ok: true }); }
 

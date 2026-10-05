@@ -132,6 +132,9 @@ textarea.inp{min-height:90px;resize:vertical}
 .wopt .btn{min-height:34px;padding:6px 10px;font-size:13px}
 .wcard textarea.inp{min-height:70px}
 .wcard .inp{font-size:15px}
+.xchip{display:inline-flex;align-items:center;gap:4px;background:rgba(255,77,106,.12);color:var(--loss);border-radius:999px;padding:3px 4px 3px 10px;font-size:12.5px;font-weight:600}
+.xchip button{background:none;border:0;color:inherit;font-size:16px;line-height:1;min-width:24px;min-height:24px;border-radius:999px}
+.xchip button:hover{background:rgba(255,77,106,.2)}
 .dl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .dl .inp{flex:1;min-width:190px;width:auto}
 @media (max-width:600px){.wopt{grid-template-columns:minmax(0,1fr) auto}.wopt .v{grid-column:1;text-align:left}.wopt .btn{grid-column:2;grid-row:1/3}}
@@ -199,6 +202,10 @@ textarea.inp{min-height:90px;resize:vertical}
       <textarea class="inp" id="wO" placeholder="Antwort 1&#10;Antwort 2&#10;Antwort 3"></textarea>
       <div class="dl"><span class="note">Wettschluss (optional)</span><input class="inp" id="wC" type="datetime-local"><button class="btn gold" id="wCreate">Frage starten</button></div>
     </div>
+    <div class="panel"><h2 style="font-size:16px">Von Wetten ausgeschlossen</h2>
+      <p class="note">Diese Spieler können nicht mehr tippen und nichts vorschlagen. Beim Ausschließen werden ihre offenen Tipps entfernt; sie bekommen den Einsatz automatisch zurück. Nur für eine einzelne Frage ausschließen geht unten bei der Frage.</p>
+      <div class="dl"><input class="inp" id="wBanName" placeholder="Spielername" autocomplete="off" maxlength="20"><button class="btn red" id="wBanBtn">Ausschließen</button></div>
+      <div class="chips" id="wBans"></div></div>
     <div class="panel"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="font-size:16px">Vorschläge von Spielern</h2><span class="note" id="wSuggN"></span></div>
       <p class="note">Du kannst Frage, Antworten und Wettschluss noch anpassen. „Aktivieren“ macht daraus eine offene Frage für alle.</p><div id="wSugg"></div></div>
     <div class="panel"><h2 style="font-size:16px">Laufende Fragen</h2>
@@ -288,6 +295,8 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
     <div class="sec"><h3>Sterne</h3><div class="row"><input class="inp" id="mStars" type="number" min="0" step="1" value="${a.stars}" aria-label="Sterne"><button class="btn gold" data-act="setStars">Setzen</button></div></div>
     <div class="sec"><h3>Spiele freigeschaltet</h3><div class="checks">${['mines','tower','plinko','poker','rennen','stapel','slot'].map(g=>`<label><input type="checkbox" data-game="${g}" ${a.games.includes(g)?'checked':''}>${GAMES[g]}</label>`).join('')}</div><p class="note">Chicken ist immer frei.</p></div>
     <div class="sec"><h3>Vitrine</h3><div class="checks">${Object.entries(ITEMS).map(([k,n])=>`<label><input type="checkbox" data-item="${k}" ${a.items.includes(k)?'checked':''}>${n}</label>`).join('')}</div></div>
+    <div class="sec"><h3>Wetten</h3><div class="row" style="align-items:center"><span class="chip ${a.wBanned?'ban':'on'}">${a.wBanned?'Von Wetten ausgeschlossen':'Darf wetten'}</span><button class="btn ${a.wBanned?'green':'red'}" data-act="wban">${a.wBanned?'Wieder zulassen':'Von Wetten ausschließen'}</button></div>
+      <p class="note">Ausgeschlossen heißt: keine Tipps und keine Vorschläge mehr. Offene Tipps werden entfernt, der Spieler bekommt den Einsatz zurück.</p></div>
     <div class="sec"><h3>Account</h3><div class="row">
       <button class="btn" data-act="cooldown" ${cd?'':'disabled'}>Neustart-Sperre aufheben</button>
       <button class="btn ${a.banned?'green':'red'}" data-act="ban">${a.banned?'Entsperren':'Sperren'}</button>
@@ -295,13 +304,16 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
       <button class="btn red" data-act="delete">Löschen</button></div>
       <p class="note">Zurücksetzen und Löschen musst du zweimal anklicken. Offene Geräte des Spielers übernehmen Änderungen automatisch.</p></div>
   </div>`;$('modal').hidden=false}
-async function upd(set,msg){try{const d=await api('update',{name:current.name,set});current=d.account;renderModal();toast(msg);loadAccounts()}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}}
+async function upd(set,msg){try{const d=await api('update',{name:current.name,set});current={...d.account,wBanned:current.wBanned};renderModal();toast(msg);loadAccounts()}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}}
 $('modal').addEventListener('click',async e=>{if(!current)return;
   const add=e.target.closest('[data-add]');if(add){upd({addBal:+add.dataset.add},'Guthaben geändert');return}
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
   if(act==='setBal'){const v=parseFloat(String($('mBal').value).replace(',','.'));if(isFinite(v))upd({bal:v},'Guthaben gesetzt')}
   if(act==='setStars'){const v=parseInt($('mStars').value);if(isFinite(v))upd({stars:v},'Sterne gesetzt')}
   if(act==='cooldown')upd({clearCooldown:true},'Neustart-Sperre aufgehoben');
+  if(act==='wban'){b.disabled=true;try{const on=!current.wBanned,d=await api('wBan',{name:current.name,on});current.wBanned=on;renderModal();
+      toast(on?`Von Wetten ausgeschlossen${d.removed?` · ${d.removed} offene${d.removed===1?'r Tipp':' Tipps'} entfernt`:''}`:'Darf wieder wetten');if(!$('t-wet').hidden)loadW()}
+    catch(err){b.disabled=false;if(err.message!=='401')toast('Fehler: '+err.message,true)}}
   if(act==='ban')upd({banned:!current.banned},current.banned?'Account entsperrt':'Account gesperrt');
   if(act==='reset'||act==='delete'){if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent=act==='reset'?'Wirklich zurücksetzen?':'Wirklich löschen?';setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent=act==='reset'?'Zurücksetzen':'Löschen'}},4000);return}
     try{if(act==='reset'){const d=await api('reset',{name:current.name});current=d.account;renderModal();toast('Account zurückgesetzt')}else{await api('delete',{name:current.name});closeModal();toast('Account gelöscht')}loadAccounts()}catch(err){if(err.message!=='401')toast('Fehler: '+err.message,true)}}});
@@ -334,7 +346,8 @@ function arm(b,label){if(b.classList.contains('armed'))return true;const old=b.t
 async function loadW(){try{WD=await api('wList');renderW()}catch(e){if(e.message!=='401')toast('Wetten laden fehlgeschlagen: '+e.message,true)}}
 async function wAct(action,data,msg){try{await api(action,data);toast(msg);await loadW();return true}catch(e){if(e.message!=='401')toast(WERR[e.message]||e.message,true);return false}}
 function wCheck(q,opts){if(q.trim().length<5){toast(WERR.frage,true);return false}const o=opts.map(x=>x.toLowerCase());if(o.length<2||o.length>6||new Set(o).size!==o.length){toast(WERR.antworten,true);return false}return true}
-function renderW(){const S=WD.sugg||[],E=WD.events||[];
+function renderW(){const S=WD.sugg||[],E=WD.events||[],BN=WD.bans||[];
+  $('wBans').innerHTML=BN.length?BN.map(n=>`<span class="xchip">${esc(n)}<button type="button" data-unban="${esc(n)}" aria-label="${esc(n)} wieder zulassen" title="Wieder zulassen">×</button></span>`).join(''):'<span class="note">Niemand ausgeschlossen.</span>';
   const c=$('wetCnt');c.hidden=!S.length;c.textContent=S.length;$('wSuggN').textContent=S.length?S.length+' offen':'';
   $('wSugg').innerHTML=S.length?S.map(v=>`<div class="wcard" data-sugg="${esc(v.key)}">
       <div class="chips"><span class="chip">von <b style="color:var(--ink)">&nbsp;${esc(v.by)}</b></span><span class="chip">${ago(v.t)}</span></div>
@@ -349,7 +362,10 @@ function renderW(){const S=WD.sugg||[],E=WD.events||[];
       e.by?`<span class="chip">Vorschlag von ${esc(e.by)}</span>`:'',fin?`<span class="chip">${ago(e.doneAt)}</span>`:''].join('');
     const opts=e.opts.map((o,i)=>{const sh=P?e.s[i]/P:0;return `<div class="wopt ${e.st==='resolved'&&e.win===i?'win':''}"><span class="n">${e.st==='resolved'&&e.win===i?'✓ ':''}${esc(o)}</span><span class="v">${e.c[i]} · ${fmt(e.s[i])} · ${(sh*100).toFixed(0)} %${P&&e.s[i]?` · ${fmt(P/e.s[i])}×`:''}</span>${fin?'':`<button class="btn green" data-w="resolve" data-o="${i}">Richtig</button>`}<span class="bar" style="width:${(sh*100).toFixed(1)}%"></span></div>`}).join('');
     let foot='';
-    if(!fin)foot=`<div class="dl"><span class="note">Wettschluss</span><input class="inp" data-f="c" type="datetime-local" value="${dtl(e.closeAt)}"><button class="btn" data-w="deadline">${e.st==='closed'?'Wieder öffnen':'Setzen'}</button>${e.st==='open'?'<button class="btn" data-w="stop">Jetzt schließen</button>':''}<button class="btn red" data-w="cancel">Abbrechen</button></div>`;
+    const ex=Array.isArray(e.ex)?e.ex:[];
+    if(!fin)foot=`<div class="dl"><span class="note">Ausschließen</span><input class="inp" data-f="x" placeholder="Spielername (nur diese Frage)" autocomplete="off" maxlength="20"><button class="btn red" data-w="exclude">Ausschließen</button></div>`+
+      (ex.length?`<div class="chips"><span class="note" style="align-self:center">Ausgeschlossen:</span>${ex.map(n=>`<span class="xchip">${esc(n)}<button type="button" data-w="include" data-n="${esc(n)}" aria-label="${esc(n)} wieder zulassen" title="Wieder zulassen">×</button></span>`).join('')}</div>`:'')+
+      `<div class="dl"><span class="note">Wettschluss</span><input class="inp" data-f="c" type="datetime-local" value="${dtl(e.closeAt)}"><button class="btn" data-w="deadline">${e.st==='closed'?'Wieder öffnen':'Setzen'}</button>${e.st==='open'?'<button class="btn" data-w="stop">Jetzt schließen</button>':''}<button class="btn red" data-w="cancel">Abbrechen</button></div>`;
     else{const res=e.st==='cancelled'?'Abgebrochen: alle haben ihren Einsatz zurückbekommen.':e.W>0?`${e.nw} richtige ${e.nw===1?'Tipp':'Tipps'} teilen sich ${fmt(e.P)} (Quote ${fmt(e.P/e.W)}×).`:'Niemand lag richtig: alle bekommen ihren Einsatz zurück.';
       foot=`<div class="dl"><span class="note" style="flex:1">${res}</span><button class="btn red" data-w="delete">Entfernen</button></div>`}
     return `<div class="wcard" data-id="${esc(e.id)}"><div class="wq">${esc(e.q)}</div><div class="chips">${chips}</div><div class="wopts">${opts}</div>${foot}</div>`};
@@ -358,6 +374,12 @@ function renderW(){const S=WD.sugg||[],E=WD.events||[];
 $('wCreate').onclick=async()=>{const q=$('wQ').value,opts=lines($('wO').value);if(!wCheck(q,opts))return;const c=fromDtl($('wC').value);
   if($('wC').value&&c<=Date.now()){toast('Der Wettschluss liegt in der Vergangenheit.',true);return}
   $('wCreate').disabled=true;if(await wAct('wCreate',{q,opts,closeAt:c},'Frage ist online')){$('wQ').value='';$('wO').value='';$('wC').value=''}$('wCreate').disabled=false};
+async function wBan(name,on){name=String(name||'').trim().toLowerCase().replace(/\s+/g,' ');if(!name){toast('Gib einen Spielernamen ein.',true);return false}
+  try{const d=await api('wBan',{name,on});toast(on?`${name} ist von Wetten ausgeschlossen${d.removed?` · ${d.removed} offene${d.removed===1?'r Tipp':' Tipps'} entfernt`:''}`:`${name} darf wieder wetten`);await loadW();return true}
+  catch(e){if(e.message!=='401')toast(e.message,true);return false}}
+$('wBanBtn').onclick=async()=>{const b=$('wBanBtn');b.disabled=true;if(await wBan($('wBanName').value,true))$('wBanName').value='';b.disabled=false};
+$('wBanName').addEventListener('keydown',e=>{if(e.key==='Enter')$('wBanBtn').click()});
+$('wBans').addEventListener('click',e=>{const b=e.target.closest('[data-unban]');if(b){b.disabled=true;wBan(b.dataset.unban,false)}});
 $('t-wet').addEventListener('click',async e=>{const b=e.target.closest('[data-w]');if(!b||b.disabled)return;const w=b.dataset.w;
   const sc=b.closest('[data-sugg]'),ec=b.closest('[data-id]');
   if(sc){const sugg=sc.dataset.sugg;
@@ -368,6 +390,9 @@ $('t-wet').addEventListener('click',async e=>{const b=e.target.closest('[data-w]
   if(!ec)return;const id=ec.dataset.id,ev=(WD.events||[]).find(x=>x.id===id);if(!ev)return;
   if(w==='resolve'){const o=+b.dataset.o;if(!arm(b,'Sicher?'))return;b.disabled=true;await wAct('wResolve',{id,win:o},`Aufgelöst: „${ev.opts[o]}“ ist richtig`);return}
   if(w==='stop'){b.disabled=true;await wAct('wStop',{id},'Wettschluss gesetzt');return}
+  if(w==='exclude'){const name=ec.querySelector('[data-f="x"]').value.trim().toLowerCase().replace(/\s+/g,' ');if(!name){toast('Gib einen Spielernamen ein.',true);return}
+    b.disabled=true;try{const d=await api('wExclude',{id,name,on:true});toast(`${name} ist von dieser Frage ausgeschlossen${d.removed?' · Tipp entfernt, Einsatz geht zurück':''}`);await loadW()}catch(err){b.disabled=false;if(err.message!=='401')toast(err.message,true)}return}
+  if(w==='include'){b.disabled=true;await wAct('wExclude',{id,name:b.dataset.n,on:false},`${b.dataset.n} darf bei dieser Frage wieder tippen`);return}
   if(w==='deadline'){const cv=ec.querySelector('[data-f="c"]').value,c=fromDtl(cv);if(cv&&c<=Date.now()){toast('Der Wettschluss liegt in der Vergangenheit.',true);return}
     b.disabled=true;await wAct('wDeadline',{id,closeAt:c},c?'Wettschluss: '+when(c):'Offen ohne Wettschluss');return}
   if(w==='cancel'){if(!arm(b,'Alle Einsätze zurück?'))return;b.disabled=true;await wAct('wCancel',{id},'Frage abgebrochen, Einsätze gehen zurück');return}
