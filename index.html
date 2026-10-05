@@ -938,7 +938,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   <div class="ghead" data-head="stapel"></div>
   <div class="game">
     <div class="rail">
-      <div class="sk-jp" role="status"><span>Jackpot · bei 100 Chips</span><b id="skJpV">…</b><small>Wächst mit allem, was unter Höhe 15 verloren geht.</small><small id="skJpLast"></small></div>
+      <div class="sk-jp" role="status"><span>Jackpot · bei 75 Chips</span><b id="skJpV">…</b><small>Wächst mit allem, was unter Höhe 15 verloren geht.</small><small id="skJpLast"></small></div>
       <div data-betfield="skBet" data-def="10"></div>
       <div class="mini-stats">
         <div class="ms"><span>Höhe</span><b id="skH">–</b></div>
@@ -978,7 +978,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </div>
   <details class="odds"><summary>Auszahlung, Jackpot und Regeln</summary>
     <p>Jeder Chip pendelt über dem Turm, jede Etage ein Stück schneller. Was übersteht, wird abgeschnitten, der Turm wird also schmaler. Triffst du genau, wird nichts abgeschnitten, und ab drei Perfekten in Folge wächst der Chip wieder. Die Runde läuft, bis ein Chip danebenfällt. Dann bekommst du automatisch Einsatz × Faktor deiner erreichten Höhe. Die Chips starten langsam und werden mit jeder Etage schneller, ab Höhe 30 schwankt das Tempo leicht.</p>
-    <p><b style="color:var(--ink)">Jackpot:</b> Was unter Höhe 15 verloren geht (Einsatz minus Auszahlung), wandert in den Jackpot. Wer 100 Chips stapelt, bekommt 10× und den kompletten Jackpot. Der Server spielt jede Runde anhand deiner Tipp-Zeiten nach, bevor er ihn auszahlt.</p>
+    <p><b style="color:var(--ink)">Jackpot:</b> Was unter Höhe 15 verloren geht (Einsatz minus Auszahlung), wandert in den Jackpot. Wer 75 Chips stapelt, bekommt 10× und den kompletten Jackpot, die Runde endet dann. Der Server spielt jede Runde anhand deiner Tipp-Zeiten nach, bevor er ihn auszahlt.</p>
     <p>Dies ist ein Skill-Spiel: Wie viel du im Schnitt zurückbekommst, hängt von deinem Können ab. In Simulationen kommen Gelegenheitsspieler auf etwa 50–90 %, sehr gute Spieler auch über 100 %.</p>
     <div class="tablewrap"><table id="skTbl"></table></div>
   </details>
@@ -2308,10 +2308,10 @@ onShow.rennen=HR.show;
 // ---- Chip-Stapler: gemeinsame Regeln (Seite und Server identisch) ----
 // Gleicher Seed + gleiche Tipp-Zeiten (ms pro Chip) = exakt gleiches Ergebnis. So kann der Server jede Runde nachspielen.
 const STK = (() => {
-  const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 100;
+  const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 75; // bei 75 Chips: Jackpot, Runde endet
   const V0 = 160, VS = 6, VQ = 0.45, VMAX = 1000; // langsam starten, dann immer schneller
-  // Auszahlung beim Daneben-Fallen: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 100 zusätzlich der Jackpot.
-  const STEPS = [[5, 0.1], [8, 0.2], [10, 0.3], [12, 0.45], [14, 0.6], [16, 0.75], [18, 0.9], [20, 1], [22, 1.2], [24, 1.4], [26, 1.6], [28, 1.8], [30, 2], [35, 3], [40, 4], [50, 6], [60, 8], [75, 10]];
+  // Auszahlung beim Daneben-Fallen: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 75 zusätzlich der Jackpot.
+  const STEPS = [[5, 0.1], [8, 0.2], [10, 0.3], [12, 0.45], [14, 0.6], [16, 0.75], [18, 0.9], [20, 1], [22, 1.2], [24, 1.4], [26, 1.6], [28, 1.8], [30, 2], [35, 3], [40, 4], [45, 6], [50, 8], [60, 9], [75, 10]];
   const POT_BELOW = 15;
   const mult = (h) => { let m = 0; for (const [s, v] of STEPS) if (h >= s) m = v; return m; };
   const nextStep = (h) => STEPS.find(([s]) => s > h) || null;
@@ -2364,7 +2364,7 @@ const STK = (() => {
 // ================= GAME: CHIP-STAPLER =================
 // Skill-Spiel: Chips stapeln, bis einer danebenfällt. Dann gibt es den Faktor der erreichten Höhe. Stufen und Tempo stehen in STK.
 // Jede Runde bekommt ihren Seed vom Server; am Ende spielt der Server die Tipp-Zeiten nach.
-// Was unter Höhe 15 verloren geht, fließt in den Jackpot, den bekommt, wer 100 Chips stapelt.
+// Was unter Höhe 15 verloren geht, fließt in den Jackpot, den bekommt, wer 75 Chips stapelt.
 const SK=(()=>{
   const RTP=.85,CH=18,BASE_R=150,BASE_H=44,LAND_DUR=.14,PLAY_ANCHOR=.42,RESULT_GUARD_MS=650;
   const KX=.866,KY=.5,RXF=Math.SQRT2*KX,RYF=Math.SQRT2*KY,STRIPES=6,STRIPE_W=.36,STRIPE_OFF=.25;
@@ -2491,7 +2491,7 @@ const SK=(()=>{
   async function report(r){if(!r.id)return;
     try{const res=await fetch(SAPI,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'end',name:acct,id:r.id,taps:r.taps})});const d=await res.json().catch(()=>({}));
       setJp(d);if(d.jackpot>0){r.jackpot=d.jackpot;if(state==='result')showResult();
-        confetti(300);SND.win();modal(`<p class="eyebrow">Unglaublich</p><h2>JACKPOT!</h2><p class="big num">+${fmt(d.jackpot)}</p><p>100 Chips gestapelt. Der Jackpot wird deinem Guthaben gutgeschrieben.</p><div class="row"><button class="btn gold" data-close>Wahnsinn!</button></div>`);
+        confetti(300);SND.win();modal(`<p class="eyebrow">Unglaublich</p><h2>JACKPOT!</h2><p class="big num">+${fmt(d.jackpot)}</p><p>75 Chips gestapelt. Der Jackpot wird deinem Guthaben gutgeschrieben.</p><div class="row"><button class="btn gold" data-close>Wahnsinn!</button></div>`);
         srvDirty=true;srvFlush()}}catch(e){}}
   function pause(){if(state!=='play')return;pausedAt=performance.now();setState('paused');stopLoop();$('skPauseOv').classList.remove('st-hidden');ui()}
   function resume(){if(state!=='paused')return;spawnAt+=performance.now()-pausedAt;shown=[];$('skPauseOv').classList.add('st-hidden');setState('play');ac();blur();ui();ensureLoop()}
@@ -2519,11 +2519,11 @@ const SK=(()=>{
     if(state==='play'){go.textContent='Ablegen';go.disabled=false}else if(state==='paused'){go.textContent='Weiter';go.disabled=false}
     else if(state==='starting'||state==='over'){go.textContent=state==='starting'?'Startet …':'…';go.disabled=true}else{go.textContent='Start';go.disabled=false}
     $('skH').textContent=inRound?String(h):'–';$('skM').textContent=inRound?fmtX(m):'–';$('skWin').textContent=inRound&&m>0?fmt(payCap(bet,r2(bet*m))):'–';
-    $('skNext').textContent=!inRound?'5 → 0,10×':nx?`${nx[0]} → ${fmtX(nx[1])}`:h<STK.MAXH?'100 → Jackpot':'Geschafft';
+    $('skNext').textContent=!inRound?'5 → 0,10×':nx&&nx[0]<STK.MAXH?`${nx[0]} → ${fmtX(nx[1])}`:h<STK.MAXH?`${STK.MAXH} → Jackpot`:'Geschafft';
     $('skStartBtn').textContent=`Start · Einsatz ${fmt(readBet('skBet'))}`;
     $('skTbl').querySelectorAll('tr[data-h]').forEach(tr=>{const s=+tr.dataset.h,nxs=STK.STEPS.find(([q])=>q>s);tr.classList.toggle('on',inRound&&h>=s&&(!nxs||h<nxs[0]))})}
   function showResult(){const r=R;if(!r)return;const won=r.pay>0;
-    $('skResKick').textContent=r.jackpot?'Jackpot geknackt!':r.kind==='top'?'100 Chips!':r.pay>r.bet?'Gewonnen':won?'Teilweise zurück':'Daneben';
+    $('skResKick').textContent=r.jackpot?'Jackpot geknackt!':r.kind==='top'?STK.MAXH+' Chips!':r.pay>r.bet?'Gewonnen':won?'Teilweise zurück':'Daneben';
     $('skResScore').textContent=String(r.st.h);$('skResPerf').textContent=String(r.st.perf);$('skResCombo').textContent=String(r.st.best);$('skResM').textContent=fmtX(r.m||0);
     $('skRecord').classList.toggle('st-hidden',!r.record);
     const pv=$('skResPay'),net=r2((r.pay||0)+(r.jackpot||0)-r.bet);const toPot=r.st.h<STK.POT_BELOW&&r.id;$('skResPayL').innerHTML=won?`Ausgezahlt ${fmt(r.pay)}<small>${net<0&&toPot?'Rest geht in den Jackpot':'Einsatz '+fmt(r.bet)+' × '+fmtX(r.m)}</small>`:`Verloren<small>${toPot?'Einsatz geht in den Jackpot':'Einsatz'}</small>`;
@@ -2568,8 +2568,8 @@ const SK=(()=>{
   setInterval(()=>{if(cur==='stapel'&&!document.hidden)loadJp()},5000);
   // Auszahlungstabelle
   $('skTbl').innerHTML='<thead><tr><th>Höhe</th><th>Faktor</th><th>Gewinn bei 100 Coins Einsatz</th></tr></thead><tbody><tr><td>1–4</td><td>0×</td><td>–</td></tr>'+
-    STK.STEPS.map(([s,m],i)=>{const nx=STK.STEPS[i+1];return `<tr data-h="${s}"><td>${nx?s+(nx[0]-1>s?'–'+(nx[0]-1):''):s+'–99'}</td><td>${fmtX(m)}</td><td>${fmt(100*m)}</td></tr>`}).join('')+
-    '<tr><td><b>100</b></td><td><b>10× + Jackpot</b></td><td><b>1.000,00 + Jackpot</b></td></tr></tbody>';
+    STK.STEPS.filter(([s])=>s<STK.MAXH).map(([s,m],i,a)=>{const e=(a[i+1]?a[i+1][0]:STK.MAXH)-1;return `<tr data-h="${s}"><td>${e>s?s+'–'+e:s}</td><td>${fmtX(m)}</td><td>${fmt(100*m)}</td></tr>`}).join('')+
+    `<tr data-h="${STK.MAXH}"><td><b>${STK.MAXH}</b></td><td><b>${fmtX(STK.mult(STK.MAXH))} + Jackpot</b></td><td><b>${fmt(100*STK.mult(STK.MAXH))} + Jackpot</b></td></tr></tbody>`;
   $('skBestStart').textContent=String(best);resetTower();setState('ready');renderJp();ui();
 
   return{RTP,

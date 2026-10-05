@@ -234,14 +234,14 @@ async function rennen(req, url) {
 
 // ================= Chip-Stapler (/api/spielstand?stapel=1) =================
 // Jede Runde bekommt einen zufälligen Seed. Am Ende spielt der Server die Tipp-Zeiten mit denselben Regeln nach (STK, identisch zur Seite).
-// Was unter Höhe 15 verloren geht, wandern in den Jackpot. Wer 100 Chips stapelt, bekommt ihn (über den Posteingang).
+// Was unter Höhe 15 verloren geht, wandern in den Jackpot. Wer 75 Chips stapelt, bekommt ihn (über den Posteingang).
 // ---- Chip-Stapler: gemeinsame Regeln (Seite und Server identisch) ----
 // Gleicher Seed + gleiche Tipp-Zeiten (ms pro Chip) = exakt gleiches Ergebnis. So kann der Server jede Runde nachspielen.
 const STK = (() => {
-  const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 100;
+  const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 75; // bei 75 Chips: Jackpot, Runde endet
   const V0 = 160, VS = 6, VQ = 0.45, VMAX = 1000; // langsam starten, dann immer schneller
-  // Auszahlung beim Daneben-Fallen: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 100 zusätzlich der Jackpot.
-  const STEPS = [[5, 0.1], [8, 0.2], [10, 0.3], [12, 0.45], [14, 0.6], [16, 0.75], [18, 0.9], [20, 1], [22, 1.2], [24, 1.4], [26, 1.6], [28, 1.8], [30, 2], [35, 3], [40, 4], [50, 6], [60, 8], [75, 10]];
+  // Auszahlung beim Daneben-Fallen: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 75 zusätzlich der Jackpot.
+  const STEPS = [[5, 0.1], [8, 0.2], [10, 0.3], [12, 0.45], [14, 0.6], [16, 0.75], [18, 0.9], [20, 1], [22, 1.2], [24, 1.4], [26, 1.6], [28, 1.8], [30, 2], [35, 3], [40, 4], [45, 6], [50, 8], [60, 9], [75, 10]];
   const POT_BELOW = 15;
   const mult = (h) => { let m = 0; for (const [s, v] of STEPS) if (h >= s) m = v; return m; };
   const nextStep = (h) => STEPS.find(([s]) => s > h) || null;
