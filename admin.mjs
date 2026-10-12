@@ -14,10 +14,65 @@ function getStore(name) {
     delete: (k) => ev.delete(k),
   };
 }
-import { createHash } from "node:crypto";
+import { createHash, randomBytes, scrypt as scryptCb } from "node:crypto";
+const scrypt = (pw, salt) => new Promise((ok, no) => scryptCb(String(pw), salt, 32, (e, k) => (e ? no(e) : ok(k.toString("hex")))));
+
+// ---- Neuanfang: gleiche Regeln wie in spielstand.mjs (alle Accounts und Spielerdaten löschen, Wetten-Fragen bleiben)
+const AUTH_EPOCH = 2;
+let epochOk = false;
+async function wipeStore(name, keep) {
+  const st = getStore(name);
+  const { blobs } = await st.list();
+  let n = 0;
+  for (const b of blobs) { if (keep && keep(b.key)) continue; try { await st.delete(b.key); n++; } catch {} }
+  return n;
+}
+async function purgeAll() {
+  const accounts = await wipeStore("spielstaende");
+  for (const n of ["posteingang", "stapel", "rennen", "lotto"]) await wipeStore(n);
+  await wipeStore("wetten", (k) => k.startsWith("e/"));
+  const admin = getStore("admin");
+  for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
+  return accounts;
+}
+async function ensureEpoch() {
+  if (epochOk) return;
+  const admin = getStore("admin");
+  const e = await admin.get("authEpoch", { type: "json" });
+  if (!(e && e.v >= AUTH_EPOCH)) { await purgeAll(); await admin.setJSON("authEpoch", { v: AUTH_EPOCH, t: Date.now() }); }
+  epochOk = true;
+}
 
 const CAP = 10_000_000;
-const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel", "slot"];
+const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel", "slot", "muenze"];
+
+// ================= Jackpot-Ziehung (gleiche Termine wie in spielstand.mjs: Mo + Do, 20:00 Uhr Berlin) =================
+const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+function berlinParts(ts) { const p = {}; for (const x of BERLIN.formatToParts(new Date(ts))) p[x.type] = +x.value || 0; return p; }
+function berlinOffset(ts) { const p = berlinParts(ts); return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ts / 1000) * 1000; }
+function drawAt(y, m, d) { const guess = Date.UTC(y, m, d, 20); return guess - berlinOffset(guess - 7_200_000); }
+function nextDraw(ts) {
+  const p = berlinParts(ts);
+  for (let i = -1; i <= 8; i++) { const wd = new Date(Date.UTC(p.year, p.month - 1, p.day + i)).getUTCDay(); if (wd === 1 || wd === 4) { const t = drawAt(p.year, p.month - 1, p.day + i); if (t > ts) return t; } }
+}
+// Teilnehmer der laufenden Ziehung (Lose gekauft, Gratis-Lose, eingezahlte Verluste)
+async function lottoInfo(now) {
+  const s = getStore("lotto"), D = nextDraw(now);
+  const [{ blobs: ab }, { blobs: bb }] = await Promise.all([s.list({ prefix: `a/${D}/` }), s.list({ prefix: `b/${D}/` })]);
+  const get = (k) => s.get(k, { type: "json" }).catch(() => null);
+  const P = new Map(), of = (k) => { if (!P.has(k)) P.set(k, { name: decodeURIComponent(k), c: 0, slots: 0, n: 0 }); return P.get(k); };
+  let added = 0;
+  for (const b of ab) { const v = await get(b.key), k = b.key.slice(`a/${D}/`.length); if (!v) continue; if (k.startsWith("~")) { added = r2(added + num(v.c)); continue; } const p = of(k); p.c = r2(num(v.c)); p.slots = Array.isArray(v.s) ? v.s.length : 0; }
+  for (const b of bb) { const v = await get(b.key); if (v) of(b.key.slice(`b/${D}/`.length)).n = Math.round(num(v.n)); }
+  const players = [...P.values()].map((p) => ({ ...p, f: Math.min(4, Math.floor(p.slots / 6)) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
+  // Topf = Rest aus der letzten Ziehung + Verluste/Aufstockungen + gekaufte Lose (wie in spielstand.mjs)
+  const { blobs: rb } = await s.list({ prefix: "r/" });
+  const ids = rb.map((b) => +b.key.slice(2)).filter((n) => n > 0 && n < D).sort((a, b) => b - a).slice(0, 8);
+  const hist = (await Promise.all(ids.map((id) => get(`r/${id}`)))).filter(Boolean);
+  const carry = hist[0] ? r2(num(hist[0].carry)) : 0;
+  const pot = r2(carry + added + players.reduce((t, p) => t + p.c + 250 * p.n, 0));
+  return { d: D, players, added, carry, pot, hist };
+}
 const ITEMS = ["kette", "uhr", "auto", "villa", "yacht", "jet", "insel"];
 
 const json = (body, status = 200) =>
@@ -68,6 +123,7 @@ function summary(key, rec) {
     rev: num(rec && rec.rev),
     sent: num(rec && rec.sentTotal),
     recv: num(rec && rec.recvTotal),
+    devices: Array.isArray(rec && rec.tokens) ? rec.tokens.length : 0,
   };
 }
 
@@ -95,7 +151,7 @@ async function wBets(store, id) {
   const { blobs } = await store.list({ prefix: id ? `b/${id}/` : "b/" });
   return blobs.map((b) => wParse(b.key)).filter(Boolean);
 }
-const NAME_RE = /^[a-z0-9äöüß._ -]{3,20}$/;
+const NAME_RE = { test: (n) => typeof n === "string" && n.length >= 1 && n.length <= 30 && n === n.trim() && !/[\u0000-\u001f\u007f]/.test(n) };
 // Offene Tipps eines Spielers löschen (alle offenen Fragen oder nur eine). Das Gerät des Spielers sieht den Tipp
 // dann nicht mehr beim Server und gibt den Einsatz zurück. Erledigte Fragen bleiben unangetastet.
 async function wDropBets(store, n, onlyId, now) {
@@ -245,7 +301,15 @@ export default async (req) => {
   const action = body.action;
   const key = body.name ? encodeURIComponent(String(body.name).trim().toLowerCase().replace(/\s+/g, " ")) : null;
 
+  await ensureEpoch();
   if (action === "login") return json({ ok: true });
+
+  // Alle Accounts löschen (inkl. Posteingang, Jackpot-Ziehung, Wett-Tipps, Rangliste). Wetten-Fragen und Nachricht bleiben.
+  if (action === "wipeAll") {
+    if (body.confirm !== "ALLES LÖSCHEN") return json({ error: "Bestätigung fehlt." }, 400);
+    const n = await purgeAll();
+    return json({ ok: true, deleted: n });
+  }
 
   if (action === "list") {
     const { blobs } = await store.list();
@@ -269,6 +333,17 @@ export default async (req) => {
     return json({ ok: true, message: m });
   }
 
+  // Jackpot-Ziehung: Teilnehmer ansehen, Topf aufstocken (z. B. als Startgeld)
+  if (action === "lotto") return json(await lottoInfo(now));
+  if (action === "lottoAdd") {
+    const a = r2(num(body.a));
+    if (!(a >= 1) || a > CAP) return json({ error: "Betrag zwischen 1 und 10 Mio." }, 400);
+    const D = nextDraw(now);
+    await getStore("lotto").setJSON(`a/${D}/~admin${now}`, { c: a, t: now });
+    try { await getStore("lotto").delete("cache"); } catch {}
+    return json({ ok: true, ...(await lottoInfo(now)) });
+  }
+
   if (String(action || "").startsWith("w")) return wetten(action, body, now);
 
   if (!key) return json({ error: "kein_name" }, 400);
@@ -281,6 +356,17 @@ export default async (req) => {
   }
 
   if (action === "delete") { await store.delete(key); return json({ ok: true }); }
+
+  // Neues Passwort setzen (z. B. vergessen). Alle Geräte des Spielers werden abgemeldet.
+  if (action === "setPassword") {
+    const pw = body.pw;
+    if (typeof pw !== "string" || pw.length < 1 || pw.length > 200) return json({ error: "Gib ein Passwort ein." }, 400);
+    const salt = randomBytes(16).toString("hex");
+    rec.pw = { s: salt, h: await scrypt(pw, salt) };
+    rec.tokens = []; rec.fails = [];
+    await store.setJSON(key, rec);
+    return json({ ok: true, account: summary(key, rec) });
+  }
 
   // Alle folgenden Aktionen ändern den Spielstand. Die Versionsnummer steigt,
   // damit offene Geräte den neuen Stand automatisch übernehmen.
@@ -305,7 +391,7 @@ export default async (req) => {
   } else if (action === "reset") {
     const t = Date.now();
     rec.state = { v: 1, bal: 1000, stars: 0, restarts: 0, owned: { games: {}, items: {} }, spent: 0, created: t, updated: t, set: st.set || {}, sent: 0, recv: 0, playMs: num(st.playMs), playSeed: 1 };
-    rec.sentTotal = 0; rec.recvTotal = 0;
+    rec.sentTotal = 0; rec.recvTotal = 0; rec.potMark = 0;
   } else {
     return json({ error: "unbekannte_aktion" }, 400);
   }

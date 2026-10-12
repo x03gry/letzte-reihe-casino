@@ -3,7 +3,7 @@
 // bekommt den aktuellen Stand zurück (z. B. wenn auf einem anderen Gerät weitergespielt wurde).
 // Außerdem prüft der Server jede Änderung auf unmögliche Sprünge (einfacher Schummelschutz).
 import { getStore as rawStore } from "@netlify/blobs";
-import { createHmac, randomBytes } from "node:crypto";
+import { createHmac, createHash, randomBytes, scrypt as scryptCb } from "node:crypto";
 
 // Starke Konsistenz: Lesen liefert immer den zuletzt gespeicherten Stand.
 // (Standard bei Netlify ist "eventual": kurz nach dem Speichern konnte der Server noch den alten
@@ -22,9 +22,45 @@ function getStore(name) {
   };
 }
 
-const NAME_RE = /^[a-z0-9äöüß._ -]{3,20}$/;
+// Login-Name: 1 bis 30 Zeichen, alles erlaubt (auch Leerzeichen), nur keine Steuerzeichen. Groß/klein egal (wird klein gespeichert).
+const NAME_RE = { test: (n) => typeof n === "string" && n.length >= 1 && n.length <= 30 && n === n.trim() && !/[\u0000-\u001f\u007f]/.test(n) };
+const normName = (v) => String(v || "").trim().toLowerCase().replace(/\s+/g, " ");
+
+// ---- Passwörter und Login-Schlüssel
+// Passwort: scrypt mit Salz (nie im Klartext). Nach dem Einloggen bekommt das Gerät einen zufälligen Login-Schlüssel;
+// gespeichert wird nur dessen Prüfsumme (bis zu 10 Geräte). Jede Änderung am Spielstand braucht diesen Schlüssel.
+const sha = (v) => createHash("sha256").update(String(v)).digest("hex");
+const scrypt = (pw, salt) => new Promise((ok, no) => scryptCb(String(pw), salt, 32, (e, k) => (e ? no(e) : ok(k.toString("hex")))));
+const bearer = (req) => { const h = req.headers.get("authorization") || ""; return h.startsWith("Bearer ") ? h.slice(7).trim() : ""; };
+function authed(req, rec) {
+  const t = bearer(req);
+  if (!t || !rec || !Array.isArray(rec.tokens)) return false;
+  const h = sha(t);
+  return rec.tokens.some((x) => x && x.h === h);
+}
+
+// ---- Einmaliger Neuanfang: beim ersten Aufruf mit Passwort-Accounts werden alle alten Accounts und Spielerdaten gelöscht
+const AUTH_EPOCH = 2;
+let epochOk = false;
+async function wipeStore(name, keep) {
+  const st = getStore(name);
+  const { blobs } = await st.list();
+  for (const b of blobs) { if (keep && keep(b.key)) continue; try { await st.delete(b.key); } catch {} }
+}
+async function purgeAll() {
+  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto"]) await wipeStore(n);
+  await wipeStore("wetten", (k) => k.startsWith("e/"));   // Fragen bleiben, Tipps/Vorschläge/Ausschlüsse weg
+  const admin = getStore("admin");
+  for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
+}
+async function ensureEpoch() {
+  if (epochOk) return;
+  const admin = getStore("admin");
+  const e = await admin.get("authEpoch", { type: "json" });
+  if (!(e && e.v >= AUTH_EPOCH)) { await purgeAll(); await admin.setJSON("authEpoch", { v: AUTH_EPOCH, t: Date.now() }); }
+  epochOk = true;
+}
 const CAP = 10_000_000;          // Vermögensgrenze
-const SK_MAXBAL = 100_000;      // Chip-Stapler nur unter 100.000 Coins Guthaben
 const RESTART_CD = 3_600_000;    // Neustart nur alle 60 Minuten
 const BONUS_PER_SAVE = 15_000;   // Boni, die zwischen zwei Speicherungen höchstens dazukommen können
 const TX_MIN = 10;              // Mindestbetrag pro Überweisung
@@ -218,6 +254,7 @@ async function rennen(req, url) {
   const acc = await getStore("spielstaende").get(encodeURIComponent(name), { type: "json" });
   if (!acc) return json({ error: "unbekannt" }, 404);
   if (acc.banned) return json({ error: "gesperrt" }, 403);
+  if (!authed(req, acc)) return json({ error: "login" }, 401);
 
   const bets = await betsOf(id);
   if (bets.some((b) => b.n === name)) return json({ error: "schon_gesetzt" }, 409);
@@ -327,6 +364,7 @@ async function wetten(req, url) {
   const acc = await getStore("spielstaende").get(key, { type: "json" });
   if (!acc) return json({ error: "unbekannt" }, 404);
   if (acc.banned) return json({ error: "gesperrt" }, 403);
+  if (!authed(req, acc)) return json({ error: "login" }, 401);
   const st = acc.state || {};
   if (body.action === "bet" || body.action === "suggest") {
     const bans = (await store.get("bans", { type: "json" })) || {};
@@ -375,127 +413,265 @@ async function wetten(req, url) {
   return json({ error: "unbekannte_aktion" }, 400);
 }
 
-// ================= Chip-Stapler (/api/spielstand?stapel=1) =================
-// Jede Runde bekommt einen zufälligen Seed. Am Ende spielt der Server die Tipp-Zeiten mit denselben Regeln nach (STK, identisch zur Seite).
-// Was unter Höhe 15 verloren geht, wandern in den Jackpot. Wer 75 Chips stapelt, bekommt ihn (über den Posteingang).
-// ---- Chip-Stapler: gemeinsame Regeln (Seite und Server identisch) ----
-// Gleicher Seed + gleiche Tipp-Zeiten (ms pro Chip) = exakt gleiches Ergebnis. So kann der Server jede Runde nachspielen.
-const STK = (() => {
-  const R0 = 100, AMP = 220, TOL = 7, GROW = 5, MIN_MS = 350, MAXH = 75; // bei 75 Chips: Jackpot, Runde endet
-  const V0 = 160, VS = 6, VQ = 0.45, VMAX = 1000; // langsam starten, dann immer schneller
-  // Auszahlung beim Daneben-Fallen: ab Höhe h gilt Faktor m (bis zur nächsten Stufe). Bei 75 zusätzlich der Jackpot.
-  const STEPS = [[5, 0.1], [8, 0.2], [10, 0.3], [12, 0.45], [14, 0.6], [16, 0.75], [18, 0.9], [20, 1], [22, 1.2], [24, 1.4], [26, 1.6], [28, 1.8], [30, 2], [35, 3], [40, 4], [45, 6], [50, 8], [60, 9], [75, 10]];
-  const POT_BELOW = 15;
-  const mult = (h) => { let m = 0; for (const [s, v] of STEPS) if (h >= s) m = v; return m; };
-  const nextStep = (h) => STEPS.find(([s]) => s > h) || null;
-  function rngOf(seed) {
-    let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762; const str = "stapel|" + seed;
-    for (let i = 0, k; i < str.length; i++) { k = str.charCodeAt(i); h1 = h2 ^ Math.imul(h1 ^ k, 597399067); h2 = h3 ^ Math.imul(h2 ^ k, 2869860233); h3 = h4 ^ Math.imul(h3 ^ k, 951274213); h4 = h1 ^ Math.imul(h4 ^ k, 2716044179); }
-    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067); h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233); h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213); h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
-    h1 ^= (h2 ^ h3 ^ h4); h2 ^= h1; h3 ^= h1; h4 ^= h1; let a = h1 >>> 0, b = h2 >>> 0, c = h3 >>> 0, d = h4 >>> 0;
-    const r = () => { a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; let t = (a + b) | 0; a = b ^ (b >>> 9); b = (c + (c << 3)) | 0; c = (c << 21) | (c >>> 11); d = (d + 1) | 0; t = (t + d) | 0; c = (c + t) | 0; return t >>> 0; };
-    for (let i = 0; i < 15; i++) r(); return r;
-  }
-  // Je Chip (Index = schon gestapelte Höhe): Tempo und Startseite. Ab Höhe 30 schwankt das Tempo um ±10 %.
-  function plan(seed) {
-    const r = rngOf(seed), L = [];
-    for (let k = 0; k < MAXH; k++) {
-      const side = r() % 2, jit = 90 + (r() % 21);
-      let v = Math.min(VMAX, V0 + k * VS + k * k * VQ); if (k >= 30) v = (v * jit) / 100;
-      L.push({ v, side });
-    }
-    return L;
-  }
-  // Versatz des gleitenden Chips zur Turmmitte nach t ms (pendelt zwischen -AMP und +AMP)
-  function off(l, t) {
-    const p = ((l.v * t) / 1000) % (4 * AMP), o = p < 2 * AMP ? -AMP + p : 3 * AMP - p;
-    return l.side ? -o : o;
-  }
-  const fresh = () => ({ r: R0, combo: 0, h: 0, perf: 0, best: 0 });
-  // Chip absetzen. kind: "perfect" | "cut" | "fall"
-  function step(st, l, t) {
-    const d = off(l, t), ad = Math.abs(d);
-    if (ad <= TOL) {
-      const combo = st.combo + 1, grew = combo >= 3 && st.r < R0;
-      return { kind: "perfect", d, grew, prevR: st.r, st: { r: grew ? Math.min(R0, st.r + GROW) : st.r, combo, h: st.h + 1, perf: st.perf + 1, best: Math.max(st.best, combo) } };
-    }
-    if (ad >= 2 * st.r - 2) return { kind: "fall", d, st: { ...st, combo: 0 } };
-    return { kind: "cut", d, prevR: st.r, st: { r: st.r - ad / 2, combo: 0, h: st.h + 1, perf: st.perf, best: st.best } };
-  }
-  // Ganze Runde nachspielen (Server)
-  function replay(seed, taps) {
-    const L = plan(seed); let st = fresh(), fell = false;
-    for (let i = 0; i < taps.length; i++) {
-      const t = taps[i]; if (!(Number.isInteger(t) && t >= MIN_MS && t <= 600000) || st.h >= MAXH) return { bad: true };
-      const s = step(st, L[st.h], t); st = s.st; if (s.kind === "fall") { fell = true; if (i !== taps.length - 1) return { bad: true }; break; }
-    }
-    return { h: st.h, fell, perf: st.perf };
-  }
-  return { R0, AMP, TOL, MIN_MS, MAXH, STEPS, POT_BELOW, mult, nextStep, plan, off, fresh, step, replay };
-})();
+// ================= Jackpot-Ziehung (/api/spielstand?lotto=1) =================
+// Das Casino verdient nichts: Was Spieler unterm Strich verlieren, fließt in einen gemeinsamen Topf.
+// Jeden Montag und Donnerstag um 20 Uhr (deutsche Zeit) wird gezogen: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %,
+// die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Drei verschiedene Gewinner.
+// Lose: 250 Coins, höchstens 20 gekaufte pro Ziehung. Dazu Gratis-Lose fürs Spielen: je 30 Minuten aktiv gespielt
+// (6 Fünf-Minuten-Abschnitte mit mindestens einer Runde) ein Gratis-Los, höchstens 4 pro Ziehung.
+// Store "lotto": a/<ziehung>/<name> = {c: Verluste in den Topf, s: aktive Abschnitte} · b/<ziehung>/<name> = {n: gekaufte Lose}
+//                r/<ziehung> = Ergebnis · state = {last: zuletzt ausgeführte Ziehung} · cache = Topf (kurz zwischengespeichert)
+// Gezogen wird beim ersten Aufruf nach 20 Uhr. Der Zufall kommt aus dem Server-Geheimnis + Ziehungszeit:
+// derselbe Aufruf zweimal gleichzeitig ergibt exakt dieselben Gewinner und dieselben Posteingangs-Einträge (keine Doppelzahlung).
+const LT_PRICE = 250, LT_MAX = 20, LT_FREE_MAX = 4, LT_SLOT = 300_000, LT_SLOTS_PER_FREE = 6;
+const LT_SHARES = [0.5, 0.25, 0.1];
+const LT_SKIP = new Set(["lotto", "wetten"]);   // Lose zählen direkt, Wetten sind Spieler gegen Spieler
+const ltLoss = (st) => -Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (LT_SKIP.has(k) ? s : s + num(g && g.p) - num(g && g.w)), 0);
+const ltRounds = (st) => Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (k === "lotto" ? s : s + num(g && g.n)), 0);
+const ltFree = (slots) => Math.min(LT_FREE_MAX, Math.floor(num(slots) / LT_SLOTS_PER_FREE));
 
-async function stapel(req, url) {
-  const admin = getStore("admin"), now = Date.now();
-  const potRec = async () => (await admin.get("stapelPot", { type: "json" })) || { a: 0, last: null };
-  if (req.method === "GET") { const p = await potRec(); return json({ pot: r2(num(p.a)), last: p.last || null }); }
+// ---- Ziehungstermine: Montag und Donnerstag, 20:00 Uhr in Berlin (Sommer- und Winterzeit)
+const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+function berlinParts(ts) {
+  const p = {}; for (const x of BERLIN.formatToParts(new Date(ts))) p[x.type] = +x.value || 0;
+  return p;
+}
+function berlinOffset(ts) { const p = berlinParts(ts); return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ts / 1000) * 1000; }
+function drawAt(y, m, d) { const guess = Date.UTC(y, m, d, 20); return guess - berlinOffset(guess - 7_200_000); }
+function ltDays(ts, from, to) {   // Ziehungen von Tag "from" bis "to" (relativ zum Berliner Datum von ts)
+  const p = berlinParts(ts), out = [];
+  for (let i = from; i <= to; i++) {
+    const wd = new Date(Date.UTC(p.year, p.month - 1, p.day + i)).getUTCDay();
+    if (wd === 1 || wd === 4) out.push(drawAt(p.year, p.month - 1, p.day + i));
+  }
+  return out;
+}
+const nextDraw = (ts) => ltDays(ts, -1, 8).find((t) => t > ts);
+const prevDraw = (ts) => ltDays(ts, -8, 1).filter((t) => t <= ts).pop();
+
+let ltSecret = null;
+const ltRand = async (D, i) => {
+  if (!ltSecret) ltSecret = await secret();
+  return BigInt("0x" + createHmac("sha256", ltSecret).update(`lotto|${D}|${i}`).digest("hex").slice(0, 15));
+};
+
+// Alle Einträge einer Ziehung: Verluste, Aktivität, gekaufte Lose
+async function ltEntries(D) {
+  const s = getStore("lotto");
+  const [{ blobs: ab }, { blobs: bb }] = await Promise.all([s.list({ prefix: `a/${D}/` }), s.list({ prefix: `b/${D}/` })]);
+  const get = (k) => s.get(k, { type: "json" }).catch(() => null);
+  const [A, B] = await Promise.all([Promise.all(ab.map((b) => get(b.key))), Promise.all(bb.map((b) => get(b.key)))]);
+  const P = new Map(), of = (k) => { if (!P.has(k)) P.set(k, { k, c: 0, s: 0, n: 0 }); return P.get(k); };
+  ab.forEach((b, i) => { const v = A[i]; if (!v) return; const p = of(b.key.slice(`a/${D}/`.length)); p.c = r2(p.c + num(v.c)); p.s = Array.isArray(v.s) ? v.s.length : 0; });
+  bb.forEach((b, i) => { const v = B[i]; if (!v) return; of(b.key.slice(`b/${D}/`.length)).n = Math.min(LT_MAX, Math.max(0, Math.round(num(v.n)))); });
+  const list = [...P.values()].sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : 0));
+  const players = list.filter((p) => !p.k.startsWith("~")).map((p) => ({ ...p, f: ltFree(p.s), t: p.n + ltFree(p.s) }));
+  return { list, players };
+}
+const ltCarryIn = async (D) => { const r = await getStore("lotto").get(`r/${prevDraw(D - 1)}`, { type: "json" }).catch(() => null); return r ? num(r.carry) : 0; };
+async function ltPot(D) {
+  const { list, players } = await ltEntries(D);
+  const pot = r2((await ltCarryIn(D)) + list.reduce((t, p) => t + p.c, 0) + LT_PRICE * players.reduce((t, p) => t + p.n, 0));
+  return { pot, players, tickets: players.reduce((t, p) => t + p.t, 0) };
+}
+
+// Eine Ziehung ausführen (idempotent)
+async function ltDraw(D) {
+  const s = getStore("lotto");
+  if (await s.get(`r/${D}`, { type: "json" }).catch(() => null)) return;
+  const { pot, players, tickets } = await ltPot(D);
+  const accs = getStore("spielstaende"), box = getStore("posteingang"), now = Date.now();
+  let pool = players.filter((p) => p.t > 0), paid = 0, i = 0;
+  const win = [];
+  for (let rank = 1; rank <= LT_SHARES.length && pool.length; rank++) {
+    while (pool.length) {
+      const total = pool.reduce((t, p) => t + p.t, 0);
+      let r = Number((await ltRand(D, i++)) % BigInt(total)), pick = pool[0];
+      for (const p of pool) { if (r < p.t) { pick = p; break; } r -= p.t; }
+      pool = pool.filter((p) => p !== pick);
+      const acc = await accs.get(pick.k, { type: "json" }).catch(() => null);
+      if (!acc || acc.banned) continue;   // gelöscht / gesperrt: nächstes Los ziehen
+      // nicht über 10 Mio.: Rest bleibt im Topf
+      const pend = (await inbox(pick.k)).filter((it) => !(acc.seen || []).includes(it.id) && !String(it.id).includes(`/lotto-${D}-`)).reduce((t, it) => t + num(it.a), 0);
+      const a = r2(Math.max(0, Math.min(Math.floor(pot * LT_SHARES[rank - 1] * 100) / 100, CAP - num(acc.state && acc.state.bal) - pend)));
+      if (a > 0) await box.setJSON(`${pick.k}/lotto-${D}-${rank}`, { f: `Jackpot · ${rank}. Platz`, a, t: now });
+      paid = r2(paid + a);
+      win.push({ r: rank, n: decodeURIComponent(pick.k), a, t: pick.t });
+      break;
+    }
+  }
+  await s.setJSON(`r/${D}`, { d: D, pot, carry: r2(pot - paid), players: players.filter((p) => p.t > 0).length, tickets, win, t: now });
+  // Aufräumen: Einträge der Ziehung davor werden nicht mehr gebraucht
+  try {
+    const old = prevDraw(D - 1);
+    for (const pre of [`a/${old}/`, `b/${old}/`]) { const { blobs } = await s.list({ prefix: pre }); for (const b of blobs) await s.delete(b.key); }
+  } catch {}
+}
+// Fällige Ziehungen nachholen (beim ersten Aufruf nach 20 Uhr)
+async function ltTick(now) {
+  const s = getStore("lotto");
+  let st = await s.get("state", { type: "json" }).catch(() => null);
+  if (!st || !st.last) { st = { last: prevDraw(now) }; await s.setJSON("state", st); return; }
+  for (let k = 0; k < 60; k++) {
+    const D = nextDraw(st.last);
+    if (!D || D > now) break;
+    await ltDraw(D);
+    st = { last: D }; await s.setJSON("state", st);
+    try { await s.delete("cache"); } catch {}
+  }
+}
+// Beim Speichern: neue Verluste in den Topf, aktive Abschnitte für Gratis-Lose merken. Gibt die neue Verlust-Marke zurück.
+// Marke = höchster bisheriger Gesamtverlust: Wer verliert und es wieder zurückgewinnt, zahlt nicht doppelt ein.
+async function ltOnSave(key, oldS, state, stored, fresh, now) {
+  let mark = fresh ? 0 : stored.potMark;
+  if (typeof mark !== "number") mark = Math.max(0, ltLoss(oldS));
+  const older = ltRounds(state) < ltRounds(oldS);         // Stand aus einem älteren Tab: nichts zählen
+  const loss = ltLoss(state);
+  let add = 0;
+  if (!older && loss > mark + 0.004) { add = r2(loss - mark); mark = loss; }
+  const slot = !older && ltRounds(state) > ltRounds(oldS) ? Math.floor(now / LT_SLOT) : null;
+  if (add > 0 || slot != null) {
+    try {
+      const s = getStore("lotto"), k = `a/${nextDraw(now)}/${key}`;
+      const a = (await s.get(k, { type: "json" })) || { c: 0, s: [] };
+      if (!Array.isArray(a.s)) a.s = [];
+      const newSlot = slot != null && !a.s.includes(slot);
+      if (add > 0 || newSlot) {
+        a.c = r2(num(a.c) + add);
+        if (newSlot) { a.s.push(slot); if (a.s.length > 400) a.s = a.s.slice(-400); }
+        await s.setJSON(k, a);
+      }
+    } catch { return typeof stored.potMark === "number" ? stored.potMark : mark - add; }
+  }
+  return r2(mark);
+}
+
+async function lotto(req, url) {
+  const now = Date.now(), s = getStore("lotto");
+  await ltTick(now);
+  const D = nextDraw(now);
+
+  if (req.method === "GET") {
+    let c = await s.get("cache", { type: "json" }).catch(() => null);
+    if (!c || c.d !== D || now - c.at > 15_000) {
+      const p = await ltPot(D);
+      c = { d: D, at: now, pot: p.pot, players: p.players.filter((x) => x.t > 0).length, tickets: p.tickets };
+      await s.setJSON("cache", c);
+    }
+    const { blobs } = await s.list({ prefix: "r/" });
+    const ids = blobs.map((b) => +b.key.slice(2)).filter((n) => n > 0).sort((a, b) => b - a).slice(0, 6);
+    const hist = (await Promise.all(ids.map((id) => s.get(`r/${id}`, { type: "json" }).catch(() => null)))).filter(Boolean);
+    const out = { now, d: D, price: LT_PRICE, max: LT_MAX, freeMax: LT_FREE_MAX, slotMs: LT_SLOT, perFree: LT_SLOTS_PER_FREE,
+      pot: c.pot, players: c.players, tickets: c.tickets, hist };
+    const me = normName(url.searchParams.get("name"));
+    if (NAME_RE.test(me)) {
+      const k = encodeURIComponent(me);
+      const [a, b] = await Promise.all([s.get(`a/${D}/${k}`, { type: "json" }).catch(() => null), s.get(`b/${D}/${k}`, { type: "json" }).catch(() => null)]);
+      const slots = a && Array.isArray(a.s) ? a.s.length : 0;
+      out.mine = { n: b ? Math.round(num(b.n)) : 0, t: b ? num(b.t) : 0, f: ltFree(slots), s: slots, c: a ? num(a.c) : 0 };
+      // Lose der letzten Ziehung (für „Deine Lose“ im Ergebnis)
+      const P = prevDraw(now);
+      if (P && hist[0] && hist[0].d === P) {
+        const [pa, pb] = await Promise.all([s.get(`a/${P}/${k}`, { type: "json" }).catch(() => null), s.get(`b/${P}/${k}`, { type: "json" }).catch(() => null)]);
+        out.mineLast = (pb ? Math.round(num(pb.n)) : 0) + ltFree(pa && Array.isArray(pa.s) ? pa.s.length : 0);
+      }
+    }
+    return json(out);
+  }
+
   if (req.method !== "POST") return json({ error: "methode" }, 405);
   let body;
   try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
-  const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+  const name = normName(body.name);
   if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
   const key = encodeURIComponent(name);
   const acc = await getStore("spielstaende").get(key, { type: "json" });
   if (!acc) return json({ error: "unbekannt" }, 404);
   if (acc.banned) return json({ error: "gesperrt" }, 403);
-  const st = acc.state || {}, rounds = getStore("stapel");
+  if (!authed(req, acc)) return json({ error: "login" }, 401);
 
-  if (body.action === "start") {
-    const bet = r2(num(body.bet));
+  if (body.action === "buy") {
+    const n = Number(body.n), d = Number(body.d);
+    if (!Number.isInteger(n) || n < 1 || n > LT_MAX) return json({ error: "anzahl" }, 400);
+    if (d && d !== D) return json({ error: "gezogen", d: D, now }, 409);   // inzwischen wurde gezogen
+    const k = `b/${D}/${key}`, b = (await s.get(k, { type: "json" })) || { n: 0 };
+    if (num(b.n) + n > LT_MAX) return json({ error: "max", n: num(b.n), d: D }, 409);
     // großzügig, weil der gespeicherte Stand ein paar Sekunden alt sein kann
-    if (!(bet > 0) || bet > (num(st.bal) + num(st.inPlay)) * 0.5 + 10) return json({ error: "einsatz" }, 400);
-    // ab 100.000 Coins gesperrt (gespeicherter Stand vor oder direkt nach dem Einsatz)
-    if (num(st.bal) >= SK_MAXBAL) return json({ error: "zu_reich" }, 403);
-    const prev = await rounds.get(key, { type: "json" });
-    if (prev && now - prev.t < 700) return json({ error: "zu_schnell" }, 429);
-    const r = { id: randomBytes(8).toString("hex"), seed: randomBytes(16).toString("hex"), bet, t: now };
-    await rounds.setJSON(key, r);
-    const p = await potRec();
-    return json({ id: r.id, seed: r.seed, pot: r2(num(p.a)), last: p.last || null });
-  }
-
-  if (body.action === "end") {
-    const r = await rounds.get(key, { type: "json" });
-    const p = await potRec();
-    if (!r || r.id !== body.id) return json({ error: "runde", pot: r2(num(p.a)), last: p.last || null }, 409);
-    await rounds.delete(key);
-    const taps = Array.isArray(body.taps) ? body.taps.slice(0, STK.MAXH + 1) : [];
-    const res = STK.replay(r.seed, taps);
-    const played = taps.reduce((s, t) => s + (Number(t) || 0), 0);
-    // unmöglich: kaputte Tipp-Zeiten, mehr Spielzeit als echte Zeit, oder Ende ohne Fallen und ohne Ziel
-    const bad = res.bad || played > now - r.t + 5000 || (!res.fell && res.h < STK.MAXH);
-    if (bad) { await logReject(name, "stapel", st, st); return json({ error: "ungueltig", pot: r2(num(p.a)), last: p.last || null }, 422); }
-    const m = STK.mult(res.h), pay = r2(r.bet * m);
-    if (res.h < STK.POT_BELOW) p.a = r2(num(p.a) + Math.max(0, r.bet - pay));
-    let jackpot = 0;
-    if (!res.fell && res.h >= STK.MAXH && num(p.a) > 0) {
-      // nicht über 10 Mio.: Rest bleibt im Topf
-      const pend = (await inbox(key)).filter((it) => !(acc.seen || []).includes(it.id)).reduce((t, it) => t + num(it.a), 0);
-      jackpot = r2(Math.max(0, Math.min(num(p.a), CAP - num(st.bal) - pay - pend)));
-      if (jackpot > 0) {
-        await getStore("posteingang").setJSON(`${key}/${now}-jackpot`, { f: "Jackpot", a: jackpot, t: now });
-        p.a = r2(num(p.a) - jackpot); p.last = { n: name, a: jackpot, t: now };
-      }
-    }
-    await admin.setJSON("stapelPot", p);
-    return json({ ok: true, h: res.h, fell: res.fell, pot: r2(num(p.a)), last: p.last || null, jackpot });
+    if (n * LT_PRICE > num((acc.state || {}).bal) + num((acc.state || {}).inPlay) + 10) return json({ error: "guthaben" }, 400);
+    const total = Math.round(num(b.n) + n);
+    await s.setJSON(k, { n: total, t: now });
+    try { await s.delete("cache"); } catch {}
+    return json({ ok: true, d: D, n: total, now });
   }
   return json({ error: "aktion" }, 400);
 }
 
+// ================= Registrieren / Einloggen / Abmelden / Passwort ändern (/api/spielstand?auth=1) =================
+async function authRoute(req) {
+  if (req.method !== "POST") return json({ error: "methode" }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
+  const store = getStore("spielstaende"), now = Date.now();
+  const name = normName(body.name);
+  if (!NAME_RE.test(name)) return json({ error: "name" }, 400);
+  const key = encodeURIComponent(name);
+  const rec = await store.get(key, { type: "json" });
+  const pwOk = (p) => typeof p === "string" && p.length >= 1 && p.length <= 200;
+  const newToken = () => randomBytes(24).toString("base64url");
+
+  if (body.action === "logout") {
+    if (rec && authed(req, rec)) { const h = sha(bearer(req)); rec.tokens = rec.tokens.filter((x) => x.h !== h); await store.setJSON(key, rec); }
+    return json({ ok: true });
+  }
+
+  if (body.action === "register") {
+    if (!pwOk(body.pw)) return json({ error: "passwort" }, 400);
+    if (rec) return json({ error: "vergeben" }, 409);
+    const state = body.state;
+    const err = basicCheck(state) || (looksFresh(state) ? null : "kein_neuer_spielstand");
+    if (err) return json({ error: err }, 422);
+    state.sent = 0; state.recv = 0;
+    const salt = randomBytes(16).toString("hex"), token = newToken();
+    await store.setJSON(key, { state, rev: 1, savedAt: now, sentTotal: 0, recvTotal: 0, seen: [], created: now, potMark: 0,
+      pw: { s: salt, h: await scrypt(body.pw, salt) }, tokens: [{ h: sha(token), t: now }] });
+    return json({ ok: true, rev: 1, token });
+  }
+
+  if (body.action === "login") {
+    if (!pwOk(body.pw) || !rec || !rec.pw) return json({ error: "falsch" }, 401);
+    const fails = (rec.fails || []).filter((t) => now - t < 15 * 60_000);
+    if (fails.length >= 10) return json({ error: "zu_viele_versuche" }, 429);   // gegen Durchprobieren
+    if ((await scrypt(body.pw, rec.pw.s)) !== rec.pw.h) { rec.fails = fails.concat(now); await store.setJSON(key, rec); return json({ error: "falsch" }, 401); }
+    if (rec.banned) return json({ error: "gesperrt" }, 403);
+    const token = newToken();
+    rec.fails = []; rec.tokens = (rec.tokens || []).concat({ h: sha(token), t: now }).slice(-10);
+    await store.setJSON(key, rec);
+    const st = rec.state || {};
+    const pend = (await inbox(key)).filter((it) => !(rec.seen || []).includes(it.id));
+    const add = pend.reduce((t, it) => t + num(it.a), 0);
+    if (add > 0) { st.bal = Math.min(CAP, r2(num(st.bal) + add)); st.recv = r2(num(rec.recvTotal) + add); st.sent = r2(num(rec.sentTotal)); }
+    return json({ ok: true, token, state: st, rev: rec.rev || 1, gifts: pend.map((it) => ({ id: it.id, f: it.f, a: it.a })) });
+  }
+
+  if (body.action === "password") {
+    if (!rec || !authed(req, rec)) return json({ error: "login" }, 401);
+    if (!pwOk(body.neu)) return json({ error: "passwort" }, 400);
+    if (!pwOk(body.alt) || (await scrypt(body.alt, rec.pw.s)) !== rec.pw.h) return json({ error: "falsch" }, 401);
+    const salt = randomBytes(16).toString("hex"), h = sha(bearer(req));
+    rec.pw = { s: salt, h: await scrypt(body.neu, salt) };
+    rec.tokens = rec.tokens.filter((x) => x.h === h);   // andere Geräte abmelden
+    await store.setJSON(key, rec);
+    return json({ ok: true });
+  }
+  return json({ error: "unbekannte_aktion" }, 400);
+}
+
 export default async (req) => {
   const url = new URL(req.url);
+  await ensureEpoch();
+  if (url.searchParams.has("auth")) return authRoute(req);
   if (url.searchParams.has("rennen")) return rennen(req, url);
-  if (url.searchParams.has("stapel")) return stapel(req, url);
+  if (url.searchParams.has("lotto")) return lotto(req, url);
   if (url.searchParams.has("wetten")) return wetten(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
@@ -530,6 +706,7 @@ export default async (req) => {
   if (req.method === "GET") {
     if (stored && stored.banned) return json({ exists: true, banned: true, state: null, rev: 0 });
     if (!stored) return json({ exists: false, state: null, rev: 0 });
+    if (!authed(req, stored)) return json({ error: "login" }, 401);
     // Noch nicht abgeholte Überweisungen schon mal anzeigen (gespeichert wird beim nächsten Speichern)
     const st = stored.state || {};
     const pend = (await inbox(key)).filter((it) => !(stored.seen || []).includes(it.id));
@@ -549,17 +726,11 @@ export default async (req) => {
   const state = body && body.state;
   const now = Date.now();
 
-  if (body.create) {
-    if (stored) return json({ error: "vergeben" }, 409);
-    const err = basicCheck(state) || (looksFresh(state) ? null : "kein_neuer_spielstand");
-    if (err) return json({ error: err }, 422);
-    state.sent = 0; state.recv = 0;
-    await store.setJSON(key, { state, rev: 1, savedAt: now, sentTotal: 0, recvTotal: 0, seen: [] });
-    return json({ ok: true, rev: 1 });
-  }
+  if (body.create) return json({ error: "veraltet" }, 400);   // Accounts entstehen nur noch über ?auth=1 (mit Passwort)
 
   if (!stored) return json({ error: "unbekannt" }, 404);
   if (stored.banned) return json({ error: "gesperrt" }, 403);
+  if (!authed(req, stored)) return json({ error: "login" }, 401);
   const curRev = stored.rev || 1;
 
   // Keine Prüfung auf andere Tabs/Geräte: der neueste Speicherstand gewinnt.
@@ -627,7 +798,10 @@ export default async (req) => {
   state.playMs = Math.max(oldPlay, Math.min(num(state.playMs), oldPlay + elapsed + 60_000 + seed));
 
   seen = seen.concat(used).slice(-200);
-  const rec = { state, rev: curRev + 1, savedAt: now, sentTotal, recvTotal, seen, tx: tx ? tx.recent.concat(now) : (stored.tx || []).filter((t) => now - t < 3_600_000) };
+  // Verluste in den Jackpot-Topf, Spielzeit für Gratis-Lose (Fehler dabei blockieren nie das Speichern)
+  let potMark = stored.potMark;
+  try { potMark = await ltOnSave(key, oldS, state, stored, fresh, now); } catch {}
+  const rec = { ...stored, state, potMark, rev: curRev + 1, savedAt: now, sentTotal, recvTotal, seen, dev: undefined, tx: tx ? tx.recent.concat(now) : (stored.tx || []).filter((t) => now - t < 3_600_000) };
   await store.setJSON(key, rec);
   // Überweisung erst nach dem Abzug beim Absender in den Posteingang legen (eigener Eintrag, kein Überschreiben).
   // Klappt das nicht, wird der Abzug beim Absender wieder zurückgenommen.

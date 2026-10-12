@@ -166,6 +166,7 @@ textarea.inp{min-height:90px;resize:vertical}
     <button role="tab" data-tab="acc" aria-selected="true">Accounts</button>
     <button role="tab" data-tab="rej" aria-selected="false">Schummel-Log<span class="cnt" id="rejCnt" hidden></span></button>
     <button role="tab" data-tab="wet" aria-selected="false">Wetten<span class="cnt" id="wetCnt" hidden></span></button>
+    <button role="tab" data-tab="lot" aria-selected="false">Jackpot</button>
     <button role="tab" data-tab="msg" aria-selected="false">Nachricht an alle</button>
   </div>
 
@@ -183,6 +184,11 @@ textarea.inp{min-height:90px;resize:vertical}
     </div>
     <div class="panel" style="padding:6px 12px">
       <div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Guthaben</th><th>Sterne</th><th>Runden</th><th>Netto Spiele</th><th>Lieblingsspiel</th><th>Zuletzt aktiv</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div>
+    </div>
+    <div class="panel" id="wipePanel" style="border-color:rgba(255,77,106,.35)">
+      <h2 style="font-size:16px">Alle Accounts löschen</h2>
+      <p class="note">Löscht alle Spieler mit Guthaben und Spielständen, dazu Posteingänge, Rangliste, Jackpot und Lose, offene Rennwetten, Wett-Tipps, Vorschläge und Ausschlüsse. Wetten-Fragen und die Nachricht an alle bleiben. Das lässt sich nicht rückgängig machen.</p>
+      <div class="row"><input class="inp" id="wipeTxt" placeholder="Zum Bestätigen tippen: ALLES LÖSCHEN" autocomplete="off"><button class="btn red" id="wipeBtn">Alle Accounts löschen</button></div>
     </div>
   </section>
 
@@ -213,6 +219,20 @@ textarea.inp{min-height:90px;resize:vertical}
     <div class="panel"><h2 style="font-size:16px">Erledigt</h2><p class="note">Spieler sehen erledigte Fragen 14 Tage lang. Entfernen erst, wenn alle abgerechnet haben; wer bis dahin nicht online war, bekommt seinen Einsatz zurück.</p><div id="wDone"></div></div>
   </section>
 
+  <section id="t-lot" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="kpis" id="lKpis"></div>
+    <div class="panel">
+      <h2 style="font-size:16px">Topf aufstocken</h2>
+      <p class="note">Legt Coins zusätzlich in den Jackpot der nächsten Ziehung, z. B. als Startgeld oder für eine Sonder-Ziehung. Gezogen wird jeden Montag und Donnerstag um 20 Uhr: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %, der Rest bleibt im Topf.</p>
+      <div class="row"><input class="inp" id="lAdd" type="number" min="1" step="1" placeholder="Betrag in Coins" inputmode="numeric"><button class="btn gold" id="lAddBtn">Aufstocken</button></div>
+    </div>
+    <div class="panel" style="padding:6px 12px">
+      <h2 style="font-size:16px;padding-top:8px">Teilnehmer der nächsten Ziehung</h2>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Gekaufte Lose</th><th>Gratis-Lose</th><th>Chance</th><th>Verluste in den Topf</th></tr></thead><tbody id="lRows"></tbody></table></div>
+    </div>
+    <div class="panel"><h2 style="font-size:16px">Letzte Ziehungen</h2><div id="lHist"></div></div>
+  </section>
+
   <section id="t-msg" hidden style="display:flex;flex-direction:column;gap:14px">
     <div class="panel">
       <h2 style="font-size:16px">Nachricht an alle</h2>
@@ -236,7 +256,7 @@ const fmt=v=>(+v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractio
 const fmt0=v=>Math.round(v).toLocaleString('de-DE');
 const sgn=v=>(v>0.004?'+':v<-0.004?'−':'')+fmt(Math.abs(v));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const GAMES={wetten:'Wetten',chicken:'Chicken',mines:'Mines',tower:'Tower',plinko:'Plinko',poker:'Poker',rennen:'Pferderennen',stapel:'Chip-Stapler',slot:'Goldene Sieben',double:'Münzwurf'};
+const GAMES={wetten:'Wetten',chicken:'Chicken',mines:'Mines',tower:'Tower',plinko:'Plinko',poker:'Poker',rennen:'Pferderennen',stapel:'Chip-Stapler',slot:'Goldene Sieben',muenze:'Double or Nothing',double:'Münzwurf',lotto:'Jackpot-Ziehung'};
 const ITEMS={kette:'Goldkette',uhr:'Luxusuhr',auto:'Sportwagen',villa:'Villa',yacht:'Yacht',jet:'Privatjet',insel:'Privatinsel'};
 const REASONS={guthaben_unerklaerlich:'Guthaben gestiegen ohne Grund',gewinn_zu_hoch:'Gewinn höher als möglich',zu_viele_runden:'Zu viele Runden zu schnell',runden:'Rundenzahl gesunken',sterne:'Sterne manipuliert',stern_ohne_10mio:'Stern ohne 10 Mio.',neustart_zu_frueh:'Neustart vor Ablauf der Sperre',neustarts:'Zu viele Neustarts',bonus:'Zu viel Bonus auf einmal',verkauf:'Verkauf ohne Gegenstand',ausgaben:'Ausgaben verringert',einsatz:'Einsatz negativ',guthaben:'Guthaben ungültig',zu_gross:'Spielstand zu groß',kein_spielstand:'Spielstand fehlt',stapel:'Chip-Stapler: unmögliche Runde'};
 let KEY='';try{KEY=localStorage.getItem('lr_admin')||''}catch(e){}
@@ -264,8 +284,8 @@ $('logout').onclick=()=>logout('');
 // ---------- Tabs ----------
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;
   document.querySelectorAll('.tabs [data-tab]').forEach(x=>x.setAttribute('aria-selected',x===b));
-  ['acc','rej','wet','msg'].forEach(t=>$('t-'+t).hidden=t!==b.dataset.tab);
-  if(b.dataset.tab==='rej')loadRejects();if(b.dataset.tab==='msg')loadMsg();if(b.dataset.tab==='wet')loadW()});
+  ['acc','rej','wet','lot','msg'].forEach(t=>$('t-'+t).hidden=t!==b.dataset.tab);
+  if(b.dataset.tab==='rej')loadRejects();if(b.dataset.tab==='msg')loadMsg();if(b.dataset.tab==='wet')loadW();if(b.dataset.tab==='lot')loadL()});
 
 // ---------- Accounts ----------
 async function loadAccounts(){try{const d=await api('list');ACC=d.accounts||[];renderAccounts()}catch(e){if(e.message!=='401')toast('Laden fehlgeschlagen: '+e.message,true)}}
@@ -278,7 +298,7 @@ function renderAccounts(){
     <td class="meta">★ ${a.stars} · ${fmt0(a.rounds)} Runden · ${ago(a.savedAt)}${a.banned?' · <b class="neg">gesperrt</b>':''}</td></tr>`).join(''):`<tr><td class="empty" colspan="8">${ACC.length?'Kein Account passt zur Suche.':'Noch keine Accounts.'}</td></tr>`}
 $('q').oninput=renderAccounts;$('sort').onchange=renderAccounts;
 $('rows').addEventListener('click',e=>{const tr=e.target.closest('tr[data-n]');if(tr)openAccount(tr.dataset.n)});
-$('reload').onclick=()=>{loadAccounts();const t=document.querySelector('.tabs [aria-selected="true"]').dataset.tab;if(t==='rej')loadRejects();if(t==='msg')loadMsg();if(t==='wet')loadW();toast('Aktualisiert')};
+$('reload').onclick=()=>{loadAccounts();const t=document.querySelector('.tabs [aria-selected="true"]').dataset.tab;if(t==='rej')loadRejects();if(t==='msg')loadMsg();if(t==='wet')loadW();if(t==='lot')loadL();toast('Aktualisiert')};
 
 // ---------- Detail ----------
 function closeModal(){$('modal').hidden=true;$('modal').innerHTML='';current=null}
@@ -293,10 +313,13 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
       <div class="row"><input class="inp" id="mBal" type="number" min="0" step="1" value="${a.bal}" inputmode="decimal" aria-label="Guthaben"><button class="btn gold" data-act="setBal">Setzen</button></div>
       <div class="row"><button class="btn" data-add="1000">+1.000</button><button class="btn" data-add="10000">+10.000</button><button class="btn" data-add="100000">+100.000</button><button class="btn" data-add="-1000">−1.000</button></div></div>
     <div class="sec"><h3>Sterne</h3><div class="row"><input class="inp" id="mStars" type="number" min="0" step="1" value="${a.stars}" aria-label="Sterne"><button class="btn gold" data-act="setStars">Setzen</button></div></div>
-    <div class="sec"><h3>Spiele freigeschaltet</h3><div class="checks">${['mines','tower','plinko','poker','rennen','stapel','slot'].map(g=>`<label><input type="checkbox" data-game="${g}" ${a.games.includes(g)?'checked':''}>${GAMES[g]}</label>`).join('')}</div><p class="note">Chicken ist immer frei.</p></div>
+    <div class="sec"><h3>Spiele freigeschaltet</h3><div class="checks">${['mines','tower','plinko','poker','rennen','stapel','slot','muenze'].map(g=>`<label><input type="checkbox" data-game="${g}" ${a.games.includes(g)?'checked':''}>${GAMES[g]}</label>`).join('')}</div><p class="note">Chicken ist immer frei.</p></div>
     <div class="sec"><h3>Vitrine</h3><div class="checks">${Object.entries(ITEMS).map(([k,n])=>`<label><input type="checkbox" data-item="${k}" ${a.items.includes(k)?'checked':''}>${n}</label>`).join('')}</div></div>
     <div class="sec"><h3>Wetten</h3><div class="row" style="align-items:center"><span class="chip ${a.wBanned?'ban':'on'}">${a.wBanned?'Von Wetten ausgeschlossen':'Darf wetten'}</span><button class="btn ${a.wBanned?'green':'red'}" data-act="wban">${a.wBanned?'Wieder zulassen':'Von Wetten ausschließen'}</button></div>
       <p class="note">Ausgeschlossen heißt: keine Tipps und keine Vorschläge mehr. Offene Tipps werden entfernt, der Spieler bekommt den Einsatz zurück.</p></div>
+    <div class="sec"><h3>Passwort</h3>
+      <div class="row"><input class="inp" id="mPw" type="text" autocomplete="off" placeholder="Neues Passwort für ${esc(a.name)}" maxlength="200"><button class="btn gold" data-act="setPw">Setzen</button></div>
+      <p class="note">Für vergessene Passwörter. Der Spieler wird auf allen Geräten abgemeldet und meldet sich mit dem neuen Passwort an.${a.devices?` Gerade angemeldet: ${a.devices} ${a.devices===1?'Gerät':'Geräte'}.`:''}</p></div>
     <div class="sec"><h3>Account</h3><div class="row">
       <button class="btn" data-act="cooldown" ${cd?'':'disabled'}>Neustart-Sperre aufheben</button>
       <button class="btn ${a.banned?'green':'red'}" data-act="ban">${a.banned?'Entsperren':'Sperren'}</button>
@@ -311,6 +334,8 @@ $('modal').addEventListener('click',async e=>{if(!current)return;
   if(act==='setBal'){const v=parseFloat(String($('mBal').value).replace(',','.'));if(isFinite(v))upd({bal:v},'Guthaben gesetzt')}
   if(act==='setStars'){const v=parseInt($('mStars').value);if(isFinite(v))upd({stars:v},'Sterne gesetzt')}
   if(act==='cooldown')upd({clearCooldown:true},'Neustart-Sperre aufgehoben');
+  if(act==='setPw'){const pw=$('mPw').value;if(!pw){toast('Gib ein neues Passwort ein.',true);return}b.disabled=true;
+    try{const d=await api('setPassword',{name:current.name,pw});current={...d.account,wBanned:current.wBanned};renderModal();toast('Neues Passwort gesetzt. Sag es dem Spieler.')}catch(err){b.disabled=false;if(err.message!=='401')toast('Fehler: '+err.message,true)}}
   if(act==='wban'){b.disabled=true;try{const on=!current.wBanned,d=await api('wBan',{name:current.name,on});current.wBanned=on;renderModal();
       toast(on?`Von Wetten ausgeschlossen${d.removed?` · ${d.removed} offene${d.removed===1?'r Tipp':' Tipps'} entfernt`:''}`:'Darf wieder wetten');if(!$('t-wet').hidden)loadW()}
     catch(err){b.disabled=false;if(err.message!=='401')toast('Fehler: '+err.message,true)}}
@@ -321,6 +346,12 @@ $('modal').addEventListener('change',e=>{if(!current)return;const g=e.target.dat
   if(g)upd({games:{[g]:e.target.checked}},`${GAMES[g]} ${e.target.checked?'freigeschaltet':'gesperrt'}`);
   if(it)upd({items:{[it]:e.target.checked}},`${ITEMS[it]} ${e.target.checked?'hinzugefügt':'entfernt'}`)});
 
+// ---------- Alle Accounts löschen ----------
+$('wipeBtn').onclick=async()=>{const b=$('wipeBtn');if($('wipeTxt').value.trim()!=='ALLES LÖSCHEN'){toast('Tippe zum Bestätigen genau: ALLES LÖSCHEN',true);$('wipeTxt').focus();return}
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Wirklich? Nochmal tippen';setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent='Alle Accounts löschen'}},4000);return}
+  b.disabled=true;try{const d=await api('wipeAll',{confirm:'ALLES LÖSCHEN'});$('wipeTxt').value='';toast(`${d.deleted} ${d.deleted===1?'Account':'Accounts'} gelöscht`);loadAccounts();loadRejects()}
+  catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}b.disabled=false;b.classList.remove('armed');b.textContent='Alle Accounts löschen'};
+
 // ---------- Schummel-Log ----------
 async function loadRejects(){try{const d=await api('rejects');const L=d.rejects||[];
   const c=$('rejCnt');c.hidden=!L.length;c.textContent=L.length;
@@ -329,6 +360,14 @@ $('clearRej').onclick=async()=>{const b=$('clearRej');if(!b.classList.contains('
   try{await api('clearRejects');b.classList.remove('armed');b.textContent='Log leeren';loadRejects();toast('Log geleert')}catch(e){}};
 
 // ---------- Nachricht ----------
+// ---- Jackpot-Ziehung
+function renderL(d){const P=d.players||[],T=P.reduce((t,p)=>t+p.n+p.f,0);
+  $('lKpis').innerHTML=[['Jackpot',fmt(d.pot||0)],['Nächste Ziehung',when(d.d)],['Lose im Topf',fmt0(T)],['Davon aufgestockt',fmt(d.added||0)]].map(([k,v])=>`<div class="kpi"><span>${k}</span><b>${v}</b></div>`).join('');
+  $('lRows').innerHTML=P.length?P.map(p=>`<tr><td>${esc(p.name)}</td><td>${fmt0(p.n)}</td><td>${fmt0(p.f)}</td><td>${T&&p.n+p.f?((p.n+p.f)/T*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %':'–'}</td><td>${fmt(p.c)}</td></tr>`).join(''):'<tr><td colspan="5" class="note">Noch niemand dabei.</td></tr>';
+  $('lHist').innerHTML=(d.hist||[]).length?d.hist.map(h=>`<div class="note" style="padding:6px 0;border-bottom:1px solid var(--line)"><b style="color:var(--ink)">${when(h.d)}</b> · Topf ${fmt(h.pot)} · ${fmt0(h.tickets||0)} Lose · ${(h.win||[]).length?h.win.map(w=>`${w.r}. ${esc(w.n)} +${fmt(w.a)}`).join(' · '):'kein Gewinner'}</div>`).join(''):'<p class="note">Noch keine Ziehung.</p>'}
+async function loadL(){try{renderL(await api('lotto'))}catch(e){if(e.message!=='401')toast('Jackpot laden fehlgeschlagen: '+e.message,true)}}
+$('lAddBtn').onclick=async()=>{const a=Math.round(+$('lAdd').value);if(!(a>=1)){toast('Betrag eingeben',true);return}
+  $('lAddBtn').disabled=true;try{renderL(await api('lottoAdd',{a}));$('lAdd').value='';toast(`Jackpot um ${fmt(a)} aufgestockt`)}catch(e){if(e.message!=='401')toast(e.message,true)}$('lAddBtn').disabled=false};
 async function loadMsg(){try{const d=await api('getMessage');showMsg(d.message)}catch(e){}}
 function showMsg(m){$('msgCur').innerHTML=m&&m.text?`<div class="preview">${esc(m.text)}</div>`:'<p class="note">Keine Nachricht aktiv.</p>'}
 $('msgSend').onclick=async()=>{const t=$('msgText').value.trim();if(!t){toast('Schreib zuerst eine Nachricht.',true);return}try{const d=await api('setMessage',{text:t});showMsg(d.message);$('msgText').value='';toast('Nachricht gesendet')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
