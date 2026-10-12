@@ -48,7 +48,7 @@ async function wipeStore(name, keep) {
   for (const b of blobs) { if (keep && keep(b.key)) continue; try { await st.delete(b.key); } catch {} }
 }
 async function purgeAll() {
-  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto"]) await wipeStore(n);
+  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash"]) await wipeStore(n);
   await wipeStore("wetten", (k) => k.startsWith("e/"));   // Fragen bleiben, Tipps/Vorschläge/Ausschlüsse weg
   const admin = getStore("admin");
   for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
@@ -415,13 +415,13 @@ async function wetten(req, url) {
 
 // ================= Jackpot-Ziehung (/api/spielstand?lotto=1) =================
 // Das Casino verdient nichts: Was Spieler unterm Strich verlieren, fließt in einen gemeinsamen Topf.
-// Jeden Montag und Donnerstag um 20 Uhr (deutsche Zeit) wird gezogen: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %,
+// Jeden Montag und Donnerstag um 9:35 Uhr (deutsche Zeit) wird gezogen: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %,
 // die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Drei verschiedene Gewinner.
 // Lose: 250 Coins, höchstens 20 gekaufte pro Ziehung. Dazu Gratis-Lose fürs Spielen: je 30 Minuten aktiv gespielt
 // (6 Fünf-Minuten-Abschnitte mit mindestens einer Runde) ein Gratis-Los, höchstens 4 pro Ziehung.
 // Store "lotto": a/<ziehung>/<name> = {c: Verluste in den Topf, s: aktive Abschnitte} · b/<ziehung>/<name> = {n: gekaufte Lose}
 //                r/<ziehung> = Ergebnis · state = {last: zuletzt ausgeführte Ziehung} · cache = Topf (kurz zwischengespeichert)
-// Gezogen wird beim ersten Aufruf nach 20 Uhr. Der Zufall kommt aus dem Server-Geheimnis + Ziehungszeit:
+// Gezogen wird beim ersten Aufruf nach 9:35 Uhr. Der Zufall kommt aus dem Server-Geheimnis + Ziehungszeit:
 // derselbe Aufruf zweimal gleichzeitig ergibt exakt dieselben Gewinner und dieselben Posteingangs-Einträge (keine Doppelzahlung).
 const LT_PRICE = 250, LT_MAX = 20, LT_FREE_MAX = 4, LT_SLOT = 300_000, LT_SLOTS_PER_FREE = 6;
 const LT_SHARES = [0.5, 0.25, 0.1];
@@ -430,14 +430,15 @@ const ltLoss = (st) => -Object.entries((st && st.games) || {}).reduce((s, [k, g]
 const ltRounds = (st) => Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (k === "lotto" ? s : s + num(g && g.n)), 0);
 const ltFree = (slots) => Math.min(LT_FREE_MAX, Math.floor(num(slots) / LT_SLOTS_PER_FREE));
 
-// ---- Ziehungstermine: Montag und Donnerstag, 20:00 Uhr in Berlin (Sommer- und Winterzeit)
+// ---- Ziehungstermine: Montag und Donnerstag, 9:35 Uhr in Berlin (Sommer- und Winterzeit)
+const LT_H = 9, LT_MIN = 35, LT_SCHED = "mo-do-0935";
 const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 function berlinParts(ts) {
   const p = {}; for (const x of BERLIN.formatToParts(new Date(ts))) p[x.type] = +x.value || 0;
   return p;
 }
 function berlinOffset(ts) { const p = berlinParts(ts); return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ts / 1000) * 1000; }
-function drawAt(y, m, d) { const guess = Date.UTC(y, m, d, 20); return guess - berlinOffset(guess - 7_200_000); }
+function drawAt(y, m, d) { const guess = Date.UTC(y, m, d, LT_H, LT_MIN); return guess - berlinOffset(guess - 7_200_000); }
 function ltDays(ts, from, to) {   // Ziehungen von Tag "from" bis "to" (relativ zum Berliner Datum von ts)
   const p = berlinParts(ts), out = [];
   for (let i = from; i <= to; i++) {
@@ -468,7 +469,13 @@ async function ltEntries(D) {
   const players = list.filter((p) => !p.k.startsWith("~")).map((p) => ({ ...p, f: ltFree(p.s), t: p.n + ltFree(p.s) }));
   return { list, players };
 }
-const ltCarryIn = async (D) => { const r = await getStore("lotto").get(`r/${prevDraw(D - 1)}`, { type: "json" }).catch(() => null); return r ? num(r.carry) : 0; };
+// Rest aus der letzten ausgeführten Ziehung vor D (auch über eine Umstellung der Uhrzeit hinweg)
+async function ltCarryIn(D) {
+  const s = getStore("lotto"), { blobs } = await s.list({ prefix: "r/" });
+  const last = blobs.map((b) => +b.key.slice(2)).filter((n) => n > 0 && n < D).sort((a, b) => b - a)[0];
+  const r = last ? await s.get(`r/${last}`, { type: "json" }).catch(() => null) : null;
+  return r ? num(r.carry) : 0;
+}
 async function ltPot(D) {
   const { list, players } = await ltEntries(D);
   const pot = r2((await ltCarryIn(D)) + list.reduce((t, p) => t + p.c, 0) + LT_PRICE * players.reduce((t, p) => t + p.n, 0));
@@ -507,16 +514,37 @@ async function ltDraw(D) {
     for (const pre of [`a/${old}/`, `b/${old}/`]) { const { blobs } = await s.list({ prefix: pre }); for (const b of blobs) await s.delete(b.key); }
   } catch {}
 }
-// Fällige Ziehungen nachholen (beim ersten Aufruf nach 20 Uhr)
+// Uhrzeit der Ziehung umgestellt: offene Lose und Einzahlungen auf die neue Ziehung am selben Tag umziehen (einmalig)
+async function ltMigrate(s, st) {
+  const sameDay = (D) => { const p = berlinParts(D); return drawAt(p.year, p.month - 1, p.day); };
+  for (const pre of ["a/", "b/"]) {
+    const { blobs } = await s.list({ prefix: pre });
+    for (const b of blobs) {
+      const rest = b.key.slice(2), i = rest.indexOf("/"), D = +rest.slice(0, i), who = rest.slice(i + 1);
+      if (!(D > 0) || !who || D <= num(st.last)) continue;          // schon gezogen: so lassen
+      const N = sameDay(D); if (N === D) continue;
+      const v = await s.get(b.key, { type: "json" }).catch(() => null);
+      if (v) {
+        const nk = `${pre}${N}/${who}`, o = (await s.get(nk, { type: "json" }).catch(() => null)) || null;
+        if (pre === "b/") await s.setJSON(nk, { n: Math.min(LT_MAX, Math.round(num(v.n) + num(o && o.n))), t: Math.max(num(v.t), num(o && o.t)), mig: 1 });
+        else await s.setJSON(nk, { ...v, c: r2(num(v.c) + num(o && o.c)), s: [...new Set([...(Array.isArray(v.s) ? v.s : []), ...(o && Array.isArray(o.s) ? o.s : [])])].slice(-400) });
+      }
+      await s.delete(b.key);
+    }
+  }
+  try { await s.delete("cache"); } catch {}
+}
+// Fällige Ziehungen nachholen (beim ersten Aufruf nach der Ziehungszeit)
 async function ltTick(now) {
   const s = getStore("lotto");
   let st = await s.get("state", { type: "json" }).catch(() => null);
-  if (!st || !st.last) { st = { last: prevDraw(now) }; await s.setJSON("state", st); return; }
+  if (!st || !st.last) { st = { last: prevDraw(now), sched: LT_SCHED }; await s.setJSON("state", st); return; }
+  if (st.sched !== LT_SCHED) { await ltMigrate(s, st); st = { ...st, sched: LT_SCHED }; await s.setJSON("state", st); }
   for (let k = 0; k < 60; k++) {
     const D = nextDraw(st.last);
     if (!D || D > now) break;
     await ltDraw(D);
-    st = { last: D }; await s.setJSON("state", st);
+    st = { ...st, last: D }; await s.setJSON("state", st);
     try { await s.delete("cache"); } catch {}
   }
 }
@@ -568,7 +596,7 @@ async function lotto(req, url) {
       const k = encodeURIComponent(me);
       const [a, b] = await Promise.all([s.get(`a/${D}/${k}`, { type: "json" }).catch(() => null), s.get(`b/${D}/${k}`, { type: "json" }).catch(() => null)]);
       const slots = a && Array.isArray(a.s) ? a.s.length : 0;
-      out.mine = { n: b ? Math.round(num(b.n)) : 0, t: b ? num(b.t) : 0, f: ltFree(slots), s: slots, c: a ? num(a.c) : 0 };
+      out.mine = { n: b ? Math.round(num(b.n)) : 0, t: b ? num(b.t) : 0, m: b && b.mig ? 1 : 0, f: ltFree(slots), s: slots, c: a ? num(a.c) : 0 };
       // Lose der letzten Ziehung (für „Deine Lose“ im Ergebnis)
       const P = prevDraw(now);
       if (P && hist[0] && hist[0].d === P) {
@@ -602,6 +630,131 @@ async function lotto(req, url) {
     await s.setJSON(k, { n: total, t: now });
     try { await s.delete("cache"); } catch {}
     return json({ ok: true, d: D, n: total, now });
+  }
+  return json({ error: "aktion" }, 400);
+}
+
+// ================= Crash (/api/spielstand?crash=1) =================
+// Gemeinsame Runden für alle: 7 s Wettphase, Flug (m(t) = e^(0,00006·t)), Absturz, 3 s Pause, nächste Runde.
+// Crash-Punkt jeder Runde = aus HMAC(Server-Geheimnis, "crash|<id>") ("reveal"). Vorab wird nur SHA-256(reveal) gezeigt.
+// Der Crash-Punkt wird erst kurz vor dem Absturz verraten (CR_AHEAD), damit die Seite exakt abstürzen kann, ohne ständig zu fragen.
+// Der Zeitplan ist eindeutig: Runde id+1 beginnt 3 s nach dem Absturz von Runde id. Store "crash": anchor = {id, start} · c/<id>/<name> = Einsatz.
+// Einsätze: Das Gerät bucht ab (take) und rechnet mit dem Ergebnis vom Server ab. Auszahlen zählt nur, wenn der Server es vor dem Absturz bekommt.
+const CR_K = 0.00006, CR_BET = 7000, CR_PAUSE = 3000, CR_AHEAD = 4500, CR_MIN = 0.1, CR_MAXM = 10000, CR_IDLE = 7_200_000;
+const crRevealCache = new Map();
+async function crReveal(id) {
+  if (crRevealCache.has(id)) return crRevealCache.get(id);
+  const v = createHmac("sha256", await secret()).update(`crash|${id}`).digest("hex");
+  if (crRevealCache.size > 3000) crRevealCache.clear();
+  crRevealCache.set(id, v); return v;
+}
+const crFromReveal = (hx) => { const r = parseInt(hx.slice(0, 13), 16) / 2 ** 52; return Math.min(CR_MAXM, Math.max(1, Math.floor(97 / (1 - r)) / 100)); };
+const crFlightMs = (m) => Math.ceil(Math.log(m) / CR_K);
+const crMultAt = (ms) => Math.max(1, Math.floor(Math.exp(CR_K * Math.max(0, ms)) * 100 + 1e-9) / 100);
+const crMsFor = (m) => Math.ceil(Math.log(m) / CR_K);
+async function crRound(id, start) {
+  const reveal = await crReveal(id), crash = crFromReveal(reveal), fly = start + CR_BET, at = fly + crFlightMs(crash);
+  return { id, start, fly, crash, at, next: at + CR_PAUSE, reveal, hash: createHash("sha256").update(Buffer.from(reveal, "hex")).digest("hex") };
+}
+// Aktuelle Runde: vom gespeicherten Anker aus vorwärts rechnen (war lange niemand da: neu beginnen, gleich für alle gleichzeitigen Aufrufe)
+async function crNow(now) {
+  const s = getStore("crash");
+  let a = await s.get("anchor", { type: "json" }).catch(() => null), moved = false;
+  if (!a || !(a.id > 0) || !(a.start > 0) || now - a.start > CR_IDLE) {
+    const id = a && a.id > 0 ? a.id + 1000 : 1;
+    a = { id, start: Math.floor(now / 10000) * 10000 }; moved = true;
+  }
+  let r = await crRound(a.id, a.start);
+  for (let k = 0; k < 2000 && now >= r.next; k++) { r = await crRound(r.id + 1, r.next); moved = true; }
+  if (moved) {
+    await s.setJSON("anchor", { id: r.id, start: r.start });
+    if (r.id % 50 === 0) {   // Aufräumen: Einsätze alter Runden
+      try { const { blobs } = await s.list({ prefix: "c/" }); for (const b of blobs) { const id = +b.key.split("/")[1]; if (id < r.id - 300) await s.delete(b.key); } } catch {}
+    }
+  }
+  return r;
+}
+const crPublic = (r, now) => {
+  const o = { id: r.id, start: r.start, fly: r.fly, hash: r.hash };
+  if (now >= r.at - CR_AHEAD) { o.crash = r.crash; o.at = r.at; o.reveal = r.reveal; }
+  return o;
+};
+// Ergebnis eines Einsatzes (nur wenn die Runde vorbei ist): m = Auszahl-Multiplikator oder 0
+const crResult = (b, r) => (b.m > 0 ? b.m : b.auto >= 1.01 && b.auto <= r.crash ? b.auto : 0);
+
+async function crash(req, url) {
+  const now = Date.now(), s = getStore("crash"), cur = await crNow(now);
+  if (req.method === "GET") {
+    const out = { now, cur: crPublic(cur, now), k: CR_K, bet: CR_BET, pause: CR_PAUSE };
+    // Verlauf: die letzten 25 abgestürzten Runden (Crash-Punkt, Hash, Reveal zum Nachprüfen)
+    const hist = [];
+    let id = now >= cur.at ? cur.id : cur.id - 1;
+    for (let i = 0; i < 25 && id > 0; i++, id--) { const rv = await crReveal(id); hist.push({ id, crash: crFromReveal(rv), reveal: rv }); }
+    out.hist = hist;
+    // Spieler der laufenden Runde
+    const { blobs } = await s.list({ prefix: `c/${cur.id}/` });
+    const bets = (await Promise.all(blobs.slice(0, 60).map((b) => s.get(b.key, { type: "json" }).catch(() => null)))).filter(Boolean);
+    const el = now - cur.fly;
+    out.players = bets.map((b) => {
+      let m = b.m > 0 ? b.m : 0;
+      if (!m && b.auto >= 1.01 && b.auto <= cur.crash && el >= crMsFor(b.auto)) m = b.auto;   // Auto-Auszahlung schon erreicht
+      return { n: b.n, a: b.a, m: now >= cur.at || m ? m : null };
+    }).sort((x, y) => y.a - x.a);
+    // Eigene offene Einsätze (Gerät fragt nach Ergebnissen)
+    const me = normName(url.searchParams.get("name") || ""), ids = String(url.searchParams.get("mine") || "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 20);
+    if (NAME_RE.test(me) && ids.length) {
+      const key = encodeURIComponent(me);
+      out.mine = [];
+      for (const id of ids) {
+        if (id > cur.id) continue;
+        const b = await s.get(`c/${id}/${key}`, { type: "json" }).catch(() => null);
+        const done = id < cur.id || now >= cur.at, live = id === cur.id && now < cur.fly;
+        if (!b) { if (!live) out.mine.push({ id, none: 1 }); continue; }
+        const o = { id, a: b.a, auto: b.auto || 0, m: b.m || 0 };
+        if (done) { const rv = await crReveal(id); o.crash = crFromReveal(rv); o.res = crResult(b, { crash: o.crash }); }
+        out.mine.push(o);
+      }
+    }
+    return json(out);
+  }
+
+  if (req.method !== "POST") return json({ error: "methode" }, 405);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); }
+  const name = normName(body.name);
+  if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
+  const key = encodeURIComponent(name);
+  const acc = await getStore("spielstaende").get(key, { type: "json" });
+  if (!acc) return json({ error: "unbekannt" }, 404);
+  if (acc.banned) return json({ error: "gesperrt" }, 403);
+  if (!authed(req, acc)) return json({ error: "login" }, 401);
+  const id = Number(body.id), bk = `c/${id}/${key}`;
+
+  if (body.action === "bet") {
+    if (id !== cur.id || now >= cur.fly - 150) return json({ error: "zu_spaet", cur: crPublic(cur, now), now }, 409);
+    const a = Math.floor(num(body.a) * 100) / 100, auto = num(body.auto) >= 1.01 ? Math.min(CR_MAXM, Math.floor(num(body.auto) * 100) / 100) : 0;
+    if (!(a >= CR_MIN) || a > CAP) return json({ error: "einsatz" }, 400);
+    // großzügig, weil der gespeicherte Stand ein paar Sekunden alt sein kann
+    if (a > num((acc.state || {}).bal) + num((acc.state || {}).inPlay) + 10) return json({ error: "guthaben" }, 400);
+    if (await s.get(bk, { type: "json" }).catch(() => null)) return json({ error: "schon_gesetzt" }, 409);
+    await s.setJSON(bk, { n: name, a, auto, m: 0, t: now });
+    return json({ ok: true, id, a, auto, now });
+  }
+  if (body.action === "cancel") {
+    if (id !== cur.id || now >= cur.fly - 150) return json({ error: "zu_spaet", now }, 409);
+    await s.delete(bk);
+    return json({ ok: true, now });
+  }
+  if (body.action === "cash") {
+    const b = await s.get(bk, { type: "json" }).catch(() => null);
+    if (!b) return json({ error: "kein_einsatz" }, 404);
+    if (b.m > 0) return json({ ok: true, m: b.m, now });
+    if (id !== cur.id || now < cur.fly) return json({ error: id < cur.id ? "abgestuerzt" : "noch_nicht", now }, 409);
+    if (now >= cur.at) return json({ error: "abgestuerzt", crash: cur.crash, now }, 409);
+    let m = Math.min(crMultAt(now - cur.fly), cur.crash);
+    if (b.auto >= 1.01 && b.auto <= m) m = b.auto;   // Auto-Auszahlung kam zuerst
+    b.m = m; b.mt = now; await s.setJSON(bk, b);
+    return json({ ok: true, m, now });
   }
   return json({ error: "aktion" }, 400);
 }
@@ -672,6 +825,7 @@ export default async (req) => {
   if (url.searchParams.has("auth")) return authRoute(req);
   if (url.searchParams.has("rennen")) return rennen(req, url);
   if (url.searchParams.has("lotto")) return lotto(req, url);
+  if (url.searchParams.has("crash")) return crash(req, url);
   if (url.searchParams.has("wetten")) return wetten(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
