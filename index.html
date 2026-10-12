@@ -1224,6 +1224,139 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   #v-perps .pp-ohlc{max-width:calc(100% - 76px);font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){#v-perps .game.shake,#v-perps .pp-pos.new{animation:none}}
+/* ---------- Roulette ---------- */
+#v-roulette{--felt-a:#0e4a34;--felt-b:#0a3626;--felt-line:rgba(255,255,255,.35);--r-red:#d83a48;--r-black:#1d242c;--r-green:#22ad6b}
+#v-roulette .stage{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);grid-template-areas:"wheel result" "wheel race" "felt felt" "hint hint";gap:14px;align-items:start;justify-content:stretch}
+#v-roulette .rl-lbl{font:700 11px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0 0 8px}
+/* Chips */
+#v-roulette .chipbar{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;justify-items:center}
+#v-roulette .chipface{--c:#e6ebf0;--s:#8796a5;--t:#1d242c;--ring:rgba(29,36,44,.35);--sz:38px;position:relative;border-radius:50%;display:grid;place-items:center;color:var(--t);
+  background:radial-gradient(circle,var(--c) 0 55%,transparent 56%),repeating-conic-gradient(from 7deg,var(--s) 0 15deg,var(--c) 15deg 45deg);
+  box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.28),0 2px 3px rgba(0,0,0,.45);font:700 calc(var(--sz)*.3)/1 var(--f-num);font-variant-numeric:tabular-nums}
+#v-roulette .chipface::before{content:"";position:absolute;inset:21%;border-radius:50%;border:1.5px dashed var(--ring)}
+#v-roulette .chipface span{position:relative;letter-spacing:-.02em}
+#v-roulette .c1{--c:#e6ebf0;--s:#8796a5;--t:#1d242c;--ring:rgba(29,36,44,.35)}
+#v-roulette .c5{--c:#d83a48;--s:#fff;--t:#fff;--ring:rgba(255,255,255,.55)}
+#v-roulette .c25{--c:#22ad6b;--s:#fff;--t:#fff;--ring:rgba(255,255,255,.55)}
+#v-roulette .c100{--c:#2c333c;--s:#e9f0f6;--t:#fff;--ring:rgba(255,255,255,.45)}
+#v-roulette .c500{--c:#7b4ae2;--s:#fff;--t:#fff;--ring:rgba(255,255,255,.55)}
+#v-roulette .c1000{--c:#ffb020;--s:#1d1300;--t:#1d1300;--ring:rgba(29,19,0,.4)}
+#v-roulette .c5 span,#v-roulette .c25 span,#v-roulette .c100 span,#v-roulette .c500 span{text-shadow:0 1px 1px rgba(0,0,0,.45)}
+#v-roulette .rl-pick{width:var(--sz);height:var(--sz);border:0;padding:0;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+#v-roulette .rl-pick:hover{transform:translateY(-2px)}
+#v-roulette .rl-pick.on{transform:translateY(-4px);box-shadow:0 0 0 2px var(--brass),0 0 0 5px rgba(255,176,32,.22),0 6px 10px rgba(0,0,0,.5)}
+/* Kacheln, Knöpfe */
+#v-roulette .rl-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#v-roulette .rl-tile{background:var(--bg2);border-radius:10px;padding:8px 10px;min-width:0}
+#v-roulette .rl-tile .k{font:700 10px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+#v-roulette .rl-tile .v{font:700 16px/1.35 var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-roulette .rl-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#v-roulette .rl-btns .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#v-roulette .btn kbd{font:600 11px/1 var(--f-num);color:var(--mute);background:var(--bg2);border:1px solid var(--line);border-radius:5px;padding:3px 5px}
+#v-roulette .rl-spin kbd{background:rgba(29,19,0,.12);border-color:rgba(29,19,0,.25);color:var(--on-brass)}
+#v-roulette .rl-setrow{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+#v-roulette .rl-setrow .rl-lbl{margin:0}
+#v-roulette .mainact .chipbar{display:none}
+/* Kessel */
+#v-roulette .wheel-box{grid-area:wheel;position:relative;width:100%;aspect-ratio:1;max-width:300px}
+#v-roulette .wheel-box canvas{display:block;width:100%;height:100%}
+#v-roulette .bigres{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0;transform:scale(.6);transition:opacity .3s ease,transform .45s cubic-bezier(.2,1.5,.4,1)}
+#v-roulette .bigres.show{opacity:1;transform:scale(1)}
+#v-roulette .bigres .disk{width:40%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font:700 clamp(38px,9vw,58px)/1 var(--f-num);color:#fff;border:3px solid var(--brass);box-shadow:0 0 0 6px rgba(0,0,0,.4),0 0 32px rgba(255,176,32,.55)}
+#v-roulette .result{grid-area:result;display:flex;gap:14px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0;transition:box-shadow .3s}
+#v-roulette .rnum{width:64px;height:64px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 30px/1 var(--f-num);font-variant-numeric:tabular-nums;color:#fff;background:var(--panel3);box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
+#v-roulette .rtext{min-width:0}
+#v-roulette .rtext .rdesc{font-size:14px;color:var(--ink);margin-top:2px}
+#v-roulette .rtext .rround{font:700 15px/1.3 var(--f-num);font-variant-numeric:tabular-nums;margin-top:4px}
+#v-roulette .glow{box-shadow:0 0 18px rgba(255,176,32,.6)!important}
+#v-roulette .bg-red{background:var(--r-red)!important}#v-roulette .bg-black{background:var(--r-black)!important}#v-roulette .bg-green{background:var(--r-green)!important}
+/* Racetrack */
+#v-roulette .race-box{grid-area:race;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px;min-width:0}
+#v-roulette .race-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#rlRace{display:block;width:100%;min-width:480px;height:auto;user-select:none;-webkit-user-select:none}
+#rlRace .rn{cursor:pointer}
+#rlRace .rn circle{stroke:rgba(255,255,255,.35);stroke-width:1;transition:stroke .15s}
+#rlRace .rn text{font:700 13px var(--f-num);fill:#fff;pointer-events:none}
+#rlRace .rn.hov circle{stroke:var(--brass-hi);stroke-width:2.5}
+#rlRace .rn:focus{outline:none}
+#rlRace .rn:focus-visible circle{stroke:var(--brass);stroke-width:3}
+#rlRace .rsec{fill:transparent;cursor:pointer;transition:fill .15s}
+#rlRace .rsec:hover,#rlRace .rsec.hov,#rlRace .rsec:focus-visible{fill:rgba(255,210,122,.12);outline:none}
+#rlRace .rlab{font:600 13px var(--f-num);letter-spacing:.06em;fill:rgba(255,255,255,.85);pointer-events:none;text-transform:uppercase}
+#v-roulette .race-hint{margin:6px 0 0;font-size:12px;color:var(--mute)}
+/* Tisch */
+#v-roulette .felt-wrap{grid-area:felt;min-width:0}
+#v-roulette .felt{--fs:16px;--chip:28px;position:relative;margin:0 auto;border-radius:10px;
+  background:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1.2px) 0 0/4px 4px,linear-gradient(160deg,var(--felt-a),var(--felt-b));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 10px 26px var(--shadow);touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:pointer}
+#v-roulette .felt.locked{cursor:wait}
+#v-roulette .cell{position:absolute;display:flex;align-items:center;justify-content:center;outline:1px solid var(--felt-line);outline-offset:-.5px;color:#fff;font-family:var(--f-num);font-weight:700;font-variant-numeric:tabular-nums;transition:background .2s}
+#v-roulette .cell:focus-visible{outline:1px solid var(--felt-line);box-shadow:inset 0 0 0 2px var(--brass);z-index:1}
+#v-roulette .cell .nb{width:calc(100% - 8px);height:calc(100% - 8px);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:var(--fs);box-shadow:inset 0 -2px 0 rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.12);transition:box-shadow .2s}
+#v-roulette .cell.red .nb{background:var(--r-red)}#v-roulette .cell.black .nb{background:var(--r-black)}#v-roulette .cell.green .nb{background:var(--r-green)}
+#v-roulette .cell.out{font-size:calc(var(--fs)*.8);font-weight:600;letter-spacing:.04em;text-align:center;line-height:1.1}
+#v-roulette .cell .dia{width:calc(var(--fs)*1.05);height:calc(var(--fs)*1.05);transform:rotate(45deg);border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.4)}
+#v-roulette .dia.red{background:var(--r-red)}#v-roulette .dia.black{background:var(--r-black)}
+#v-roulette .felt.vert .cell.rl-side .lab{writing-mode:vertical-rl;transform:rotate(180deg)}
+#v-roulette .cell.hov{background:rgba(255,255,255,.1)}
+#v-roulette .cell.hov .nb{box-shadow:0 0 0 2px rgba(255,210,122,.9)}
+#v-roulette .cell.win{background:rgba(255,176,32,.2);animation:rlwin 1.1s ease-in-out 3}
+#v-roulette .cell.win .nb{box-shadow:0 0 0 2px var(--brass),0 0 18px rgba(255,176,32,.6)}
+#v-roulette .cell.hit::after{content:"";position:absolute;width:38%;aspect-ratio:1;max-width:22px;border-radius:50%;right:6%;top:8%;background:radial-gradient(circle at 35% 30%,#fff,#d5dde4 60%,#8d99a4);box-shadow:0 1px 3px rgba(0,0,0,.5)}
+@keyframes rlwin{50%{background:rgba(255,176,32,.38)}}
+#v-roulette .layer{position:absolute;inset:0;pointer-events:none}
+#v-roulette .tchip{position:absolute;width:var(--chip);height:var(--chip);margin:calc(var(--chip)/-2) 0 0 calc(var(--chip)/-2);transition:transform .5s ease,opacity .5s ease}
+#v-roulette .tchip .disc{position:absolute;inset:0;--sz:var(--chip)}
+#v-roulette .tchip.gone{transform:translateY(-34px) scale(.7);opacity:0}
+#v-roulette .tchip.ghost{opacity:.5;transition:none;z-index:2;pointer-events:none}
+#v-roulette .wtag{position:absolute;transform:translate(-50%,calc(-100% - var(--chip)/2 - 6px));background:var(--brass);color:var(--on-brass);font:700 12px/1 var(--f-num);font-variant-numeric:tabular-nums;padding:4px 6px;border-radius:6px;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.45);animation:rltag .35s ease}
+@keyframes rltag{from{opacity:0;margin-top:8px}}
+#v-roulette .rl-hint{grid-area:hint;margin:0;font-size:13px;color:var(--mute)}
+/* Verlauf und Statistik */
+#v-roulette .rl-panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#v-roulette .rl-panels .panel{display:block}
+#v-roulette .rl-panels h2{margin:4px 0 12px;font:700 18px/1.2 var(--f-disp)}
+#v-roulette .balls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#v-roulette .ball{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 13px/1 var(--f-num);font-variant-numeric:tabular-nums;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+#v-roulette .ball.first{width:40px;height:40px;font-size:17px;box-shadow:0 0 0 2px var(--brass)}
+#v-roulette .rl-empty{color:var(--mute);font-size:14px;margin:0}
+#v-roulette .srow{display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:center;margin-bottom:12px}
+#v-roulette .srow .rl-lbl{margin:0}
+#v-roulette .sball{display:inline-grid;justify-items:center;gap:2px}
+#v-roulette .sball small{font:600 11px/1 var(--f-num);color:var(--mute);font-variant-numeric:tabular-nums}
+#v-roulette .dist{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--bg2);margin:4px 0 8px}
+#v-roulette .dist i{display:block;height:100%;transition:width .4s ease}
+#v-roulette .rl-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--mute)}
+#v-roulette .rl-legend b{font:700 14px var(--f-num);color:var(--ink);font-variant-numeric:tabular-nums}
+#v-roulette .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+/* Erklärung */
+#v-roulette .ex-body{padding:6px 0 8px;max-width:78ch}
+#v-roulette .ex-body h3{font:700 15px/1.3 var(--f-disp);margin:18px 0 6px;color:var(--ink)}
+#v-roulette .ex-body p,#v-roulette .ex-body li{color:var(--mute);font-size:13.5px}
+#v-roulette .ex-body ul{padding-left:20px;margin:6px 0}
+#v-roulette .ex-body b{color:var(--ink)}
+#v-roulette .ex-body .tbl-wrap{overflow-x:auto}
+#v-roulette .ex-body table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+#v-roulette .ex-body th,#v-roulette .ex-body td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+#v-roulette .ex-body th{font:700 11px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+#v-roulette .ex-body td.q{font-family:var(--f-num);font-weight:700;color:var(--brass-hi);white-space:nowrap;font-variant-numeric:tabular-nums}
+#v-roulette .big-q{font:700 24px/1 var(--f-num);color:var(--brass)}
+@media (max-width:900px){
+  #v-roulette:not([hidden]){padding-bottom:84px}
+  #v-roulette .game{grid-template-columns:minmax(0,1fr)}
+  #v-roulette .game>.stage{order:-1;grid-template-columns:minmax(0,1fr);grid-template-areas:"wheel" "result" "felt" "hint" "race"}
+  #v-roulette .wheel-box{max-width:300px;margin:0 auto}
+  #v-roulette .rail{border-right:0;border-top:1px solid var(--line)}
+  #v-roulette .rail .rl-chips,#v-roulette .rail .keys{display:none}
+  #v-roulette .rl-panels{grid-template-columns:1fr}
+  #v-roulette .mainact{align-items:center}
+  #v-roulette .mainact .chipbar{display:grid;flex:1;gap:4px;min-width:0}
+  #v-roulette .mainact .chipface{--sz:34px}
+  #v-roulette .mainact .rl-spin{flex:none;width:auto;min-width:96px;padding:12px 14px}
+  #v-roulette .mainact .rl-spin kbd{display:none}
+}
+@media (max-width:380px){#v-roulette .mainact .chipface{--sz:30px}#v-roulette .mainact .rl-spin{min-width:84px;padding:12px 10px}}
+@media (prefers-reduced-motion:reduce){#v-roulette .cell.win,#v-roulette .wtag{animation:none}#v-roulette .tchip,#v-roulette .bigres{transition:none}}
 </style>
 
 <div class="app">
@@ -1605,6 +1738,95 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </details>
 </section>
 
+<!-- ======================= ROULETTE ======================= -->
+<section id="v-roulette" class="view" hidden>
+  <div class="ghead" data-head="roulette"></div>
+  <div class="game">
+    <div class="rail">
+      <div class="rl-chips"><div class="rl-lbl">Chip-Wert</div><div class="chipbar" id="rlChipbar" role="radiogroup" aria-label="Chip-Wert"></div></div>
+      <div class="rl-tiles">
+        <div class="rl-tile"><div class="k">Einsatz</div><div class="v" id="rlTStake">0</div></div>
+        <div class="rl-tile"><div class="k">Max. pro Dreh</div><div class="v" id="rlTLimit">–</div></div>
+        <div class="rl-tile"><div class="k">Letzte Runde</div><div class="v" id="rlTLast">–</div></div>
+        <div class="rl-tile"><div class="k">Netto Sitzung</div><div class="v" id="rlTNet">0</div></div>
+      </div>
+      <div class="rl-btns">
+        <button class="btn" id="rlBUndo" type="button">Rückgängig <kbd>Z</kbd></button>
+        <button class="btn" id="rlBClear" type="button">Löschen <kbd>C</kbd></button>
+        <button class="btn" id="rlBDouble" type="button">Verdoppeln</button>
+        <button class="btn" id="rlBRebet" type="button">Nochmal <kbd>R</kbd></button>
+      </div>
+      <div class="rl-setrow"><div class="rl-lbl">Tempo</div><div class="seg" id="rlSegFast"><button type="button" data-v="0" aria-pressed="true">Normal</button><button type="button" data-v="1" aria-pressed="false">Schnell</button></div></div>
+      <div class="mainact"><div class="chipbar" id="rlChipbar2" role="radiogroup" aria-label="Chip-Wert"></div><button class="btn gold big rl-spin" id="rlSpin" type="button">Drehen <kbd>Leertaste</kbd></button></div>
+      <p class="keys"><kbd>Leertaste</kbd> drehen · <kbd>Z</kbd> rückgängig · <kbd>C</kbd> löschen · <kbd>R</kbd> nochmal · <kbd>1</kbd>–<kbd>6</kbd> Chip wählen</p>
+    </div>
+    <div class="stage">
+      <div class="wheel-box" id="rlWheelBox"><canvas id="rlWheel" aria-label="Roulette-Kessel" role="img"></canvas><div class="bigres" id="rlBigres" aria-hidden="true"><div class="disk" id="rlBigdisk">0</div></div></div>
+      <div class="result" id="rlResult" aria-live="polite">
+        <div class="rnum" id="rlRnum">–</div>
+        <div class="rtext"><div class="rl-lbl" style="margin:0">Gewinnzahl</div><div class="rdesc" id="rlRdesc">Noch keine Drehung. Chips setzen und drehen.</div><div class="rround" id="rlRround"></div></div>
+      </div>
+      <div class="race-box"><div class="rl-lbl">Racetrack · Nachbarwetten</div><div class="race-scroll"><svg id="rlRace" viewBox="0 0 600 180" aria-label="Racetrack"></svg></div><p class="race-hint">Zahl antippen: Zahl plus je 2 Nachbarn im Kessel (5 Chips). Feld antippen: Serienwette.</p></div>
+      <div class="felt-wrap" id="rlFeltWrap"><div class="felt" id="rlFelt"></div></div>
+      <p class="rl-hint">Tippen setzt einen Chip. Auf Linien und Ecken setzt du Cheval, Carré, Transversale und Sixain. Rechtsklick oder lange drücken entfernt einen Chip.</p>
+    </div>
+  </div>
+  <div class="rl-panels">
+    <section class="panel"><p class="eyebrow">Verlauf</p><h2>Letzte 20 Zahlen</h2><div class="balls" id="rlHist"></div></section>
+    <section class="panel"><p class="eyebrow">Statistik</p><h2>Heiße und kalte Zahlen</h2><div id="rlStats"></div></section>
+  </div>
+  <details class="odds"><summary>So funktioniert Roulette</summary>
+    <div class="ex-body">
+      <p>Im Kessel gibt es 37 Fächer: die Zahlen 1 bis 36 (18 rot, 18 schwarz) und die grüne Null. Du legst Chips auf eine Zahl oder eine Gruppe von Zahlen und drehst. Fällt die Kugel in ein Fach, das deine Wette abdeckt, gewinnst du nach der Quote. Bei 17:1 bekommst du für 10 Coins Einsatz 170 Coins Gewinn und behältst deine 10 Coins.</p>
+      <h3>Innenwetten (auf den Zahlen)</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Wette</th><th>Zahlen</th><th>Quote</th><th>So setzt du sie</th></tr></thead>
+        <tbody>
+          <tr><td>Plein</td><td>1 Zahl</td><td class="q">35:1</td><td>Mitten auf die Zahl</td></tr>
+          <tr><td>Cheval</td><td>2 Nachbarzahlen</td><td class="q">17:1</td><td>Auf die Linie zwischen zwei Zahlen (auch 0 mit 1, 2 oder 3)</td></tr>
+          <tr><td>Transversale</td><td>3 Zahlen einer Reihe</td><td class="q">11:1</td><td>Auf den Rand der Reihe zum Dutzend hin, z. B. 1-2-3. Auch 0-1-2 und 0-2-3 an der Null</td></tr>
+          <tr><td>Carré</td><td>4 Zahlen</td><td class="q">8:1</td><td>Auf die Ecke, an der sich vier Zahlen treffen. 0-1-2-3 an der Ecke bei 1 und Null</td></tr>
+          <tr><td>Sixain</td><td>6 Zahlen (2 Reihen)</td><td class="q">5:1</td><td>Auf die Ecke am Rand zwischen zwei Reihen, z. B. 1–6</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Außenwetten</h3>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Wette</th><th>Zahlen</th><th>Quote</th><th>Feld</th></tr></thead>
+        <tbody>
+          <tr><td>Dutzend</td><td>12 Zahlen</td><td class="q">2:1</td><td>1. Dutzend (1–12), 2. Dutzend (13–24), 3. Dutzend (25–36)</td></tr>
+          <tr><td>Kolonne</td><td>12 Zahlen</td><td class="q">2:1</td><td>Feld „2:1“ am Ende einer Spalte</td></tr>
+          <tr><td>Rot / Schwarz</td><td>18 Zahlen</td><td class="q">1:1</td><td>Rote oder schwarze Raute</td></tr>
+          <tr><td>Gerade / Ungerade</td><td>18 Zahlen</td><td class="q">1:1</td><td>Gerade oder Ungerade</td></tr>
+          <tr><td>1–18 / 19–36</td><td>18 Zahlen</td><td class="q">1:1</td><td>Niedrige (Manque) oder hohe Hälfte (Passe)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Die Null zählt weder als rot noch als schwarz, gerade, niedrig oder hoch. Fällt die 0, verlieren alle einfachen Chancen (Rot/Schwarz, Gerade/Ungerade, 1–18/19–36), ebenso Dutzende und Kolonnen.</p>
+      <h3>Racetrack</h3>
+      <ul>
+        <li><b>Voisins du Zéro</b>: 17 Zahlen rund um die Null, 9 Chips (0-2-3 doppelt, 4/7, 12/15, 18/21, 19/22, 25-26-28-29 doppelt, 32/35)</li>
+        <li><b>Tiers du Cylindre</b>: 12 Zahlen gegenüber der Null, 6 Chips (5/8, 10/11, 13/16, 23/24, 27/30, 33/36)</li>
+        <li><b>Orphelins</b>: die übrigen 8 Zahlen, 5 Chips (1, 6/9, 14/17, 17/20, 31/34)</li>
+        <li><b>Zero Spiel (Jeu Zéro)</b>: 7 Zahlen direkt an der Null, 4 Chips (0/3, 12/15, 26, 32/35)</li>
+        <li><b>Nachbarn</b>: eine Zahl plus je 2 Nachbarn im Kessel, 5 Pleins</li>
+      </ul>
+      <p>Jeder Chip ist dabei der gerade gewählte Chip-Wert. Die Chips landen als normale Wetten auf dem Tisch.</p>
+      <h3>Auszahlungsquote <span class="big-q">97,3 %</span></h3>
+      <p>Beispiel Plein: In 37 Drehungen triffst du im Schnitt einmal und bekommst 36 Coins zurück (35 Gewinn plus Einsatz). Eingesetzt hast du 37 Coins. 36 ÷ 37 = 97,3 %. Das gilt für jede Wette an diesem Tisch. Die fehlenden 2,7 % behält das Casino nicht: Was ihr verliert, fließt in den Jackpot.</p>
+      <h3>Regeln an diesem Tisch</h3>
+      <ul>
+        <li>Pro Dreh darfst du höchstens 25 % deines Guthabens setzen, wie bei allen Spielen.</li>
+        <li>Abgebucht wird erst beim Drehen. Gewonnene Chips bleiben kurz liegen und bekommen den Gewinn dazu, dann wird alles samt Einsatz aufs Guthaben ausgezahlt. Verlorene Chips werden abgeräumt. Mit „Nochmal“ setzt du dieselben Chips erneut.</li>
+        <li>Die Gewinnzahl wird mit crypto.getRandomValues ausgelost und gespeichert, bevor die Kugel losrollt. Jede Zahl hat genau 1 zu 37. Lädst du währenddessen neu, wird die Runde trotzdem abgerechnet.</li>
+      </ul>
+      <h3>Steuerung</h3>
+      <ul>
+        <li>Leertaste: Drehen · Z: Rückgängig · C: Alles löschen · R: Nochmal · 1–6: Chip-Wert 1, 5, 25, 100, 500, 1.000</li>
+        <li>Rechtsklick oder langes Drücken auf einen Chip entfernt ihn wieder.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
 <!-- ======================= PERPS ======================= -->
 <section id="v-perps" class="view" hidden>
   <div class="ghead" data-head="perps"></div>
@@ -1951,6 +2173,7 @@ const GAMES={
   lotto:{name:'Jackpot-Ziehung',short:'Jackpot',hex:'#f2a312',rtp:'100 %',price:0,added:'2026-10-08'},
   muenze:{name:'Double or Nothing',short:'Double',hex:'#e0662a',rtp:'97 %',price:1000,added:'2026-10-05'},
   perps:{name:'Perps Trading',short:'Perps',hex:'#38bdf8',rtp:'fast 100 %',price:5000,added:'2026-10-12'},
+  roulette:{name:'Roulette',short:'Roulette',hex:'#c2334a',rtp:'97,3 %',price:2500,added:'2026-10-12'},
   double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'99 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
@@ -1977,7 +2200,7 @@ function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=O
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0)+(S.dn&&S.dn.bet>0?+S.dn.bet:0)+(S.pp&&Array.isArray(S.pp.pos)?S.pp.pos.reduce((t,p)=>t+(p&&+p.stake>0?+p.stake:p&&p.margin>0?+p.margin+(+p.fee||0):0),0):0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0)+(S.dn&&S.dn.bet>0?+S.dn.bet:0)+(S.ru&&S.ru.pend&&+S.ru.pend.stake>0?+S.ru.pend.stake:0)+(S.pp&&Array.isArray(S.pp.pos)?S.pp.pos.reduce((t,p)=>t+(p&&+p.stake>0?+p.stake:p&&p.margin>0?+p.margin+(+p.fee||0):0),0):0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -2273,6 +2496,7 @@ const ART={
     '<g transform="translate(58 50)"><ellipse cx="0" cy="22" rx="26" ry="6" fill="#000" opacity=".35"/><circle r="24" fill="#c27d00"/><circle r="20" fill="#ffb020"/><circle r="20" fill="none" stroke="#ffd27a" stroke-width="2"/><text y="8" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1300">♛</text></g>'+
     '<g transform="translate(106 40) rotate(18)"><circle r="16" fill="#7a5418"/><circle r="13" fill="#ffb020"/><text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="#1d1300">1</text></g>'+
     '<text x="122" y="84" text-anchor="middle" font-size="16" font-weight="700" fill="#e0662a" font-family="Chakra Petch,monospace">×2</text></svg>',
+  roulette:(()=>{const O=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26],RD=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];let s='<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0b2a1f"/><ellipse cx="80" cy="52" rx="76" ry="46" fill="#c2334a" opacity=".1"/><circle cx="66" cy="52" r="40" fill="#3a2010" stroke="#ffb020" stroke-width="2"/>';O.forEach((n,i)=>{const a0=(i/37)*Math.PI*2-Math.PI/2,a1=a0+Math.PI*2/37,P=(r,a)=>(66+r*Math.cos(a)).toFixed(2)+' '+(52+r*Math.sin(a)).toFixed(2);s+=`<path d="M${P(34,a0)}A34 34 0 0 1 ${P(34,a1)}L${P(24,a1)}A24 24 0 0 0 ${P(24,a0)}Z" fill="${n===0?'#22ad6b':RD.includes(n)?'#d83a48':'#1d242c'}"/>`});return s+'<circle cx="66" cy="52" r="24" fill="#4a2913" stroke="#ffb020" stroke-width="1.5"/><circle cx="66" cy="52" r="6" fill="#ffb020"/><path d="M66 34v36M48 52h36" stroke="#ffb020" stroke-width="2" opacity=".8"/><circle cx="84" cy="27" r="3.2" fill="#fff"/>'+'<g transform="translate(124 64)"><ellipse cx="0" cy="14" rx="17" ry="5" fill="#000" opacity=".35"/><rect x="-14" y="2" width="28" height="10" fill="#9a1f2b"/><ellipse cx="0" cy="12" rx="14" ry="4.6" fill="#9a1f2b"/><ellipse cx="0" cy="2" rx="14" ry="4.6" fill="#d83a48"/><ellipse cx="0" cy="2" rx="7" ry="2.3" fill="none" stroke="#fff" stroke-opacity=".7" stroke-dasharray="2 2"/><rect x="-12" y="-10" width="24" height="9" fill="#b77300"/><ellipse cx="0" cy="-1" rx="12" ry="4" fill="#b77300"/><ellipse cx="0" cy="-10" rx="12" ry="4" fill="#ffb020"/></g><text x="124" y="34" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="13" fill="#ffd27a">35:1</text></svg>'})(),
   perps:'<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0e1a24"/><ellipse cx="86" cy="46" rx="74" ry="42" fill="#38bdf8" opacity=".1"/>'+
     '<path d="M14 30h132M14 52h132M14 74h132" stroke="#22364a"/>'+
     [[22,62,70,58,66,1],[34,56,66,60,64,0],[46,50,62,52,60,1],[58,44,56,46,54,1],[70,48,58,50,56,0],[82,38,52,40,50,1],[94,30,46,34,44,1],[106,34,48,36,46,0],[118,22,40,26,38,1],[130,14,32,18,30,1]].map(([x,h,l,t,b,u])=>`<path d="M${x} ${h}v${l-h}" stroke="${u?'#2fe08f':'#ff4d6a'}" stroke-width="1.5"/><rect x="${x-4}" y="${t}" width="8" height="${b-t}" rx="1" fill="${u?'#2fe08f':'#ff4d6a'}"/>`).join('')+
@@ -4253,6 +4477,712 @@ const PP=(()=>{
       return g.n?`${fmt0(g.n)} Trades · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Long oder Short mit bis zu 50× Hebel'}}})();
 onShow.perps=PP.show;
 
+// ================= GAME: ROULETTE =================
+// Europäisches Roulette (eine Null, 97,3 %). Chips setzen, drehen; der Einsatz wird erst beim Drehen abgebucht.
+const RU=(()=>{
+const $ = s => document.querySelector(s);   // nur innerhalb von Roulette (überdeckt das Casino-$)
+const ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const REDS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+const colorOf = n => n === 0 ? 'green' : (REDS.has(n) ? 'red' : 'black');
+const CHIPS = [1,5,25,100,500,1000];
+const TAU = Math.PI * 2, STEP = TAU / 37;
+const nf = new Intl.NumberFormat('de-DE');
+const fmt = n => nf.format(n);
+const signed = n => n > 0 ? '+' + fmt(n) : n < 0 ? '−' + fmt(-n) : '0';
+const sum = a => a.reduce((x, y) => x + y, 0);
+const mod = (a, m) => ((a % m) + m) % m;
+const chipLabel = v => v < 1000 ? String(v) : (v % 1000 === 0 ? (v / 1000) + 'K' : (Math.round(v / 100) / 10).toString().replace('.', ',') + 'K');
+const limitFor = () => Math.max(0, Math.floor(tableLimit()));   // Casino-Regel: höchstens 25 % des Guthabens
+const mqMobile = matchMedia('(max-width: 900px)');
+const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mqReduce.matches;
+mqReduce.addEventListener && mqReduce.addEventListener('change', e => { reduced = e.matches; });
+
+function rand37() {
+  const buf = new Uint32Array(1);
+  const lim = Math.floor(4294967296 / 37) * 37;
+  let x;
+  do { crypto.getRandomValues(buf); x = buf[0]; } while (x >= lim);
+  return x % 37;
+}
+
+/* ---------- Wett-Katalog ---------- */
+const CAT = new Map();
+const numAt = (c, r) => 3 * c + 3 - r;
+const colNums = c => [numAt(c, 0), numAt(c, 1), numAt(c, 2)];
+const PAY = { plein: 35, cheval: 17, trans: 11, carre: 8, six: 5, dozen: 2, col: 2, even: 1 };
+const key = (kind, nums) => kind + ':' + [...nums].sort((a, b) => a - b).join('-');
+function addBet(k, kind, nums, anchor, label) { CAT.set(k, { k, kind, nums: new Set(nums), anchor, label, pay: PAY[kind] }); }
+function addKind(kind, nums, anchor) {
+  const s = [...nums].sort((a, b) => a - b);
+  const names = { plein: 'Plein ' + s[0], cheval: 'Cheval ' + s.join('/'), trans: 'Transversale ' + s.join('-'), carre: 'Carré ' + s.join('-'), six: 'Sixain ' + s[0] + '–' + s[5] };
+  addBet(key(kind, nums), kind, nums, anchor, names[kind]);
+}
+addKind('plein', [0], [-0.5, 1.5]);
+for (let n = 1; n <= 36; n++) { const c = Math.floor((n - 1) / 3), r = 2 - (n - 1) % 3; addKind('plein', [n], [c + .5, r + .5]); }
+for (let c = 0; c < 11; c++) for (let r = 0; r < 3; r++) addKind('cheval', [numAt(c, r), numAt(c + 1, r)], [c + 1, r + .5]);
+for (let c = 0; c < 12; c++) for (let b = 1; b <= 2; b++) addKind('cheval', [numAt(c, b - 1), numAt(c, b)], [c + .5, b]);
+for (let r = 0; r < 3; r++) addKind('cheval', [0, numAt(0, r)], [0, r + .5]);
+for (let b = 1; b <= 2; b++) addKind('trans', [0, numAt(0, b - 1), numAt(0, b)], [0, b]);
+addKind('carre', [0, 1, 2, 3], [0, 3]);
+for (let c = 0; c < 11; c++) for (let b = 1; b <= 2; b++) addKind('carre', [numAt(c, b - 1), numAt(c + 1, b - 1), numAt(c, b), numAt(c + 1, b)], [c + 1, b]);
+for (let c = 0; c < 12; c++) addKind('trans', colNums(c), [c + .5, 3]);
+for (let c = 0; c < 11; c++) addKind('six', [...colNums(c), ...colNums(c + 1)], [c + 1, 3]);
+const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+for (let k = 0; k < 3; k++) addBet('dz' + (k + 1), 'dozen', range(12 * k + 1, 12 * k + 12), [4 * k + 2, 3.4], (k + 1) + '. Dutzend');
+for (let cn = 1; cn <= 3; cn++) addBet('col' + cn, 'col', range(1, 36).filter(n => n % 3 === cn % 3), [12.5, (3 - cn) + .5], cn + '. Kolonne');
+const OUT = [
+  ['low', range(1, 18), '1–18'], ['even', range(1, 36).filter(n => n % 2 === 0), 'Gerade'],
+  ['red', [...REDS], 'Rot'], ['black', range(1, 36).filter(n => !REDS.has(n)), 'Schwarz'],
+  ['odd', range(1, 36).filter(n => n % 2 === 1), 'Ungerade'], ['high', range(19, 36), '19–36']
+];
+OUT.forEach(([k, nums, label], i) => addBet(k, 'even', nums, [2 * i + 1, 4.2], label));
+
+function resolve(u, v) {
+  const t = .26;
+  if (u < -1 || u > 13 || v < 0 || v > 4.6) return null;
+  if (v >= 3) {
+    if (u < 0 || u >= 12) return null;
+    if (v < 3 + t * .5) v = 2.999;
+    else if (v < 3.8) return 'dz' + (Math.floor(u / 4) + 1);
+    else return OUT[Math.min(5, Math.floor(u / 2))][0];
+  }
+  if (u >= 12) return 'col' + (3 - Math.min(2, Math.floor(v)));
+  if (u < -t) return key('plein', [0]);
+  let c, fu;
+  if (u < 0) { c = 0; fu = u; } else { c = Math.min(11, Math.floor(u)); fu = u - c; }
+  const r = Math.min(2, Math.floor(v)), fv = v - r;
+  let bu = null, bv = null;
+  if (fu < t) bu = c; else if (fu > 1 - t && c < 11) bu = c + 1;
+  if (fv < t && r > 0) bv = r; else if (fv > 1 - t) bv = r + 1;
+  let k;
+  if (bv === 3) {
+    if (bu === null) k = key('trans', colNums(c));
+    else if (bu === 0) k = key('carre', [0, 1, 2, 3]);
+    else k = key('six', [...colNums(bu - 1), ...colNums(bu)]);
+  } else if (bu === 0) {
+    k = bv === null ? key('cheval', [0, numAt(0, r)]) : key('trans', [0, numAt(0, bv - 1), numAt(0, bv)]);
+  } else if (bu !== null) {
+    k = bv === null ? key('cheval', [numAt(bu - 1, r), numAt(bu, r)]) : key('carre', [numAt(bu - 1, bv - 1), numAt(bu, bv - 1), numAt(bu - 1, bv), numAt(bu, bv)]);
+  } else if (bv !== null) {
+    k = key('cheval', [numAt(c, bv - 1), numAt(c, bv)]);
+  } else k = key('plein', [numAt(c, r)]);
+  return CAT.has(k) ? k : null;
+}
+
+const SECTIONS = {
+  voisins: { name: 'Voisins du Zéro', bets: [['trans', [0, 2, 3], 2], ['cheval', [4, 7]], ['cheval', [12, 15]], ['cheval', [18, 21]], ['cheval', [19, 22]], ['carre', [25, 26, 28, 29], 2], ['cheval', [32, 35]]] },
+  tiers: { name: 'Tiers du Cylindre', bets: [['cheval', [5, 8]], ['cheval', [10, 11]], ['cheval', [13, 16]], ['cheval', [23, 24]], ['cheval', [27, 30]], ['cheval', [33, 36]]] },
+  orph: { name: 'Orphelins', bets: [['plein', [1]], ['cheval', [6, 9]], ['cheval', [14, 17]], ['cheval', [17, 20]], ['cheval', [31, 34]]] },
+  zero: { name: 'Zero Spiel', bets: [['cheval', [0, 3]], ['cheval', [12, 15]], ['plein', [26]], ['cheval', [32, 35]]] }
+};
+for (const s of Object.values(SECTIONS)) {
+  s.keys = []; s.nums = new Set();
+  for (const [kind, nums, m] of s.bets) { const k = key(kind, nums); if (!CAT.has(k)) continue; for (let i = 0; i < (m || 1); i++) s.keys.push(k); nums.forEach(n => s.nums.add(n)); }
+}
+const neighbors = n => { const i = ORDER.indexOf(n); return [-2, -1, 0, 1, 2].map(d => ORDER[mod(i + d, 37)]); };
+
+/* ---------- Zustand ----------
+   Gesetzte Chips liegen nur auf dem Tisch (noch nicht abgebucht). Beim Drehen geht der Einsatz über take() ins Spiel,
+   die Gewinnzahl wird VOR der Animation in S.ru.pend gespeichert und danach über settle() abgerechnet.
+   S.ru: Chip-Wert, Tempo, letzte Zahlen, letzte Einsätze (für „Nochmal“), laufende Runde. */
+let sessionNet = 0, lastNet = null, history = [];
+let bets = new Map(), undoStack = [], lastBets = null, spinning = false;
+let chipIdx = 2, fast = false, tags = [], tagToken = 0, paid = new Map();
+const stake = () => { let s = 0; for (const a of bets.values()) s += sum(a); return s; };
+function RU() {
+  if (!S.ru || typeof S.ru !== 'object') S.ru = {};
+  const r = S.ru;
+  r.hist = Array.isArray(r.hist) ? r.hist.filter(n => Number.isInteger(n) && n >= 0 && n <= 36).slice(-200) : [];
+  if (!(Number.isInteger(r.chip) && r.chip >= 0 && r.chip < 6)) r.chip = 2;
+  r.fast = !!r.fast;
+  return r;
+}
+const cleanBets = list => new Map((Array.isArray(list) ? list : []).filter(x => Array.isArray(x) && CAT.has(x[0]) && Array.isArray(x[1]))
+  .map(([k, a]) => [k, a.filter(v => CHIPS.includes(v))]).filter(([, a]) => a.length));
+function load() {
+  const r = RU();
+  chipIdx = r.chip; fast = r.fast; history = r.hist.slice(); lastNet = typeof r.lastNet === 'number' ? r.lastNet : null;
+  lastBets = r.last ? cleanBets(r.last) : null; if (lastBets && !lastBets.size) lastBets = null;
+}
+function persist() {
+  const r = RU();
+  r.chip = chipIdx; r.fast = fast; r.hist = history.slice(-200); r.lastNet = lastNet; r.last = lastBets ? [...lastBets] : null;
+  save();
+}
+
+/* ---------- Ton (Casino-Ton, also auch die Ton-Einstellung) ---------- */
+let actx = null, master = null, noiseBuf = null, roll = null;
+function ensureAudio() {
+  const a = ac(); if (!a) return;
+  if (actx !== a) {
+    actx = a; master = a.createGain(); master.gain.value = .55; master.connect(a.destination);
+    noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+}
+const live = () => { if (!S.set.sound) return false; ensureAudio(); return !!(actx && master); };
+function noise(t, freq, vol, dur, type) {
+  const src = actx.createBufferSource(); src.buffer = noiseBuf;
+  const f = actx.createBiquadFilter(); f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = 1.4;
+  const g = actx.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  src.connect(f); f.connect(g); g.connect(master); src.start(t, Math.random() * .5); src.stop(t + dur + .03);
+}
+function tone(t, freq, type, vol, dur) {
+  const o = actx.createOscillator(); o.type = type; o.frequency.value = freq;
+  const g = actx.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .05);
+}
+const sfx = {
+  chip() { if (!live()) return; const t = actx.currentTime; noise(t, 3600, .28, .03); tone(t, 2300, 'square', .05, .025); noise(t + .04, 2800, .16, .025); },
+  clack(v) { if (!live()) return; const t = actx.currentTime; noise(t, 2200 + Math.random() * 900, v, .045); tone(t, 1500 + Math.random() * 600, 'triangle', v * .3, .04); },
+  fanfare(big) {
+    if (!live()) return; const t = actx.currentTime;
+    const notes = big ? [523, 659, 784, 1047, 1319, 1568] : [523, 659, 784, 1047];
+    notes.forEach((f, i) => tone(t + i * .09, f, 'triangle', .16, .32));
+    const end = t + notes.length * .09;
+    [523, 659, 784, 1047].forEach(f => tone(end, f, 'sine', .09, big ? 1.4 : .8));
+  }
+};
+function rollStart() {
+  if (!live()) return;
+  const src = actx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+  const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 800; f.Q.value = .8;
+  const g = actx.createGain(); g.gain.value = 0;
+  src.connect(f); f.connect(g); g.connect(master); src.start();
+  roll = { src, f, g };
+}
+function rollLevel(level, speed) { if (!roll || !actx) return; const t = actx.currentTime; roll.g.gain.setTargetAtTime(level, t, .06); roll.f.frequency.setTargetAtTime(350 + 950 * speed, t, .1); }
+function rollStop() { if (!roll || !actx) return; const r = roll; roll = null; const t = actx.currentTime; r.g.gain.setTargetAtTime(0, t, .05); try { r.src.stop(t + .35); } catch (e) {} }
+
+/* ---------- Toasts (Casino-Toasts) ---------- */
+const casinoToast = toast;
+const rtoast = (html, kind) => casinoToast(html, kind === 'win' ? 'good' : kind === 'loss' ? 'bad' : '', cur !== 'roulette' ? { label: 'Ansehen', go: 'roulette' } : null);
+
+/* ---------- Tisch ---------- */
+const felt = $('#rlFelt'), feltWrap = $('#rlFeltWrap');
+const cells = [], numCell = {}, outCell = {};
+let L = 50, A = 56, vert = false;
+const toXY = (u, v) => vert ? [(4.6 - v) * A, (u + 1) * L] : [(u + 1) * L, v * A];
+const fromXY = (x, y) => vert ? [y / L - 1, 4.6 - x / A] : [x / L - 1, y / A];
+function rectOf(u0, v0, u1, v1) { const [x0, y0] = toXY(u0, v0), [x1, y1] = toXY(u1, v1); return { x: Math.min(x0, x1), y: Math.min(y0, y1), w: Math.abs(x1 - x0), h: Math.abs(y1 - y0) }; }
+function mkCell(u0, v0, u1, v1, cls, html, mainKey, aria) {
+  const el = document.createElement('div'); el.className = 'cell ' + cls; el.innerHTML = html;
+  el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', aria + ' setzen');
+  el.dataset.k = mainKey; felt.appendChild(el); cells.push({ el, u0, v0, u1, v1 }); return el;
+}
+function buildTable() {
+  numCell[0] = mkCell(-1, 0, 0, 3, 'num green', '<span class="nb">0</span>', key('plein', [0]), 'Plein 0');
+  for (let n = 1; n <= 36; n++) { const c = Math.floor((n - 1) / 3), r = 2 - (n - 1) % 3; numCell[n] = mkCell(c, r, c + 1, r + 1, 'num ' + colorOf(n), '<span class="nb">' + n + '</span>', key('plein', [n]), 'Plein ' + n); }
+  for (let r = 0; r < 3; r++) outCell['col' + (3 - r)] = mkCell(12, r, 13, r + 1, 'out', '<span class="lab">2:1</span>', 'col' + (3 - r), (3 - r) + '. Kolonne');
+  for (let k = 0; k < 3; k++) outCell['dz' + (k + 1)] = mkCell(4 * k, 3, 4 * k + 4, 3.8, 'out rl-side', '<span class="lab">' + (k + 1) + '. Dutzend</span>', 'dz' + (k + 1), (k + 1) + '. Dutzend');
+  OUT.forEach(([k, , label], i) => {
+    const inner = (k === 'red' || k === 'black') ? '<span class="dia ' + k + '"></span>' : '<span class="lab">' + label + '</span>';
+    outCell[k] = mkCell(2 * i, 3.8, 2 * i + 2, 4.6, 'out rl-side', inner, k, label);
+  });
+  const chips = document.createElement('div'); chips.className = 'layer'; chips.id = 'rlChipLayer'; felt.appendChild(chips);
+  const tagl = document.createElement('div'); tagl.className = 'layer'; tagl.id = 'rlTagLayer'; felt.appendChild(tagl);
+  const ghost = document.createElement('div'); ghost.className = 'tchip ghost'; ghost.id = 'rlGhost'; ghost.hidden = true; ghost.innerHTML = '<div class="disc chipface"><span></span></div>'; felt.appendChild(ghost);
+}
+function layout() {
+  const aw = feltWrap.clientWidth; if (!aw) return;
+  vert = mqMobile.matches;
+  if (!vert) { L = aw / 14; A = Math.max(40, Math.min(76, L * 1.12)); felt.style.width = 14 * L + 'px'; felt.style.height = 4.6 * A + 'px'; }
+  else { A = aw / 4.6; L = Math.max(36, Math.min(50, A * .64)); felt.style.width = 4.6 * A + 'px'; felt.style.height = 14 * L + 'px'; }
+  felt.classList.toggle('vert', vert);
+  const m = Math.min(L, A);
+  felt.style.setProperty('--fs', Math.max(12, Math.min(22, m * .36)).toFixed(1) + 'px');
+  felt.style.setProperty('--chip', Math.max(20, Math.min(36, m * .58)).toFixed(1) + 'px');
+  for (const c of cells) { const r = rectOf(c.u0, c.v0, c.u1, c.v1); const s = c.el.style; s.left = r.x + 'px'; s.top = r.y + 'px'; s.width = r.w + 'px'; s.height = r.h + 'px'; }
+  renderChips(); renderTags();
+}
+function chipFace(v, label) { return '<div class="disc chipface c' + v + '"><span>' + label + '</span></div>'; }
+function renderChips() {
+  const layer = $('#rlChipLayer'); layer.textContent = '';
+  const list = [...bets].map(([k, a]) => [k, a, false]).concat([...paid].map(([k, a]) => [k, a, true]));
+  for (const [k, arr, isPaid] of list) {
+    const b = CAT.get(k); const [x, y] = toXY(b.anchor[0], b.anchor[1]);
+    const el = document.createElement('div'); el.className = 'tchip' + (isPaid ? ' paid' : ''); el.dataset.k = k; el.style.left = x + 'px'; el.style.top = y + 'px';
+    const show = arr.slice(-3); const total = sum(arr);
+    show.forEach((v, i) => { const d = document.createElement('div'); d.className = 'disc chipface c' + v; d.style.transform = 'translateY(' + (-i * 3) + 'px)'; if (i === show.length - 1) d.innerHTML = '<span>' + chipLabel(total) + '</span>'; el.appendChild(d); });
+    layer.appendChild(el);
+  }
+}
+function renderTags() {
+  const layer = $('#rlTagLayer'); layer.textContent = '';
+  for (const t of tags) { const b = CAT.get(t.k); const [x, y] = toXY(b.anchor[0], b.anchor[1]); const el = document.createElement('div'); el.className = 'wtag'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.textContent = '+' + fmt(t.w); layer.appendChild(el); }
+}
+let hovered = [];
+function clearHover() { hovered.forEach(el => el.classList.remove('hov')); hovered = []; $('#rlGhost').hidden = true; }
+function hoverNums(nums, extraEls) {
+  clearHover();
+  for (const n of nums) { numCell[n].classList.add('hov'); hovered.push(numCell[n]); }
+  (extraEls || []).forEach(el => { if (el) { el.classList.add('hov'); hovered.push(el); } });
+}
+function hoverKey(k) {
+  if (!k) { clearHover(); return; }
+  const b = CAT.get(k);
+  hoverNums(b.nums, [outCell[k]]);
+  const g = $('#rlGhost'); const [x, y] = toXY(b.anchor[0], b.anchor[1]);
+  g.style.left = x + 'px'; g.style.top = y + 'px';
+  const d = g.firstChild; d.className = 'disc chipface c' + CHIPS[chipIdx]; d.firstChild.textContent = chipLabel(CHIPS[chipIdx]);
+  g.hidden = spinning;
+}
+let winEls = [];
+function clearOutcome() {
+  winEls.forEach(el => el.classList.remove('win', 'hit')); winEls = [];
+  if (tags.length) { tags = []; renderTags(); }
+  if (paid.size) { paid.clear(); renderChips(); }
+  tagToken++;
+}
+
+/* ---------- Setzen ---------- */
+function decompose(total) { const out = []; for (let i = CHIPS.length - 1; i >= 0; i--) while (total >= CHIPS[i]) { out.unshift(CHIPS[i]); total -= CHIPS[i]; } return out; }
+function applyOps(ops) {
+  for (const op of ops) {
+    let arr = bets.get(op.k) || [];
+    if (op.s > 0) { arr.push(op.v); if (arr.length > 30) arr = decompose(sum(arr)); }
+    else { const i = arr.lastIndexOf(op.v); if (i >= 0) arr.splice(i, 1); else arr = decompose(Math.max(0, sum(arr) - op.v)); }
+    if (arr.length) bets.set(op.k, arr); else bets.delete(op.k);
+  }
+}
+function tryAction(ops, silent) {
+  if (spinning || !ops.length) return false;
+  const add = sum(ops.filter(o => o.s > 0).map(o => o.v)), rem = sum(ops.filter(o => o.s < 0).map(o => o.v));
+  if (ACCOUNTS && !acct) return false;
+  const s = stake(), lim = limitFor(), ns = s + add - rem;
+  if (add > rem) {
+    if (ns > S.bal + 1e-9) { rtoast('Nicht genug Guthaben für diesen Einsatz.', 'loss'); return false; }
+    if (ns > lim) { rtoast(lim < 1 ? 'Dein Guthaben reicht gerade nicht für einen Einsatz.' : 'Limit erreicht: höchstens <b>' + fmt(lim) + '</b> Coins pro Dreh (25 % vom Guthaben).', 'loss'); return false; }
+  }
+  clearOutcome(); applyOps(ops); undoStack.push(ops);
+  if (!silent) sfx.chip();
+  renderChips(); renderUI(); return true;
+}
+const place = k => k && tryAction([{ k, v: CHIPS[chipIdx], s: 1 }]);
+function removeOne(k) { const arr = k && bets.get(k); if (!arr) return; tryAction([{ k, v: arr[arr.length - 1], s: -1 }]); }
+function undoAct() {
+  if (spinning || !undoStack.length) return;
+  const ops = undoStack.pop(); clearOutcome();
+  applyOps(ops.slice().reverse().map(o => ({ k: o.k, v: o.v, s: -o.s })));
+  sfx.chip(); renderChips(); renderUI();
+}
+function clearOps() { const ops = []; for (const [k, arr] of bets) for (const v of arr) ops.push({ k, v, s: -1 }); return ops; }
+function clearAct() { if (!bets.size) return; tryAction(clearOps()); }
+function doubleAct() { if (!bets.size) return; const ops = []; for (const [k, arr] of bets) for (const v of decompose(sum(arr))) ops.push({ k, v, s: 1 }); tryAction(ops); }
+function rebetAct() {
+  if (spinning) return;
+  if (!lastBets || !lastBets.size) { rtoast('Es gibt noch keine letzte Runde zum Wiederholen.'); return; }
+  const ops = clearOps(); for (const [k, arr] of lastBets) for (const v of arr) ops.push({ k, v, s: 1 });
+  tryAction(ops);
+}
+function placeGroup(keys, label) {
+  const v = CHIPS[chipIdx];
+  if (tryAction(keys.map(k => ({ k, v, s: 1 })))) rtoast(label + ' gesetzt · ' + keys.length + ' × ' + fmt(v) + ' = <b>' + fmt(keys.length * v) + '</b> Coins');
+}
+
+/* Zeiger auf dem Tisch */
+let press = null;
+function feltPoint(e) { const r = felt.getBoundingClientRect(); return fromXY(e.clientX - r.left, e.clientY - r.top); }
+felt.addEventListener('pointerdown', e => {
+  const p = { x: e.clientX, y: e.clientY, type: e.pointerType, long: false, timer: 0, k: resolve(...feltPoint(e)) };
+  if (e.pointerType !== 'mouse') p.timer = setTimeout(() => { p.long = true; removeOne(p.k); if (navigator.vibrate) navigator.vibrate(18); }, 480);
+  press = p;
+});
+felt.addEventListener('pointermove', e => {
+  if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 10) { clearTimeout(press.timer); press.moved = true; }
+  if (e.pointerType === 'mouse') hoverKey(spinning ? null : resolve(...feltPoint(e)));
+});
+felt.addEventListener('pointerup', e => {
+  const p = press; press = null; if (!p) return; clearTimeout(p.timer);
+  if (p.long || p.moved || e.button !== 0) return;
+  place(resolve(...feltPoint(e)));
+});
+felt.addEventListener('pointercancel', () => { if (press) clearTimeout(press.timer); press = null; });
+felt.addEventListener('pointerleave', () => clearHover());
+felt.addEventListener('contextmenu', e => { e.preventDefault(); if (e.pointerType === 'touch' || (press && press.type !== 'mouse')) return; removeOne(resolve(...feltPoint(e))); });
+felt.addEventListener('keydown', e => {
+  const k = e.target.dataset && e.target.dataset.k; if (!k) return;
+  if (e.key === 'Enter') { e.preventDefault(); place(k); }
+  else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeOne(k); }
+});
+felt.addEventListener('focusin', e => { const k = e.target.dataset && e.target.dataset.k; if (k) hoverKey(k); });
+felt.addEventListener('focusout', () => clearHover());
+
+/* ---------- Racetrack ---------- */
+function buildRace() {
+  const svg = $('#rlRace'), NS = 'http://www.w3.org/2000/svg';
+  const x1 = 110, x2 = 490, cy = 90, r = 66, th = 36, q = Math.PI * r / 2, sb = x2 - x1, P = 2 * sb + 2 * Math.PI * r;
+  const pt = (p, rr) => {
+    p = mod(p, P);
+    if (p < q) { const a = p / r; return [x2 + rr * Math.cos(a), cy + rr * Math.sin(a)]; } p -= q;
+    if (p < sb) return [x2 - p, cy + rr]; p -= sb;
+    if (p < 2 * q) { const a = Math.PI / 2 + p / r; return [x1 + rr * Math.cos(a), cy + rr * Math.sin(a)]; } p -= 2 * q;
+    if (p < sb) return [x1 + p, cy - rr]; p -= sb;
+    const a = 1.5 * Math.PI + p / r; return [x2 + rr * Math.cos(a), cy + rr * Math.sin(a)];
+  };
+  const stad = rr => `M${x1},${cy - rr}H${x2}A${rr},${rr} 0 0 1 ${x2},${cy + rr}H${x1}A${rr},${rr} 0 0 1 ${x1},${cy - rr}Z`;
+  const ri = r - th / 2;
+  let h = `<defs><linearGradient id="rtFelt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0e4a34"/><stop offset="1" stop-color="#0a3626"/></linearGradient><clipPath id="rtClip"><path d="${stad(ri)}"/></clipPath></defs>`;
+  h += `<path d="${stad(r)}" fill="none" stroke="#082a1e" stroke-width="${th}"/>`;
+  h += `<path d="${stad(r + th / 2)}" fill="none" stroke="rgba(255,255,255,.35)"/>`;
+  h += `<path d="${stad(ri)}" fill="url(#rtFelt)" stroke="rgba(255,255,255,.35)"/>`;
+  const step = P / 37;
+  const inner = a => pt((a + .5) * step, ri);
+  const ext = (T, B) => { const dx = B[0] - T[0], dy = B[1] - T[1]; return [[T[0] - dx * 2, T[1] - dy * 2], [B[0] + dx * 2, B[1] + dy * 2]]; };
+  const L1 = ext(inner(22), inner(10)), L2 = ext(inner(27), inner(7)), L3 = ext(inner(32), inner(2));
+  const xAt = (Lx) => { const [T, B] = Lx; return T[0] + (cy - T[1]) / (B[1] - T[1]) * (B[0] - T[0]); };
+  const poly = pts => pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const secs = [
+    ['tiers', [L1[0], L1[1], [-200, L1[1][1]], [-200, L1[0][1]]], ((x1 - ri) + xAt(L1)) / 2],
+    ['orph', [L1[0], L2[0], L2[1], L1[1]], (xAt(L1) + xAt(L2)) / 2],
+    ['voisins', [L2[0], L3[0], L3[1], L2[1]], (xAt(L2) + xAt(L3)) / 2],
+    ['zero', [L3[0], [800, L3[0][1]], [800, L3[1][1]], L3[1]], (xAt(L3) + x2 + ri) / 2]
+  ];
+  const labs = { tiers: 'Tiers', orph: 'Orphelins', voisins: 'Voisins', zero: 'Zéro' };
+  h += '<g clip-path="url(#rtClip)">';
+  for (const [id, pts] of secs) h += `<polygon class="rsec" data-sec="${id}" tabindex="0" role="button" aria-label="${SECTIONS[id].name} setzen" points="${poly(pts)}"/>`;
+  for (const Lx of [L1, L2, L3]) h += `<line x1="${Lx[0][0]}" y1="${Lx[0][1]}" x2="${Lx[1][0]}" y2="${Lx[1][1]}" stroke="rgba(255,255,255,.35)"/>`;
+  h += '</g>';
+  for (const [id, , x] of secs) h += `<text class="rlab" x="${x.toFixed(1)}" y="${cy + 4}" text-anchor="middle">${labs[id]}</text>`;
+  const fill = { red: '#d83a48', black: '#1d242c', green: '#22ad6b' };
+  ORDER.forEach((n, i) => { const [x, y] = pt(i * step, r); h += `<g class="rn" data-n="${n}" tabindex="0" role="button" aria-label="Nachbarn von ${n} setzen"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14" fill="${fill[colorOf(n)]}"/><text x="${x.toFixed(1)}" y="${(y + 4.5).toFixed(1)}" text-anchor="middle">${n}</text></g>`; });
+  svg.innerHTML = h;
+  const rn = {}; svg.querySelectorAll('.rn').forEach(g => { rn[g.dataset.n] = g; });
+  let rh = [];
+  const rClear = () => { rh.forEach(el => el.classList.remove('hov')); rh = []; clearHover(); };
+  const rHover = nums => { rClear(); hoverNums(nums); nums.forEach(n => { rn[n].classList.add('hov'); rh.push(rn[n]); }); };
+  const act = el => {
+    if (el.dataset.n !== undefined) { const n = +el.dataset.n; placeGroup(neighbors(n).map(x => key('plein', [x])), 'Nachbarn ' + n); }
+    else if (el.dataset.sec) { const s = SECTIONS[el.dataset.sec]; placeGroup(s.keys, s.name); }
+  };
+  const target = e => e.target.closest('.rn,.rsec');
+  svg.addEventListener('click', e => { const el = target(e); if (el) act(el); });
+  svg.addEventListener('keydown', e => { const el = target(e); if (el && e.key === 'Enter') { e.preventDefault(); act(el); } });
+  const hv = el => { if (!el) { rClear(); return; } if (el.dataset.n !== undefined) rHover(neighbors(+el.dataset.n)); else rHover([...SECTIONS[el.dataset.sec].nums]); };
+  svg.addEventListener('pointerover', e => { if (e.pointerType === 'mouse') hv(target(e)); });
+  svg.addEventListener('pointerleave', rClear);
+  svg.addEventListener('focusin', e => hv(target(e)));
+  svg.addEventListener('focusout', rClear);
+}
+
+/* ---------- Kessel ---------- */
+const wheelBox = $('#rlWheelBox'), cv = $('#rlWheel'), wctx = cv.getContext('2d');
+let base = null, rot = null, gloss = null, WPX = 0;
+let wheelAngle = 0, lastT = performance.now(), anim = null;
+let ballMode = 'track', ballAbs = -Math.PI / 2 - .4, ballRel = 0, ballR = .735;
+const mk = px => { const c = document.createElement('canvas'); c.width = c.height = px; return c; };
+function gold(ctx, x0, y0, x1, y1) { const g = ctx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, '#ffd27a'); g.addColorStop(.5, '#ffb020'); g.addColorStop(1, '#c27d00'); return g; }
+function ring(ctx, x, y, r, lw, col) { ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.lineWidth = lw; ctx.strokeStyle = col; ctx.stroke(); }
+function drawBase(ctx, px) {
+  const c = px / 2, R = px / 2;
+  let g = ctx.createRadialGradient(c, c, R * .78, c, c, R * .99);
+  g.addColorStop(0, '#4b2c17'); g.addColorStop(.55, '#331b0c'); g.addColorStop(1, '#170b04');
+  ctx.beginPath(); ctx.arc(c, c, R * .985, 0, TAU); ctx.fillStyle = g; ctx.fill();
+  let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 80; i++) { const rr = R * (.81 + rnd() * .16), a0 = rnd() * TAU; ctx.beginPath(); ctx.arc(c, c, rr, a0, a0 + .3 + rnd() * 1.3); ctx.lineWidth = Math.max(1, R * .004); ctx.strokeStyle = rnd() < .55 ? 'rgba(0,0,0,.28)' : 'rgba(214,150,90,.09)'; ctx.stroke(); }
+  const G = gold(ctx, 0, 0, px, px);
+  ring(ctx, c, c, R * .975, R * .014, G);
+  ring(ctx, c, c, R * .905, R * .006, 'rgba(255,176,32,.5)');
+  for (let k = 0; k < 16; k++) { const a = k * TAU / 16; ctx.beginPath(); ctx.arc(c + R * .94 * Math.cos(a), c + R * .94 * Math.sin(a), R * .01, 0, TAU); ctx.fillStyle = G; ctx.fill(); }
+  g = ctx.createRadialGradient(c, c, R * .665, c, c, R * .80);
+  g.addColorStop(0, '#1c0f07'); g.addColorStop(.7, '#3f2412'); g.addColorStop(1, '#5f3a1f');
+  ctx.beginPath(); ctx.arc(c, c, R * .80, 0, TAU); ctx.arc(c, c, R * .665, 0, TAU, true); ctx.fillStyle = g; ctx.fill();
+  ring(ctx, c, c, R * .80, R * .012, G);
+  for (let k = 0; k < 8; k++) {
+    const a = k * TAU / 8 + TAU / 16, vertical = k % 2 === 0;
+    ctx.save(); ctx.translate(c + R * .728 * Math.cos(a), c + R * .728 * Math.sin(a)); ctx.rotate(a);
+    const l = vertical ? R * .036 : R * .016, w = vertical ? R * .012 : R * .028;
+    ctx.beginPath(); ctx.moveTo(l, 0); ctx.lineTo(0, w); ctx.lineTo(-l, 0); ctx.lineTo(0, -w); ctx.closePath();
+    ctx.fillStyle = gold(ctx, -l, -w, l, w); ctx.fill(); ctx.lineWidth = Math.max(1, R * .003); ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.stroke();
+    ctx.restore();
+  }
+  ring(ctx, c, c, R * .672, R * .014, 'rgba(0,0,0,.55)');
+}
+function drawRot(ctx, px) {
+  const c = px / 2, R = px / 2;
+  const COL = { red: '#d83a48', black: '#1d242c', green: '#22ad6b' }, DARK = { red: '#8f1f2b', black: '#0e1317', green: '#127046' };
+  ctx.save(); ctx.translate(c, c);
+  ORDER.forEach((n, i) => {
+    const a0 = i * STEP - Math.PI / 2 - STEP / 2, a1 = a0 + STEP;
+    ctx.beginPath(); ctx.arc(0, 0, R * .665, a0, a1); ctx.arc(0, 0, R * .555, a1, a0, true); ctx.closePath(); ctx.fillStyle = COL[colorOf(n)]; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, R * .555, a0, a1); ctx.arc(0, 0, R * .45, a1, a0, true); ctx.closePath(); ctx.fillStyle = DARK[colorOf(n)]; ctx.fill();
+  });
+  let g = ctx.createRadialGradient(0, 0, R * .45, 0, 0, R * .555);
+  g.addColorStop(0, 'rgba(0,0,0,.5)'); g.addColorStop(.6, 'rgba(0,0,0,.12)'); g.addColorStop(1, 'rgba(255,255,255,.07)');
+  ctx.beginPath(); ctx.arc(0, 0, R * .555, 0, TAU); ctx.arc(0, 0, R * .45, 0, TAU, true); ctx.fillStyle = g; ctx.fill();
+  const G = gold(ctx, -R, -R, R, R);
+  for (let i = 0; i < 37; i++) {
+    const a = i * STEP - Math.PI / 2 - STEP / 2, ca = Math.cos(a), sa = Math.sin(a);
+    ctx.beginPath(); ctx.moveTo(ca * R * .45, sa * R * .45); ctx.lineTo(ca * R * .555, sa * R * .555); ctx.lineWidth = R * .009; ctx.strokeStyle = G; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ca * R * .555, sa * R * .555); ctx.lineTo(ca * R * .665, sa * R * .665); ctx.lineWidth = Math.max(1, R * .003); ctx.strokeStyle = 'rgba(255,210,122,.55)'; ctx.stroke();
+  }
+  ctx.fillStyle = '#fff'; ctx.font = '700 ' + (R * .066).toFixed(1) + 'px "Chakra Petch", Rubik, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ORDER.forEach((n, i) => { ctx.save(); ctx.rotate(i * STEP); ctx.fillText(String(n), 0, -R * .61); ctx.restore(); });
+  ring(ctx, 0, 0, R * .665, R * .012, G); ring(ctx, 0, 0, R * .555, R * .007, G); ring(ctx, 0, 0, R * .45, R * .012, G);
+  g = ctx.createRadialGradient(-R * .1, -R * .1, R * .04, 0, 0, R * .45);
+  g.addColorStop(0, '#7f4f29'); g.addColorStop(.6, '#4a2913'); g.addColorStop(1, '#25130a');
+  ctx.beginPath(); ctx.arc(0, 0, R * .444, 0, TAU); ctx.fillStyle = g; ctx.fill();
+  for (let k = 0; k < 8; k++) { const a = k * TAU / 8; ctx.beginPath(); ctx.moveTo(Math.cos(a) * R * .17, Math.sin(a) * R * .17); ctx.lineTo(Math.cos(a) * R * .44, Math.sin(a) * R * .44); ctx.lineWidth = Math.max(1, R * .004); ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.stroke(); }
+  ring(ctx, 0, 0, R * .3, R * .005, 'rgba(255,176,32,.45)');
+  for (let k = 0; k < 4; k++) {
+    ctx.save(); ctx.rotate(k * Math.PI / 2 + Math.PI / 4);
+    ctx.fillStyle = gold(ctx, 0, -R * .02, R * .2, R * .02); ctx.fillRect(0, -R * .016, R * .2, R * .032);
+    const bg = ctx.createRadialGradient(R * .21, -R * .01, R * .004, R * .215, 0, R * .03); bg.addColorStop(0, '#fff0c9'); bg.addColorStop(.5, '#ffb020'); bg.addColorStop(1, '#8a5800');
+    ctx.beginPath(); ctx.arc(R * .215, 0, R * .028, 0, TAU); ctx.fillStyle = bg; ctx.fill();
+    ctx.restore();
+  }
+  g = ctx.createRadialGradient(-R * .025, -R * .03, R * .005, 0, 0, R * .08); g.addColorStop(0, '#fff0c9'); g.addColorStop(.45, '#ffb020'); g.addColorStop(1, '#8a5800');
+  ctx.beginPath(); ctx.arc(0, 0, R * .075, 0, TAU); ctx.fillStyle = g; ctx.fill();
+  ring(ctx, 0, 0, R * .075, Math.max(1, R * .004), 'rgba(0,0,0,.4)');
+  ctx.restore();
+}
+function drawGloss(ctx, px) {
+  const c = px / 2, R = px / 2;
+  let g = ctx.createRadialGradient(c - R * .35, c - R * .45, R * .05, c - R * .2, c - R * .25, R);
+  g.addColorStop(0, 'rgba(255,255,255,.11)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.beginPath(); ctx.arc(c, c, R * .98, 0, TAU); ctx.fillStyle = g; ctx.fill();
+  g = ctx.createRadialGradient(c, c, R * .7, c, c, R); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.25)');
+  ctx.beginPath(); ctx.arc(c, c, R * .98, 0, TAU); ctx.fillStyle = g; ctx.fill();
+}
+function buildWheel() {
+  const w = wheelBox.clientWidth; if (!w) return;
+  const dpr = Math.min(2, devicePixelRatio || 1); const px = Math.round(w * dpr);
+  WPX = px; cv.width = cv.height = px;
+  base = mk(px); drawBase(base.getContext('2d'), px);
+  rot = mk(px); drawRot(rot.getContext('2d'), px);
+  gloss = mk(px); drawGloss(gloss.getContext('2d'), px);
+}
+function drawWheel() {
+  if (!base) return;
+  const px = WPX, c = px / 2, R = px / 2;
+  wctx.clearRect(0, 0, px, px);
+  wctx.drawImage(base, 0, 0);
+  wctx.save(); wctx.translate(c, c); wctx.rotate(wheelAngle); wctx.drawImage(rot, -c, -c); wctx.restore();
+  const th = ballMode === 'track' ? ballAbs : wheelAngle + ballRel, rr = ballR * R, br = R * .028;
+  const x = c + rr * Math.cos(th), y = c + rr * Math.sin(th);
+  wctx.beginPath(); wctx.arc(x + br * .25, y + br * .35, br * 1.05, 0, TAU); wctx.fillStyle = 'rgba(0,0,0,.45)'; wctx.fill();
+  const g = wctx.createRadialGradient(x - br * .35, y - br * .4, br * .1, x, y, br);
+  g.addColorStop(0, '#ffffff'); g.addColorStop(.6, '#e6ebef'); g.addColorStop(1, '#93a0ab');
+  wctx.beginPath(); wctx.arc(x, y, br, 0, TAU); wctx.fillStyle = g; wctx.fill();
+  wctx.drawImage(gloss, 0, 0);
+}
+function stepBall(now) {
+  const a = anim, t = (now - a.t0) / 1000, s = Math.min(1, t / a.T);
+  let rel = a.relEnd + a.D * Math.pow(1 - s, a.p), r;
+  const s0 = .55, s1 = .74;
+  if (s < s0) {
+    r = .772 - .035 * (s / s0) + .003 * Math.sin(t * 23);
+    if (s < .05) r = a.r0 + (r - a.r0) * (s / .05);
+    rollLevel(.17 * Math.pow(1 - s, .6), 1 - s);
+  } else if (s < s1) {
+    const q = (s - s0) / (s1 - s0); r = .737 - .137 * q * q * (3 - 2 * q);
+    if (!a.hit && q > .45) { a.hit = true; sfx.clack(.42); }
+    rollLevel(.09 * (1 - q) + .03, .35);
+  } else {
+    const q = (s - s1) / (1 - s1);
+    r = .50 + .10 * Math.abs(Math.cos(2.5 * Math.PI * q)) * Math.pow(1 - q, 1.5);
+    rel += .07 * Math.sin(TAU * q) * (1 - q) * (1 - q);
+    for (const th of [.2, .6]) if (q >= th && !a.imp[th]) { a.imp[th] = true; sfx.clack(th === .2 ? .4 : .28); }
+    rollLevel(.03 * (1 - q), .2);
+  }
+  if (s > s0) { const idx = Math.floor(mod(rel + Math.PI / 2 + STEP / 2, TAU) / STEP); if (a.lastIdx !== undefined && idx !== a.lastIdx && s > s1 - .04) sfx.clack(.1); a.lastIdx = idx; }
+  ballMode = 'pocket'; ballRel = rel; ballR = r;
+  if (s >= 1) { ballRel = a.relEnd; ballR = .50; anim = null; rollStop(); sfx.clack(.3); setTimeout(a.done, reduced ? 100 : 280); }
+}
+function loop(now) {
+  raf = 0;
+  const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
+  let omega = reduced ? .15 : .35;
+  if (anim) { const t = (now - anim.t0) / 1000; omega += anim.boost * Math.pow(Math.max(0, 1 - t / (anim.T * 1.35)), 2); }
+  wheelAngle = mod(wheelAngle + omega * dt, TAU);
+  if (anim) stepBall(now);
+  drawWheel();
+  raf = 0; if (cur === 'roulette' && !document.hidden) raf = requestAnimationFrame(loop);
+}
+let raf = 0;
+function kick() { if (!raf) { lastT = performance.now(); raf = requestAnimationFrame(loop); } }
+document.addEventListener('visibilitychange', () => { if (!document.hidden && cur === 'roulette') kick(); });
+
+/* ---------- Drehen & Auswerten ---------- */
+function describe(n) {
+  if (n === 0) return 'Null · einfache Chancen verlieren';
+  return [REDS.has(n) ? 'Rot' : 'Schwarz', n % 2 ? 'Ungerade' : 'Gerade', n <= 18 ? '1–18' : '19–36', Math.ceil(n / 12) + '. Dutzend', ((n - 1) % 3 + 1) + '. Kolonne'].join(' · ');
+}
+function spin() {
+  if (spinning) return;
+  if (ACCOUNTS && !acct) return;
+  if (RU().pend) { recover(); return; }               // erst die offene Runde abrechnen
+  const s = stake();
+  if (!s) { rtoast('Setz zuerst mindestens einen Chip auf den Tisch.'); return; }
+  const lim = limitFor();
+  if (s > lim) { rtoast('Einsatz zu hoch: höchstens <b>' + fmt(lim) + '</b> Coins pro Dreh (25 % vom Guthaben).', 'loss'); return; }
+  if (!take('roulette', s)) return;                  // bucht ab, Einsatz liegt jetzt „im Spiel“
+  ensureAudio();
+  const n = rand37();
+  const snap = new Map(); for (const [k, arr] of bets) snap.set(k, arr.slice());
+  spinning = true; lastBets = snap; undoStack = [];
+  RU().pend = { n, bets: [...snap].map(([k, a]) => [k, a.slice()]), stake: s, t: Date.now() };   // Ergebnis steht fest, bevor die Kugel rollt
+  persist();
+  clearOutcome(); clearHover(); $('#rlBigres').classList.remove('show');
+  felt.classList.add('locked'); renderUI();
+  if (mqMobile.matches) { const r = wheelBox.getBoundingClientRect(); if (r.top < 70 || r.bottom > innerHeight - 150) wheelBox.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' }); }
+  const T = reduced ? 1.8 : fast ? 2.6 : 6, revs = reduced ? 2 : fast ? 3.5 : 7.5;
+  const curRel = ballMode === 'track' ? ballAbs - wheelAngle : ballRel;
+  const relEnd = ORDER.indexOf(n) * STEP - Math.PI / 2;
+  anim = { t0: performance.now(), T, p: 2.6, relEnd, D: mod(curRel - relEnd, TAU) + TAU * revs, r0: ballR, boost: fast || reduced ? 1.6 : 2.2, imp: {}, hit: false, done: () => finish(n) };
+  rollStart(); kick();
+}
+// Runde abrechnen (genau einmal): Gewinne + Einsätze über settle(), Anzeige auf dem Tisch
+function finish(n) {
+  const r = RU(); if (!r.pend || r.pend.n !== n) { spinning = false; felt.classList.remove('locked'); renderUI(); return; }
+  spinning = false; felt.classList.remove('locked');
+  history.push(n); if (history.length > 200) history = history.slice(-200);
+  let staked = 0, winSum = 0, lostSum = 0, ret = 0; const losers = [];
+  tags = []; paid = new Map();
+  for (const [k, arr] of bets) {
+    const amt = sum(arr), b = CAT.get(k); staked += amt;
+    if (b.nums.has(n)) { const w = amt * b.pay; winSum += w; ret += amt + w; tags.push({ k, w }); paid.set(k, decompose(amt + w)); }
+    else { lostSum += amt; losers.push(k); }
+  }
+  bets.clear();
+  const net = winSum - lostSum; lastNet = net; sessionNet += net;
+  r.pend = null; persist();
+  settle('roulette', staked, ret, staked > 0 ? ret / staked : 0, 36 / 37);
+  if (cur !== 'roulette') {                                         // woanders unterwegs: nur kurz Bescheid geben
+    renderChips(); renderUI(); renderStats(); showNum(n);
+    rtoast('Roulette: <b>' + n + '</b> · ' + (winSum > 0 ? 'Gewinn <b class="pos">+' + fmt(winSum) + '</b>' : 'Verloren <b class="neg">' + signed(net) + '</b>'), net >= 0 ? 'win' : 'loss');
+    return;
+  }
+  // Tisch: Gewinnfelder leuchten, Verlierer abräumen, Gewinner bekommen den Gewinn dazu
+  const hit = numCell[n]; hit.classList.add('win', 'hit'); winEls.push(hit);
+  for (const [k, el] of Object.entries(outCell)) if (CAT.get(k).nums.has(n)) { el.classList.add('win'); winEls.push(el); }
+  $('#rlChipLayer').querySelectorAll('.tchip').forEach(el => { if (losers.includes(el.dataset.k)) el.classList.add('gone'); });
+  const tok = ++tagToken;
+  setTimeout(() => { if (tok === tagToken && !spinning) renderChips(); }, reduced ? 50 : 520);
+  renderTags();
+  setTimeout(() => {
+    if (tok !== tagToken) return;
+    $('#rlChipLayer').querySelectorAll('.tchip.paid').forEach(el => el.classList.add('gone'));
+    if (tags.length) { tags = []; renderTags(); }
+    setTimeout(() => { if (tok === tagToken) { paid.clear(); renderChips(); } }, reduced ? 50 : 520);
+  }, 3000);
+  const col = colorOf(n);
+  const disk = $('#rlBigdisk'); disk.textContent = n; disk.className = 'disk bg-' + col;
+  const big = $('#rlBigres'); big.classList.add('show'); setTimeout(() => big.classList.remove('show'), 2600);
+  showNum(n);
+  const rr = $('#rlRround'); rr.textContent = 'Runde: ' + signed(net) + (ret ? ' · Auszahlung ' + fmt(ret) : ''); rr.className = 'rround ' + (net > 0 ? 'pos' : net < 0 ? 'neg' : '');
+  const name = n === 0 ? 'Null' : (REDS.has(n) ? 'Rot' : 'Schwarz');
+  if (winSum > 0) {
+    const bigWin = winSum >= 10 * staked;
+    rtoast('<b>' + n + ' ' + name + '</b> · Gewinn <b class="pos">+' + fmt(winSum) + '</b><br><span style="color:var(--mute);font-size:13px">Ausgezahlt inkl. Einsatz: ' + fmt(ret) + ' · Runde ' + signed(net) + '</span>', net >= 0 ? 'win' : 'loss');
+    sfx.fanfare(bigWin);
+    if (bigWin) { confetti(160); const el = $('#rlResult'); el.classList.add('glow'); setTimeout(() => el.classList.remove('glow'), 2600); }
+  } else rtoast('<b>' + n + ' ' + name + '</b> · Verloren <b class="neg">' + signed(net) + '</b>', 'loss');
+  renderUI(); renderStats();
+}
+function showNum(n) { const rn = $('#rlRnum'); rn.textContent = n; rn.className = 'rnum bg-' + colorOf(n); $('#rlRdesc').textContent = describe(n); }
+// Unterbrochene Runde (neu geladen, anderes Gerät): mit der gespeicherten Zahl abrechnen
+function recover() {
+  const r = RU(), p = r.pend; if (!p || spinning) return;
+  if (!Number.isInteger(p.n) || p.n < 0 || p.n > 36) { r.pend = null; return; }
+  clearOutcome(); bets = cleanBets(p.bets); lastBets = new Map([...bets].map(([k, a]) => [k, a.slice()]));
+  if (!bets.size) { r.pend = null; persist(); return; }
+  finish(p.n); renderChips();
+}
+
+/* ---------- UI ---------- */
+function setSigned(el, v) { el.textContent = v === null ? '–' : signed(v); el.className = 'v ' + (v > 0 ? 'pos' : v < 0 ? 'neg' : ''); }
+function renderUI() {
+  const s = stake(), lim = limitFor();
+  $('#rlTStake').textContent = fmt(s); $('#rlTLimit').textContent = fmt(lim);
+  setSigned($('#rlTLast'), lastNet); setSigned($('#rlTNet'), sessionNet);
+  $('#rlBUndo').disabled = spinning || !undoStack.length;
+  $('#rlBClear').disabled = spinning || !s;
+  $('#rlBDouble').disabled = spinning || !s;
+  $('#rlBRebet').disabled = spinning || !lastBets || !lastBets.size;
+  const dis = spinning || !s;
+  $('#rlSpin').disabled = dis;
+  $('#rlSpin').innerHTML = spinning ? 'Kugel rollt …' : 'Drehen <kbd>Leertaste</kbd>';
+  document.querySelectorAll('.rl-pick').forEach(p => { const on = +p.dataset.i === chipIdx; p.classList.toggle('on', on); p.setAttribute('aria-checked', on); });
+  $('#rlSegFast').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.v === +fast)));
+}
+function ballHtml(n, cls, extra) { return '<span class="ball bg-' + colorOf(n) + (cls ? ' ' + cls : '') + '"' + (extra || '') + '>' + n + '</span>'; }
+function renderStats() {
+  const h = $('#rlHist');
+  const last = history.slice(-20).reverse();
+  h.innerHTML = last.length ? last.map((n, i) => ballHtml(n, i === 0 ? 'first' : '', ' title="' + describe(n) + '"')).join('') : '<p class="rl-empty">Noch keine Drehung. Die Zahlen erscheinen hier, neueste links.</p>';
+  const st = $('#rlStats'); const N = history.length;
+  if (!N) { st.innerHTML = '<p class="rl-empty">Nach der ersten Drehung siehst du hier heiße und kalte Zahlen und die Verteilung von Rot, Schwarz und Null.</p>'; return; }
+  const cnt = new Array(37).fill(0), seen = new Array(37).fill(-1);
+  history.forEach((n, i) => { cnt[n]++; seen[n] = i; });
+  const all = range(0, 36);
+  const hot = all.filter(n => cnt[n] > 0).sort((a, b) => cnt[b] - cnt[a] || seen[b] - seen[a]).slice(0, 5);
+  const cold = all.slice().sort((a, b) => cnt[a] - cnt[b] || seen[a] - seen[b]).slice(0, 5);
+  const red = history.filter(n => REDS.has(n)).length, zero = cnt[0], black = N - red - zero;
+  const pct = x => (x / N * 100).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + ' %';
+  const sb = n => '<span class="sball">' + ballHtml(n) + '<small>' + cnt[n] + '×</small></span>';
+  st.innerHTML =
+    '<div class="srow"><div class="rl-lbl">Heiß</div><div class="balls">' + hot.map(sb).join('') + '</div></div>' +
+    '<div class="srow"><div class="rl-lbl">Kalt</div><div class="balls">' + cold.map(sb).join('') + '</div></div>' +
+    '<div class="rl-lbl">Verteilung · ' + fmt(N) + ' Drehungen</div>' +
+    '<div class="dist"><i style="width:' + (red / N * 100) + '%;background:var(--r-red)"></i><i style="width:' + (black / N * 100) + '%;background:#3a4653"></i><i style="width:' + (zero / N * 100) + '%;background:var(--r-green)"></i></div>' +
+    '<div class="rl-legend"><span><i class="sw" style="background:var(--r-red)"></i>Rot <b>' + pct(red) + '</b></span><span><i class="sw" style="background:#3a4653"></i>Schwarz <b>' + pct(black) + '</b></span><span><i class="sw" style="background:var(--r-green)"></i>Null <b>' + pct(zero) + '</b></span></div>';
+}
+function buildChipbars() {
+  ['#rlChipbar', '#rlChipbar2'].forEach(id => {
+    const bar = $(id);
+    bar.innerHTML = CHIPS.map((v, i) => '<button type="button" class="rl-pick chipface c' + v + '" data-i="' + i + '" role="radio" aria-label="Chip ' + fmt(v) + ' (Taste ' + (i + 1) + ')"><span>' + chipLabel(v) + '</span></button>').join('');
+    bar.addEventListener('click', e => { const p = e.target.closest('.rl-pick'); if (p) selectChip(+p.dataset.i); });
+  });
+}
+function selectChip(i) { if (i < 0 || i > 5) return; chipIdx = i; sfx.chip(); renderUI(); persist(); }
+
+$('#rlBUndo').addEventListener('click', undoAct);
+$('#rlBClear').addEventListener('click', clearAct);
+$('#rlBDouble').addEventListener('click', doubleAct);
+$('#rlBRebet').addEventListener('click', rebetAct);
+$('#rlSpin').addEventListener('click', spin);
+$('#rlSegFast').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; fast = b.dataset.v === '1'; renderUI(); persist(); });
+
+/* ---------- Start ---------- */
+buildTable(); buildRace(); buildChipbars();
+let rz = 0;
+const onResize = () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { if (cur !== 'roulette') return; layout(); if (wheelBox.clientWidth && Math.round(wheelBox.clientWidth * Math.min(2, devicePixelRatio || 1)) !== WPX) buildWheel(); drawWheel(); }); };
+if ('ResizeObserver' in window) { const ro = new ResizeObserver(onResize); ro.observe(feltWrap); ro.observe(wheelBox); } else addEventListener('resize', onResize);
+mqMobile.addEventListener && mqMobile.addEventListener('change', onResize);
+if (document.fonts && document.fonts.load) document.fonts.load('700 20px "Chakra Petch"').then(() => { if (wheelBox.clientWidth) { buildWheel(); drawWheel(); } }).catch(() => {});
+// Spielstand gewechselt (Login, Server-Stand, Zurücksetzen): Einstellungen übernehmen, Tisch leeren, offene Runde abrechnen
+let lastS = null;
+function ensure() {
+  if (S === lastS) return; lastS = S;
+  if (spinning) return;
+  load(); bets.clear(); undoStack = []; clearOutcome(); renderChips(); renderUI(); renderStats();
+  if (history.length) showNum(history[history.length - 1]);
+  if (ACCOUNTS && !srvReady) { lastS = null; return; }      // erst mit dem Server-Stand abrechnen
+  recover();
+}
+// Spiel verlassen, während die Kugel rollt: sofort zu Ende rechnen
+setInterval(() => {
+  if (anim && cur !== 'roulette') { const a = anim; anim = null; rollStop(); ballMode = 'pocket'; ballRel = a.relEnd; ballR = .5; a.done(); }
+  if (cur === 'roulette' || S !== lastS) ensure();
+}, 500);
+
+return {
+  show() { ensure(); layout(); buildWheel(); lastT = performance.now(); kick(); renderUI(); },
+  key(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); if (!e.repeat) { ensureAudio(); spin(); } return; }
+    if (e.repeat) return;
+    const k = e.key.toLowerCase();
+    if (k === 'z') undoAct(); else if (k === 'c') clearAct(); else if (k === 'r') rebetAct();
+    else if (/^[1-6]$/.test(k)) selectChip(+k - 1);
+  },
+  pending: () => { const r = S.ru; return r && r.pend && r.pend.stake > 0 ? +r.pend.stake : 0; }
+};
+})();
+onShow.roulette=RU.show;
+
 // ================= GAME: GOLDENE SIEBEN (Slot) =================
 
 /* =====================================================================
@@ -5582,7 +6512,7 @@ onShow.slot=SL.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
-  ({chicken:CH,plinko:PL,tower:TW,muenze:DN,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL,wetten:WT,lotto:LT,perps:PP}[cur])?.key(e)});
+  ({chicken:CH,plinko:PL,tower:TW,muenze:DN,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL,wetten:WT,lotto:LT,perps:PP,roulette:RU}[cur])?.key(e)});
 let last=performance.now();
 function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);HR.tick();SK.tick();SL.tick();fxTick(dt);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
