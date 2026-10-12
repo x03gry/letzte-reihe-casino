@@ -44,7 +44,7 @@ async function ensureEpoch() {
 }
 
 const CAP = 10_000_000;
-const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel", "slot", "muenze"];
+const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel", "slot", "muenze", "perps"];
 
 // ================= Jackpot-Ziehung (gleiche Termine wie in spielstand.mjs: Mo + Do, 20:00 Uhr Berlin) =================
 const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });

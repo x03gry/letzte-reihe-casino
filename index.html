@@ -1102,6 +1102,128 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .txform .inp{width:100%}
 .lbrow[data-send]{cursor:pointer}.lbrow[data-send]:hover{border-color:var(--line2)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ---------- Perps (Trading) ---------- */
+#v-perps .stage{justify-content:flex-start;gap:12px}
+#v-perps .pp-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#v-perps .pp-tile{background:var(--bg2);border-radius:10px;padding:8px 10px;min-width:0}
+#v-perps .pp-tile .k{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-perps .pp-tile .v{font:700 16px/1.3 var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-perps .pp-mute{color:var(--mute)}
+#v-perps .pp-in-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#v-perps .pp-in-wrap{position:relative}
+#v-perps .pp-in-wrap .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:600 13px var(--f-num);color:var(--dim);pointer-events:none}
+#v-perps .pp-in-wrap .inp{padding-right:52px}
+#v-perps .pp-in-row .pp-in-wrap .inp{padding-right:30px}
+#v-perps .inp.bad{border-color:var(--loss)}
+#v-perps .inp:focus{border-color:var(--brass);outline:none}
+#v-perps input[type=number]{-moz-appearance:textfield;appearance:textfield}
+#v-perps input[type=number]::-webkit-inner-spin-button,#v-perps input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#v-perps .pp-small{font-size:12px;color:var(--dim)}
+#v-perps .seg button{min-width:0}
+#v-perps .seg button:hover:not([aria-pressed="true"]){color:var(--ink);background:var(--panel2)}
+#v-perps .seg button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--brass)}
+#v-perps .pp-mk button{display:grid;gap:1px;padding:7px 4px;font-family:var(--f-num)}
+#v-perps .pp-mk .mn{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#v-perps .pp-mk .mc{font-size:11px;font-weight:600}
+#v-perps .pp-tf{min-width:220px}
+#v-perps .pp-tf button{font-family:var(--f-num)}
+#v-perps .pp-qk{display:flex;gap:6px;flex-wrap:wrap}
+#v-perps button.chip{cursor:pointer;font-family:var(--f-num);border:1px solid transparent}
+#v-perps button.chip:hover{background:var(--panel3);color:var(--ink)}
+#v-perps button.chip[aria-pressed="true"]{border-color:var(--brass);color:var(--ink)}
+#v-perps .pp-lev-v{font:700 22px var(--f-num);font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:0;text-transform:none}
+#v-perps .pp-lev-v.hot{color:var(--loss)}
+#v-perps input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0;cursor:pointer;border:0;padding:0;--p:18%}
+#v-perps input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--brass-lo),var(--brass) var(--p),var(--bg2) var(--p));border:1px solid var(--line)}
+#v-perps input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--brass-lo),var(--brass) var(--p),var(--bg2) var(--p));border:1px solid var(--line)}
+#v-perps input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass) 55%,var(--brass-lo));border:2px solid var(--bg2);box-shadow:0 2px 6px var(--shadow)}
+#v-perps input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass) 55%,var(--brass-lo));border:2px solid var(--bg2)}
+#v-perps .pp-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#v-perps .pp-long,#v-perps .pp-short{font-weight:700;padding:13px 8px;text-transform:uppercase;letter-spacing:.04em;display:grid;gap:0;justify-items:center;line-height:1.15;font-size:15px}
+#v-perps .pp-long{background:var(--win);color:#022616;border-color:#1db574}
+#v-perps .pp-long:hover:not(:disabled){background:#5ae9a9}
+#v-perps .pp-short{background:var(--loss);color:#fff;border-color:#d63250}
+#v-perps .pp-short:hover:not(:disabled){background:#ff6d85}
+#v-perps .pp-long small,#v-perps .pp-short small{font:600 11px var(--f-num);letter-spacing:.02em;text-transform:none;opacity:.8}
+#v-perps .pp-hint{font-size:13px;color:var(--mute);min-height:1.45em;margin:0}
+#v-perps .pp-hint.err{color:var(--loss)}
+#v-perps .pp-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 16px}
+#v-perps .pp-title{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;min-width:0}
+#v-perps .pp-title h2{font:700 24px/1 var(--f-num);letter-spacing:.02em;margin:3px 0 0}
+#v-perps .pp-px{font:700 30px/1 var(--f-num);font-variant-numeric:tabular-nums;transition:color .25s}
+#v-perps .pp-meta{display:flex;gap:6px;flex-wrap:wrap}
+#v-perps .pp-chart{position:relative;height:clamp(300px,56vh,520px);background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;touch-action:pan-y}
+#v-perps .pp-chart canvas{position:absolute;inset:0;display:block;cursor:crosshair}
+#v-perps .pp-ohlc{position:absolute;left:10px;top:8px;display:flex;flex-wrap:wrap;gap:2px 10px;font:600 12px var(--f-num);font-variant-numeric:tabular-nums;color:var(--mute);pointer-events:none;background:rgba(11,20,28,.72);padding:3px 8px;border-radius:6px;max-width:calc(100% - 100px)}
+#v-perps .pp-ohlc b{color:var(--ink);font-weight:600}
+#v-perps .game.shake{animation:ppshake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes ppshake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+#v-perps .panel{display:block}
+#v-perps .pp-ph{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+#v-perps .pp-ph h2{font:700 17px var(--f-disp);letter-spacing:.02em;margin:0;display:flex;align-items:center;gap:10px}
+#v-perps .pp-lower{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+#v-perps .pp-empty{color:var(--mute);font-size:14px;padding:14px;border:1px dashed var(--line2);border-radius:10px;text-align:center}
+#v-perps .pp-poslist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:10px}
+#v-perps .pp-pos{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;min-width:0;transition:border-color .3s}
+#v-perps .pp-pos.new{animation:ppglow 1.4s ease-out}
+@keyframes ppglow{0%{box-shadow:0 0 18px rgba(255,176,32,.6);border-color:var(--brass)}100%{box-shadow:0 0 0 rgba(255,176,32,0)}}
+#v-perps .pp-pos.danger{border-color:rgba(255,77,106,.65)}
+#v-perps .pp-pos-top{display:flex;align-items:center;gap:8px;min-width:0}
+#v-perps .pp-tag{border-radius:999px;padding:3px 9px;font:700 11px var(--f-num);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+#v-perps .pp-tag.l{background:rgba(47,224,143,.14);color:var(--win)}
+#v-perps .pp-tag.s{background:rgba(255,77,106,.15);color:var(--loss)}
+#v-perps .pp-pos-mk{background:none;border:0;padding:0;font:700 15px var(--f-num);color:var(--ink);cursor:pointer;white-space:nowrap}
+#v-perps .pp-pos-mk:hover{color:var(--brass)}
+#v-perps .pp-pnl{margin-left:auto;text-align:right;display:grid;line-height:1.15}
+#v-perps .pp-pnl b{font-size:17px}
+#v-perps .pp-pnl span{font-size:12px;font-weight:600}
+#v-perps .pp-kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin:0}
+#v-perps .pp-kv div{display:flex;justify-content:space-between;gap:8px;min-width:0}
+#v-perps .pp-kv dt{font-size:12px;color:var(--mute)}
+#v-perps .pp-kv dd{margin:0;font-size:13px;font-weight:600;white-space:nowrap}
+#v-perps .pp-health{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mute)}
+#v-perps .pp-hb{flex:1;height:6px;background:var(--panel2);border-radius:99px;overflow:hidden}
+#v-perps .pp-hb i{display:block;height:100%;width:100%;background:var(--win);border-radius:99px;transition:width .2s,background .3s}
+#v-perps .pp-ctl{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
+#v-perps .pp-ctl label{display:grid;gap:3px;font-size:10px;letter-spacing:.12em;color:var(--mute);font-weight:700;min-width:0;margin:0}
+#v-perps .pp-ctl .inp{padding:7px 9px;font-size:13px;border-radius:8px}
+#v-perps .pp-ctl .btn{padding:8px 12px}
+#v-perps .pp-tbl{overflow-x:auto;margin:0 -4px;padding:0 4px}
+#v-perps .pp-tbl table{min-width:560px}
+#v-perps .pp-tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--mute);font-weight:700;text-align:left;padding:0 8px 8px;white-space:nowrap}
+#v-perps .pp-tbl td{padding:8px;border-top:1px solid var(--line);white-space:nowrap}
+#v-perps .pp-tbl .r{text-align:right}
+#v-perps .pp-rs{font-size:11px;font-weight:700;letter-spacing:.04em}
+#v-perps .pp-rs.liq{color:var(--loss)} #v-perps .pp-rs.tp{color:var(--win)} #v-perps .pp-rs.sl{color:var(--brass)} #v-perps .pp-rs.close{color:var(--mute)}
+#v-perps .pp-help{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px;margin-top:12px}
+#v-perps .pp-help section{background:var(--bg2);border-radius:10px;padding:12px 14px}
+#v-perps .pp-help h3{font:700 14px var(--f-disp);margin:2px 0 6px;letter-spacing:.02em}
+#v-perps .pp-help p{margin:0 0 6px}
+#v-perps .pp-help p:last-child{margin-bottom:0}
+#v-perps .pp-help b{color:var(--ink)}
+.pp-flash{position:fixed;inset:0;pointer-events:none;z-index:55;opacity:0;background:radial-gradient(ellipse at center,rgba(255,77,106,.18),rgba(255,77,106,.55))}
+.pp-flash.on{animation:ppflash .75s ease-out}
+@keyframes ppflash{0%{opacity:1}100%{opacity:0}}
+@media (max-width:900px){
+  #v-perps:not([hidden]){padding-bottom:84px}
+  #v-perps .game{grid-template-columns:minmax(0,1fr)}
+  #v-perps .game>.stage{order:-1}
+  #v-perps .rail{border-right:0;border-top:1px solid var(--line)}
+  #v-perps .pp-lower{grid-template-columns:minmax(0,1fr)}
+  #v-perps .pp-chart{height:clamp(260px,44vh,400px)}
+  #v-perps .pp-px{font-size:24px}
+  #v-perps .pp-title h2{font-size:20px}
+  #v-perps .pp-tf{min-width:0;width:100%}
+  #v-perps .mainact.pp-acts{display:grid;grid-template-columns:1fr 1fr}
+  #v-perps .mainact .pp-long,#v-perps .mainact .pp-short{padding:11px 8px}
+  #v-perps .rail .keys{display:none}
+}
+@media (max-width:420px){
+  #v-perps .pp-ctl{grid-template-columns:1fr 1fr}
+  #v-perps .pp-ctl .btn{grid-column:1/-1}
+  #v-perps .pp-ohlc{max-width:calc(100% - 76px);font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){#v-perps .game.shake,#v-perps .pp-pos.new{animation:none}}
 </style>
 
 <div class="app">
@@ -1483,6 +1605,98 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </details>
 </section>
 
+<!-- ======================= PERPS ======================= -->
+<section id="v-perps" class="view" hidden>
+  <div class="ghead" data-head="perps"></div>
+  <div class="game" id="ppGame">
+    <div class="rail">
+      <div class="pp-tiles">
+        <div class="pp-tile"><div class="k">Gesamtwert</div><div class="v" id="ppEq">–</div></div>
+        <div class="pp-tile"><div class="k">Offener PnL</div><div class="v" id="ppUp">±0,00</div></div>
+      </div>
+      <div class="field"><span class="lbl">Markt</span><div class="seg pp-mk" id="ppMk" role="group" aria-label="Markt wählen"></div></div>
+      <div class="field">
+        <span class="lbl"><span>Einsatz (Margin)</span><span id="ppMaxM" style="text-transform:none;letter-spacing:0">max –</span></span>
+        <div class="pp-in-wrap"><input class="inp" id="ppMargin" type="number" min="10" step="1" inputmode="decimal" autocomplete="off" aria-label="Einsatz in Coins"><span class="unit">Coins</span></div>
+        <div class="pp-qk" id="ppMQ"><button class="chip" type="button" data-p="0.01">1 %</button><button class="chip" type="button" data-p="0.05">5 %</button><button class="chip" type="button" data-p="0.1">10 %</button><button class="chip" type="button" data-p="max">Max</button></div>
+      </div>
+      <div class="field">
+        <span class="lbl" style="align-items:center"><span>Hebel</span><span class="pp-lev-v" id="ppLevV">10×</span></span>
+        <input type="range" id="ppLev" min="1" max="50" step="1" value="10" aria-label="Hebel">
+        <div class="pp-qk" id="ppLQ"><button class="chip" type="button" data-l="1">1×</button><button class="chip" type="button" data-l="5">5×</button><button class="chip" type="button" data-l="10">10×</button><button class="chip" type="button" data-l="25">25×</button><button class="chip" type="button" data-l="50">50×</button></div>
+      </div>
+      <div class="field">
+        <span class="lbl">Take-Profit / Stop-Loss (optional)</span>
+        <div class="pp-in-row">
+          <div class="pp-in-wrap"><input class="inp" id="ppTp" type="number" min="0" step="1" inputmode="decimal" placeholder="TP" aria-label="Take-Profit in Prozent vom Einsatz"><span class="unit">%</span></div>
+          <div class="pp-in-wrap"><input class="inp" id="ppSl" type="number" min="0" max="99" step="1" inputmode="decimal" placeholder="SL" aria-label="Stop-Loss in Prozent vom Einsatz"><span class="unit">%</span></div>
+        </div>
+        <span class="pp-small">Gewinn bzw. Verlust in % vom Einsatz. Leer = aus.</span>
+      </div>
+      <div class="pp-tiles">
+        <div class="pp-tile"><div class="k">Positionsgröße</div><div class="v" id="ppSize">–</div></div>
+        <div class="pp-tile"><div class="k">Gebühr 0,05 %</div><div class="v" id="ppFee">–</div></div>
+        <div class="pp-tile"><div class="k">Liq. bei Long</div><div class="v neg" id="ppLiqL">–</div></div>
+        <div class="pp-tile"><div class="k">Liq. bei Short</div><div class="v neg" id="ppLiqS">–</div></div>
+      </div>
+      <div class="mainact pp-acts">
+        <button class="btn pp-long" id="ppLong" type="button">Long ▲<small id="ppLongS">Kurs steigt</small></button>
+        <button class="btn pp-short" id="ppShort" type="button">Short ▼<small id="ppShortS">Kurs fällt</small></button>
+      </div>
+      <p class="pp-hint" id="ppHint" aria-live="polite"></p>
+      <p class="keys"><kbd>L</kbd> Long · <kbd>S</kbd> Short · <kbd>X</kbd> alle schließen · <kbd>1</kbd>–<kbd>3</kbd> Markt</p>
+    </div>
+    <div class="stage">
+      <div class="pp-head">
+        <div class="pp-title">
+          <div><p class="eyebrow" id="ppEye">Normal · Bitcoin</p><h2 id="ppName">BTC</h2></div>
+          <div class="pp-px" id="ppPx">–</div>
+          <span class="chip num" id="ppChg" title="Veränderung in der letzten Stunde">–</span>
+        </div>
+        <div class="seg pp-tf" id="ppTf" role="group" aria-label="Zeitraum"><button type="button" data-tf="30">30M</button><button type="button" data-tf="60">1H</button><button type="button" data-tf="180">3H</button><button type="button" data-tf="360">6H</button></div>
+      </div>
+      <div class="pp-chart" id="ppWrap"><canvas id="ppCv" aria-label="Kerzen-Chart mit 1-Minuten-Kerzen"></canvas><div class="pp-ohlc" id="ppOhlc"></div></div>
+      <div class="pp-meta"><span class="chip">1-Minuten-Kerzen</span><span class="chip num" id="ppHi">Hoch –</span><span class="chip num" id="ppLo">Tief –</span><span class="chip" id="ppHere">0 Positionen hier</span></div>
+    </div>
+  </div>
+  <section class="panel" aria-labelledby="ppPosH">
+    <div class="pp-ph"><h2 id="ppPosH">Offene Positionen <span class="chip num" id="ppPosChip">0/5</span></h2><button class="btn" id="ppCloseAll" type="button">Alle schließen</button></div>
+    <div class="pp-empty" id="ppPosEmpty">Keine offene Position. Wähle Einsatz und Hebel, dann Long oder Short.</div>
+    <div class="pp-poslist" id="ppPosList"></div>
+  </section>
+  <div class="pp-lower">
+    <section class="panel" aria-labelledby="ppHistH">
+      <div class="pp-ph"><h2 id="ppHistH">Historie</h2><span class="chip">letzte 30 Trades</span></div>
+      <div class="pp-empty" id="ppHistEmpty">Noch keine Trades abgeschlossen.</div>
+      <div class="pp-tbl" id="ppHistTbl" hidden><table><thead><tr><th>Zeit</th><th>Markt</th><th>Richtung</th><th class="r">Einsatz</th><th class="r">Einstieg → Ausstieg</th><th>Grund</th><th class="r">Netto</th></tr></thead><tbody id="ppHistBody"></tbody></table></div>
+    </section>
+    <section class="panel" aria-labelledby="ppStatH">
+      <div class="pp-ph"><h2 id="ppStatH">Statistik</h2></div>
+      <div class="pp-tiles">
+        <div class="pp-tile"><div class="k">Trades</div><div class="v" id="ppSN">0</div></div>
+        <div class="pp-tile"><div class="k">Trefferquote</div><div class="v" id="ppSWin">–</div></div>
+        <div class="pp-tile"><div class="k">Bester Trade</div><div class="v" id="ppSBest">–</div></div>
+        <div class="pp-tile"><div class="k">Schlechtester</div><div class="v" id="ppSWorst">–</div></div>
+        <div class="pp-tile"><div class="k">Gesamt-Netto</div><div class="v" id="ppSNet">±0,00</div></div>
+        <div class="pp-tile"><div class="k">Gebühren</div><div class="v" id="ppSFee">0,00</div></div>
+        <div class="pp-tile"><div class="k">Liquidationen</div><div class="v" id="ppSLiq">0</div></div>
+        <div class="pp-tile"><div class="k">Im Spiel</div><div class="v" id="ppSOpen">0,00</div></div>
+      </div>
+    </section>
+  </div>
+  <details class="odds"><summary>So funktioniert Perps</summary>
+    <div class="pp-help">
+      <section><p class="eyebrow">Grundidee</p><h3>Was ist ein Perp?</h3><p>Ein Perpetual Future ist eine Wette auf den Kurs, ohne Ablaufdatum. Du kaufst nichts, du setzt nur darauf, wohin der Kurs geht. Die Kurse sind simuliert, alles ist Spielgeld.</p></section>
+      <section><p class="eyebrow">Richtung</p><h3>Long und Short</h3><p><b>Long</b>: Du gewinnst, wenn der Kurs steigt.</p><p><b>Short</b>: Du gewinnst, wenn der Kurs fällt.</p></section>
+      <section><p class="eyebrow">Hebel</p><h3>Klein rein, groß bewegen</h3><p>Mit 100 Coins Einsatz und 10× Hebel bewegst du eine Position von 1.000 Coins. Steigt der Kurs um 1 %, machst du +10 Coins, also +10 % auf deinen Einsatz. Verluste wachsen genauso schnell.</p></section>
+      <section><p class="eyebrow">Risiko</p><h3>Liquidation</h3><p>Läuft der Kurs so weit gegen dich, dass dein Einsatz aufgebraucht ist, wird die Position zwangsweise geschlossen. Der Einsatz ist dann weg.</p><p>Faustregel: Bei 10× reichen −10 % gegen dich, bei 50× schon −2 %.</p></section>
+      <section><p class="eyebrow">Absichern</p><h3>Take-Profit und Stop-Loss</h3><p>Take-Profit schließt automatisch mit Gewinn, Stop-Loss begrenzt den Verlust, bevor die Liquidation kommt. Beide kannst du beim Öffnen in % oder später als Kurs setzen.</p></section>
+      <section><p class="eyebrow">Regeln</p><h3>Was hier gilt</h3><p>Pro Position höchstens 25 % deines Guthabens (inklusive Gebühr), maximal 5 offene Positionen. Beim Öffnen fallen 0,05 % der Positionsgröße als Gebühr an. Das Casino verdient daran nichts: Gebühren und Verluste fließen in den Jackpot.</p><p>Offene Positionen laufen weiter, auch wenn du ein anderes Spiel spielst. Bist du ganz weg, läuft der Markt beim Wiederkommen bis zu 2 Stunden nach.</p></section>
+    </div>
+  </details>
+  <div class="pp-flash" id="ppFlash"></div>
+</section>
+
 <!-- ======================= CHIP-STAPLER ======================= -->
 <section id="v-stapel" class="view" hidden>
   <div class="ghead" data-head="stapel"></div>
@@ -1736,6 +1950,7 @@ const GAMES={
   wetten:{name:'Wetten',short:'Wetten',hex:'#7cb342',rtp:'100 %',price:0,added:'2026-10-05'},
   lotto:{name:'Jackpot-Ziehung',short:'Jackpot',hex:'#f2a312',rtp:'100 %',price:0,added:'2026-10-08'},
   muenze:{name:'Double or Nothing',short:'Double',hex:'#e0662a',rtp:'97 %',price:1000,added:'2026-10-05'},
+  perps:{name:'Perps Trading',short:'Perps',hex:'#38bdf8',rtp:'fast 100 %',price:5000,added:'2026-10-12'},
   double:{name:'Double or Nothing',short:'Münzwurf',hex:'#d95926',rtp:'99 %',price:0,hidden:true}
 };
 const PLAY=Object.keys(GAMES).filter(k=>!GAMES[k].hidden);
@@ -1762,7 +1977,7 @@ function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=O
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0)+(S.dn&&S.dn.bet>0?+S.dn.bet:0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0)+(S.dn&&S.dn.bet>0?+S.dn.bet:0)+(S.pp&&Array.isArray(S.pp.pos)?S.pp.pos.reduce((t,p)=>t+(p&&+p.stake>0?+p.stake:p&&p.margin>0?+p.margin+(+p.fee||0):0),0):0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -2058,6 +2273,11 @@ const ART={
     '<g transform="translate(58 50)"><ellipse cx="0" cy="22" rx="26" ry="6" fill="#000" opacity=".35"/><circle r="24" fill="#c27d00"/><circle r="20" fill="#ffb020"/><circle r="20" fill="none" stroke="#ffd27a" stroke-width="2"/><text y="8" text-anchor="middle" font-size="22" font-weight="700" fill="#1d1300">♛</text></g>'+
     '<g transform="translate(106 40) rotate(18)"><circle r="16" fill="#7a5418"/><circle r="13" fill="#ffb020"/><text y="5" text-anchor="middle" font-size="14" font-weight="700" fill="#1d1300">1</text></g>'+
     '<text x="122" y="84" text-anchor="middle" font-size="16" font-weight="700" fill="#e0662a" font-family="Chakra Petch,monospace">×2</text></svg>',
+  perps:'<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#0e1a24"/><ellipse cx="86" cy="46" rx="74" ry="42" fill="#38bdf8" opacity=".1"/>'+
+    '<path d="M14 30h132M14 52h132M14 74h132" stroke="#22364a"/>'+
+    [[22,62,70,58,66,1],[34,56,66,60,64,0],[46,50,62,52,60,1],[58,44,56,46,54,1],[70,48,58,50,56,0],[82,38,52,40,50,1],[94,30,46,34,44,1],[106,34,48,36,46,0],[118,22,40,26,38,1],[130,14,32,18,30,1]].map(([x,h,l,t,b,u])=>`<path d="M${x} ${h}v${l-h}" stroke="${u?'#2fe08f':'#ff4d6a'}" stroke-width="1.5"/><rect x="${x-4}" y="${t}" width="8" height="${b-t}" rx="1" fill="${u?'#2fe08f':'#ff4d6a'}"/>`).join('')+
+    '<path d="M14 24h132" stroke="#ffb020" stroke-dasharray="4 3" opacity=".8"/><rect x="120" y="17" width="34" height="14" rx="3" fill="#ffb020"/><text x="137" y="27.5" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="9" fill="#1d1300">50×</text>'+
+    '<g font-family="Chakra Petch,sans-serif" font-weight="700" font-size="9"><rect x="14" y="80" width="40" height="14" rx="7" fill="#2fe08f" fill-opacity=".16"/><text x="34" y="90" text-anchor="middle" fill="#2fe08f">LONG ▲</text><rect x="60" y="80" width="44" height="14" rx="7" fill="#ff4d6a" fill-opacity=".16"/><text x="82" y="90" text-anchor="middle" fill="#ff4d6a">SHORT ▼</text></g></svg>',
   lotto:'<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#1f1a10"/><ellipse cx="80" cy="52" rx="78" ry="46" fill="#ffb020" opacity=".12"/>'+
     '<path d="M44 84h28l-4-8h-20z" fill="#24384a"/><circle cx="58" cy="46" r="31" fill="#152230" stroke="#c27d00" stroke-width="3"/><circle cx="58" cy="46" r="26" fill="none" stroke="#ffd27a" stroke-opacity=".2"/>'+
     '<g font-family="Chakra Petch,sans-serif" font-weight="700" font-size="9" text-anchor="middle"><circle cx="46" cy="56" r="8" fill="#ff4d6a"/><text x="46" y="59" fill="#fff">7</text><circle cx="62" cy="60" r="8" fill="#3987e5"/><text x="62" y="63" fill="#fff">25</text>'+
@@ -2090,7 +2310,7 @@ const ART={
 const LOCKBIG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
 function renderLobby(){
   $('gameCards').innerHTML=PLAY.map(k=>{const G=GAMES[k],g=S.games[k],o=owns(k);
-    const rec=k==='wetten'?WT.lobby(g):k==='lotto'?LT.lobby():k==='stapel'&&S.bal>=SK_MAXBAL?'Gesperrt ab <b>100.000</b> Coins Guthaben':(g.n?`Rekord <b>${fmtX(g.best)}</b> · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Noch nicht gespielt');
+    const rec=k==='wetten'?WT.lobby(g):k==='lotto'?LT.lobby():k==='perps'?PP.lobby(g):k==='stapel'&&S.bal>=SK_MAXBAL?'Gesperrt ab <b>100.000</b> Coins Guthaben':(g.n?`Rekord <b>${fmtX(g.best)}</b> · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Noch nicht gespielt');
     return `<button class="gcard ${o?'':'locked'}" ${o?`data-go="${k}"`:`data-unlock="${k}"`} style="--gc:${G.hex}"><div class="art">${ART[k]||''}${o?'':`<div class="lockov"><span>${LOCKBIG}${fmt0(G.price)} Coins</span></div>`}</div><div class="body"><h3><span class="dot" style="background:${G.hex}"></span>${G.short}</h3><span class="rec">${o?rec:'Gesperrt · Auszahlung '+G.rtp}</span><span class="cta"><span class="btn ${o?'gold':''}" style="display:inline-block;padding:7px 14px">${o?'Spielen':(S.bal>=G.price?'Freischalten':'Noch '+short(G.price-S.bal))}</span></span></div></button>`}).join('');
   LT.hero();
   const last=S.log.slice(-6).reverse();$('feed').innerHTML=last.length?last.map(r=>{const G=GAMES[r[1]];const n=r[3]-r[2];return `<div class="frow"><span class="dot" style="background:${G.hex}"></span><span>${G.short}</span><b>${fmtX(r[4])}</b><b class="${cls(n)}">${sgn(n)}</b></div>`}).join(''):'<p class="empty">Noch keine Runden. Such dir oben ein Spiel aus.</p>'}
@@ -3683,6 +3903,356 @@ const LT=(()=>{
       const ms=I.d-now();return `Topf <b>${short(I.pot)}</b> · ${ms>0?'Ziehung in '+left(ms):'Ziehung läuft'}`+(online()&&myT()?` · <b>${myT()}</b> ${myT()===1?'Los':'Lose'}`:'')}}})();
 onShow.lotto=LT.show;
 
+// ================= GAME: PERPS (Trading) =================
+// Simulierte Märkte, auf die man mit Hebel Long oder Short geht. Einsatz + Gebühr gehen über take() ins Spiel (S.inPlay),
+// beim Schließen rechnet settle() ab (Spielstatistik "perps"). Gebühren und Verluste landen so automatisch im Jackpot.
+// Offene Positionen liegen im Spielstand (S.pp.pos), dazu je Markt ein kleiner Kurs-Anker (S.pp.mk), damit ein anderes Gerät
+// am selben Kurs weitermacht. Die Kerzen selbst (zu groß für den Spielstand) liegen nur auf dem Gerät (localStorage "lr_perps_mk").
+// Der Markt läuft im Hintergrund weiter (auch in anderen Spielen); war die Seite zu, wird bis zu 2 Stunden nachgerechnet.
+const PP=(()=>{
+  const RB=new Uint32Array(4096);let ri=RB.length;
+  const prnd=()=>{if(ri>=RB.length){crypto.getRandomValues(RB);ri=0}return(RB[ri++]+.5)/4294967296};
+  let gSpare=null;
+  function gauss(){if(gSpare!==null){const s=gSpare;gSpare=null;return s}const r=Math.sqrt(-2*Math.log(prnd())),th=2*Math.PI*prnd();gSpare=r*Math.sin(th);return r*Math.cos(th)}
+
+  const TICK=250,TPM=60000/TICK,MAXC=720,HISTC=400,FEE=.0005,MAXPOS=5,MINM=10,CATCHUP=120,LKEY='lr_perps_mk';
+  const MARKETS=[
+    {id:'SPX',name:'S&P 500',sub:'Aktienindex',mood:'Ruhig',base:6420,dec:2,vol:.0006,jumpP:1/9000,jump:[.003,.009]},
+    {id:'BTC',name:'BTC',sub:'Bitcoin',mood:'Normal',base:104250,dec:1,vol:.0018,jumpP:1/4000,jump:[.008,.025]},
+    {id:'ETH',name:'ETH',sub:'Ethereum',mood:'Sehr wild',base:3850,dec:2,vol:.0045,jumpP:1/2000,jump:[.02,.06]}];
+  const MK=Object.fromEntries(MARKETS.map(m=>[m.id,m]));
+  const CL={bg2:'#0b141c',panel3:'#24384a',line:'#22364a',line2:'#2f4960',ink:'#e9f0f6',mute:'#8ba2b7',dim:'#5d7387',brass:'#ffb020',onBrass:'#1d1300',win:'#2fe08f',loss:'#ff4d6a'};
+  const REASON={close:'Geschlossen',tp:'Take-Profit',sl:'Stop-Loss',liq:'Liquidiert'};
+
+  // ---- Format
+  const NF={},nf=d=>NF[d]||(NF[d]=new Intl.NumberFormat('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}));
+  const f2=(v,d=2)=>{const s=nf(d).format(Math.abs(v));return(v<0&&Math.abs(v)>=.5*Math.pow(10,-d))?'−'+s:s};
+  const sg=(v,d=2)=>Math.abs(v)<.5*Math.pow(10,-d)?'±'+nf(d).format(0):(v>0?'+':'−')+nf(d).format(Math.abs(v));
+  const fp=(v,m)=>f2(v,m.dec);
+  const kl=v=>v>.004?'pos':v<-.004?'neg':'pp-mute';
+  const hhmm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+  function parseNum(s){s=String(s||'').trim().replace(/\s/g,'');if(!s)return null;if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const v=parseFloat(s);return isFinite(v)?v:NaN}
+
+  // ---- Spielstand (S.pp)
+  const freshPP=()=>({pos:[],hist:[],stats:{n:0,wins:0,best:null,worst:null,net:0,fees:0,liqs:0},nextId:1,sel:'BTC',tf:60,lev:10,margin:0,tpR:null,slR:null,mk:null,last:0});
+  function norm(){let o=S.pp;if(!o||typeof o!=='object')o={};const f=freshPP();
+    S.pp=Object.assign(f,o);const p=S.pp;
+    p.pos=(Array.isArray(o.pos)?o.pos:[]).filter(x=>x&&MK[x.mk]&&(x.side===1||x.side===-1)&&x.margin>0&&x.entry>0&&x.qty>0).map(x=>Object.assign({},x,{stake:+x.stake>0?+x.stake:r2(x.margin+(+x.fee||0))}));
+    p.hist=Array.isArray(o.hist)?o.hist.filter(h=>h&&MK[h.mk]).slice(0,30):[];
+    p.stats=Object.assign(f.stats,o.stats&&typeof o.stats==='object'?o.stats:{});
+    if(!MK[p.sel])p.sel='BTC';if(![30,60,180,360].includes(p.tf))p.tf=60;
+    p.lev=Math.max(1,Math.min(50,Math.round(+p.lev||10)));if(!(+p.margin>0))p.margin=0;
+    if(!(p.tpR>0))p.tpR=null;if(!(p.slR>0))p.slR=null;
+    p.nextId=Math.max(+p.nextId||1,...p.pos.map(x=>(+x.id||0)+1),1);return p}
+  const P=()=>S.pp;
+
+  // ---- Märkte (live auf dem Gerät)
+  let M=null;
+  function stepMarket(m,st,t){
+    const s0=m.vol/Math.sqrt(TPM);
+    st.tr=st.tr*.999+gauss()*s0*.0027;                   // langsamer Trend
+    st.vm=1+(st.vm-1)*.998+gauss()*.01;                  // ruhige und wilde Phasen
+    if(st.vm<.45)st.vm=.45;else if(st.vm>4)st.vm=4;
+    let ret=st.tr+s0*st.vm*gauss()-(st.lp-Math.log(m.base))*2e-6;
+    if(prnd()<m.jumpP){const dir=prnd()<.5?-1:1;st.jr+=dir*(m.jump[0]+prnd()*(m.jump[1]-m.jump[0]));st.vm=Math.min(4,st.vm+1.4);st.tr+=dir*s0*.08}
+    if(st.jr!==0){const part=st.jr*.3;ret+=part;st.jr-=part;if(Math.abs(st.jr)<1e-6)st.jr=0}
+    st.lp+=ret;st.p=Math.exp(st.lp);
+    const ms=Math.floor(t/60000)*60000,c=st.c,last=c[c.length-1];
+    if(!last||last.t!==ms){const o=last?last.c:st.p;c.push({t:ms,o,h:Math.max(o,st.p),l:Math.min(o,st.p),c:st.p});if(c.length>MAXC)c.splice(0,c.length-MAXC)}
+    else{last.c=st.p;if(st.p>last.h)last.h=st.p;if(st.p<last.l)last.l=st.p}}
+  function initMarkets(now){const mk={};
+    MARKETS.forEach(m=>{mk[m.id]={lp:Math.log(m.base)+gauss()*.02,p:m.base,tr:0,vm:1,jr:0,c:[]}});
+    let t=Math.floor(now/60000)*60000-HISTC*60000;for(;t<=now;t+=TICK)MARKETS.forEach(m=>stepMarket(m,mk[m.id],t));
+    return{mk,last:t-TICK}}
+  function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LKEY)||'null');
+      if(!d||!d.mk||!(d.last>0)||!MARKETS.every(m=>d.mk[m.id]&&Array.isArray(d.mk[m.id].c)&&d.mk[m.id].c.length>10&&isFinite(d.mk[m.id].lp)))return null;
+      MARKETS.forEach(m=>{const st=d.mk[m.id];st.p=Math.exp(st.lp);st.tr=+st.tr||0;st.vm=+st.vm||1;st.jr=+st.jr||0});return d}catch(e){return null}}
+  let localAt=0;
+  function saveLocal(){if(!M)return;try{localStorage.setItem(LKEY,JSON.stringify(M))}catch(e){}localAt=Date.now()}
+  // Anker in den Spielstand schreiben (klein: nur Kurs und Stimmung je Markt)
+  function anchor(){const p=P();if(!M||!p)return;const a={};MARKETS.forEach(m=>{const st=M.mk[m.id];a[m.id]={lp:Math.round(st.lp*1e9)/1e9,tr:st.tr,vm:Math.round(st.vm*1e4)/1e4,jr:st.jr}});p.mk=a;p.last=M.last}
+  // Markt wählen: eigener Gerätestand, wenn er aktuell ist, sonst Verlauf neu bauen und auf den Anker im Spielstand schieben
+  function setupMarkets(){const p=P(),now=Date.now(),loc=loadLocal();
+    if(loc&&loc.last<=now+60000&&(!p.last||loc.last>=p.last-5000)){M=loc;return}
+    M=initMarkets(Math.min(p.last||now,now));   // Uhr eines anderen Geräts geht vor: nicht in der Zukunft starten
+    if(p.mk)MARKETS.forEach(m=>{const a=p.mk[m.id],st=M.mk[m.id];if(!a||!isFinite(a.lp))return;const f=Math.exp(a.lp-st.lp);
+      st.c.forEach(k=>{k.o*=f;k.h*=f;k.l*=f;k.c*=f});st.lp=a.lp;st.p=Math.exp(a.lp);st.tr=+a.tr||0;st.vm=+a.vm||1;st.jr=+a.jr||0})}
+
+  // ---- Ton (Casino-Ton, also auch die Ton-Einstellung)
+  function bp(f,dur,o={}){const a=ac();if(!a)return;try{const t=a.currentTime+(o.at||0),osc=a.createOscillator(),g=a.createGain();osc.type=o.type||'sine';osc.frequency.setValueAtTime(f,t);
+    if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.07,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    osc.connect(g);g.connect(a.destination);osc.start(t);osc.stop(t+dur+.05)}catch(e){}}
+  function noise(dur,vol){const a=ac();if(!a)return;try{const n=Math.floor(a.sampleRate*dur),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(prnd()*2-1)*(1-i/n);
+    const src=a.createBufferSource(),g=a.createGain(),f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=900;g.gain.value=vol;src.buffer=b;src.connect(f);f.connect(g);g.connect(a.destination);src.start()}catch(e){}}
+  const SFX={open(){bp(520,.08,{type:'triangle',vol:.06});bp(780,.1,{type:'triangle',at:.06,vol:.06})},
+    win(){[660,880,1175].forEach((f,i)=>bp(f,.14,{type:'triangle',at:i*.07,vol:.055}))},
+    big(){[523,659,784,1047,1319].forEach((f,i)=>bp(f,.18,{type:'triangle',at:i*.07,vol:.06}))},
+    lose(){bp(440,.22,{type:'sine',to:250,vol:.06})},
+    liq(){bp(260,.7,{type:'sawtooth',to:45,vol:.08});bp(130,.7,{type:'square',to:40,vol:.04});noise(.4,.12)},
+    click(){bp(1100,.03,{type:'square',vol:.015})},err(){bp(180,.12,{type:'square',vol:.03})}};
+
+  // ---- Elemente
+  const q=id=>document.getElementById(id);
+  const E={game:q('ppGame'),eq:q('ppEq'),up:q('ppUp'),mkSeg:q('ppMk'),margin:q('ppMargin'),maxM:q('ppMaxM'),lev:q('ppLev'),levV:q('ppLevV'),
+    tpR:q('ppTp'),slR:q('ppSl'),size:q('ppSize'),fee:q('ppFee'),liqL:q('ppLiqL'),liqS:q('ppLiqS'),bLong:q('ppLong'),bShort:q('ppShort'),longS:q('ppLongS'),shortS:q('ppShortS'),hint:q('ppHint'),
+    eye:q('ppEye'),name:q('ppName'),px:q('ppPx'),chg:q('ppChg'),hi:q('ppHi'),lo:q('ppLo'),here:q('ppHere'),tfSeg:q('ppTf'),ohlc:q('ppOhlc'),cv:q('ppCv'),wrap:q('ppWrap'),
+    posList:q('ppPosList'),posEmpty:q('ppPosEmpty'),posChip:q('ppPosChip'),closeAll:q('ppCloseAll'),histBody:q('ppHistBody'),histEmpty:q('ppHistEmpty'),histTbl:q('ppHistTbl'),
+    sN:q('ppSN'),sWin:q('ppSWin'),sBest:q('ppSBest'),sWorst:q('ppSWorst'),sNet:q('ppSNet'),sFee:q('ppSFee'),sLiq:q('ppSLiq'),sOpen:q('ppSOpen'),flash:q('ppFlash')};
+  const vis=()=>cur==='perps'&&!document.hidden;
+  const online=()=>!ACCOUNTS||(!!acct&&srvReady);    // erst rechnen, wenn der Spielstand vom Server da ist
+  const act=()=>cur!=='perps'?{label:'Ansehen',go:'perps'}:null;
+
+  function liqFx(){if(!vis())return;E.flash.classList.remove('on');void E.flash.offsetWidth;E.flash.classList.add('on');
+    if(!reduced){E.game.classList.remove('shake');void E.game.offsetWidth;E.game.classList.add('shake')}}
+
+  // ---- Handel
+  const maxMargin=lev=>Math.max(0,Math.floor(tableLimit()/(1+FEE*(lev||P().lev))*100)/100);
+  const pnlOf=(p,price)=>Math.max(-p.margin,p.side*p.qty*(price-p.entry));
+  function formError(){const p=P();
+    if(ACCOUNTS&&!acct)return'Melde dich an, um zu traden.';
+    if(p.pos.length>=MAXPOS)return'Maximal 5 offene Positionen. Schließ zuerst eine.';
+    if(S.bal<MINM*(1+FEE*p.lev))return'Zu wenig freies Guthaben für eine neue Position.';
+    const mx=maxMargin();
+    if(!(p.margin>=MINM))return mx>=MINM?'Mindesteinsatz: 10 Coins.':'Zu wenig Guthaben: Mindesteinsatz 10 Coins (höchstens 25 % des Guthabens).';
+    if(p.margin>mx+1e-9)return'Höchstens 25 % deines Guthabens inkl. Gebühr: max '+f2(mx)+'.';
+    if(p.slR!=null&&p.slR>=100)return'Stop-Loss muss unter 100 % liegen, sonst kommt vorher die Liquidation.';
+    return''}
+  function openPos(side){ensure();if(!M)return;
+    const err=formError();if(err){toast(esc(err),'bad');SFX.err();return}
+    const p=P(),m=MK[p.sel],price=M.mk[p.sel].p,margin=Math.floor(p.margin*100)/100,lev=p.lev,size=r2(margin*lev),fee=r2(Math.max(.01,size*FEE)),stake=r2(margin+fee);
+    if(!take('perps',stake))return;
+    const o={id:p.nextId++,mk:p.sel,side,margin,lev,size,qty:size/price,entry:price,liq:price*(1-side/lev),fee,stake,tp:null,sl:null,t:Date.now()};
+    if(p.tpR>0)o.tp=price*(1+side*p.tpR/100/lev);
+    if(p.slR>0&&p.slR<100)o.sl=price*(1-side*p.slR/100/lev);
+    p.pos.push(o);p.stats.fees=r2(p.stats.fees+fee);
+    SFX.open();toast(`<b>${side>0?'Long':'Short'} ${esc(m.name)} ${lev}×</b> eröffnet · ${f2(size)} Coins bei ${fp(price,m)}`,side>0?'good':'');
+    anchor();save();syncPositions();renderStats();ui()}
+
+  let quietLog=null;
+  function closePos(o,price,reason){const p=P(),idx=p.pos.indexOf(o);if(idx<0)return;p.pos.splice(idx,1);
+    const m=MK[o.mk],pnl=reason==='liq'?-o.margin:pnlOf(o,price),exit=reason==='liq'?o.liq:price;
+    const pay=r2(Math.max(0,o.margin+pnl)),net=r2(pay-o.stake);
+    p.hist.unshift({id:o.id,mk:o.mk,side:o.side,lev:o.lev,margin:o.margin,entry:o.entry,exit,net,reason,t:Date.now()});if(p.hist.length>30)p.hist.length=30;
+    const st=p.stats;st.n++;if(net>0)st.wins++;st.net=r2(st.net+net);if(st.best===null||net>st.best)st.best=net;if(st.worst===null||net<st.worst)st.worst=net;if(reason==='liq')st.liqs++;
+    anchor();
+    settle('perps',o.stake,pay,o.stake>0?pay/o.stake:0,o.stake>0?o.margin/o.stake:1);   // speichert auch
+    if(quietLog){quietLog.push({net,reason});return}
+    const c=cards.get(o.id);if(c){c.el.remove();cards.delete(o.id)}
+    const roi=pnl/o.margin*100,head=`${o.side>0?'Long':'Short'} ${esc(m.name)} ${o.lev}×`;
+    if(reason==='liq'){liqFx();SFX.liq();toast(`<b>Liquidiert!</b> ${head} · Einsatz <b class="num">${sg(-o.margin)}</b> weg`,'bad',act())}
+    else{const big=pnl>0&&(pnl>=o.margin||pnl>=1000);
+      if(big){if(vis())confetti(140);SFX.big()}else if(pnl>=0)SFX.win();else SFX.lose();
+      toast(`<b>${REASON[reason]}</b> · ${head} · <b class="num ${kl(net)}">${sg(net)}</b> (${sg(roi,1)} %)`,net>=0?'good':'bad',reason==='close'?null:act());
+      if(net>0)flyText(net)}
+    afterTrade()}
+  function afterTrade(){syncPositions();renderHist();renderStats();ui()}
+  function closeAll(){ensure();const p=P();if(!p.pos.length){toast('Keine offene Position.');return}
+    const list=p.pos.slice();let sum=0;list.forEach(o=>{const pr=M.mk[o.mk].p;sum+=r2(Math.max(0,o.margin+pnlOf(o,pr))-o.stake);closePos(o,pr,'close')});
+    if(list.length>1)toast(`<b>${list.length} Positionen geschlossen</b> · Netto <b class="num ${kl(sum)}">${sg(sum)}</b>`,sum>=0?'good':'bad')}
+  function checkPositions(){const p=P();
+    for(let i=p.pos.length-1;i>=0;i--){const o=p.pos[i];if(!o)continue;const price=M.mk[o.mk].p,L=o.side>0;
+      if(L?price<=o.liq:price>=o.liq)closePos(o,price,'liq');
+      else if(o.sl!=null&&(L?price<=o.sl:price>=o.sl))closePos(o,price,'sl');
+      else if(o.tp!=null&&(L?price>=o.tp:price<=o.tp))closePos(o,price,'tp')}}
+  function advance(now,quiet){
+    if(now-M.last>CATCHUP*60000)M.last=now-CATCHUP*60000;
+    const steps=Math.floor((now-M.last)/TICK);if(steps<=0)return;
+    const qt=quiet||steps>40,p=P();if(qt)quietLog=[];
+    let t=M.last+TICK;
+    for(let k=0;k<steps;k++,t+=TICK){for(let j=0;j<MARKETS.length;j++)stepMarket(MARKETS[j],M.mk[MARKETS[j].id],t);if(p.pos.length)checkPositions()}
+    M.last=t-TICK;
+    if(qt){const log=quietLog;quietLog=null;
+      if(log.length){const sum=log.reduce((a,e)=>a+e.net,0),liqs=log.filter(e=>e.reason==='liq').length;
+        toast(`<b>Perps, während du weg warst:</b> ${log.length} Position${log.length>1?'en':''} geschlossen${liqs?', '+liqs+' liquidiert':''} · Netto <b class="num ${kl(sum)}">${sg(sum)}</b>`,sum>=0?'good':'bad',act());
+        afterTrade()}}}
+
+  // ---- Positionen (Karten)
+  const cards=new Map();
+  function buildCard(o){const m=MK[o.mk],a=document.createElement('article');a.className='pp-pos new';a.dataset.id=o.id;
+    a.innerHTML=`<div class="pp-pos-top"><span class="pp-tag ${o.side>0?'l':'s'}">${o.side>0?'Long ▲':'Short ▼'}</span><button class="pp-pos-mk" type="button" title="Chart anzeigen">${esc(m.name)}</button><span class="chip num">${o.lev}×</span>
+      <div class="pp-pnl"><b class="num" data-f="pnl">±0,00</b><span class="num" data-f="roi">±0,0 %</span></div></div>
+      <dl class="pp-kv"><div><dt>Einstieg</dt><dd class="num">${fp(o.entry,m)}</dd></div><div><dt>Kurs</dt><dd class="num" data-f="px">–</dd></div>
+      <div><dt>Liquidation</dt><dd class="num neg">${o.liq>0?fp(o.liq,m):'keine'}</dd></div><div><dt>Größe</dt><dd class="num">${f2(o.size)}</dd></div>
+      <div><dt>Einsatz</dt><dd class="num">${f2(o.margin)}</dd></div><div><dt>Gebühr</dt><dd class="num">${f2(o.fee)}</dd></div></dl>
+      <div class="pp-health"><span>Margin übrig</span><div class="pp-hb"><i data-f="hb"></i></div><span class="num" data-f="ht">100 %</span></div>
+      <div class="pp-ctl"><label>TAKE-PROFIT<input class="inp" data-f="tp" inputmode="decimal" autocomplete="off" placeholder="Kurs"></label><label>STOP-LOSS<input class="inp" data-f="sl" inputmode="decimal" autocomplete="off" placeholder="Kurs"></label><button class="btn" type="button" data-f="close">Schließen</button></div>`;
+    const f=n=>a.querySelector(`[data-f="${n}"]`);
+    const c={el:a,pnl:f('pnl'),roi:f('roi'),px:f('px'),hb:f('hb'),ht:f('ht'),tp:f('tp'),sl:f('sl')};
+    c.tp.value=o.tp!=null?fp(o.tp,m):'';c.sl.value=o.sl!=null?fp(o.sl,m):'';
+    f('close').addEventListener('click',()=>{ensure();const x=P().pos.find(z=>z.id===o.id);if(x)closePos(x,M.mk[x.mk].p,'close')});
+    a.querySelector('.pp-pos-mk').addEventListener('click',()=>selectMarket(o.mk));
+    const bind=(inp,key)=>inp.addEventListener('change',()=>setTrigger(o.id,key,inp));bind(c.tp,'tp');bind(c.sl,'sl');
+    setTimeout(()=>a.classList.remove('new'),1500);return c}
+  function setTrigger(id,key,inp){const o=P().pos.find(x=>x.id===id);if(!o)return;
+    const m=MK[o.mk],price=M.mk[o.mk].p,v=parseNum(inp.value),L=o.side>0,nm=key==='tp'?'Take-Profit':'Stop-Loss';
+    const revert=msg=>{toast(esc(msg),'bad');SFX.err();inp.value=o[key]!=null?fp(o[key],m):''};
+    if(v===null){o[key]=null;inp.value='';toast(nm+' entfernt.');save();dirty=true;return}
+    if(!(v>0))return revert('Bitte einen gültigen Kurs eingeben.');
+    if(key==='tp'&&(L?v<=price:v>=price))return revert(`Take-Profit muss ${L?'über':'unter'} dem aktuellen Kurs (${fp(price,m)}) liegen.`);
+    if(key==='sl'){if(L?v>=price:v<=price)return revert(`Stop-Loss muss ${L?'unter':'über'} dem aktuellen Kurs (${fp(price,m)}) liegen.`);
+      if(L?v<=o.liq:v>=o.liq)return revert(`Stop-Loss muss vor der Liquidation (${fp(o.liq,m)}) liegen.`)}
+    o[key]=v;inp.value=fp(v,m);toast(`${nm} gesetzt: <b class="num">${fp(v,m)}</b>`,key==='tp'?'good':'');save();dirty=true}
+  function syncPositions(){const p=P();
+    p.pos.forEach(o=>{if(!cards.has(o.id)){const c=buildCard(o);cards.set(o.id,c);E.posList.appendChild(c.el)}});
+    for(const [id,c] of cards){if(!p.pos.some(o=>o.id===id)){c.el.remove();cards.delete(id)}}
+    E.posEmpty.hidden=p.pos.length>0;E.posChip.textContent=p.pos.length+'/'+MAXPOS;E.closeAll.disabled=p.pos.length===0}
+  function updatePositions(){P().pos.forEach(o=>{const c=cards.get(o.id);if(!c)return;
+    const m=MK[o.mk],price=M.mk[o.mk].p,pnl=pnlOf(o,price),roi=pnl/o.margin*100,k=kl(pnl);
+    c.pnl.textContent=sg(pnl);c.pnl.className='num '+k;c.roi.textContent=sg(roi,1)+' %';c.roi.className='num '+k;c.px.textContent=fp(price,m);
+    const h=(o.margin+pnl)/o.margin;c.hb.style.width=Math.max(0,Math.min(100,h*100))+'%';c.hb.style.background=h<.3?CL.loss:h<.6?CL.brass:CL.win;
+    c.ht.textContent=Math.round(Math.max(0,h*100))+' %';c.el.classList.toggle('danger',h<.3)})}
+
+  // ---- Historie und Statistik
+  function renderHist(){const H=P().hist;E.histEmpty.hidden=H.length>0;E.histTbl.hidden=H.length===0;
+    E.histBody.innerHTML=H.map(h=>{const m=MK[h.mk];return `<tr><td class="num pp-mute">${hhmm(h.t)}</td><td><b class="num">${esc(m.name)}</b></td><td><span class="pp-tag ${h.side>0?'l':'s'}">${h.side>0?'Long':'Short'} ${h.lev}×</span></td>
+      <td class="r num">${f2(h.margin)}</td><td class="r num">${fp(h.entry,m)} → ${fp(h.exit,m)}</td><td><span class="pp-rs ${h.reason}">${REASON[h.reason]||''}</span></td><td class="r num ${kl(h.net)}"><b>${sg(h.net)}</b></td></tr>`}).join('')}
+  function renderStats(){const s=P().stats;E.sN.textContent=s.n;E.sWin.textContent=s.n?f2(s.wins/s.n*100,1)+' %':'–';
+    const set=(el,v)=>{el.textContent=v===null?'–':sg(v);el.className='v '+(v===null?'':kl(v))};
+    set(E.sBest,s.best);set(E.sWorst,s.worst);set(E.sNet,s.n?s.net:0);E.sFee.textContent=f2(s.fees);E.sLiq.textContent=s.liqs;E.sLiq.className='v '+(s.liqs?'neg':'')}
+
+  // ---- Anzeige
+  function ui(){if(!M)return;const p=P(),m=MK[p.sel],st=M.mk[p.sel];
+    let up=0,locked=0;p.pos.forEach(o=>{up+=pnlOf(o,M.mk[o.mk].p);locked+=o.margin});
+    E.eq.textContent=f2(S.bal+locked+up);E.up.textContent=sg(up);E.up.className='v '+kl(up);E.sOpen.textContent=f2(locked);
+    MARKETS.forEach(mm=>{const b=mkBtns[mm.id],c=M.mk[mm.id].c,ref=c[Math.max(0,c.length-60)].o,ch=(M.mk[mm.id].p/ref-1)*100;
+      b.chg.textContent=sg(ch,2)+' %';b.chg.className='mc num '+kl(ch);b.el.setAttribute('aria-pressed',mm.id===p.sel?'true':'false')});
+    const c=st.c,ref=c[Math.max(0,c.length-60)].o,ch=(st.p/ref-1)*100;
+    E.px.textContent=fp(st.p,m);E.px.style.color=st.p>=c[c.length-1].o?CL.ink:'#ffd5dc';
+    E.chg.textContent='1H '+sg(ch,2)+' %';E.chg.className='chip num '+kl(ch);
+    let hi=-Infinity,lo=Infinity;c.slice(-p.tf).forEach(k=>{if(k.h>hi)hi=k.h;if(k.l<lo)lo=k.l});
+    E.hi.textContent='Hoch '+fp(hi,m);E.lo.textContent='Tief '+fp(lo,m);
+    const here=p.pos.filter(o=>o.mk===p.sel).length;E.here.textContent=here===1?'1 Position hier':here+' Positionen hier';
+    const mx=maxMargin();E.maxM.textContent='max '+f2(mx);
+    const size=(p.margin>0?p.margin:0)*p.lev;E.size.textContent=size?f2(size):'–';E.fee.textContent=size?f2(size*FEE):'–';
+    const lL=st.p*(1-1/p.lev),lS=st.p*(1+1/p.lev);E.liqL.textContent=lL>0?fp(lL,m):'keine';E.liqS.textContent=fp(lS,m);
+    const err=formError();
+    E.margin.classList.toggle('bad',!!err&&(p.margin>mx+1e-9||!(p.margin>=MINM)));E.slR.classList.toggle('bad',p.slR!=null&&p.slR>=100);
+    [E.bLong,E.bShort].forEach(b=>b.disabled=!!err);
+    E.hint.textContent=err||`${f2(p.margin,0)} Coins × ${p.lev} = ${f2(size)} Coins Position.`;E.hint.classList.toggle('err',!!err);
+    const sub=err?'gesperrt':`${f2(p.margin,0)} × ${p.lev}`;E.longS.textContent=sub;E.shortS.textContent=sub;
+    updatePositions()}
+
+  // ---- Steuerung
+  const mkBtns={};
+  MARKETS.forEach((m,i)=>{const b=document.createElement('button');b.type='button';b.title=`${m.name} · ${m.mood} (Taste ${i+1})`;
+    b.innerHTML=`<span class="mn">${esc(m.name)}</span><span class="mc num">–</span>`;b.addEventListener('click',()=>{selectMarket(m.id);SFX.click()});
+    E.mkSeg.appendChild(b);mkBtns[m.id]={el:b,chg:b.querySelector('.mc')}});
+  function selectMarket(id){if(!MK[id]||!M)return;const p=P();p.sel=id;V.dp=M.mk[id].p;V.snap=true;V.hover=-1;
+    const m=MK[id];E.eye.textContent=m.mood+' · '+m.sub;E.name.textContent=m.name;ui();dirty=true}
+  function setTf(tf){P().tf=tf;V.snap=true;[...E.tfSeg.children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.tf===tf?'true':'false'));ui();dirty=true}
+  E.tfSeg.addEventListener('click',e=>{const b=e.target.closest('button[data-tf]');if(b){setTf(+b.dataset.tf);SFX.click()}});
+  function setLev(v){const p=P();p.lev=Math.max(1,Math.min(50,Math.round(v)));E.lev.value=p.lev;E.levV.textContent=p.lev+'×';E.levV.classList.toggle('hot',p.lev>=25);
+    E.lev.style.setProperty('--p',((p.lev-1)/49*100)+'%');document.querySelectorAll('#ppLQ button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.l===p.lev?'true':'false'));ui();dirty=true}
+  E.lev.addEventListener('input',()=>setLev(+E.lev.value));
+  q('ppLQ').addEventListener('click',e=>{const b=e.target.closest('button[data-l]');if(b){setLev(+b.dataset.l);SFX.click()}});
+  function setMargin(v,write){const p=P();p.margin=isFinite(v)&&v>0?v:0;if(write)E.margin.value=p.margin?Math.floor(p.margin):'';ui()}
+  E.margin.addEventListener('input',()=>setMargin(parseFloat(String(E.margin.value).replace(',','.')),false));
+  E.margin.addEventListener('blur',()=>{if(!(P().margin>0))setMargin(Math.min(500,maxMargin()),true)});
+  q('ppMQ').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(!b)return;const mx=maxMargin();
+    setMargin(b.dataset.p==='max'?Math.floor(mx):Math.min(Math.floor(mx),Math.max(MINM,Math.floor(S.bal*+b.dataset.p))),true);SFX.click()});
+  const readPct=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFinite(v)&&v>0?v:null};
+  E.tpR.addEventListener('input',()=>{P().tpR=readPct(E.tpR);ui()});
+  E.slR.addEventListener('input',()=>{P().slR=readPct(E.slR);ui()});
+  [[E.bLong,1],[E.bShort,-1]].forEach(([b,s])=>{b.addEventListener('click',()=>{ac();openPos(s)});
+    b.addEventListener('pointerenter',()=>{V.pv=s;dirty=true});b.addEventListener('pointerleave',()=>{V.pv=0;dirty=true});
+    b.addEventListener('focus',()=>{V.pv=s;dirty=true});b.addEventListener('blur',()=>{V.pv=0;dirty=true})});
+  E.closeAll.addEventListener('click',closeAll);
+
+  // ---- Chart
+  const cv=E.cv,cx=cv.getContext('2d');
+  let CW=300,CH=200,DPR=1,dirty=true;
+  const V={lo:null,hi:null,dp:0,snap:true,hover:-1,hy:null,pv:0,geo:null};
+  function resize(){const r=E.wrap.getBoundingClientRect();if(r.width<10)return;DPR=Math.min(window.devicePixelRatio||1,3);
+    CW=Math.max(120,Math.floor(r.width));CH=Math.max(160,Math.floor(r.height));cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=CW+'px';cv.style.height=CH+'px';dirty=true}
+  if(window.ResizeObserver)new ResizeObserver(resize).observe(E.wrap);else addEventListener('resize',resize);
+  const crisp=v=>(Math.round(v*DPR)+.5)/DPR;
+  function nice(x){const e=Math.pow(10,Math.floor(Math.log10(x))),f=x/e;return(f<1.5?1:f<3?2:f<7?5:10)*e}
+  function rr(x,y,w,h,r){cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath()}
+  function axisTag(y,text,bg,fg,padR){cx.font='700 11px "Chakra Petch", sans-serif';const x=CW-padR+4,w=padR-8,h=18;rr(x,y-h/2,w,h,4);cx.fillStyle=bg;cx.fill();
+    cx.fillStyle=fg;cx.textAlign='center';cx.textBaseline='middle';cx.fillText(text,x+w/2,y+.5)}
+  function leftTag(x,y,text,color){cx.font='700 10px "Chakra Petch", sans-serif';const w=cx.measureText(text).width+12,h=16;rr(x,y-h/2,w,h,8);cx.fillStyle=CL.panel3;cx.fill();
+    cx.strokeStyle=color;cx.lineWidth=1;cx.stroke();cx.fillStyle=color;cx.textAlign='left';cx.textBaseline='middle';cx.fillText(text,x+6,y+.5)}
+  function draw(){const p=P(),m=MK[p.sel],st=M.mk[p.sel],n=p.tf,vs=st.c.slice(-n),k=vs.length;if(!k)return;
+    const padL=6,padR=CW<480?66:78,padT=CW<480?50:34,padB=24,pw=CW-padL-padR,ph=CH-padT-padB,dp=V.dp,mine=p.pos.filter(o=>o.mk===p.sel);
+    let lo=Infinity,hi=-Infinity;for(let i=0;i<k;i++){if(vs[i].l<lo)lo=vs[i].l;if(vs[i].h>hi)hi=vs[i].h}
+    lo=Math.min(lo,dp);hi=Math.max(hi,dp);mine.forEach(o=>{lo=Math.min(lo,o.entry);hi=Math.max(hi,o.entry)});
+    const span=Math.max(hi-lo,hi*2e-4),tLo=lo-span*.1,tHi=hi+span*.1;
+    if(V.lo===null||V.snap){V.lo=tLo;V.hi=tHi;V.snap=false}
+    else{V.lo+=(tLo-V.lo)*.16;V.hi+=(tHi-V.hi)*.16;if(Math.abs(tLo-V.lo)>span*1e-3||Math.abs(tHi-V.hi)>span*1e-3)dirty=true}
+    const yr=V.hi-V.lo,Y=v=>padT+(V.hi-v)/yr*ph;
+    cx.setTransform(DPR,0,0,DPR,0,0);cx.clearRect(0,0,CW,CH);
+    const step=nice(yr/Math.max(3,Math.round(ph/60))),ad=Math.max(0,Math.min(m.dec,-Math.floor(Math.log10(step))+1));
+    cx.font='600 11px "Chakra Petch", sans-serif';cx.textBaseline='middle';cx.textAlign='left';cx.lineWidth=1/DPR*Math.max(1,Math.round(DPR));
+    for(let v=Math.ceil(V.lo/step)*step;v<=V.hi;v+=step){const y=crisp(Y(v));if(y<padT-2||y>padT+ph+2)continue;
+      cx.strokeStyle=CL.line;cx.beginPath();cx.moveTo(padL,y);cx.lineTo(padL+pw,y);cx.stroke();cx.fillStyle=CL.mute;cx.fillText(f2(v,ad),CW-padR+8,y)}
+    const slot=pw/n,off=n-k,tStep=[1,2,5,10,15,30,60,120,240].find(o=>o*slot>=66)||240;
+    cx.textAlign='center';cx.textBaseline='alphabetic';
+    for(let i=0;i<k;i++){const mins=Math.round(vs[i].t/60000);if(mins%tStep)continue;const x=crisp(padL+(off+i+.5)*slot);
+      cx.strokeStyle=CL.line;cx.beginPath();cx.moveTo(x,padT);cx.lineTo(x,padT+ph);cx.stroke();cx.fillStyle=CL.dim;cx.fillText(hhmm(vs[i].t),x,CH-7)}
+    cx.strokeStyle=CL.line2;cx.beginPath();cx.moveTo(crisp(padL+pw),padT-6);cx.lineTo(crisp(padL+pw),CH);cx.stroke();
+    const bw=Math.max(1,Math.min(18,slot*.68)),ww=Math.max(1,Math.round(DPR))/DPR;
+    for(let i=0;i<k;i++){const c=vs[i],last=i===k-1,cl=last?dp:c.c,h=last?Math.max(c.h,dp):c.h,l=last?Math.min(c.l,dp):c.l,col=cl>=c.o?CL.win:CL.loss;
+      const xc=Math.round((padL+(off+i+.5)*slot)*DPR)/DPR;cx.fillStyle=col;cx.globalAlpha=(V.hover>=0&&V.hover!==i)?.75:1;
+      cx.fillRect(xc-ww/2,Y(h),ww,Math.max(ww,Y(l)-Y(h)));const yt=Y(Math.max(c.o,cl)),yb=Y(Math.min(c.o,cl));
+      const bx=Math.round((xc-bw/2)*DPR)/DPR,bwr=Math.max(ww,Math.round(bw*DPR)/DPR);cx.fillRect(bx,yt,bwr,Math.max(ww,yb-yt))}
+    cx.globalAlpha=1;
+    const lineAt=(price,color,dash,tag,axisBg,axisFg)=>{let y=Y(price),clip=0;if(y<padT){y=padT;clip=1}else if(y>padT+ph){y=padT+ph;clip=-1}y=crisp(y);
+      cx.save();cx.setLineDash(dash);cx.strokeStyle=color;cx.globalAlpha=clip?.45:.95;cx.beginPath();cx.moveTo(padL,y);cx.lineTo(padL+pw,y);cx.stroke();cx.restore();
+      if(tag)leftTag(padL+6,y+(clip===1?9:clip===-1?-9:0),tag+(clip===1?' ▲':clip===-1?' ▼':''),color);
+      if(axisBg)axisTag(y+(clip===1?9:clip===-1?-9:0),price>0?fp(price,m):'0',axisBg,axisFg,padR)};
+    mine.forEach(o=>{const nm=(o.side>0?'LONG ':'SHORT ')+o.lev+'×';if(o.tp!=null)lineAt(o.tp,CL.win,[2,4],'TP',null);if(o.sl!=null)lineAt(o.sl,CL.brass,[2,4],'SL',null);
+      if(o.liq>0)lineAt(o.liq,CL.loss,[6,4],'LIQ '+nm,CL.loss,'#fff');lineAt(o.entry,CL.mute,[6,4],nm+' · Einstieg',CL.panel3,CL.ink)});
+    if(V.pv){const lq=dp*(1-V.pv/p.lev);if(lq>0)lineAt(lq,'rgba(255,77,106,.8)',[3,5],'LIQ-VORSCHAU '+(V.pv>0?'LONG':'SHORT')+' '+p.lev+'×',null)}
+    const yp=crisp(Math.max(padT,Math.min(padT+ph,Y(dp))));cx.strokeStyle=CL.brass;cx.globalAlpha=.9;cx.lineWidth=1/DPR*Math.max(1,Math.round(DPR));
+    cx.beginPath();cx.moveTo(padL,yp);cx.lineTo(padL+pw,yp);cx.stroke();cx.globalAlpha=1;
+    const lx=Math.round((padL+(off+k-.5)*slot)*DPR)/DPR;cx.beginPath();cx.arc(lx,yp,3.5,0,Math.PI*2);cx.fillStyle=CL.brass;cx.fill();
+    cx.beginPath();cx.arc(lx,yp,7,0,Math.PI*2);cx.fillStyle='rgba(255,176,32,.22)';cx.fill();axisTag(yp,fp(dp,m),CL.brass,CL.onBrass,padR);
+    if(V.hover>=0&&V.hover<k&&V.hy!=null){const xh=crisp(padL+(off+V.hover+.5)*slot),yh=crisp(Math.max(padT,Math.min(padT+ph,V.hy)));
+      cx.save();cx.setLineDash([3,3]);cx.strokeStyle=CL.dim;cx.beginPath();cx.moveTo(xh,padT);cx.lineTo(xh,padT+ph);cx.moveTo(padL,yh);cx.lineTo(padL+pw,yh);cx.stroke();cx.restore();
+      axisTag(yh,f2(V.hi-(yh-padT)/ph*yr,m.dec),CL.panel3,CL.ink,padR)}
+    V.geo={padL,padT,ph,pw,slot,off,k};
+    const hi2=V.hover>=0&&V.hover<k?V.hover:k-1,c=vs[hi2],cc=hi2===k-1?dp:c.c,chg=(cc/c.o-1)*100;
+    const txt=`${hhmm(c.t)} · O <b>${fp(c.o,m)}</b> H <b>${fp(Math.max(c.h,cc),m)}</b> L <b>${fp(Math.min(c.l,cc),m)}</b> C <b>${fp(cc,m)}</b> <span class="${kl(chg)}">${sg(chg,2)} %</span>`;
+    if(E.ohlc._t!==txt){E.ohlc._t=txt;E.ohlc.innerHTML=txt}}
+  function hoverAt(e){const g=V.geo;if(!g)return;const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,i=Math.floor((x-g.padL)/g.slot)-g.off;
+    if(x<g.padL||x>g.padL+g.pw||i<0||i>=g.k){V.hover=-1;V.hy=null}else{V.hover=i;V.hy=y}dirty=true}
+  cv.addEventListener('pointermove',hoverAt);cv.addEventListener('pointerdown',hoverAt);cv.addEventListener('pointerleave',()=>{V.hover=-1;V.hy=null;dirty=true});
+  let raf=0;
+  function frame(){raf=0;if(!vis()||!M)return;const target=M.mk[P().sel].p,d=target-V.dp;
+    if(Math.abs(d)>target*2e-7){V.dp+=d*.24;dirty=true}else if(V.dp!==target){V.dp=target;dirty=true}
+    if(dirty){dirty=false;draw()}raf=requestAnimationFrame(frame)}
+  const kick=()=>{if(!raf)raf=requestAnimationFrame(frame)};
+
+  // ---- Abgleich mit dem Spielstand (Login, Server-Stand, Admin-Änderung, Zurücksetzen)
+  let lastS=null;
+  function fillForm(){const p=P();E.margin.value=p.margin?Math.floor(p.margin):'';E.tpR.value=p.tpR||'';E.slR.value=p.slR||'';
+    if(!(p.margin>0))p.margin=Math.min(500,Math.max(0,Math.floor(maxMargin())));if(p.margin)E.margin.value=Math.floor(p.margin);
+    setLev(p.lev);setTf(p.tf);selectMarket(p.sel)}
+  function ensure(){if(S===lastS&&S.pp&&M)return;const same=S===lastS;lastS=S;norm();
+    if(!same||!M)setupMarkets();
+    for(const c of cards.values())c.el.remove();cards.clear();
+    V.dp=M.mk[P().sel].p;V.snap=true;fillForm();syncPositions();renderHist();renderStats();ui()}
+
+  // ---- Takt: Märkte laufen immer weiter, Positionen werden auch in anderen Spielen geprüft
+  setInterval(()=>{if(!online())return;ensure();const p=P();
+    advance(Date.now(),false);anchor();
+    if(vis()){ui();dirty=true;kick()}else if(cur==='lobby'&&p.pos.length&&Date.now()%2000<TICK)softRefresh();
+    if(Date.now()-localAt>3000)saveLocal()},TICK);
+  const flushLocal=()=>{if(M){anchor();saveLocal()}};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)flushLocal();else if(cur==='perps')kick()});
+  addEventListener('pagehide',flushLocal);
+
+  return{
+    show(){if(ACCOUNTS&&!acct)return;ensure();if(online())advance(Date.now(),true);anchor();selectMarket(P().sel);resize();ui();dirty=true;kick();
+      if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{dirty=true;kick()}).catch(()=>{})},
+    key(e){if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;const k=e.key.toLowerCase();
+      if(k==='l'){e.preventDefault();ac();openPos(1)}else if(k==='s'){e.preventDefault();ac();openPos(-1)}else if(k==='x'){e.preventDefault();closeAll()}
+      else if(k==='1'||k==='2'||k==='3'){selectMarket(MARKETS[+k-1].id);SFX.click()}},
+    lobby(g){const p=S.pp;if(p&&Array.isArray(p.pos)&&p.pos.length&&M){let up=0;p.pos.forEach(o=>{if(M.mk[o.mk])up+=pnlOf(o,M.mk[o.mk].p)});
+        return `<b>${p.pos.length}</b> ${p.pos.length===1?'Position':'Positionen'} offen · PnL <b class="${kl(up)}">${sg(up)}</b>`}
+      return g.n?`${fmt0(g.n)} Trades · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Long oder Short mit bis zu 50× Hebel'}}})();
+onShow.perps=PP.show;
+
 // ================= GAME: GOLDENE SIEBEN (Slot) =================
 
 /* =====================================================================
@@ -5012,7 +5582,7 @@ onShow.slot=SL.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
-  ({chicken:CH,plinko:PL,tower:TW,muenze:DN,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL,wetten:WT,lotto:LT}[cur])?.key(e)});
+  ({chicken:CH,plinko:PL,tower:TW,muenze:DN,mines:MI,poker:PK,rennen:HR,stapel:SK,slot:SL,wetten:WT,lotto:LT,perps:PP}[cur])?.key(e)});
 let last=performance.now();
 function loop(now){const dt=Math.min(50,now-last);last=now;CH.tick(dt);PL.tick(dt);HR.tick();SK.tick();SL.tick();fxTick(dt);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
