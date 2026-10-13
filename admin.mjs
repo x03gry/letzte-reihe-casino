@@ -391,7 +391,7 @@ export default async (req) => {
   } else if (action === "reset") {
     const t = Date.now();
     rec.state = { v: 1, bal: 1000, stars: 0, restarts: 0, owned: { games: {}, items: {} }, spent: 0, created: t, updated: t, set: st.set || {}, sent: 0, recv: 0, playMs: num(st.playMs), playSeed: 1 };
-    rec.sentTotal = 0; rec.recvTotal = 0; rec.potMark = 0;
+    rec.sentTotal = 0; rec.recvTotal = 0; rec.potMark = 0; rec.lossMark = 0;
   } else {
     return json({ error: "unbekannte_aktion" }, 400);
   }

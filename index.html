@@ -1853,7 +1853,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     </div>
   </div>
   <details class="odds"><summary>So funktioniert der Jackpot</summary>
-    <p><b style="color:var(--ink)">Das Casino verdient nichts.</b> Alles, was ihr beim Spielen unterm Strich verliert, fließt in einen gemeinsamen Topf, dazu jedes gekaufte Los. Wer etwas verliert und es später zurückgewinnt, zahlt nicht doppelt ein. Tipps bei „Wetten“ zählen nicht mit, dort spielt ihr ja gegeneinander.</p>
+    <p><b style="color:var(--ink)">Das Casino verdient nichts.</b> Jeder verlorene Einsatz fließt komplett in einen gemeinsamen Topf, dazu jedes gekaufte Los. Gewinne werden nicht gegengerechnet, die legt das Casino drauf. Kommt bei einer Runde nur ein Teil zurück (z. B. 0,5×), zählt der verlorene Rest. Tipps bei „Wetten“ zählen nicht mit, dort spielt ihr ja gegeneinander.</p>
     <p><b style="color:var(--ink)">Ziehung:</b> Jeden Montag und Donnerstag um 9:35 Uhr werden drei verschiedene Gewinner gezogen. Jedes Los ist eine Kugel in der Trommel, wer mehr Lose hat, hat mehr Chancen. Der 1. Platz bekommt 50 % vom Topf, der 2. Platz 25 %, der 3. Platz 10 %. Die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Der Gewinn kommt automatisch in deinen Posteingang.</p>
     <p><b style="color:var(--ink)">Lose:</b> Ein Los kostet 250 Coins, kaufen kannst du bis zu 20 Lose pro Ziehung. Dazu gibt es Gratis-Lose fürs Spielen: Für je 30 Minuten, in denen du gespielt hast (gezählt in 5-Minuten-Abschnitten mit mindestens einer Runde), bekommst du ein Gratis-Los, bis zu 4 pro Ziehung. Lose gelten nur für die nächste Ziehung.</p>
     <div class="hr-formula">Chance auf den 1. Platz = deine Lose ÷ alle Lose<br>Gewinn = Topf × 50 % / 25 % / 10 %</div>
@@ -2395,13 +2395,15 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 const $=id=>document.getElementById(id);
 const r2=v=>Math.round(v*100)/100;
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=v=>(+v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmt0=v=>Math.round(v).toLocaleString('de-DE');
-const fmtX=m=>(m>=100?m.toLocaleString('de-DE',{maximumFractionDigits:0}):m.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}))+'×';
+const NF2=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}),NF0=new Intl.NumberFormat('de-DE',{maximumFractionDigits:0}),NFU={};
+const nfU=d=>NFU[d]||(NFU[d]=new Intl.NumberFormat('de-DE',{maximumFractionDigits:d}));
+const fmt=v=>NF2.format(+v);
+const fmt0=v=>NF0.format(Math.round(v));
+const fmtX=m=>(m>=100?NF0.format(m):NF2.format(m))+'×';
 const sgn=v=>(v>0.004?'+':v<-0.004?'−':'')+fmt(Math.abs(v));
-const pct=(v,d=1)=>(v*100).toLocaleString('de-DE',{maximumFractionDigits:d})+' %';
+const pct=(v,d=1)=>nfU(d).format(v*100)+' %';
 const cls=v=>v>0.004?'pos':v<-0.004?'neg':'';
-const short=v=>v>=1e6?(v/1e6).toLocaleString('de-DE',{maximumFractionDigits:2})+' Mio.':fmt0(v);
+const short=v=>v>=1e6?nfU(2).format(v/1e6)+' Mio.':fmt0(v);
 const rnd=()=>{try{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]/4294967296}catch(e){return Math.random()}};
 const rint=n=>Math.floor(rnd()*n);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2435,7 +2437,7 @@ const BONUS={restart:'Neustarts (je 1.000)',sell:'Verkäufe aus der Vitrine',day
 
 // ================= state =================
 const KEY='letztereihe_v1';
-const emptyG=()=>({n:0,w:0,p:0,wins:0,best:0,big:0,e:0});
+const emptyG=()=>({n:0,w:0,p:0,wins:0,best:0,big:0,e:0,l:0});
 function fresh(){const g={};GK.forEach(k=>g[k]=emptyG());const t=Date.now();
   return {v:1,bal:1000,stars:0,restarts:0,owned:{games:{},items:{}},spent:0,created:t,updated:t,games:g,log:[],hist:[[t,1000,'s']],bonus:{},bonusN:{},
     streak:{cur:0,bw:0,bl:0},dblRun:0,cd:{},ticket:null,quiz:{streak:0,ok:0,hour:0,hourN:0},daily:{last:'',n:0},set:{sound:true,reality:30},prefs:{},playMs:0,playSeed:1,sent:0,recv:0,hr:{bets:[],hist:[]},wt:{bets:[],hist:[],done:[]},lt:{d:0,n:0,won:0,seen:0}}}
@@ -2450,7 +2452,7 @@ function adopt(o,live){if(!o||typeof o.bal!=='number')return;const f=fresh();S=O
 // Bisherige Spielzeit aus dem Rundenprotokoll schätzen: Abstände unter 5 Minuten zählen, plus 30 s je Spielblock
 function estPlay(log){if(!Array.isArray(log)||!log.length)return 0;const t=log.map(x=>+x[0]||0).filter(Boolean).sort((a,b)=>a-b);let sum=30000;
   for(let i=1;i<t.length;i++){const g=t[i]-t[i-1];sum+=g<300000?g:30000}return Math.round(sum)}
-function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2((S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0)+(S.dn&&S.dn.bet>0?+S.dn.bet:0)+(S.ru&&S.ru.pend&&+S.ru.pend.stake>0?+S.ru.pend.stake:0)+(S.cr&&Array.isArray(S.cr.bets)?S.cr.bets.reduce((t,b)=>t+(b&&+b.a>0?+b.a:0),0):0)+(S.pp&&Array.isArray(S.pp.pos)?S.pp.pos.reduce((t,p)=>t+(p&&+p.stake>0?+p.stake:p&&p.margin>0?+p.margin+(+p.fee||0):0),0):0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
+function migrate(live){Object.keys(GAMES).forEach(k=>{if(GAMES[k].price>0&&!S.owned.games[k]&&((S.games[k]&&S.games[k].n>0)||(k==='poker'&&S.pk&&S.pk.phase!=='end')))S.owned.games[k]=1});S.playMs=Math.max(0,+S.playMs||0);if(!S.playSeed){S.playMs+=estPlay(S.log);S.playSeed=1};if(!S.open||typeof S.open!=='object'||Array.isArray(S.open))S.open={};S.inPlay=live?Math.max(0,r2(+S.inPlay||0)):r2(openSum()+(S.pk&&S.pk.v===1&&S.pk.phase!=='end'?+S.pk.bet||0:0)+S.hr.bets.reduce((t,b)=>t+(+b.a||0),0)+S.wt.bets.reduce((t,b)=>t+(+b.a||0),0)+(S.sl&&S.sl.pending&&!S.sl.pending.free?(+S.sl.pending.betCents||0)/100:0)+(S.sl&&S.sl.gamble?(+S.sl.gamble.base||0)/100:0)+(S.dn&&S.dn.bet>0?+S.dn.bet:0)+(S.ru&&S.ru.pend&&+S.ru.pend.stake>0?+S.ru.pend.stake:0)+(S.cr&&Array.isArray(S.cr.bets)?S.cr.bets.reduce((t,b)=>t+(b&&+b.a>0?+b.a:0),0):0)+(S.pp&&Array.isArray(S.pp.pos)?S.pp.pos.reduce((t,p)=>t+(p&&+p.stake>0?+p.stake:p&&p.margin>0?+p.margin+(+p.fee||0):0),0):0));if(S.bal>CAP)S.bal=CAP;if((S.prefs.miMines||3)<3)S.prefs.miMines=3}
 const owns=k=>GAMES[k].price===0||!!S.owned.games[k];
 
 // ---- Hausregeln
@@ -2652,7 +2654,7 @@ function hideTip(){tip.hidden=true}
 document.addEventListener('mousemove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t)showTip(t.dataset.tip,e.clientX,e.clientY);else if(!e.target.closest||!e.target.closest('canvas.chart'))hideTip()});
 document.addEventListener('scroll',hideTip,{passive:true});
 const fx=$('fx'),fctx=fx.getContext('2d');let parts=[];
-function sizeFx(){const d=devicePixelRatio||1;fx.width=innerWidth*d;fx.height=innerHeight*d;fctx.setTransform(d,0,0,d,0,0)}
+function sizeFx(){const d=Math.min(2,devicePixelRatio||1);fx.width=innerWidth*d;fx.height=innerHeight*d;fctx.setTransform(d,0,0,d,0,0)}
 function confetti(n=120){if(reduced)return;sizeFx();const cols=['#ffb020','#ffd27a','#ff5c8a','#2fe08f','#3987e5','#e9f0f6'];
   for(let i=0;i<n;i++)parts.push({x:innerWidth/2+(rnd()-.5)*innerWidth*.6,y:innerHeight*.35,vx:(rnd()-.5)*9,vy:-rnd()*10-3,r:rnd()*6+3,c:cols[rint(cols.length)],a:rnd()*6,va:(rnd()-.5)*.3,life:1})}
 function fxTick(dt){if(!parts.length)return;fctx.clearRect(0,0,innerWidth,innerHeight);
@@ -2675,7 +2677,7 @@ function tweenBal(){const el=$('wBal');const from=shown,to=S.bal;cancelAnimation
 function flyText(v){if(reduced)return;const el=document.createElement('span');el.className='fly '+(v>=0?'pos':'neg');el.textContent=(v>=0?'+':'−')+short(Math.abs(v));$('wallet').appendChild(el);setTimeout(()=>el.remove(),1150)}
 const maxMode=new Set();const maxBet=()=>Math.max(.1,Math.min(tableLimit(),Math.floor(S.bal*100)/100));
 function applyMax(){maxMode.forEach(id=>{const i=$(id);if(i)i.value=maxBet()})}
-function renderWallet(fromTake){tweenBal();if(!fromTake)applyMax();$('starNum').textContent=S.stars;const slb=$('sl-mob-bal');if(slb)slb.textContent=fmt(S.bal);
+function renderWallet(fromTake){tweenBal();if(!fromTake)applyMax();try{[CR,PP,RU,SL].forEach(g=>g&&g.bal&&g.bal(!!fromTake))}catch(e){}$('starNum').textContent=S.stars;const slb=$('sl-mob-bal');if(slb)slb.textContent=fmt(S.bal);
   renderRestart();$('starBtn').hidden=!(S.bal>=CAP);
   PLAY.forEach(k=>{const el=$('gs-'+k);if(!el)return;const g=S.games[k];el.innerHTML=k==='lotto'?`<span class="chip">Lose gekauft <b class="num">${fmt0(g.n)}</b></span><span class="chip">Gewonnen <b class="num ${(S.lt&&S.lt.won)>0?'pos':''}">${fmt((S.lt&&S.lt.won)||0)}</b></span>`:`<span class="chip">Runden <b class="num">${fmt0(g.n)}</b></span><span class="chip">Netto <b class="num ${cls(g.p-g.w)}">${sgn(g.p-g.w)}</b></span>`});
   const tl='max '+fmt(tableLimit())+' pro Runde';document.querySelectorAll('.tl').forEach(e=>e.textContent=tl);
@@ -2688,7 +2690,7 @@ function take(game,amount){if(!(amount>0)){toast('Gib einen Einsatz größer als
 function capBal(){if(S.bal>CAP){const lost=r2(S.bal-CAP);S.bal=CAP;toast(`10 Mio. erreicht. <b class="num">${fmt(lost)}</b> Coins verfallen. Hol dir jetzt deinen Stern!`,'good')}}
 function settle(game,bet,payout,mult,rtp){
   payout=r2(payout);const ip=S.inPlay||0,miss=Math.max(0,r2(bet-ip));S.inPlay=Math.max(0,r2(ip-bet));S.bal=Math.max(0,r2(S.bal+payout-miss));capBal();const net=r2(payout-bet),t=Date.now();const g=S.games[game];
-  g.n++;g.w=r2(g.w+bet);g.p=r2(g.p+payout);if(payout>bet)g.wins++;if(mult>g.best)g.best=mult;if(net>g.big)g.big=net;g.e=r2(g.e+bet*(1-rtp));
+  g.n++;g.w=r2(g.w+bet);g.p=r2(g.p+payout);if(payout<bet){g.l=r2((+g.l||0)+bet-payout);if(game!=='lotto'&&game!=='wetten')try{LT.loss(r2(bet-payout))}catch(e){}}if(payout>bet)g.wins++;if(mult>g.best)g.best=mult;if(net>g.big)g.big=net;g.e=r2(g.e+bet*(1-rtp));
   S.log.push([t,game,bet,payout,Math.round(mult*100)/100,r2(bet*(1-rtp))]);if(S.log.length>600)S.log.splice(0,S.log.length-600);
   S.hist.push([t,S.bal,'g']);if(S.hist.length>600)S.hist.splice(0,S.hist.length-600);
   if(net>0){S.streak.cur=S.streak.cur>0?S.streak.cur+1:1;S.streak.bw=Math.max(S.streak.bw,S.streak.cur)}
@@ -2703,7 +2705,23 @@ function spend(amount){S.bal=r2(S.bal-amount);S.spent=r2((S.spent||0)+amount);S.
 const RESTART_CD=3600000;const cdLeft=()=>Math.max(0,(S.lastRestart||0)+RESTART_CD-Date.now());
 const mmss=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
 function renderRestart(){const b=$('restartBtn');b.hidden=!(S.bal<1);if(b.hidden)return;const l=cdLeft();b.disabled=l>0;b.textContent=l>0?'Neustart in '+mmss(l):'Neustart';b.title=l>0?'Neustart ist nur alle 60 Minuten möglich':''}
-setInterval(()=>{if(S.bal<1)renderRestart()},1000);
+setInterval(()=>{if(S.bal<1)renderRestart();resolveOpen()},1000);
+// ---- Offene Runden (Chicken, Tower, Mines, Plinko, Chip-Stapler)
+// Läuft eine Runde, steht sie mit ihrem aktuellen Auszahlungswert im Spielstand. Wird die Seite mitten drin neu geladen
+// oder geschlossen, wird sie beim nächsten Start genau so abgerechnet, als hätte man in dem Moment ausgezahlt.
+const PAGE=Math.random().toString(36).slice(2);let TAB='';try{TAB=sessionStorage.getItem('lr_tab')||'';if(!TAB){TAB=Math.random().toString(36).slice(2);sessionStorage.setItem('lr_tab',TAB)}}catch(e){TAB=PAGE}
+function openSum(){let t=0;const o=S.open;if(o&&typeof o==='object')for(const g in o)for(const id in o[g]){const r=o[g][id];if(r&&+r.b>0)t+=+r.b}return t}
+function openSet(game,id,bet,m,rtp){if(!S.open||typeof S.open!=='object')S.open={};(S.open[game]=S.open[game]||{})[id]={b:bet,m:Math.max(0,+m||0),r:rtp,t:Date.now(),tab:TAB,pg:PAGE};save()}
+function openDel(game,id){const o=S.open&&S.open[game];if(!o||!o[id])return;delete o[id];if(!Object.keys(o).length)delete S.open[game]}
+const OPEN_STALE=30*60000;
+function resolveOpen(){const o=S.open;if(!o||typeof o!=='object')return;const now=Date.now(),done=[];
+  for(const g of Object.keys(o)){if(!S.games[g]||typeof o[g]!=='object'){delete o[g];continue}
+    for(const id of Object.keys(o[g])){const r=o[g][id];if(!r||!(+r.b>0)){delete o[g][id];continue}
+      if(r.pg===PAGE||(r.tab!==TAB&&now-(+r.t||0)<OPEN_STALE))continue;
+      openDel(g,id);const m=Math.max(0,+r.m||0),pay=r2(r.b*m);settle(g,+r.b,pay,m,+r.r||.97);done.push([g,r.b,pay])}
+    if(o[g]&&!Object.keys(o[g]).length)delete o[g]}
+  if(!done.length)return;const net=r2(done.reduce((t,d)=>t+d[2]-d[1],0)),nm=[...new Set(done.map(d=>GAMES[d[0]]?GAMES[d[0]].name:d[0]))].join(', ');
+  toast(`Offene Runde${done.length>1?'n':''} abgerechnet (${esc(nm)}): <b class="num">${net>=0?'+':'−'}${fmt(Math.abs(net))}</b>`,net>0?'good':net<0?'bad':'')}
 $('restartBtn').onclick=()=>{if(S.bal>=1)return;if(cdLeft()>0){toast(`Neustart erst wieder in <b class="num">${mmss(cdLeft())}</b> Minuten.`,'bad');return}S.lastRestart=Date.now();S.restarts++;credit('restart',RESTART,'Neustart: <b class="num">+1.000</b> Coins. Der nächste geht erst in 60 Minuten.')};
 $('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Guthaben von 10 Mio. wird gegen einen Stern getauscht. Du startest wieder mit 1.000 Coins. Freigeschaltete Spiele und deine Vitrine bleiben.','Stern holen',async()=>{
   await flushNow();if(S.bal<CAP){toast('Dein Guthaben liegt nicht mehr bei 10 Mio.','bad');return}
@@ -2934,7 +2952,7 @@ function banner(el,big,small,kind){const b=$(el);b.className='banner '+(kind||''
 // ================= charts =================
 function niceTicks(min,max,n=4){if(max-min<1e-9){max+=1;min-=1}const raw=(max-min)/n,mag=Math.pow(10,Math.floor(Math.log10(raw))),e=raw/mag;const step=(e>=7.5?10:e>=3.5?5:e>=1.5?2:1)*mag;
   const lo=Math.floor(min/step)*step,hi=Math.ceil(max/step)*step,t=[];for(let v=lo;v<=hi+step/2;v+=step)t.push(Math.round(v*1e6)/1e6);return{lo,hi,t}}
-const shortNum=v=>Math.abs(v)>=1e6?(v/1e6).toLocaleString('de-DE',{maximumFractionDigits:1})+' Mio':Math.abs(v)>=1e4?(v/1e3).toLocaleString('de-DE',{maximumFractionDigits:0})+'k':fmt0(v);
+const shortNum=v=>Math.abs(v)>=1e6?nfU(1).format(v/1e6)+' Mio':Math.abs(v)>=1e4?NF0.format(v/1e3)+'k':fmt0(v);
 // series: [{pts:[[x,y]],color,width,dash,area,alpha}]  opts:{tip(i), markers:[[x,y,color]], xLabel(x)}
 function lineChart(cv,series,opts={}){const dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(!W)return;cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
   const all=series.flatMap(s=>s.pts);if(!all.length||all.length<2){c.fillStyle=C.mute;c.font='13px "Albert Sans", sans-serif';c.textAlign='center';c.fillText(opts.empty||'Noch keine Daten',W/2,H/2);cv.onmousemove=null;return}
@@ -3059,15 +3077,15 @@ const CH=(()=>{
   let diff=S.prefs.chDiff??1,round=null;const LANE=110,SIDE=120;
   let chick={x:SIDE/2,tx:SIDE/2,hop:0,dead:false,deadT:0},cam=0,cars=[],barriers=new Set(),killer=null;
   const laneX=i=>SIDE+i*LANE+LANE/2;
-  function resize(){const d=devicePixelRatio||1;W=cv.clientWidth;H=cv.clientHeight;if(!W)return;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
-  function newRound(){const bet=readBet('chBet');if(!take('chicken',bet))return;round={bet,d:DIFF[diff],pos:0,alive:true,over:false};chick={x:SIDE/2,tx:SIDE/2,hop:0,dead:false,deadT:0};barriers=new Set();killer=null;cars=[];cam=0;$('chBanner').hidden=true;beep(330,.08,'triangle');ui()}
+  function resize(){const d=Math.min(2,devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;if(!W)return;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
+  function newRound(){const bet=readBet('chBet');if(!take('chicken',bet))return;round={bet,d:DIFF[diff],pos:0,alive:true,over:false};openSet('chicken','r',bet,1,RTP);chick={x:SIDE/2,tx:SIDE/2,hop:0,dead:false,deadT:0};barriers=new Set();killer=null;cars=[];cam=0;$('chBanner').hidden=true;beep(330,.08,'triangle');ui()}
   function step(){if(!round||round.over||round.pending||round.pos>=round.d.lanes)return;const d=round.d,next=round.pos+1;chick.tx=laneX(next-1);chick.hop=1;
-    if(rnd()<d.p){round.pos=next;beep(500+next*25,.07,'triangle',.06);cars=cars.filter(c=>!(c.lane===next-1&&c.y<H/2+70));setTimeout(()=>barriers.add(next-1),260);
+    if(rnd()<d.p){round.pos=next;openSet('chicken','r',round.bet,mult(d,next),RTP);beep(500+next*25,.07,'triangle',.06);cars=cars.filter(c=>!(c.lane===next-1&&c.y<H/2+70));setTimeout(()=>barriers.add(next-1),260);
       if(round.pos>=d.lanes){round.pending=true;setTimeout(()=>cashout(true),350)}else{const a=+$('chAuto').value;if(a>0&&round.pos>=a){round.pending=true;setTimeout(()=>cashout(),350)}}}
-    else{round.over=true;round.alive=false;round.pos=next;killer={lane:next-1,y:-140,hit:false}}ui()}
-  function cashout(fin){if(!round||round.over||round.pos===0)return;const m=mult(round.d,round.pos),win=r2(round.bet*m);round.over=true;settle('chicken',round.bet,win,m,RTP);if(fin===true)unlock('chickenAll');
+    else{round.over=true;round.alive=false;round.pos=next;killer={lane:next-1,y:-140,hit:false};openSet('chicken','r',round.bet,0,RTP)}ui()}
+  function cashout(fin){if(!round||round.over||round.pos===0)return;const m=mult(round.d,round.pos),win=r2(round.bet*m);round.over=true;openDel('chicken','r');settle('chicken',round.bet,win,m,RTP);if(fin===true)unlock('chickenAll');
     banner('chBanner',fin===true?'Ganz rüber!':'Ausgezahlt',`+${fmt(win)} (${fmtX(m)})`,'win');SND.win();ui()}
-  function lose(){settle('chicken',round.bet,0,0,RTP);banner('chBanner','Überfahren!',`−${fmt(round.bet)}`,'lose');SND.lose();ui()}
+  function lose(){openDel('chicken','r');settle('chicken',round.bet,0,0,RTP);banner('chBanner','Überfahren!',`−${fmt(round.bet)}`,'lose');SND.lose();ui()}
   function ui(){const active=round&&!round.over;$('chPlay').textContent=active?'Weiter →':'Start';const can=active&&round.pos>0;$('chCash').disabled=!can;
     $('chCash').textContent=can?`Auszahlen ${fmt(round.bet*mult(round.d,round.pos))}`:'Auszahlen';lockBet('chBet',active);$('chAuto').disabled=active;
     $('chDiff').innerHTML=DIFF.map((d,i)=>`<button data-i="${i}" aria-pressed="${i===diff}" ${active?'disabled':''}>${d.name}</button>`).join('');
@@ -3132,7 +3150,7 @@ const PL=(()=>{
   const rowsSel=$('plRows');for(let n=8;n<=16;n++)rowsSel.insertAdjacentHTML('beforeend',`<option value="${n}">${n}</option>`);rowsSel.value=P.rows;
   const pressed=(seg,v)=>seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
   function layout(){P.need=2;const wrap=$('plWrap'),W=wrap.clientWidth-16;if(W<=0)return;const n=P.rows,mob=innerWidth<=820;
-    const maxH=mob?Math.max(240,Math.min(innerHeight*.5,W*1.05)):Math.max(320,Math.min(innerHeight*.66,700));const s=Math.min(W/(n+2.2),(maxH-30)/(n*.92+1.6)),H=s*(n*.92+1.45)+12,d=devicePixelRatio||1;
+    const maxH=mob?Math.max(240,Math.min(innerHeight*.5,W*1.05)):Math.max(320,Math.min(innerHeight*.66,700));const s=Math.min(W/(n+2.2),(maxH-30)/(n*.92+1.6)),H=s*(n*.92+1.45)+12,d=Math.min(2,devicePixelRatio||1);
     cv.width=Math.round(W*d);cv.height=Math.round(H*d);cv.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);
     G={W,H,s,n,cx:W/2,top:s*.75,rowH:s*.92,pegR:Math.max(2.2,s*.1),ballR:Math.max(4,s*.24)};G.bucketY=G.top+(n-1)*G.rowH+s*.55;G.bucketH=Math.max(16,s*.72);G.bucketW=s*.9;P.hit=new Array(n+1).fill(0)}
   const pegX=(i,j)=>G.cx+(j-(i+2)/2)*G.s,pegY=i=>G.top+i*G.rowH,bX=b=>G.cx+(b+.5-(G.n+1)/2)*G.s;
@@ -3140,12 +3158,13 @@ const PL=(()=>{
   function lock(){const busy=P.balls.length>0||P.auto.on;rowsSel.disabled=busy;$('plRisk').querySelectorAll('button').forEach(b=>b.disabled=busy)}
   function odds(){const n=P.rows,m=T[n][P.risk],r=rtp(n,P.risk),pw=m.reduce((s,x,k)=>s+(x>=1?prob(n,k):0),0);
     $('plOdds').innerHTML=`<div class="ms"><span>Auszahlung</span><b>${pct(r,2)}</b></div><div class="ms"><span>Chance ≥ 1×</span><b>${pct(pw)}</b></div><div class="ms"><span>Randfach</span><b>${fmtX(m[0])}</b></div><div class="ms"><span>Chance Rand</span><b>1 : ${fmt0(1/(prob(n,0)*2))}</b></div>`}
+  let plSeq=0;
   function drop(){if(!G.W)layout();if(P.balls.length>=80)return false;const bet=readBet('plBet');if(!take('plinko',bet))return false;
     const n=G.n,dirs=[];for(let i=0;i<n;i++)dirs.push(rnd()<.5?0:1);const pts=[{x:G.cx+(rnd()-.5)*G.s*.2,y:G.top-G.s*.9,row:-1}];let j=1;
     for(let i=0;i<n;i++){pts.push({x:pegX(i,j)+(rnd()-.5)*G.s*.18,y:pegY(i)-G.pegR-G.ballR*.9,row:i,peg:j});j+=dirs[i]}
     const bucket=dirs.reduce((a,b)=>a+b,0);pts.push({x:bX(bucket),y:G.bucketY+G.bucketH*.25,row:n});
-    P.balls.push({pts,seg:0,t:0,bet,bucket,risk:P.risk,n,skin:P.skin,x:pts[0].x,y:pts[0].y});lock();return true}
-  function land(b){const m=T[b.n][b.risk][b.bucket],win=r2(b.bet*m);P.profit=r2(P.profit+win-b.bet);settle('plinko',b.bet,win,m,rtp(b.n,b.risk));
+    const oid=PAGE+'_'+(++plSeq);openSet('plinko',oid,bet,T[n][P.risk][bucket],rtp(n,P.risk));P.balls.push({pts,seg:0,t:0,bet,bucket,risk:P.risk,n,skin:P.skin,x:pts[0].x,y:pts[0].y,oid});lock();return true}
+  function land(b){const m=T[b.n][b.risk][b.bucket],win=r2(b.bet*m);P.profit=r2(P.profit+win-b.bet);openDel('plinko',b.oid);settle('plinko',b.bet,win,m,rtp(b.n,b.risk));
     if(b.n!==G.n)return;P.hit[b.bucket]=1;
     const a=ac();if(a){const base=m>=10?660:m>=1?520:260;(m>=10?[1,1.25,1.5,2]:m>=1?[1,1.5]:[1]).forEach((f,i)=>beep(base*f,.22,m>=1?'sine':'square',m>=1?.07:.025,i*.07))}
     const h=$('plHist'),d=document.createElement('div');d.textContent=fmtX(m);d.style.background=bCol(b.bucket);h.prepend(d);while(h.children.length>(G.s<24?5:7))h.lastChild.remove();
@@ -3216,11 +3235,11 @@ const TW=(()=>{
     $('twBoard').innerHTML=h}
   function start(){const bet=readBet('twBet');if(!take('tower',bet))return;const d=D[diff],traps=[];
     for(let r=0;r<ROWS;r++){const idx=[...Array(d.cols).keys()];for(let i=idx.length-1;i>0;i--){const j=rint(i+1);[idx[i],idx[j]]=[idx[j],idx[i]]}traps.push(idx.slice(0,d.traps))}
-    G={bet,diff,level:0,traps,picks:[],over:false,last:-1};$('twBanner').hidden=true;beep(330,.08,'triangle');render()}
+    G={bet,diff,level:0,traps,picks:[],over:false,last:-1};openSet('tower','r',bet,1,1-EDGE);$('twBanner').hidden=true;beep(330,.08,'triangle');render()}
   function pick(c){if(!G||G.over||G.level>=ROWS)return;const r=G.level;G.picks[r]=c;G.last=r;
-    if(G.traps[r].includes(c)){G.over=true;settle('tower',G.bet,0,0,1-EDGE);render();const b=$('twBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');banner('twBanner','Falle!',`−${fmt(G.bet)}`,'lose');SND.lose()}
-    else{G.level++;beep(520+G.level*60,.1,'triangle',.07);if(G.level===ROWS){render();setTimeout(cashout,250)}else render()}}
-  function cashout(){if(!G||G.over||G.level===0)return;const d=D[G.diff],m=multAt(d,G.level),win=r2(G.bet*m);G.over=true;settle('tower',G.bet,win,m,1-EDGE);if(G.level===ROWS)unlock('towerTop');render();banner('twBanner',fmtX(m),`+${fmt(win)}`,'win');SND.win()}
+    if(G.traps[r].includes(c)){G.over=true;openDel('tower','r');settle('tower',G.bet,0,0,1-EDGE);render();const b=$('twBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');banner('twBanner','Falle!',`−${fmt(G.bet)}`,'lose');SND.lose()}
+    else{G.level++;openSet('tower','r',G.bet,multAt(D[G.diff],G.level),1-EDGE);beep(520+G.level*60,.1,'triangle',.07);if(G.level===ROWS){render();setTimeout(cashout,250)}else render()}}
+  function cashout(){if(!G||G.over||G.level===0)return;const d=D[G.diff],m=multAt(d,G.level),win=r2(G.bet*m);G.over=true;openDel('tower','r');settle('tower',G.bet,win,m,1-EDGE);if(G.level===ROWS)unlock('towerTop');render();banner('twBanner',fmtX(m),`+${fmt(win)}`,'win');SND.win()}
   $('twDiff').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;diff=+b.dataset.i;S.prefs.twDiff=diff;save();G=null;render()});
   $('twBoard').addEventListener('click',e=>{const t=e.target.closest('.twrow.active .tt');if(t)pick(+t.dataset.c)});
   $('twMain').onclick=()=>{ac();G&&!G.over?cashout():start()};$('twRand').onclick=()=>{if(G&&!G.over)pick(rint(D[G.diff].cols))};
@@ -3280,13 +3299,13 @@ const MI=(()=>{
     $('miNext').textContent=k<N-m?fmtX(mult(k+1,m)):'–';$('miRisk').textContent=pct(m/(N-k));$('miCash').textContent=g&&k?'Auszahlen '+fmt(g.bet*cur2):'Auszahlen';$('miCash').disabled=!g||!k}
   function controls(on){lockBet('miBet',on);$('miAutoN').disabled=on;mi.disabled=on;$('miPre').querySelectorAll('button').forEach(b=>b.disabled=on);$('miPlay').hidden=on;$('miCash').hidden=!on;$('miRand').disabled=!on;$('miAuto').disabled=!on}
   function start(){const bet=readBet('miBet'),m=Math.max(MIN_MINES,+mi.value);if(!take('mines',bet))return;const pos=[...Array(N).keys()];for(let i=N-1;i>0;i--){const j=rint(i+1);[pos[i],pos[j]]=[pos[j],pos[i]]}
-    g={bet,mines:m,bombs:new Set(pos.slice(0,m)),open:new Set(),found:0,busy:false};lastWin=0;S.dblRun=0;don();build();controls(true);stats();ladder();beep(330,.08,'triangle')}
+    g={bet,mines:m,bombs:new Set(pos.slice(0,m)),open:new Set(),found:0,busy:false};openSet('mines','r',bet,1,EDGE);lastWin=0;S.dblRun=0;don();build();controls(true);stats();ladder();beep(330,.08,'triangle')}
   function reveal(i){if(!g||g.busy||g.open.has(i))return;g.open.add(i);const t=tile(i);t.disabled=true;
-    if(g.bombs.has(i)){t.className='mt bomb';t.innerHTML=BOMB;SND.lose();const b=$('miBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');end(false);return}
-    g.found++;t.className='mt gem';t.innerHTML=GEM;beep(520+g.found*60,.12,'triangle',.07);beep(780+g.found*60,.1,'triangle',.06,.06);stats();ladder();if(g.found===N-g.mines){end(true);return}const an=parseInt($('miAutoN').value)||0;if(an>0&&g.found>=an){g.busy=true;setTimeout(()=>{if(g){g.busy=false;end(true)}},350)}}
+    if(g.bombs.has(i)){openSet('mines','r',g.bet,0,EDGE);t.className='mt bomb';t.innerHTML=BOMB;SND.lose();const b=$('miBoard');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');end(false);return}
+    g.found++;openSet('mines','r',g.bet,mult(g.found,g.mines),EDGE);t.className='mt gem';t.innerHTML=GEM;beep(520+g.found*60,.12,'triangle',.07);beep(780+g.found*60,.1,'triangle',.06,.06);stats();ladder();if(g.found===N-g.mines){end(true);return}const an=parseInt($('miAutoN').value)||0;if(an>0&&g.found>=an){g.busy=true;setTimeout(()=>{if(g){g.busy=false;end(true)}},350)}}
   function end(win){const G2=g,m=win?mult(G2.found,G2.mines):0,pay=win?r2(G2.bet*m):0;
     for(let i=0;i<N;i++){const t=tile(i);t.disabled=true;if(G2.open.has(i))continue;t.className='mt dim '+(G2.bombs.has(i)?'bomb':'gem');t.style.animation='none';t.innerHTML=G2.bombs.has(i)?BOMB:GEM}
-    g=null;settle('mines',G2.bet,pay,m,EDGE);if(win){SND.win();lastWin=pay;if(G2.mines===24)unlock('mines24')}
+    g=null;openDel('mines','r');settle('mines',G2.bet,pay,m,EDGE);if(win){SND.win();lastWin=pay;if(G2.mines===24)unlock('mines24')}
     const o=document.createElement('div');o.className='banner '+(win?'win':'lose');o.innerHTML=`<b>${win?fmtX(m):'BOOM!'}</b><span>${win?'+'+fmt(pay):'−'+fmt(G2.bet)}</span>`;$('miBoard').appendChild(o);setTimeout(()=>o.remove(),2400);
     controls(false);stats();don()}
   function cashout(){if(g&&g.found)end(true)}
@@ -3580,7 +3599,7 @@ const HR=(()=>{
   // ---- Wetten im Spielstand
   const B=()=>{if(!S.hr||!Array.isArray(S.hr.bets)||!Array.isArray(S.hr.hist))S.hr={bets:[],hist:[]};return S.hr};
   const myBet=id=>B().bets.find(b=>b.id===id)||B().hist.find(b=>b.id===id);
-  const hhmm=t=>new Date(t).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const HHF=new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit'}),hhmm=t=>HHF.format(t);
 
   // ---- Server: Seeds gestarteter Rennen + Pot des nächsten Rennens
   let pot=null,potId=0,potAt=0,netBusy=false,netAt=0,netFails=0,offline=false;
@@ -3930,7 +3949,7 @@ const SK=(()=>{
     ac();if(rich()){toast(RICH_MSG,'bad');ui();return}
     const bet=readBet('skBet');if(!take('stapel',bet))return;
     hideOv();
-    R={bet,seed:cryptoSeed(),st:STK.fresh(),taps:[],t0:Date.now(),ended:false};R.L=STK.plan(R.seed);
+    R={bet,seed:cryptoSeed(),st:STK.fresh(),taps:[],t0:Date.now(),ended:false};R.L=STK.plan(R.seed);openSet('stapel','r',bet,STK.mult(0),RTP);
     resetTower();setState('play');spawnChip();renderHud(true);ui();blur();ensureLoop()}
   // ts = Zeitpunkt des Tipps (Event-Zeitstempel), damit genau der Moment des Antippens zählt
   function drop(ts){if(state!=='play'||!mv)return;const age=ageAt(ts);if(age<STK.MIN_MS)return;
@@ -3942,7 +3961,7 @@ const SK=(()=>{
       sfxPerfect(res.st.combo);buzz([12,30,12]);let sub=res.st.combo>=2?'Combo ×'+res.st.combo:'';if(res.grew)sub+=(sub?' · ':'')+'Chip wächst!';showToast('PERFEKT!',sub)}
     else{const nr=res.st.r,ncx=mv.axis==='x'?top.x+d/2:top.x,ncz=mv.axis==='z'?top.z+d/2:top.z,cut=(mv.axis==='x'?top.x:top.z)+sign*top.r;
       falling.push({x,z,y:mv.y,r:mv.r,col:mv.col,axis:mv.axis,cut,sign,t:0});tower.push({x:ncx,z:ncz,r:nr,col:mv.col,anim:{fx:x,fz:z,fr:mv.r,t:0}});sfxPlace();buzz(8)}
-    const h=R.st.h,m=STK.mult(h);
+    const h=R.st.h,m=STK.mult(h);if(m!==was)openSet('stapel','r',R.bet,m,RTP);
     if(m>was&&res.kind!=='perfect'){sfxStep();showToast(fmtX(m),'Höhe '+h+' erreicht')}else if(m>was)sfxStep();
     renderHud(true);
     if(h>=STK.MAXH){mv=null;end('top');return}
@@ -3950,7 +3969,7 @@ const SK=(()=>{
   function fall(x,z,sign){falling.push({x,z,y:mv.y,r:mv.r,col:mv.col,axis:mv.axis,cut:null,sign,t:0});mv=null;sfxOver();buzz([60,40,90]);shakeT=.3;showToast('DANEBEN!','',true);end('fall')}
   // Runde abrechnen und Kamera rausfahren
   function end(kind){if(R.ended)return;R.ended=true;const h=R.st.h,m=STK.mult(h),pay=r2(R.bet*m);
-    R.kind=kind;R.m=m;R.pay=pay;settle('stapel',R.bet,pay,m,RTP);
+    R.kind=kind;R.m=m;R.pay=pay;openDel('stapel','r');settle('stapel',R.bet,pay,m,RTP);
     if(pay>R.bet){setTimeout(()=>SND.win(),450);if(m>=4)confetti(m>=8?200:110)}
     if(h>best){best=h;R.record=true;try{localStorage.setItem('st_best',String(best))}catch(e){}}
     setState('over');const n=tower.length,towerPx=(n*CH+BASE_H)*baseS+2*BASE_R*RYF*baseS;overT=0;
@@ -4236,7 +4255,7 @@ const WT=(()=>{
 onShow.wetten=WT.show;
 
 // ================= JACKPOT-ZIEHUNG =================
-// Das Casino verdient nichts: Was Spieler unterm Strich verlieren, landet im Topf (rechnet der Server beim Speichern mit).
+// Jeder verlorene Einsatz landet im Topf, Gewinne werden nicht gegengerechnet (rechnet der Server beim Speichern mit).
 // Mo + Do um 9:35 Uhr: drei Gewinner (50 / 25 / 10 %), 15 % bleiben im Topf. Lose: 250 Coins, bis 20 pro Ziehung, dazu Gratis-Lose fürs Spielen.
 // Gekaufte Lose bucht das Gerät ab (Spielstatistik "lotto"), sobald der Server sie angenommen hat. Gewinne kommen über den Posteingang.
 const LT=(()=>{
@@ -4246,7 +4265,7 @@ const LT=(()=>{
   const online=()=>ACCOUNTS&&!!acct;
   const L=()=>{if(!S.lt||typeof S.lt!=='object')S.lt={};const l=S.lt;l.d=+l.d||0;l.n=+l.n||0;l.won=+l.won||0;l.seen=+l.seen||0;return l};
   let I=null,loadedFor=null,busy=false,at=0,fails=0,skew=0,buying=false,qty=1,offline=false;
-  let potShown=null,potRaf=0,drawWait=0;
+  let potShown=null,potRaf=0,drawWait=0,lossAt=0,lossT=0;
   const now=()=>Date.now()+skew;
   const pad=n=>String(n).padStart(2,'0');
   const day=t=>new Date(t).toLocaleString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'});
@@ -4261,12 +4280,12 @@ const LT=(()=>{
   async function poll(force){if(!ACCOUNTS||busy)return;
     if(loadedFor!==acct){I=null;at=0;fails=0;loadedFor=acct;potShown=null}
     const vis=!document.hidden&&(cur==='lotto'||cur==='lobby');
-    const gap=fails?Math.min(120000,5000*2**fails):drawWait&&Date.now()>=drawWait?4000:!document.hidden&&cur==='lotto'?15000:vis?60000:300000;
+    const gap=fails?Math.min(120000,5000*2**fails):drawWait&&Date.now()>=drawWait?4000:!document.hidden&&cur==='lotto'?6000:vis?20000:300000;
     if(!force&&Date.now()-at<gap)return;busy=true;at=Date.now();const me=acct,t0=Date.now();
     try{const r=await fetch(LAPI+(me?'&name='+encodeURIComponent(me):''),{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
       if(acct!==me)throw new Error('user');
       if(typeof d.now==='number')skew=d.now-(t0+Date.now())/2;
-      const prevD=I&&I.d;I=d;offline=false;fails=0;
+      const prevD=I&&I.d;if(I&&I.d===d.d&&Date.now()-lossAt<8000&&I.pot>d.pot)d.pot=I.pot;I=d;offline=false;fails=0;
       // Nach 9:35 Uhr: so lange nachfragen, bis die Ziehung ausgewertet ist
       drawWait=d.hist&&d.hist[0]&&prevD&&prevD<d.d&&d.hist[0].d<prevD?Date.now()+3000:0;
       sync()}
@@ -4378,6 +4397,9 @@ const LT=(()=>{
       if(e.key==='+'||e.key==='ArrowUp'){e.preventDefault();setQty(qty+1)}else if(e.key==='-'||e.key==='ArrowDown'){e.preventDefault();setQty(qty-1)}},
     // Gewinn aus dem Posteingang (wird gleich danach über das normale Speichern verbucht)
     won(a,place){const l=L();l.won=r2(l.won+a);save();poll(true)},
+    // Verlust einer Runde: sofort im Topf anzeigen (der Server bucht ihn mit dem nächsten Speichern, ~1,5 s)
+    loss(a){if(!ACCOUNTS||!acct||!I||!(a>0)||I.d-now()<=0)return;I.pot=r2(I.pot+a);lossAt=Date.now();
+      if(!lossT)lossT=setTimeout(()=>{lossT=0;if(cur==='lotto')render();else if(cur==='lobby')hero()},250)},
     lobby(){if(!ACCOUNTS)return'Nur online mit Account';if(!I)return'Mo + Do um 9:35 Uhr · drei Gewinner';
       const ms=I.d-now();return `Topf <b>${short(I.pot)}</b> · ${ms>0?'Ziehung in '+left(ms):'Ziehung läuft'}`+(online()&&myT()?` · <b>${myT()}</b> ${myT()===1?'Los':'Lose'}`:'')}}})();
 onShow.lotto=LT.show;
@@ -4601,7 +4623,7 @@ const PP=(()=>{
     let hi=-Infinity,lo=Infinity;c.slice(-p.tf).forEach(k=>{if(k.h>hi)hi=k.h;if(k.l<lo)lo=k.l});
     E.hi.textContent='Hoch '+fp(hi,m);E.lo.textContent='Tief '+fp(lo,m);
     const here=p.pos.filter(o=>o.mk===p.sel).length;E.here.textContent=here===1?'1 Position hier':here+' Positionen hier';
-    const mx=maxMargin();E.maxM.textContent='max '+f2(mx);
+    const mx=maxMargin();E.maxM.textContent='max '+f2(mx);const mq=document.querySelector('#ppMQ [data-p="max"]');if(mq)mq.setAttribute('aria-pressed',String(!!p.mMax));
     const size=(p.margin>0?p.margin:0)*p.lev;E.size.textContent=size?f2(size):'–';E.fee.textContent=size?f2(size*FEE):'–';
     const lL=st.p*(1-1/p.lev),lS=st.p*(1+1/p.lev);E.liqL.textContent=lL>0?fp(lL,m):'keine';E.liqS.textContent=fp(lS,m);
     const err=formError();
@@ -4620,14 +4642,16 @@ const PP=(()=>{
     const m=MK[id];E.eye.textContent=m.mood+' · '+m.sub;E.name.textContent=m.name;ui();dirty=true}
   function setTf(tf){P().tf=tf;V.snap=true;[...E.tfSeg.children].forEach(b=>b.setAttribute('aria-pressed',+b.dataset.tf===tf?'true':'false'));ui();dirty=true}
   E.tfSeg.addEventListener('click',e=>{const b=e.target.closest('button[data-tf]');if(b){setTf(+b.dataset.tf);SFX.click()}});
-  function setLev(v){const p=P();p.lev=Math.max(1,Math.min(50,Math.round(v)));E.lev.value=p.lev;E.levV.textContent=p.lev+'×';E.levV.classList.toggle('hot',p.lev>=25);
+  // Max aktiv: Einsatz folgt dem Höchstwert (Guthaben und Hebel)
+  function syncMax(){const p=P();if(!p.mMax)return;const m=Math.floor(maxMargin());if(m>=MINM&&m!==Math.floor(p.margin)){p.margin=m;E.margin.value=m}}
+  function setLev(v){const p=P();p.lev=Math.max(1,Math.min(50,Math.round(v)));syncMax();E.lev.value=p.lev;E.levV.textContent=p.lev+'×';E.levV.classList.toggle('hot',p.lev>=25);
     E.lev.style.setProperty('--p',((p.lev-1)/49*100)+'%');document.querySelectorAll('#ppLQ button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.l===p.lev?'true':'false'));ui();dirty=true}
   E.lev.addEventListener('input',()=>setLev(+E.lev.value));
   q('ppLQ').addEventListener('click',e=>{const b=e.target.closest('button[data-l]');if(b){setLev(+b.dataset.l);SFX.click()}});
   function setMargin(v,write){const p=P();p.margin=isFinite(v)&&v>0?v:0;if(write)E.margin.value=p.margin?Math.floor(p.margin):'';ui()}
-  E.margin.addEventListener('input',()=>setMargin(parseFloat(String(E.margin.value).replace(',','.')),false));
+  E.margin.addEventListener('input',()=>(P().mMax=false,setMargin(parseFloat(String(E.margin.value).replace(',','.')),false)));
   E.margin.addEventListener('blur',()=>{if(!(P().margin>0))setMargin(Math.min(500,maxMargin()),true)});
-  q('ppMQ').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(!b)return;const mx=maxMargin();
+  q('ppMQ').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(!b)return;const mx=maxMargin();P().mMax=b.dataset.p==='max';
     setMargin(b.dataset.p==='max'?Math.floor(mx):Math.min(Math.floor(mx),Math.max(MINM,Math.floor(S.bal*+b.dataset.p))),true);SFX.click()});
   const readPct=el=>{const v=parseFloat(String(el.value).replace(',','.'));return isFinite(v)&&v>0?v:null};
   E.tpR.addEventListener('input',()=>{P().tpR=readPct(E.tpR);ui()});
@@ -4641,7 +4665,7 @@ const PP=(()=>{
   const cv=E.cv,cx=cv.getContext('2d');
   let CW=300,CH=200,DPR=1,dirty=true;
   const V={lo:null,hi:null,dp:0,snap:true,hover:-1,hy:null,pv:0,geo:null};
-  function resize(){const r=E.wrap.getBoundingClientRect();if(r.width<10)return;DPR=Math.min(window.devicePixelRatio||1,3);
+  function resize(){const r=E.wrap.getBoundingClientRect();if(r.width<10)return;DPR=Math.min(window.devicePixelRatio||1,2);
     CW=Math.max(120,Math.floor(r.width));CH=Math.max(160,Math.floor(r.height));cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);cv.style.width=CW+'px';cv.style.height=CH+'px';dirty=true}
   if(window.ResizeObserver)new ResizeObserver(resize).observe(E.wrap);else addEventListener('resize',resize);
   const crisp=v=>(Math.round(v*DPR)+.5)/DPR;
@@ -4698,7 +4722,7 @@ const PP=(()=>{
   cv.addEventListener('pointermove',hoverAt);cv.addEventListener('pointerdown',hoverAt);cv.addEventListener('pointerleave',()=>{V.hover=-1;V.hy=null;dirty=true});
   let raf=0;
   function frame(){raf=0;if(!vis()||!M)return;const target=M.mk[P().sel].p,d=target-V.dp;
-    if(Math.abs(d)>target*2e-7){V.dp+=d*.24;dirty=true}else if(V.dp!==target){V.dp=target;dirty=true}
+    const eps=V.geo&&V.hi>V.lo?(V.hi-V.lo)/V.geo.ph*.25:target*2e-7;if(Math.abs(d)>Math.max(eps,target*2e-7)){V.dp+=d*.24;dirty=true}else if(V.dp!==target){V.dp=target;dirty=true}
     if(dirty){dirty=false;draw()}raf=requestAnimationFrame(frame)}
   const kick=()=>{if(!raf)raf=requestAnimationFrame(frame)};
 
@@ -4727,6 +4751,7 @@ const PP=(()=>{
     key(e){if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;const k=e.key.toLowerCase();
       if(k==='l'){e.preventDefault();ac();openPos(1)}else if(k==='s'){e.preventDefault();ac();openPos(-1)}else if(k==='x'){e.preventDefault();closeAll()}
       else if(k==='1'||k==='2'||k==='3'){selectMarket(MARKETS[+k-1].id);SFX.click()}},
+    bal(fromTake){if(!M||!S.pp)return;if(!fromTake)syncMax();if(vis())ui()},
     lobby(g){const p=S.pp;if(p&&Array.isArray(p.pos)&&p.pos.length&&M){let up=0;p.pos.forEach(o=>{if(M.mk[o.mk])up+=pnlOf(o,M.mk[o.mk].p)});
         return `<b>${p.pos.length}</b> ${p.pos.length===1?'Position':'Positionen'} offen · PnL <b class="${kl(up)}">${sg(up)}</b>`}
       return g.n?`${fmt0(g.n)} Trades · Bester Gewinn <b>${g.big?'+'+short(g.big):'–'}</b>`:'Long oder Short mit bis zu 50× Hebel'}}})();
@@ -5247,6 +5272,7 @@ function stepBall(now) {
 }
 function loop(now) {
   raf = 0;
+  if (!anim && now - lastT < 30) { if (cur === 'roulette' && !document.hidden) raf = requestAnimationFrame(loop); return; }
   const dt = Math.min(.05, (now - lastT) / 1000); lastT = now;
   let omega = reduced ? .15 : .35;
   if (anim) { const t = (now - anim.t0) / 1000; omega += anim.boost * Math.pow(Math.max(0, 1 - t / (anim.T * 1.35)), 2); }
@@ -5433,6 +5459,7 @@ return {
     if (k === 'z') undoAct(); else if (k === 'c') clearAct(); else if (k === 'r') rebetAct();
     else if (/^[1-6]$/.test(k)) selectChip(+k - 1);
   },
+  bal() { if (cur === 'roulette') renderUI(); },
   pending: () => { const r = S.ru; return r && r.pend && r.pend.stake > 0 ? +r.pend.stake : 0; }
 };
 })();
@@ -5656,8 +5683,8 @@ const CR=(()=>{
       og.gain.setValueAtTime(.11,t);og.gain.exponentialRampToValueAtTime(.0001,t+.6);o.connect(og);og.connect(this.master);o.start(t);o.stop(t+.65)}};
 
   // ---- Chart
-  const cv=q('crCv'),cx=cv.getContext('2d');let CW=1,CH=1,DPR=1;
-  function resize(){const r=q('crWrap').getBoundingClientRect();if(r.width<10)return;DPR=Math.min(3,window.devicePixelRatio||1);CW=Math.max(1,r.width);CH=Math.max(1,r.height);cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR)}
+  const cv=q('crCv'),cx=cv.getContext('2d');let CW=1,CH=1,DPR=1,chKey='';
+  function resize(){const r=q('crWrap').getBoundingClientRect();if(r.width<10)return;DPR=Math.min(2,window.devicePixelRatio||1);CW=Math.max(1,r.width);CH=Math.max(1,r.height);cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);chKey=''}
   function niceStep(x){const p=Math.pow(10,Math.floor(Math.log10(x))),n=x/p;return(n<1.5?1:n<3?2:n<7?5:10)*p}
   function rgba(h,a){h=h.replace('#','');const n=parseInt(h,16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
   function mixHex(a,b,t){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16),ch=s=>Math.round(((pa>>s)&255)*(1-t)+((pb>>s)&255)*t);return`rgb(${ch(16)},${ch(8)},${ch(0)})`}
@@ -5687,7 +5714,7 @@ const CR=(()=>{
     const col=crashed?CL.loss:CL.brass,grad=ctx.createLinearGradient(0,pts[n-1][1],0,Y(1));grad.addColorStop(0,rgba(col,.34));grad.addColorStop(1,rgba(col,0));
     ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<n;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[n-1][0],Y(1));ctx.lineTo(pts[0][0],Y(1));ctx.closePath();ctx.fillStyle=grad;ctx.fill();
     ctx.save();ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<n;i++)ctx.lineTo(pts[i][0],pts[i][1]);
-    ctx.strokeStyle=col;ctx.lineWidth=3.2;ctx.lineJoin='round';ctx.lineCap='round';ctx.shadowColor=rgba(col,.6);ctx.shadowBlur=12;ctx.stroke();ctx.restore();
+    ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle=rgba(col,.16);ctx.lineWidth=11;ctx.stroke();ctx.strokeStyle=rgba(col,.3);ctx.lineWidth=6.5;ctx.stroke();ctx.strokeStyle=col;ctx.lineWidth=3.2;ctx.stroke();ctx.restore();
     const[x1,y1]=pts[n-1],t0=Math.max(0,el-400),a=el>0?Math.atan2(y1-Y(Math.exp(K*t0)),x1-X(t0)):-0.25;
     if(!crashed){drawRocket(ctx,x1,y1,a,performance.now());return}
     const pr2=Math.min(1,Math.max(0,(t-R.at)/700)),e=pr2*pr2,yd=y1+(Y(1)-y1)*e;
@@ -5764,16 +5791,20 @@ const CR=(()=>{
     for(const b of q('crQuickX').children)b.disabled=lock;
     setT(q('crStakeHint'),'Max. '+fmtC(Math.max(0,maxStakeC())));renderMain(now(),true)}
   const persist=()=>save();
-  function halfStake(){if(AUTO.running)return;C().set.stake=Math.max(10,Math.floor(stakeC()/2))/100;clampStake();syncInputs();persist()}
-  function dblStake(){if(AUTO.running)return;C().set.stake=Math.min(Math.max(10,maxStakeC()),stakeC()*2)/100;clampStake();syncInputs();persist()}
-  function bindStake(el){el.addEventListener('input',()=>{const v=parseNum(el.value);if(v>0){C().set.stake=Math.floor(v*100+1e-6)/100;syncInputs(el)}});
+  function halfStake(){if(AUTO.running)return;C().set.max=false;C().set.stake=Math.max(10,Math.floor(stakeC()/2))/100;clampStake();syncInputs();persist()}
+  function dblStake(){if(AUTO.running)return;C().set.max=false;C().set.stake=Math.min(Math.max(10,maxStakeC()),stakeC()*2)/100;clampStake();syncInputs();persist()}
+  function bindStake(el){el.addEventListener('input',()=>{const v=parseNum(el.value);if(v>0){C().set.max=false;C().set.stake=Math.floor(v*100+1e-6)/100;syncInputs(el)}});
     el.addEventListener('change',()=>{clampStake();syncInputs();el.value=nf(2,2).format(C().set.stake);persist()})}
   function bindAuto(el){el.addEventListener('input',()=>{const raw=el.value.trim(),v=parseNum(raw);if(!raw)C().set.auto=0;else if(v>=1.01)C().set.auto=Math.min(10000,Math.round(v*100)/100);syncInputs(el)});
     el.addEventListener('change',()=>{const raw=el.value.trim(),v=parseNum(raw),st=C().set;if(!raw)st.auto=0;else if(!(v>=1.01)){st.auto=1.01;toast('Auto-Auszahlung braucht einen Wert ab <b class="num">1,01×</b>.')}
       else st.auto=Math.min(10000,Math.round(v*100)/100);syncInputs();el.value=st.auto>=1.01?nf(2,2).format(st.auto):'';persist()})}
   bindStake(q('crStake'));bindStake(q('crMStake'));bindAuto(q('crAutoX'));bindAuto(q('crMAuto'));
   q('crHalf').onclick=halfStake;q('crDbl').onclick=dblStake;
-  q('crMax').onclick=()=>{const m=maxStakeC();if(m>=10){C().set.stake=m/100;syncInputs();persist()}};
+  q('crMax').onclick=()=>{const m=maxStakeC();if(m>=10){C().set.max=true;C().set.stake=m/100;syncInputs();renderCtrl();persist()}};
+  // Guthaben geändert: Max-Anzeige immer aktuell, bei aktivem Max zieht der Einsatz mit
+  function onBal(fromTake){if(!q('crStakeHint'))return;setT(q('crStakeHint'),'Max. '+fmtC(Math.max(0,maxStakeC())));
+    const st=C().set;if(st.max&&!fromTake&&!AUTO.running){const m=maxStakeC();if(m>=10&&Math.round(st.stake*100)!==m){st.stake=m/100;syncInputs()}}
+    q('crMax').setAttribute('aria-pressed',String(!!st.max));renderMain(now(),true)}
   for(const b of q('crQuickX').children)b.addEventListener('click',()=>{C().set.auto=Number(b.dataset.x);syncInputs();persist()});
   for(const b of q('crModeSeg').children)b.addEventListener('click',()=>{const st=C().set;if(st.mode===b.dataset.mode)return;if(AUTO.running)autoStop('Zu „Manuell“ gewechselt.');st.mode=b.dataset.mode;renderCtrl();persist()});
   for(const b of q('crRoundsSeg').children)b.addEventListener('click',()=>{C().set.rounds=Number(b.dataset.r);renderCtrl();persist()});
@@ -5794,7 +5825,7 @@ const CR=(()=>{
 
   // ---- Schleifen
   let raf=0;
-  function frame(){raf=0;if(!vis())return;const t=now();drawChart(t);renderOverlay(t);renderMain(t);
+  function frame(){raf=0;if(!vis())return;const t=now(),ph=phase(t),k=ph==='flight'?'f'+t:ph+'|'+(R&&R.id)+'|'+(ph==='result'&&R&&R.at!=null&&t-R.at<760?t:'');if(k!==chKey){chKey=k;drawChart(t)}renderOverlay(t);renderMain(t);
     if(phase(t)==='flight'&&S.set.sound){if(!SND.hum){SND.unlock();SND.humStart()}SND.humSet(Math.exp(K*Math.max(0,t-R.fly)))}else if(SND.hum)SND.humStop();
     raf=requestAnimationFrame(frame)}
   const kick=()=>{if(!raf)raf=requestAnimationFrame(frame)};
@@ -5813,6 +5844,7 @@ const CR=(()=>{
     key(e){if(e.ctrlKey||e.metaKey||e.altKey)return;
       if(e.code==='Space'||e.key===' '){e.preventDefault();if(!e.repeat)doMain();return}
       if(e.key==='a'||e.key==='A'){e.preventDefault();halfStake()}else if(e.key==='d'||e.key==='D'){e.preventDefault();dblStake()}},
+    bal:onBal,
     pending:()=>{const c=S.cr;return c&&Array.isArray(c.bets)?c.bets.reduce((t,b)=>t+(b&&b.a>0?+b.a:0),0):0}}})();
 onShow.crash=CR.show;
 
@@ -6436,6 +6468,7 @@ const SL=(()=>{
       state.freeSpins--;                                   // ZUSTAND: Freispiel wird verbraucht
       state.fsPlayed++;                                    // ZUSTAND
     } else {
+      syncMax();
       betCents = state.betCents;
       const bal = balanceCents();
       if (betCents > bal * MAX_SHARE + 1e-9) {
@@ -6738,8 +6771,15 @@ const SL=(()=>{
     for (const s of BET_STEPS) if (s <= balCents * MAX_SHARE + 1e-9) best = s;
     return best;
   }
+  let maxOn = false;                                       // „Max“ aktiv: Einsatz folgt dem Guthaben
+  function syncMax() {
+    if (!maxOn || state.freeSpins > 0 || phase === 'spinning' || state.gamble) return;
+    const m = maxBetFor(balanceCents());
+    if (m && m !== state.betCents) { state.betCents = m; updateBetUI(); }
+  }
   function setBet(cents) {
     if (state.freeSpins > 0 || phase === 'spinning') return;
+    maxOn = false;
     const max = maxBetFor(balanceCents());
     if (max && cents > max) { cents = max; message('Höchstens 25 % deines Guthabens pro Dreh.', 'bad'); }
     state.betCents = Math.max(BET_STEPS[0], cents);       // ZUSTAND: Einsatz geändert
@@ -6914,7 +6954,7 @@ const SL=(()=>{
     tap($('sl-bet-min'), () => { SFX.click(); setBet(BET_STEPS[0]); });
     tap($('sl-bet-half'), () => { SFX.click(); setBet(nearestStep(state.betCents / 2)); });
     tap($('sl-bet-double'), () => { SFX.click(); setBet(nearestStep(state.betCents * 2)); });
-    tap($('sl-bet-max'), () => { SFX.click(); const m = maxBetFor(balanceCents()); if (m) setBet(m); else message('Guthaben zu niedrig für den Mindesteinsatz.', 'bad'); });
+    tap($('sl-bet-max'), () => { SFX.click(); const m = maxBetFor(balanceCents()); if (m) { setBet(m); maxOn = true; updateBetUI(); } else message('Guthaben zu niedrig für den Mindesteinsatz.', 'bad'); });
     tap($('sl-turbo'), e => { turbo = !turbo; e.currentTarget.setAttribute('aria-checked', String(turbo)); SFX.click(); });
     document.querySelectorAll('#sl-auto .sl-btn').forEach(b => tap(b, () => {
       SFX.click(); audio();
@@ -7136,6 +7176,7 @@ const SL=(()=>{
     simOne,
     stats: exactStats,
     // läuft jedes Bild: Auto-Spin stoppt, wenn man das Spiel verlässt
+    bal() { syncMax(); if (cur === 'slot') updateBalance(); },
     tick() { if (cur !== 'slot' && autoLeft > 0) stopAuto(); }
   };
 })();

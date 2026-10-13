@@ -414,7 +414,7 @@ async function wetten(req, url) {
 }
 
 // ================= Jackpot-Ziehung (/api/spielstand?lotto=1) =================
-// Das Casino verdient nichts: Was Spieler unterm Strich verlieren, fließt in einen gemeinsamen Topf.
+// Jeder verlorene Einsatz fließt komplett in einen gemeinsamen Topf (Gewinne werden nicht gegengerechnet).
 // Jeden Montag und Donnerstag um 9:35 Uhr (deutsche Zeit) wird gezogen: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %,
 // die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Drei verschiedene Gewinner.
 // Lose: 250 Coins, höchstens 20 gekaufte pro Ziehung. Dazu Gratis-Lose fürs Spielen: je 30 Minuten aktiv gespielt
@@ -426,7 +426,9 @@ async function wetten(req, url) {
 const LT_PRICE = 250, LT_MAX = 20, LT_FREE_MAX = 4, LT_SLOT = 300_000, LT_SLOTS_PER_FREE = 6;
 const LT_SHARES = [0.5, 0.25, 0.1];
 const LT_SKIP = new Set(["lotto", "wetten"]);   // Lose zählen direkt, Wetten sind Spieler gegen Spieler
-const ltLoss = (st) => -Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (LT_SKIP.has(k) ? s : s + num(g && g.p) - num(g && g.w)), 0);
+// Verloren = je Runde Einsatz minus Auszahlung, wenn weniger zurückkam (Spielstand-Feld g.l, zählt nur nach oben)
+const ltSum = (st, f) => Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (LT_SKIP.has(k) ? s : s + Math.max(0, num(g && g[f]))), 0);
+const ltGross = (st) => ltSum(st, "l");
 const ltRounds = (st) => Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (k === "lotto" ? s : s + num(g && g.n)), 0);
 const ltFree = (slots) => Math.min(LT_FREE_MAX, Math.floor(num(slots) / LT_SLOTS_PER_FREE));
 
@@ -549,14 +551,15 @@ async function ltTick(now) {
   }
 }
 // Beim Speichern: neue Verluste in den Topf, aktive Abschnitte für Gratis-Lose merken. Gibt die neue Verlust-Marke zurück.
-// Marke = höchster bisheriger Gesamtverlust: Wer verliert und es wieder zurückgewinnt, zahlt nicht doppelt ein.
+// JEDER verlorene Einsatz zählt voll, Gewinne werden nicht gegengerechnet (das Casino legt sie drauf).
+// Marke = höchster bisher gezählter Verlust-Zähler: ein älterer Tab kann nichts doppelt einzahlen.
 async function ltOnSave(key, oldS, state, stored, fresh, now) {
-  let mark = fresh ? 0 : stored.potMark;
-  if (typeof mark !== "number") mark = Math.max(0, ltLoss(oldS));
+  let mark = fresh ? 0 : stored.lossMark;
+  if (typeof mark !== "number") mark = ltGross(oldS);
   const older = ltRounds(state) < ltRounds(oldS);         // Stand aus einem älteren Tab: nichts zählen
-  const loss = ltLoss(state);
+  const loss = ltGross(state);
   let add = 0;
-  if (!older && loss > mark + 0.004) { add = r2(loss - mark); mark = loss; }
+  if (!older && loss > mark + 0.004) { add = r2(Math.min(loss - mark, Math.max(0, ltSum(state, "w") - ltSum(oldS, "w")))); mark = loss; }
   const slot = !older && ltRounds(state) > ltRounds(oldS) ? Math.floor(now / LT_SLOT) : null;
   if (add > 0 || slot != null) {
     try {
@@ -568,8 +571,12 @@ async function ltOnSave(key, oldS, state, stored, fresh, now) {
         a.c = r2(num(a.c) + add);
         if (newSlot) { a.s.push(slot); if (a.s.length > 400) a.s = a.s.slice(-400); }
         await s.setJSON(k, a);
+        // Topf-Anzeige sofort mitziehen (statt erst nach Ablauf des 15-Sekunden-Zwischenspeichers)
+        if (add > 0) {
+          try { const c = await s.get("cache", { type: "json" }); if (c && c.d === nextDraw(now)) { c.pot = r2(num(c.pot) + add); await s.setJSON("cache", c); } } catch {}
+        }
       }
-    } catch { return typeof stored.potMark === "number" ? stored.potMark : mark - add; }
+    } catch { return typeof stored.lossMark === "number" ? stored.lossMark : mark - add; }
   }
   return r2(mark);
 }
@@ -785,7 +792,7 @@ async function authRoute(req) {
     if (err) return json({ error: err }, 422);
     state.sent = 0; state.recv = 0;
     const salt = randomBytes(16).toString("hex"), token = newToken();
-    await store.setJSON(key, { state, rev: 1, savedAt: now, sentTotal: 0, recvTotal: 0, seen: [], created: now, potMark: 0,
+    await store.setJSON(key, { state, rev: 1, savedAt: now, sentTotal: 0, recvTotal: 0, seen: [], created: now, potMark: 0, lossMark: ltGross(state),
       pw: { s: salt, h: await scrypt(body.pw, salt) }, tokens: [{ h: sha(token), t: now }] });
     return json({ ok: true, rev: 1, token });
   }
@@ -953,9 +960,9 @@ export default async (req) => {
 
   seen = seen.concat(used).slice(-200);
   // Verluste in den Jackpot-Topf, Spielzeit für Gratis-Lose (Fehler dabei blockieren nie das Speichern)
-  let potMark = stored.potMark;
-  try { potMark = await ltOnSave(key, oldS, state, stored, fresh, now); } catch {}
-  const rec = { ...stored, state, potMark, rev: curRev + 1, savedAt: now, sentTotal, recvTotal, seen, dev: undefined, tx: tx ? tx.recent.concat(now) : (stored.tx || []).filter((t) => now - t < 3_600_000) };
+  let lossMark = stored.lossMark;
+  try { lossMark = await ltOnSave(key, oldS, state, stored, fresh, now); } catch {}
+  const rec = { ...stored, state, lossMark, rev: curRev + 1, savedAt: now, sentTotal, recvTotal, seen, dev: undefined, tx: tx ? tx.recent.concat(now) : (stored.tx || []).filter((t) => now - t < 3_600_000) };
   await store.setJSON(key, rec);
   // Überweisung erst nach dem Abzug beim Absender in den Posteingang legen (eigener Eintrag, kein Überschreiben).
   // Klappt das nicht, wird der Abzug beim Absender wieder zurückgenommen.
