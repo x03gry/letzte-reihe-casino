@@ -1512,12 +1512,12 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 <!-- ======================= LOBBY ======================= -->
 <section id="v-lobby" class="view">
   <div class="starline"><span class="lab">Nächster Stern</span><div class="bar"><i id="starProg" style="width:0%"></i></div><span class="val" id="starVal"></span></div>
-  <button class="jp-hero" id="jpHero" type="button" data-go="lotto" hidden><span class="jp-l"><span class="eyebrow">Jackpot · Große Ziehung</span><b class="jp-v" id="jpHeroV">…</b><small id="jpHeroT">Große Ziehung jeden Montag und Donnerstag um 9:35 Uhr</small></span><span class="jp-r"><span class="jp-cd" id="jpHeroCd">Mo + Do · 9:35 Uhr</span><span class="btn gold">Lose kaufen</span></span></button>
+  <button class="jp-hero" id="jpHero" type="button" data-go="lotto" hidden><span class="jp-l"><span class="eyebrow">Jackpot · Große Ziehung</span><b class="jp-v" id="jpHeroV">…</b><small id="jpHeroT">Große Ziehung jeden zweiten Tag</small></span><span class="jp-r"><span class="jp-cd" id="jpHeroCd">jeden 2. Tag</span><span class="btn gold">Lose kaufen</span></span></button>
   <div class="games" id="gameCards"></div>
   <div class="grid2">
     <div class="panel"><div class="ph"><h2>Deine letzten Runden</h2><button class="chip" data-go="stats" style="border:0">Alle ansehen</button></div><div class="feed" id="feed"></div></div>
     <div class="panel"><div class="ph"><h2>So funktioniert's</h2></div>
-      <p class="note">Du startest mit 1.000 Coins. Pro Runde darfst du höchstens 25 % deines Guthabens setzen. Mit Gewinnen schaltest du Spiele frei und kaufst Dinge für deine Vitrine. Bei 10 Mio. tauschst du alles gegen einen Stern und fängst wieder an. Bist du pleite, gibt es einen Neustart mit 1.000 Coins, aber höchstens einmal pro Stunde. Freigeschaltetes und Gekauftes bleibt immer. Das Casino verdient nichts: Alles, was ihr verliert, landet im Jackpot, und der wird jeden Montag und Donnerstag um 9:35 Uhr verlost.</p>
+      <p class="note">Du startest mit 1.000 Coins. Pro Runde darfst du höchstens 25 % deines Guthabens setzen. Mit Gewinnen schaltest du Spiele frei und kaufst Dinge für deine Vitrine. Bei 10 Mio. tauschst du alles gegen einen Stern und fängst wieder an. Bist du pleite, gibt es einen Neustart mit 1.000 Coins, aber höchstens einmal pro Stunde. Freigeschaltetes und Gekauftes bleibt immer. Das Casino verdient nichts: Alles, was ihr verliert, landet im Jackpot, und der wird jeden zweiten Tag verlost (Mo–Fr 9:35 Uhr, Sa + So 12:00 Uhr).</p>
     </div>
   </div>
 </section>
@@ -1841,7 +1841,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     </div>
     <div class="stage">
       <div class="lt-hero">
-        <p class="eyebrow" id="ltWhen">Große Ziehung · Mo + Do um 9:35 Uhr</p>
+        <p class="eyebrow" id="ltWhen">Große Ziehung · jeden zweiten Tag</p>
         <div class="lt-pot" id="ltPot">…</div>
         <div class="lt-sub" id="ltSub">im Topf</div>
         <div class="lt-cd" id="ltCd"><div><b id="ltCdD">–</b><span>Tage</span></div><div><b id="ltCdH">–</b><span>Std.</span></div><div><b id="ltCdM">–</b><span>Min.</span></div><div><b id="ltCdS">–</b><span>Sek.</span></div></div>
@@ -1854,7 +1854,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </div>
   <details class="odds"><summary>So funktioniert der Jackpot</summary>
     <p><b style="color:var(--ink)">Das Casino verdient nichts.</b> Jeder verlorene Einsatz fließt komplett in einen gemeinsamen Topf, dazu jedes gekaufte Los. Gewinne werden nicht gegengerechnet, die legt das Casino drauf. Kommt bei einer Runde nur ein Teil zurück (z. B. 0,5×), zählt der verlorene Rest. Tipps bei „Wetten“ zählen nicht mit, dort spielt ihr ja gegeneinander.</p>
-    <p><b style="color:var(--ink)">Ziehung:</b> Jeden Montag und Donnerstag um 9:35 Uhr werden drei verschiedene Gewinner gezogen. Jedes Los ist eine Kugel in der Trommel, wer mehr Lose hat, hat mehr Chancen. Der 1. Platz bekommt 50 % vom Topf, der 2. Platz 25 %, der 3. Platz 10 %. Die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Der Gewinn kommt automatisch in deinen Posteingang.</p>
+    <p><b style="color:var(--ink)">Ziehung:</b> Jeden zweiten Tag werden drei verschiedene Gewinner gezogen, Montag bis Freitag um 9:35 Uhr, am Wochenende um 12:00 Uhr. Jedes Los ist eine Kugel in der Trommel, wer mehr Lose hat, hat mehr Chancen. Der 1. Platz bekommt 50 % vom Topf, der 2. Platz 25 %, der 3. Platz 10 %. Die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Der Gewinn kommt automatisch in deinen Posteingang.</p>
     <p><b style="color:var(--ink)">Lose:</b> Ein Los kostet 250 Coins, kaufen kannst du bis zu 20 Lose pro Ziehung. Dazu gibt es Gratis-Lose fürs Spielen: Für je 30 Minuten, in denen du gespielt hast (gezählt in 5-Minuten-Abschnitten mit mindestens einer Runde), bekommst du ein Gratis-Los, bis zu 4 pro Ziehung. Lose gelten nur für die nächste Ziehung.</p>
     <div class="hr-formula">Chance auf den 1. Platz = deine Lose ÷ alle Lose<br>Gewinn = Topf × 50 % / 25 % / 10 %</div>
     <p>Gewonnen wird höchstens bis zur 10-Mio.-Grenze, der Rest bleibt im Topf. Gesperrte Accounts können nicht gewinnen.</p>
@@ -2781,7 +2781,7 @@ const ART={
     '<circle cx="70" cy="44" r="8" fill="#2fe08f"/><text x="70" y="47" fill="#022616">3</text><circle cx="52" cy="38" r="8" fill="#ffd27a"/><text x="52" y="41" fill="#1d1300">12</text><circle cx="40" cy="44" r="6" fill="#c58bff"/></g>'+
     '<path d="M36 26a31 31 0 0 1 22-11" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round"/>'+
     '<g transform="translate(96 30) rotate(9)"><rect width="52" height="34" rx="4" fill="#ffb020"/><rect x="3" y="3" width="46" height="28" rx="2.5" fill="none" stroke="#1d1300" stroke-opacity=".35" stroke-dasharray="3 2"/>'+
-    '<text x="26" y="16" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="9.5" letter-spacing="1" fill="#1d1300">JACKPOT</text><text x="26" y="26" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="7" fill="#6b4300">MO · DO · 9:35 UHR</text></g>'+
+    '<text x="26" y="16" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="9.5" letter-spacing="1" fill="#1d1300">JACKPOT</text><text x="26" y="26" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-weight="700" font-size="7" fill="#6b4300">JEDEN 2. TAG</text></g>'+
     '<circle cx="134" cy="22" r="2" fill="#ffd27a"/><circle cx="92" cy="20" r="1.5" fill="#ffd27a"/><circle cx="146" cy="76" r="1.6" fill="#ffd27a"/></svg>',
   wetten:'<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid slice"><rect width="160" height="100" fill="#15241a"/><ellipse cx="80" cy="56" rx="72" ry="44" fill="#7cb342" opacity=".1"/>'+
     '<rect x="22" y="16" width="86" height="68" rx="9" fill="#1b2b3a" stroke="#2f4960"/><rect x="30" y="24" width="52" height="5" rx="2.5" fill="#8ba2b7"/><rect x="30" y="32" width="38" height="4" rx="2" fill="#5d7387"/>'+
@@ -4256,7 +4256,7 @@ onShow.wetten=WT.show;
 
 // ================= JACKPOT-ZIEHUNG =================
 // Jeder verlorene Einsatz landet im Topf, Gewinne werden nicht gegengerechnet (rechnet der Server beim Speichern mit).
-// Mo + Do um 9:35 Uhr: drei Gewinner (50 / 25 / 10 %), 15 % bleiben im Topf. Lose: 250 Coins, bis 20 pro Ziehung, dazu Gratis-Lose fürs Spielen.
+// Jeden 2. Tag (Mo–Fr 9:35, Sa + So 12:00 Uhr): drei Gewinner (50 / 25 / 10 %), 15 % bleiben im Topf. Lose: 250 Coins, bis 20 pro Ziehung, dazu Gratis-Lose fürs Spielen.
 // Gekaufte Lose bucht das Gerät ab (Spielstatistik "lotto"), sobald der Server sie angenommen hat. Gewinne kommen über den Posteingang.
 const LT=(()=>{
   const LAPI='/api/spielstand?lotto=1',PRICE=250,MAX=20,FREE_MAX=4,PER_FREE=6,SHARES=[.5,.25,.1];
@@ -4268,7 +4268,8 @@ const LT=(()=>{
   let potShown=null,potRaf=0,drawWait=0,lossAt=0,lossT=0;
   const now=()=>Date.now()+skew;
   const pad=n=>String(n).padStart(2,'0');
-  const day=t=>new Date(t).toLocaleString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'});
+  const DAYF=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'2-digit',month:'2-digit'}),HMF=new Intl.DateTimeFormat('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const day=t=>DAYF.format(t),hm=t=>HMF.format(t);
   const dayShort=t=>new Date(t).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'2-digit'});
   function left(ms){if(ms<=0)return'jetzt';const m=Math.floor(ms/60000);if(m>=1440)return`${Math.floor(m/1440)} T ${Math.floor(m%1440/60)} Std.`;if(m>=60)return`${Math.floor(m/60)}:${pad(m%60)} Std.`;return mmss(ms)+' Min.'}
   const mine=()=>I&&I.mine?I.mine:{n:0,f:0,s:0};
@@ -4342,16 +4343,16 @@ const LT=(()=>{
   function render(){if(cur!=='lotto')return;
     const ok=online()&&I&&loadedFor===acct,m=mine(),T=I?I.tickets:0,bal=S.bal;
     // Topf + Countdown
-    if(!ACCOUNTS){setT($('ltPot'),'nur online');setT($('ltSub'),'Den Jackpot gibt es auf der Website mit Accounts.');setT($('ltWhen'),'Große Ziehung · Mo + Do um 9:35 Uhr')}
+    if(!ACCOUNTS){setT($('ltPot'),'nur online');setT($('ltSub'),'Den Jackpot gibt es auf der Website mit Accounts.');setT($('ltWhen'),'Große Ziehung · jeden zweiten Tag')}
     else if(!I){setT($('ltPot'),offline?'–':'…');setT($('ltSub'),offline?'Server nicht erreichbar. Neuer Versuch läuft …':'Topf wird geladen …')}
-    else{animPot(I.pot);setT($('ltWhen'),`Große Ziehung · ${day(I.d)} um 9:35 Uhr`);setT($('ltSub'),`im Topf · ${fmt0(T)} ${T===1?'Los':'Lose'} von ${I.players} ${I.players===1?'Spieler':'Spielern'}`)}
+    else{animPot(I.pot);setT($('ltWhen'),`Große Ziehung · ${day(I.d)} um ${hm(I.d)} Uhr`);setT($('ltSub'),`im Topf · ${fmt0(T)} ${T===1?'Los':'Lose'} von ${I.players} ${I.players===1?'Spieler':'Spielern'}`)}
     tickCd();
     // Gewinnaufteilung
     const P=I?I.pot:0;
     setH($('ltShares'),[['1. Platz',SHARES[0],'p1'],['2. Platz',SHARES[1],''],['3. Platz',SHARES[2],''],['Nächster Topf',.15,'nx']].map(([t,f,c])=>`<div class="lt-sh ${c}"><span>${t} · ${pct(f,0)}</span><b>${I?fmt(Math.floor(P*f*100)/100):'–'}</b></div>`).join(''));
     // Ergebnisse
     const H=I&&I.hist||[];
-    setH($('ltLast'),H.length?resCard(H[0],true):`<div class="wt-empty"><b>Noch keine Ziehung.</b>Die erste Ziehung ist ${I?day(I.d)+' um 9:35 Uhr':'bald'}. Hol dir vorher deine Lose!</div>`);
+    setH($('ltLast'),H.length?resCard(H[0],true):`<div class="wt-empty"><b>Noch keine Ziehung.</b>Die erste Ziehung ist ${I?day(I.d)+' um '+hm(I.d)+' Uhr':'bald'}. Hol dir vorher deine Lose!</div>`);
     setH($('ltHist'),H.slice(1).map(h=>resCard(h,false)).join(''));$('ltHistHead').hidden=H.length<2;setT($('ltHistN'),`${H.length-1}`);
     // Kaufen
     const cb=canBuy(),maxQ=Math.max(1,Math.min(cb,affordable()));
@@ -4379,8 +4380,8 @@ const LT=(()=>{
   function hero(){const el=$('jpHero');if(!el)return;el.hidden=!ACCOUNTS;if(!ACCOUNTS)return;
     setT($('jpHeroV'),I?fmt(I.pot):'…');
     const ms=I?I.d-now():0;if(I&&ms<=0&&!drawWait)drawWait=Date.now()+2500;
-    setT($('jpHeroT'),I?`Große Ziehung ${day(I.d)} um 9:35 Uhr · ${online()&&myT()?`du hast ${myT()} ${myT()===1?'Los':'Lose'}`:'50 % · 25 % · 10 % für drei Gewinner'}`:'Große Ziehung jeden Montag und Donnerstag um 9:35 Uhr');
-    setT($('jpHeroCd'),!I?'Mo + Do · 9:35 Uhr':ms>0?'noch '+left(ms):'Ziehung läuft …')}
+    setT($('jpHeroT'),I?`Große Ziehung ${day(I.d)} um ${hm(I.d)} Uhr · ${online()&&myT()?`du hast ${myT()} ${myT()===1?'Los':'Lose'}`:'50 % · 25 % · 10 % für drei Gewinner'}`:'Große Ziehung jeden zweiten Tag');
+    setT($('jpHeroCd'),!I?'jeden 2. Tag':ms>0?'noch '+left(ms):'Ziehung läuft …')}
 
   // ---- Eingaben
   function setQty(v){if(buying)return;qty=Math.max(1,Math.min(Math.max(1,canBuy()),v|0));SND.tick();render()}
@@ -4400,7 +4401,7 @@ const LT=(()=>{
     // Verlust einer Runde: sofort im Topf anzeigen (der Server bucht ihn mit dem nächsten Speichern, ~1,5 s)
     loss(a){if(!ACCOUNTS||!acct||!I||!(a>0)||I.d-now()<=0)return;I.pot=r2(I.pot+a);lossAt=Date.now();
       if(!lossT)lossT=setTimeout(()=>{lossT=0;if(cur==='lotto')render();else if(cur==='lobby')hero()},250)},
-    lobby(){if(!ACCOUNTS)return'Nur online mit Account';if(!I)return'Mo + Do um 9:35 Uhr · drei Gewinner';
+    lobby(){if(!ACCOUNTS)return'Nur online mit Account';if(!I)return'Jeden 2. Tag · drei Gewinner';
       const ms=I.d-now();return `Topf <b>${short(I.pot)}</b> · ${ms>0?'Ziehung in '+left(ms):'Ziehung läuft'}`+(online()&&myT()?` · <b>${myT()}</b> ${myT()===1?'Los':'Lose'}`:'')}}})();
 onShow.lotto=LT.show;
 

@@ -46,14 +46,16 @@ async function ensureEpoch() {
 const CAP = 10_000_000;
 const GAMES = ["chicken", "mines", "tower", "plinko", "poker", "rennen", "stapel", "slot", "muenze", "perps", "roulette", "crash"];
 
-// ================= Jackpot-Ziehung (gleiche Termine wie in spielstand.mjs: Mo + Do, 9:35 Uhr Berlin) =================
+// ================= Jackpot-Ziehung (gleiche Termine wie in spielstand.mjs: jeden 2. Tag ab 12.10.2026, Mo–Fr 9:35, Sa + So 12:00 Berlin) =================
 const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 function berlinParts(ts) { const p = {}; for (const x of BERLIN.formatToParts(new Date(ts))) p[x.type] = +x.value || 0; return p; }
 function berlinOffset(ts) { const p = berlinParts(ts); return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ts / 1000) * 1000; }
-function drawAt(y, m, d) { const guess = Date.UTC(y, m, d, 9, 35); return guess - berlinOffset(guess - 7_200_000); }
+const LT_ANCHOR = Date.UTC(2026, 9, 12) / 86_400_000;
+const ltIsDay = (y, m, d) => (((Math.round(Date.UTC(y, m, d) / 86_400_000) - LT_ANCHOR) % 2) + 2) % 2 === 0;
+function drawAt(y, m, d) { const wd = new Date(Date.UTC(y, m, d)).getUTCDay(), we = wd === 0 || wd === 6; const guess = Date.UTC(y, m, d, we ? 12 : 9, we ? 0 : 35); return guess - berlinOffset(guess - 7_200_000); }
 function nextDraw(ts) {
   const p = berlinParts(ts);
-  for (let i = -1; i <= 8; i++) { const wd = new Date(Date.UTC(p.year, p.month - 1, p.day + i)).getUTCDay(); if (wd === 1 || wd === 4) { const t = drawAt(p.year, p.month - 1, p.day + i); if (t > ts) return t; } }
+  for (let i = -1; i <= 8; i++) { if (ltIsDay(p.year, p.month - 1, p.day + i)) { const t = drawAt(p.year, p.month - 1, p.day + i); if (t > ts) return t; } }
 }
 // Teilnehmer der laufenden Ziehung (Lose gekauft, Gratis-Lose, eingezahlte Verluste)
 async function lottoInfo(now) {

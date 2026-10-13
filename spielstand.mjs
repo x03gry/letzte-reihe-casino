@@ -415,13 +415,13 @@ async function wetten(req, url) {
 
 // ================= Jackpot-Ziehung (/api/spielstand?lotto=1) =================
 // Jeder verlorene Einsatz fließt komplett in einen gemeinsamen Topf (Gewinne werden nicht gegengerechnet).
-// Jeden Montag und Donnerstag um 9:35 Uhr (deutsche Zeit) wird gezogen: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %,
+// Jeden zweiten Tag (ab Montag, 12.10.2026) wird gezogen, Mo–Fr um 9:35 Uhr, Sa + So um 12:00 Uhr (deutsche Zeit): 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %,
 // die übrigen 15 % bleiben als Startgeld für die nächste Ziehung im Topf. Drei verschiedene Gewinner.
 // Lose: 250 Coins, höchstens 20 gekaufte pro Ziehung. Dazu Gratis-Lose fürs Spielen: je 30 Minuten aktiv gespielt
 // (6 Fünf-Minuten-Abschnitte mit mindestens einer Runde) ein Gratis-Los, höchstens 4 pro Ziehung.
 // Store "lotto": a/<ziehung>/<name> = {c: Verluste in den Topf, s: aktive Abschnitte} · b/<ziehung>/<name> = {n: gekaufte Lose}
 //                r/<ziehung> = Ergebnis · state = {last: zuletzt ausgeführte Ziehung} · cache = Topf (kurz zwischengespeichert)
-// Gezogen wird beim ersten Aufruf nach 9:35 Uhr. Der Zufall kommt aus dem Server-Geheimnis + Ziehungszeit:
+// Gezogen wird beim ersten Aufruf nach der Ziehungszeit. Der Zufall kommt aus dem Server-Geheimnis + Ziehungszeit:
 // derselbe Aufruf zweimal gleichzeitig ergibt exakt dieselben Gewinner und dieselben Posteingangs-Einträge (keine Doppelzahlung).
 const LT_PRICE = 250, LT_MAX = 20, LT_FREE_MAX = 4, LT_SLOT = 300_000, LT_SLOTS_PER_FREE = 6;
 const LT_SHARES = [0.5, 0.25, 0.1];
@@ -432,20 +432,20 @@ const ltGross = (st) => ltSum(st, "l");
 const ltRounds = (st) => Object.entries((st && st.games) || {}).reduce((s, [k, g]) => (k === "lotto" ? s : s + num(g && g.n)), 0);
 const ltFree = (slots) => Math.min(LT_FREE_MAX, Math.floor(num(slots) / LT_SLOTS_PER_FREE));
 
-// ---- Ziehungstermine: Montag und Donnerstag, 9:35 Uhr in Berlin (Sommer- und Winterzeit)
-const LT_H = 9, LT_MIN = 35, LT_SCHED = "mo-do-0935";
+// ---- Ziehungstermine: jeden zweiten Tag ab Mo 12.10.2026, Mo–Fr 9:35 Uhr, Sa + So 12:00 Uhr in Berlin (Sommer- und Winterzeit)
+const LT_ANCHOR = Date.UTC(2026, 9, 12) / 86_400_000, LT_SCHED = "2tage-0935-1200";
+const ltIsDay = (y, m, d) => (((Math.round(Date.UTC(y, m, d) / 86_400_000) - LT_ANCHOR) % 2) + 2) % 2 === 0;
 const BERLIN = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Berlin", hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
 function berlinParts(ts) {
   const p = {}; for (const x of BERLIN.formatToParts(new Date(ts))) p[x.type] = +x.value || 0;
   return p;
 }
 function berlinOffset(ts) { const p = berlinParts(ts); return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ts / 1000) * 1000; }
-function drawAt(y, m, d) { const guess = Date.UTC(y, m, d, LT_H, LT_MIN); return guess - berlinOffset(guess - 7_200_000); }
+function drawAt(y, m, d) { const wd = new Date(Date.UTC(y, m, d)).getUTCDay(), we = wd === 0 || wd === 6; const guess = Date.UTC(y, m, d, we ? 12 : 9, we ? 0 : 35); return guess - berlinOffset(guess - 7_200_000); }
 function ltDays(ts, from, to) {   // Ziehungen von Tag "from" bis "to" (relativ zum Berliner Datum von ts)
   const p = berlinParts(ts), out = [];
   for (let i = from; i <= to; i++) {
-    const wd = new Date(Date.UTC(p.year, p.month - 1, p.day + i)).getUTCDay();
-    if (wd === 1 || wd === 4) out.push(drawAt(p.year, p.month - 1, p.day + i));
+    if (ltIsDay(p.year, p.month - 1, p.day + i)) out.push(drawAt(p.year, p.month - 1, p.day + i));
   }
   return out;
 }
@@ -518,7 +518,10 @@ async function ltDraw(D) {
 }
 // Uhrzeit der Ziehung umgestellt: offene Lose und Einzahlungen auf die neue Ziehung am selben Tag umziehen (einmalig)
 async function ltMigrate(s, st) {
-  const sameDay = (D) => { const p = berlinParts(D); return drawAt(p.year, p.month - 1, p.day); };
+  // Offene Einträge auf den neuen Plan legen: liegt ihr Termin nicht mehr im Plan, zählen sie für die nächste neue Ziehung
+  const isNew = (D) => { const p = berlinParts(D); return ltIsDay(p.year, p.month - 1, p.day) && drawAt(p.year, p.month - 1, p.day) === D; };
+  const next = nextDraw(Math.max(num(st.last), Date.now()));
+  const sameDay = (D) => (isNew(D) ? D : next);
   for (const pre of ["a/", "b/"]) {
     const { blobs } = await s.list({ prefix: pre });
     for (const b of blobs) {
