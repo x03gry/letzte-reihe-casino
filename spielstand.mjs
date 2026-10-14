@@ -48,7 +48,7 @@ async function wipeStore(name, keep) {
   for (const b of blobs) { if (keep && keep(b.key)) continue; try { await st.delete(b.key); } catch {} }
 }
 async function purgeAll() {
-  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash"]) await wipeStore(n);
+  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft"]) await wipeStore(n);
   await wipeStore("wetten", (k) => k.startsWith("e/"));   // Fragen bleiben, Tipps/Vorschläge/Ausschlüsse weg
   const admin = getStore("admin");
   for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
@@ -112,7 +112,10 @@ function plausible(oldS, newS, elapsedMs) {
   const dNet = gameNet(newS) - gameNet(oldS);
 
   const oldBonus = oldS.bonus || {}, newBonus = newS.bonus || {};
-  const dBonus = sumObj(newBonus, "sell") - sumObj(oldBonus, "sell");
+  // Gutschriften aus der Wirtschaft prüft der Server über seine eigene Kasse (wirt.out), nicht über das Bonus-Limit
+  const nonWirt = (o) => Object.entries(o).reduce((t, [k, v]) => (k === "sell" || WIRT_KEYS.has(k) ? t : t + num(v)), 0);
+  const dBonus = nonWirt(newBonus) - nonWirt(oldBonus);
+  const dWirt = num(newS.wirt && newS.wirt.out) - num(oldS.wirt && oldS.wirt.out);
   if (dBonus > BONUS_PER_SAVE + Math.min(200_000, (elapsedMs / 1000) * 50)) return "bonus";
 
   // Verkäufe nur so viel, wie verkaufte Gegenstände wert waren
@@ -128,7 +131,7 @@ function plausible(oldS, newS, elapsedMs) {
   if (dStars <= 0) {
     // inPlay = Einsätze laufender Runden (schon abgezogen, noch nicht ausgewertet)
     const dRecv = num(newS.recv) - num(oldS.recv), dSent = num(newS.sent) - num(oldS.sent);
-    const expected = num(oldS.bal) + num(oldS.inPlay) + dNet + dBonus + dSell - dSpent + dRecv - dSent;
+    const expected = num(oldS.bal) + num(oldS.inPlay) + dNet + dBonus + dSell - dSpent + dRecv - dSent + Math.max(0, dWirt);
     if (num(newS.inPlay) < 0) return "einsatz";
     if (num(newS.bal) + num(newS.inPlay) > expected + 1) return "guthaben_unerklaerlich";
   }
@@ -644,6 +647,81 @@ async function lotto(req, url) {
   return json({ error: "aktion" }, 400);
 }
 
+// ================= Wirtschaft (/api/spielstand?wirt=1) =================
+// Passives Einkommen. Alles, was Geld bewegt, läuft über den Server: Er führt pro Spieler eine eigene Kasse
+// (Store "wirtschaft", Schlüssel = Account) mit "in" (alles, was in die Wirtschaft geflossen ist) und "out" (alles, was ausgezahlt wurde).
+// Der Spielstand trägt dieselben Zähler (state.wirt.in/out). Beim Speichern bringt der Server das Guthaben auf seinen Stand
+// (wie bei Überweisungen): fehlt eine Ein-/Auszahlung im Stand, wird sie nachgebucht; mehr als der Server kennt geht nicht.
+// Wirtschafts-Gutschriften zählen deshalb nicht gegen das Bonus-Limit pro Speicherung.
+const WIRT_KEYS = new Set(["tresor", "shops", "immo", "immoSell", "aktien", "divi", "firma"]);
+const TR_RATES = { 4: 0.03, 12: 0.10, 24: 0.25 }, TR_MIN = 1000, TR_MAX = 250_000;
+const wirtFresh = () => ({ in: 0, out: 0, tresor: [], shops: {} });
+async function wirtGet(key) {
+  const w = await getStore("wirtschaft").get(key, { type: "json" });
+  const f = wirtFresh();
+  if (!w) return f;
+  return { ...f, ...w, in: r2(num(w.in)), out: r2(num(w.out)), tresor: Array.isArray(w.tresor) ? w.tresor : [], shops: w.shops && typeof w.shops === "object" ? w.shops : {} };
+}
+function wirtNormalize(state, W) {
+  const sw = state.wirt && typeof state.wirt === "object" ? state.wirt : {};
+  if (num(sw.in) > W.in + 0.01 || num(sw.out) > W.out + 0.01) return { err: "wirtschaft" };
+  const adj = r2((W.out - num(sw.out)) - (W.in - num(sw.in)));
+  state.bal = Math.min(CAP, Math.max(0, r2(num(state.bal) + adj)));
+  state.wirt = { ...sw, in: W.in, out: W.out };
+  return { adj };
+}
+// Was der Spieler gerade wirklich hat: gespeicherter Stand + noch nicht verbuchte Wirtschafts-Bewegungen
+function wirtBal(st, W) {
+  const sw = (st && st.wirt) || {};
+  return num(st && st.bal) - Math.max(0, W.in - num(sw.in)) + Math.max(0, W.out - num(sw.out));
+}
+const wirtView = (W) => ({ in: W.in, out: W.out, tresor: W.tresor, shops: W.shops });
+async function wirtRoute(req, url) {
+  const now = Date.now();
+  let name, body = {};
+  if (req.method === "POST") { try { body = await req.json(); } catch { return json({ error: "kaputt" }, 400); } name = normName(body.name); }
+  else name = normName(url.searchParams.get("name"));
+  if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name", now }, 400);
+  const key = encodeURIComponent(name);
+  const acc = await getStore("spielstaende").get(key, { type: "json" });
+  if (!acc) return json({ error: "unbekannt", now }, 404);
+  if (acc.banned) return json({ error: "gesperrt", now }, 403);
+  if (!authed(req, acc)) return json({ error: "login", now }, 401);
+  const ws = getStore("wirtschaft");
+  const W = await wirtGet(key);
+  if (req.method === "GET") return json({ ok: true, now, wirt: wirtView(W) });
+  if (req.method !== "POST") return json({ error: "methode", now }, 405);
+  const st = acc.state || {};
+  const fail = (e, extra) => json({ error: e, now, wirt: wirtView(W), ...(extra || {}) }, 400);
+  const done = async (extra) => { await ws.setJSON(key, W); return json({ ok: true, now, wirt: wirtView(W), ...extra }); };
+
+  // ---- Tresor
+  if (body.action === "tresorLock") {
+    const a = Math.floor(num(body.betrag)), h = Number(body.std), satz = TR_RATES[h];
+    if (!satz) return fail("laufzeit");
+    if (!(a >= TR_MIN)) return fail("zu_wenig");
+    if (a > TR_MAX) return fail("zu_viel");
+    if (W.tresor.length) return fail("schon_belegt");
+    if (a > wirtBal(st, W) + 10) return fail("guthaben");
+    const e = { id: "t" + now.toString(36), betrag: a, start: now, ende: now + h * 3_600_000, satz, std: h };
+    W.tresor = [e]; W.in = r2(W.in + a);
+    return done({ einlage: e });
+  }
+  if (body.action === "tresorCollect" || body.action === "tresorEarly") {
+    const e = W.tresor.find((x) => x.id === body.id);
+    if (!e) return fail("weg");
+    const early = body.action === "tresorEarly";
+    if (!early && now < e.ende) return fail("noch_nicht");
+    if (early && now >= e.ende) return fail("schon_fertig");
+    const zinsen = early ? 0 : Math.floor(e.betrag * e.satz);
+    const pay = r2(e.betrag + zinsen);
+    W.tresor = W.tresor.filter((x) => x.id !== e.id); W.out = r2(W.out + pay);
+    W.earned = r2(num(W.earned) + zinsen);
+    return done({ betrag: e.betrag, zinsen, pay });
+  }
+  return fail("aktion");
+}
+
 // ================= Crash (/api/spielstand?crash=1) =================
 // Gemeinsame Runden für alle: 7 s Wettphase, Flug (m(t) = e^(0,00006·t)), Absturz, 3 s Pause, nächste Runde.
 // Crash-Punkt jeder Runde = aus HMAC(Server-Geheimnis, "crash|<id>") ("reveal"). Vorab wird nur SHA-256(reveal) gezeigt.
@@ -837,6 +915,7 @@ export default async (req) => {
   if (url.searchParams.has("lotto")) return lotto(req, url);
   if (url.searchParams.has("crash")) return crash(req, url);
   if (url.searchParams.has("wetten")) return wetten(req, url);
+  if (url.searchParams.has("wirt")) return wirtRoute(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");
@@ -948,6 +1027,14 @@ export default async (req) => {
     return json({ error: n.err, state: oldS, rev: curRev }, 422);
   }
 
+  // Wirtschaft: Ein- und Auszahlungen kennt nur der Server. Guthaben auf seinen Stand bringen.
+  let W = null;
+  try { W = await wirtGet(key); } catch {}
+  if (W) {
+    const nw = wirtNormalize(state, W);
+    if (nw.err) { await logReject(name, nw.err, oldS, state); return json({ error: nw.err, state: oldS, rev: curRev }, 422); }
+  }
+
   const elapsed = now - (stored.savedAt || 0);
   const err = plausible(oldS, state, elapsed);
   if (err) {
@@ -980,7 +1067,7 @@ export default async (req) => {
   }
   // Abgeholte Einträge aufräumen (falls das fehlschlägt, schützt "seen" vor doppelter Gutschrift)
   if (used.length) { const box = getStore("posteingang"); for (const id of used) { try { await box.delete(id); } catch {} } }
-  return json({ ok: true, rev: curRev + 1, adj: n.adj, sent: state.sent, recv: state.recv, gifts, sentTx: tx ? { to: tx.to, amount: tx.amount } : null });
+  return json({ ok: true, rev: curRev + 1, adj: n.adj, sent: state.sent, recv: state.recv, win: W ? W.in : undefined, wout: W ? W.out : undefined, gifts, sentTx: tx ? { to: tx.to, amount: tx.amount } : null });
 };
 
 export const config = { path: "/api/spielstand" };

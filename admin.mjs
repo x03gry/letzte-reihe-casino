@@ -29,7 +29,7 @@ async function wipeStore(name, keep) {
 }
 async function purgeAll() {
   const accounts = await wipeStore("spielstaende");
-  for (const n of ["posteingang", "stapel", "rennen", "lotto", "crash"]) await wipeStore(n);
+  for (const n of ["posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft"]) await wipeStore(n);
   await wipeStore("wetten", (k) => k.startsWith("e/"));
   const admin = getStore("admin");
   for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
@@ -354,10 +354,11 @@ export default async (req) => {
 
   if (action === "get") {
     const bans = (await getStore("wetten").get("bans", { type: "json" })) || {};
-    return json({ account: { ...summary(key, rec), wBanned: !!bans[decodeURIComponent(key)] }, state: rec.state });
+    const wirt = await getStore("wirtschaft").get(key, { type: "json" }).catch(() => null);
+    return json({ account: { ...summary(key, rec), wBanned: !!bans[decodeURIComponent(key)] }, state: rec.state, wirt: wirt || null });
   }
 
-  if (action === "delete") { await store.delete(key); return json({ ok: true }); }
+  if (action === "delete") { await store.delete(key); try { await getStore("wirtschaft").delete(key); } catch {} return json({ ok: true }); }
 
   // Neues Passwort setzen (z. B. vergessen). Alle Geräte des Spielers werden abgemeldet.
   if (action === "setPassword") {
@@ -394,6 +395,7 @@ export default async (req) => {
     const t = Date.now();
     rec.state = { v: 1, bal: 1000, stars: 0, restarts: 0, owned: { games: {}, items: {} }, spent: 0, created: t, updated: t, set: st.set || {}, sent: 0, recv: 0, playMs: num(st.playMs), playSeed: 1 };
     rec.sentTotal = 0; rec.recvTotal = 0; rec.potMark = 0; rec.lossMark = 0;
+    try { await getStore("wirtschaft").delete(key); } catch {}   // Zurücksetzen löscht auch Tresor, Geschäfte & Co.
   } else {
     return json({ error: "unbekannte_aktion" }, 400);
   }

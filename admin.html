@@ -304,7 +304,11 @@ $('reload').onclick=()=>{loadAccounts();const t=document.querySelector('.tabs [a
 function closeModal(){$('modal').hidden=true;$('modal').innerHTML='';current=null}
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal'||e.target.closest('.x'))closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-async function openAccount(name){try{const d=await api('get',{name});current=d.account;renderModal()}catch(e){if(e.message!=='401')toast('Account nicht gefunden',true)}}
+async function openAccount(name){try{const d=await api('get',{name});current={...d.account,wirt:d.wirt||null};renderModal()}catch(e){if(e.message!=='401')toast('Account nicht gefunden',true)}}
+// Wirtschaft eines Spielers (nur Anzeige)
+function wirtInfo(w){if(!w)return'<p class="note">Noch nichts in der Wirtschaft.</p>';const t=(w.tresor||[])[0],d=v=>new Date(v).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  return `<p class="note"><b style="color:var(--ink)">Tresor:</b> ${t?`${fmt0(t.betrag)} Coins, +${Math.round(t.satz*100)} %, bereit ${d(t.ende)}${Date.now()>=t.ende?' (abholbereit)':''}`:'leer'}${w.earned?` · bisher ${fmt0(w.earned)} Zinsen verdient`:''}</p>
+  <p class="note">Insgesamt eingezahlt <b class="num" style="color:var(--ink)">${fmt0(w.in||0)}</b> · ausgezahlt <b class="num" style="color:var(--ink)">${fmt0(w.out||0)}</b></p>`}
 function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.lastRestart<36e5;
   $('modal').innerHTML=`<div class="mbox" role="dialog" aria-modal="true">
     <div class="mhead"><div><h2>${esc(a.name)}</h2><div class="row" style="margin-top:6px">${a.banned?'<span class="chip ban">Gesperrt</span>':'<span class="chip on">Aktiv</span>'}<span class="chip">zuletzt ${ago(a.savedAt)}</span>${cd?'<span class="chip">Neustart-Sperre aktiv</span>':''}</div></div><button class="x" aria-label="Schließen">×</button></div>
@@ -315,6 +319,7 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
     <div class="sec"><h3>Sterne</h3><div class="row"><input class="inp" id="mStars" type="number" min="0" step="1" value="${a.stars}" aria-label="Sterne"><button class="btn gold" data-act="setStars">Setzen</button></div></div>
     <div class="sec"><h3>Spiele freigeschaltet</h3><div class="checks">${['mines','tower','plinko','poker','rennen','stapel','slot','muenze','perps','roulette','crash'].map(g=>`<label><input type="checkbox" data-game="${g}" ${a.games.includes(g)?'checked':''}>${GAMES[g]}</label>`).join('')}</div><p class="note">Chicken ist immer frei.</p></div>
     <div class="sec"><h3>Vitrine</h3><div class="checks">${Object.entries(ITEMS).map(([k,n])=>`<label><input type="checkbox" data-item="${k}" ${a.items.includes(k)?'checked':''}>${n}</label>`).join('')}</div></div>
+    <div class="sec"><h3>Wirtschaft</h3>${wirtInfo(a.wirt)}</div>
     <div class="sec"><h3>Wetten</h3><div class="row" style="align-items:center"><span class="chip ${a.wBanned?'ban':'on'}">${a.wBanned?'Von Wetten ausgeschlossen':'Darf wetten'}</span><button class="btn ${a.wBanned?'green':'red'}" data-act="wban">${a.wBanned?'Wieder zulassen':'Von Wetten ausschließen'}</button></div>
       <p class="note">Ausgeschlossen heißt: keine Tipps und keine Vorschläge mehr. Offene Tipps werden entfernt, der Spieler bekommt den Einsatz zurück.</p></div>
     <div class="sec"><h3>Passwort</h3>
@@ -327,7 +332,7 @@ function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.last
       <button class="btn red" data-act="delete">Löschen</button></div>
       <p class="note">Zurücksetzen und Löschen musst du zweimal anklicken. Offene Geräte des Spielers übernehmen Änderungen automatisch.</p></div>
   </div>`;$('modal').hidden=false}
-async function upd(set,msg){try{const d=await api('update',{name:current.name,set});current={...d.account,wBanned:current.wBanned};renderModal();toast(msg);loadAccounts()}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}}
+async function upd(set,msg){try{const d=await api('update',{name:current.name,set});current={...d.account,wBanned:current.wBanned,wirt:current.wirt};renderModal();toast(msg);loadAccounts()}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}}
 $('modal').addEventListener('click',async e=>{if(!current)return;
   const add=e.target.closest('[data-add]');if(add){upd({addBal:+add.dataset.add},'Guthaben geändert');return}
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
@@ -335,7 +340,7 @@ $('modal').addEventListener('click',async e=>{if(!current)return;
   if(act==='setStars'){const v=parseInt($('mStars').value);if(isFinite(v))upd({stars:v},'Sterne gesetzt')}
   if(act==='cooldown')upd({clearCooldown:true},'Neustart-Sperre aufgehoben');
   if(act==='setPw'){const pw=$('mPw').value;if(!pw){toast('Gib ein neues Passwort ein.',true);return}b.disabled=true;
-    try{const d=await api('setPassword',{name:current.name,pw});current={...d.account,wBanned:current.wBanned};renderModal();toast('Neues Passwort gesetzt. Sag es dem Spieler.')}catch(err){b.disabled=false;if(err.message!=='401')toast('Fehler: '+err.message,true)}}
+    try{const d=await api('setPassword',{name:current.name,pw});current={...d.account,wBanned:current.wBanned,wirt:current.wirt};renderModal();toast('Neues Passwort gesetzt. Sag es dem Spieler.')}catch(err){b.disabled=false;if(err.message!=='401')toast('Fehler: '+err.message,true)}}
   if(act==='wban'){b.disabled=true;try{const on=!current.wBanned,d=await api('wBan',{name:current.name,on});current.wBanned=on;renderModal();
       toast(on?`Von Wetten ausgeschlossen${d.removed?` · ${d.removed} offene${d.removed===1?'r Tipp':' Tipps'} entfernt`:''}`:'Darf wieder wetten');if(!$('t-wet').hidden)loadW()}
     catch(err){b.disabled=false;if(err.message!=='401')toast('Fehler: '+err.message,true)}}
