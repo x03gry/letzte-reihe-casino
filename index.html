@@ -1710,6 +1710,34 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   .wx-grid{grid-template-columns:1fr}
   .wx .btn,.wx .seg button{min-height:44px}
 }
+.wxnav{display:none}
+@media (max-width:900px){
+  .wxnav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:4px;margin-bottom:-2px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+  .wxtab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:6px 2px;border:0;border-radius:10px;background:none;color:var(--mute);font:600 11.5px var(--f-body,inherit);line-height:1.1;cursor:pointer;min-width:0;transition:background .15s,color .15s}
+  .wxtab svg{width:20px;height:20px;flex:none}
+  .wxtab[aria-current="page"]{background:var(--panel2);color:var(--brass-hi);box-shadow:inset 0 0 0 1px var(--line2)}
+  .wxtab:active{background:var(--panel2)}
+}
+@media (max-width:400px){.wxtab{font-size:11px;letter-spacing:-.01em}}
+@media (max-width:350px){.wxnav{gap:2px;padding:3px}.wxtab{font-size:9.5px;padding:6px 0}.wxtab svg{width:18px;height:18px}}
+/* Handy: keine Unschärfe-Filter (kosten beim Scrollen viel Leistung), größere Tippflächen */
+@media (max-width:900px){
+  .top,.bottomnav,.mainact,#modal,.st-overlay.st-center{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .top{background:#0f1923}
+  .bottomnav,.mainact{background:#0b131b}
+  #modal{background:rgba(6,10,15,.84)}
+  .back,.ghead .back{min-height:40px;padding:8px 14px;display:inline-flex;align-items:center}
+  .betrow button{min-width:46px;padding:0 12px;font-size:14px}
+  .betrow input{padding:12px}
+  .ph .chip[data-go]{padding:9px 12px;min-height:36px;display:inline-flex;align-items:center}
+  .ak-tk-in{will-change:transform}
+  #v-perps .pp-qk .chip{min-height:38px;min-width:44px;padding:8px 12px;font-size:13px;justify-content:center;display:inline-flex;align-items:center}
+  #v-perps input[type=range]{height:40px}
+  #v-perps input[type=range]::-webkit-slider-thumb{width:28px;height:28px;margin-top:-11px}
+  #miMines,.pkrz input[type=range]{height:40px;width:100%}
+  #v-crash .cr-sm{min-width:44px}
+  .im-dist .t{flex-wrap:wrap;gap:2px 8px}.im-dist .t b{white-space:nowrap;font-size:13px}
+}
 </style>
 
 <div class="app">
@@ -4811,7 +4839,8 @@ const LT=(()=>{
     sx.restore();
     if(unroll<1){sx.save();sx.globalAlpha=alpha;sx.fillStyle='#e2d6b4';sx.strokeStyle='#bfae84';sx.lineWidth=1;sx.beginPath();sx.roundRect(x0-3*sc,y0+hh-5*sc,ww+6*sc,10*sc,5*sc);sx.fill();sx.stroke();sx.restore()}}
   const brassG=(c,x0,y0,x1,y1)=>{const g=c.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,'#6b4300');g.addColorStop(.35,'#ffd27a');g.addColorStop(.55,'#ffb020');g.addColorStop(1,'#7a4c00');return g};
-  function drawS(){const g=SH.geo,W=SH.W,H=SH.H,c=sx,R=g.R,pr=pickR(),rw=pr+4,PI2=Math.PI*2,baseY=g.yR+16;c.setTransform(SH.dpr,0,0,SH.dpr,0,0);c.clearRect(0,0,W,H);
+  // Statische Teile der Trommel nur einmal pro Größe zeichnen
+  function drawBack(c){const g=SH.geo,W=SH.W,H=SH.H,R=g.R,pr=pickR(),rw=pr+4,PI2=Math.PI*2,baseY=g.yR+16;
     // Licht von oben + Schatten am Boden
     const sp=c.createRadialGradient(g.cx,g.cy-R*.2,R*.2,g.cx,g.cy,R*2.1);sp.addColorStop(0,'rgba(255,190,80,.13)');sp.addColorStop(1,'rgba(255,190,80,0)');c.fillStyle=sp;c.fillRect(0,0,W,H);
     const sh=c.createRadialGradient(g.cx,baseY+10,0,g.cx,baseY+10,R*1.25);sh.addColorStop(0,'rgba(0,0,0,.55)');sh.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=sh;c.save();c.translate(g.cx,baseY+10);c.scale(1,.12);c.translate(-g.cx,-(baseY+10));c.beginPath();c.arc(g.cx,baseY+10,R*1.25,0,PI2);c.fill();c.restore();
@@ -4838,8 +4867,8 @@ const LT=(()=>{
     // Messingring (hintere Hälfte)
     const ry=R*.2;c.strokeStyle='#5a3a06';c.lineWidth=5;c.beginPath();c.ellipse(g.cx,g.cy,R*1.03,ry,0,Math.PI,PI2);c.stroke();
     c.strokeStyle='rgba(255,210,122,.35)';c.lineWidth=1.5;c.stroke();
-    // Kugeln
-    for(const b of SH.balls)ball(b.x,b.y,b.r,b.c);
+  }
+  function drawFront(c){const g=SH.geo,W=SH.W,H=SH.H,R=g.R,pr=pickR(),rw=pr+4,PI2=Math.PI*2,baseY=g.yR+16,ry=R*.2;
     // Tiefe: Rand der Kugel dunkler, Glas leicht getönt
     c.save();c.beginPath();c.arc(g.cx,g.cy,R,0,PI2);c.clip();
     const vg=c.createRadialGradient(g.cx-R*.15,g.cy-R*.2,R*.45,g.cx,g.cy,R);vg.addColorStop(0,'rgba(8,16,26,0)');vg.addColorStop(.75,'rgba(8,16,26,.18)');vg.addColorStop(1,'rgba(8,16,26,.62)');c.fillStyle=vg;c.fillRect(g.cx-R,g.cy-R,2*R,2*R);
@@ -4863,6 +4892,12 @@ const LT=(()=>{
     c.fillStyle=brassG(c,g.cx-R*.2,0,g.cx+R*.2,0);c.beginPath();c.roundRect(g.cx-R*.19,g.cy-R-8,R*.38,13,5);c.fill();
     c.fillStyle=brassG(c,g.cx-6,0,g.cx+6,0);c.beginPath();c.roundRect(g.cx-5,g.cy-R-15,10,8,3);c.fill();
     c.fillStyle=brassG(c,g.cx-rw-4,0,g.cx+rw+4,0);c.beginPath();c.roundRect(g.cx-rw-4,g.cy+R-9,rw*2+8,9,3);c.fill();
+  }
+  function drawS(){const g=SH.geo,W=SH.W,H=SH.H,c=sx,R=g.R,pr=pickR(),rw=pr+4,PI2=Math.PI*2,baseY=g.yR+16;c.setTransform(SH.dpr,0,0,SH.dpr,0,0);c.clearRect(0,0,W,H);
+    const bk=W+'x'+H+'x'+SH.dpr;if(SH.bkK!==bk){SH.bkK=bk;const mk=f=>{const o=document.createElement('canvas');o.width=scv.width;o.height=scv.height;const x=o.getContext('2d');x.setTransform(SH.dpr,0,0,SH.dpr,0,0);f(x);return o};SH.bkB=mk(drawBack);SH.bkF=mk(drawFront)}
+    c.setTransform(1,0,0,1,0,0);c.drawImage(SH.bkB,0,0);c.setTransform(SH.dpr,0,0,SH.dpr,0,0);
+    for(const b of SH.balls)ball(b.x,b.y,b.r,b.c);
+    c.setTransform(1,0,0,1,0,0);c.drawImage(SH.bkF,0,0);c.setTransform(SH.dpr,0,0,SH.dpr,0,0);
     // Text rechts (vor der Ziehung / beim Mischen)
     const tx=(g.cx+R*1.12+W)/2,mob=W<520,s=SH.step;
     if(SH.mode==='idle'||SH.mode==='pre'||SH.mode==='mix'||(SH.mode==='seq'&&!s)){c.textAlign='center';c.textBaseline='middle';
@@ -4887,8 +4922,11 @@ const LT=(()=>{
         if(s.ph==='slip')drawSlip(s,s.t/.95,1,0);else if(s.ph==='hold')drawSlip(s,1,1,0);else if(s.ph==='fly'){const f=Math.min(1,s.t/.45);drawSlip(s,1,1-f,f*40)}}}}
 
   // ---- Steuerung
-  function kickS(){if(!SH.raf&&SH.mode!=='off'&&cur==='lotto'&&!document.hidden){SH.last=performance.now();SH.raf=requestAnimationFrame(loopS)}}
+  function kickS(){if(!SH.io&&window.IntersectionObserver&&scv){SH.vis=true;SH.io=new IntersectionObserver(es=>{SH.vis=es[es.length-1].isIntersecting;if(SH.vis)kickS()});SH.io.observe(scv)}
+    if(!SH.raf&&SH.mode!=='off'&&cur==='lotto'&&!document.hidden){SH.last=performance.now();SH.raf=requestAnimationFrame(loopS)}}
   function loopS(t){SH.raf=0;if(SH.mode==='off'||cur!=='lotto'||document.hidden)return;
+    const calm=SH.mode==='idle'||SH.mode==='pre'&&!SH.addQ.length;if(calm&&SH.vis===false)return;
+    if(SH.mode==='idle'&&(SH.fr=(SH.fr||0)+1)%2){SH.raf=requestAnimationFrame(loopS);return}
     if(lay()){const dt=Math.min(.05,Math.max(0,(t-SH.last)/1000));SH.last=t;
       const ms=I?I.d-now():0,target=SH.mode==='mix'?1:SH.mode==='seq'?(SH.step&&SH.step.ph!=='out'?.4:1):SH.mode==='pre'?(ms<20000?.85:.32):SH.mode==='idle'?.14:.22;
       SH.mix+=(target-SH.mix)*Math.min(1,dt*2);
@@ -7738,6 +7776,10 @@ onShow.slot=SL.show;
 // Alles, was Geld bewegt, läuft über den Server (/api/spielstand?wirt=1 …). Der Spielstand trägt in S.wirt.in/out dieselben
 // Summen wie die Kasse auf dem Server; beim Speichern gleicht der Server das Guthaben ab (wie bei Überweisungen).
 const WIRT_VIEWS=['tresor','geschaefte','immobilien','aktien','firmen'];
+// Unterreiter Wirtschaft (Handy/Tablet: die Seitenleiste ist dort ausgeblendet)
+(()=>{const src=[...document.querySelectorAll('.side [data-go]')].filter(b=>WIRT_VIEWS.includes(b.dataset.go));
+  document.querySelectorAll('main>.view.wx').forEach(sec=>{const n=document.createElement('nav');n.className='wxnav';n.setAttribute('aria-label','Wirtschaft');
+    src.forEach(b=>{const c=b.cloneNode(true);c.className='wxtab';c.type='button';n.appendChild(c)});sec.prepend(n)})})();
 const WIRT_KEYS=['tresor','shops','immo','immoSell','aktien','divi','firma'];
 let srvOff=0,srvSeen=0;
 const srvNow=()=>Date.now()+srvOff;
