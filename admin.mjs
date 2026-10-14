@@ -361,7 +361,7 @@ export default async (req) => {
         const a = Math.round(num(n) * price * 100) / 100; if (!(a > 0)) continue;
         await box.setJSON(`${encodeURIComponent(who)}/${now}-${Math.random().toString(36).slice(2, 8)}`, { f: `Erstattung Firma ${f.name}`, a, t: now });
       }
-      f.pleite = now; f.deleted = true; try { await s.delete("o/" + encodeURIComponent(f.owner)); } catch {}
+      f.pleite = now; f.deleted = true;   // fällt beim nächsten Abruf aus der Firmenliste des Gründers
     }
     await s.setJSON("f/" + f.id, f); try { await s.delete("cache"); } catch {}
     return json({ ok: true });
@@ -397,8 +397,9 @@ export default async (req) => {
   if (action === "get") {
     const bans = (await getStore("wetten").get("bans", { type: "json" })) || {};
     const wirt = await getStore("wirtschaft").get(key, { type: "json" }).catch(() => null);
-    try { const o = await getStore("firmen").get("o/" + key, { type: "json" }); const f = o && o.id ? await getStore("firmen").get("f/" + o.id, { type: "json" }) : null;
-      if (wirt && f && !f.pleite) wirt.firma = { name: f.name, br: f.br, lvl: f.lvl, kasse: Math.round(num(f.kasse)), public: !!f.public }; } catch {}
+    try { const fs = getStore("firmen"), o = await fs.get("o/" + key, { type: "json" }), ids = o ? (Array.isArray(o.ids) ? o.ids : o.id ? [o.id] : []) : [], list = [];
+      for (const id of ids) { const f = await fs.get("f/" + id, { type: "json" }); if (f && !f.pleite) list.push({ name: f.name, br: f.br, lvl: f.lvl, kasse: Math.round(num(f.kasse)), public: !!f.public }); }
+      if (wirt) wirt.firmen = list; } catch {}
     return json({ account: { ...summary(key, rec), wBanned: !!bans[decodeURIComponent(key)] }, state: rec.state, wirt: wirt || null });
   }
 

@@ -669,6 +669,11 @@ async function wirtGet(key) {
   const f = wirtFresh();
   if (!w) return f;
   const im = w.immo && typeof w.immo === "object" ? w.immo : {};
+  if (w.depot && typeof w.depot === "object") for (const [old, [neu, oldStart]] of Object.entries(AK_OLD)) {
+    const x = w.depot[old]; if (!x) continue; delete w.depot[old]; if (!(x.n > 0)) continue;
+    const k = AK[neu].start / oldStart, n = Math.max(1, Math.round(x.n / k)), y = w.depot[neu] || { n: 0, avg: 0, divFrom: Date.now() };
+    y.avg = r2((y.avg * y.n + num(x.avg) * x.n) / (y.n + n)); y.n += n; w.depot[neu] = y;
+  }
   return { ...f, ...w, in: r2(num(w.in)), out: r2(num(w.out)), tresor: Array.isArray(w.tresor) ? w.tresor : [], shops: w.shops && typeof w.shops === "object" ? w.shops : {},
     immo: { houses: Array.isArray(im.houses) ? im.houses : [], log: Array.isArray(im.log) ? im.log : [] }, depot: w.depot && typeof w.depot === "object" ? w.depot : {}, fshares: w.fshares && typeof w.fshares === "object" ? w.fshares : {} };
 }
@@ -978,24 +983,20 @@ async function immoRoute(req, url) {
 // jeder Schritt aus HMAC(Geheimnis, Firma, Tick). Der Server rechnet beim Abruf die verpassten Ticks nach und speichert
 // Kurse + Verlauf (24 Std. fein, 7 Tage alle 30 Min.) im Store "aktien". Depot und Dividenden liegen in der Wirtschafts-Kasse.
 const AK_TICK = 180_000, AK_FEE = 0.01, AK_H24 = 480, AK_H7 = 336, AK_DIV_CAP = 24 * HOUR;
+// Echte Firmennamen, aber simulierte Kurse (kein Bezug zur echten Börse). News sind allgemein gehalten.
+const AK_UP = ["Quartalszahlen über den Erwartungen", "Analysten stufen auf Kaufen hoch", "Großauftrag gemeldet", "neues Produkt kommt gut an"], AK_DN = ["Gewinnwarnung", "Analysten stufen ab", "Lieferprobleme gemeldet", "Umsatz unter den Erwartungen"];
 const AK = {
-  BRZ: { name: "Brezn AG", start: 120, sig: 0.00055, ts: 0.00002, phi: 0.998, kap: 0.0002, jp: 1 / 2600, jm: [0.03, 0.08], div: 0.003, col: "#c98500",
-    up: ["eröffnet 50 neue Filialen", "gewinnt Oktoberfest-Auftrag", "Rekord beim Brezel-Absatz"], dn: ["Mehlpreise steigen", "Bäcker streiken", "Salz-Skandal in der Backstube"] },
-  TWE: { name: "Tafelwisch Energie", start: 85, sig: 0.0007, ts: 0.00003, phi: 0.998, kap: 0.0002, jp: 1 / 2600, jm: [0.03, 0.09], div: 0.0025, col: "#199e70",
-    up: ["neues Windrad-Feld genehmigt", "Strompreise steigen", "Großauftrag von der Schule"], dn: ["Kraftwerk muss gewartet werden", "Stromausfall im Netz", "Kunden wechseln zur Konkurrenz"] },
-  MMG: { name: "Mensa-Mampf GmbH", start: 40, sig: 0.0014, ts: 0.00005, phi: 0.998, kap: 0.0002, jp: 1 / 2000, jm: [0.04, 0.12], div: 0.0015, col: "#d95926",
-    up: ["neues Pizza-Menü ein Hit", "bekommt fünf neue Schulen", "Testsieger beim Schnitzel"], dn: ["Lebensmittelkontrolle findet Mängel", "Schüler boykottieren Spinat-Tag", "Lieferant pleite"] },
-  SBL: { name: "Schulbus Logistik", start: 60, sig: 0.0013, ts: 0.00012, phi: 0.999, kap: 0.00015, jp: 1 / 2200, jm: [0.04, 0.12], div: 0, col: "#ffb020",
-    up: ["neue Buslinien bestellt", "Spritpreise fallen", "Rekord bei Pünktlichkeit"], dn: ["Busse bleiben im Stau", "Streik der Fahrer", "Dieselpreis explodiert"] },
-  PHH: { name: "Pausenhof Holdings", start: 200, sig: 0.0015, ts: 0.00015, phi: 0.9993, kap: 0.00012, jp: 1 / 2200, jm: [0.05, 0.13], div: 0, col: "#3987e5",
-    up: ["kauft Kiosk-Kette", "Pausenhof wird Trend-Spot", "Fusion mit Schulhof AG"], dn: ["Pause wird gekürzt", "Regenwoche leert den Hof", "Chef tritt zurück"] },
-  KSC: { name: "Kreidestaub Corp", start: 15, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 1500, jm: [0.08, 0.22], div: 0, col: "#a78bfa",
-    up: ["Tafeln feiern Comeback", "Bunte Kreide ausverkauft", "Großauftrag aus Bayern"], dn: ["Schulen kaufen Whiteboards", "Kreide-Allergie in den Schlagzeilen", "Lager abgebrannt"] },
-  HAI: { name: "Hausaufgaben.io", start: 300, sig: 0.004, ts: 0.00012, phi: 0.998, kap: 0.0002, jp: 1 / 1400, jm: [0.08, 0.25], div: 0, col: "#38bdf8",
-    up: ["neue KI-Version gestartet", "1 Mio. neue Nutzer", "Lehrer lieben die App"], dn: ["Server down", "Schulen sperren die App", "Datenleck entdeckt"] },
-  PXG: { name: "Pixelpause Games", start: 25, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 2800, jm: [0.25, 0.6], div: 0, col: "#ec4899",
-    up: ["Spiel geht viral", "Riesen-Update begeistert Fans", "Preis für bestes Indie-Spiel"], dn: ["Spiel voller Bugs", "Release verschoben", "Spieler hauen ab"] },
+  ALV: { name: "Allianz", start: 350, sig: 0.00055, ts: 0.00002, phi: 0.998, kap: 0.0002, jp: 1 / 2600, jm: [0.03, 0.08], div: 0.003, col: "#2f6fd6", up: AK_UP, dn: AK_DN },
+  DTE: { name: "Deutsche Telekom", start: 30, sig: 0.0007, ts: 0.00003, phi: 0.998, kap: 0.0002, jp: 1 / 2600, jm: [0.03, 0.09], div: 0.0025, col: "#e20074", up: AK_UP, dn: AK_DN },
+  SIE: { name: "Siemens", start: 220, sig: 0.0014, ts: 0.00005, phi: 0.998, kap: 0.0002, jp: 1 / 2000, jm: [0.04, 0.12], div: 0.0015, col: "#00a0a0", up: AK_UP, dn: AK_DN },
+  BMW: { name: "BMW", start: 90, sig: 0.0013, ts: 0.00012, phi: 0.999, kap: 0.00015, jp: 1 / 2200, jm: [0.04, 0.12], div: 0, col: "#1c69d4", up: AK_UP, dn: AK_DN },
+  SAP: { name: "SAP", start: 250, sig: 0.0015, ts: 0.00015, phi: 0.9993, kap: 0.00012, jp: 1 / 2200, jm: [0.05, 0.13], div: 0, col: "#0faaff", up: AK_UP, dn: AK_DN },
+  TSLA: { name: "Tesla", start: 300, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 1500, jm: [0.08, 0.22], div: 0, col: "#e82127", up: AK_UP, dn: AK_DN },
+  NVDA: { name: "Nvidia", start: 150, sig: 0.004, ts: 0.00012, phi: 0.998, kap: 0.0002, jp: 1 / 1400, jm: [0.08, 0.25], div: 0, col: "#76b900", up: AK_UP, dn: AK_DN },
+  GME: { name: "GameStop", start: 25, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 2800, jm: [0.25, 0.6], div: 0, col: "#ff6a3d", up: AK_UP, dn: AK_DN },
 };
+// Umstellung von den alten Fantasie-Kürzeln: Bestände werden zum Startkurs-Verhältnis übernommen (gleicher Wert)
+const AK_OLD = { BRZ: ["ALV", 120], TWE: ["DTE", 85], MMG: ["SIE", 40], SBL: ["BMW", 60], PHH: ["SAP", 200], KSC: ["TSLA", 15], HAI: ["NVDA", 300], PXG: ["GME", 25] };
 const AK_IDS = Object.keys(AK);
 let akSec = null;
 function akRand(epoch, id, T) {   // 4 Zufallszahlen pro Firma und Tick
@@ -1032,7 +1033,7 @@ async function akState(now) {
   const s = getStore("aktien"), T = Math.floor(now / AK_TICK);
   const cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 };
   let st = await s.get("state", { type: "json" }).catch(() => null);
-  if (!st || st.epoch !== num(cfg.epoch)) st = akFresh(T - 1, num(cfg.epoch));
+  if (!st || st.epoch !== num(cfg.epoch) || AK_IDS.some((id) => !(id in (st.p || {})))) st = akFresh(T - 1, num(cfg.epoch));
   if (st.T < T) {
     // Mehr als 10 Tage verpasst: nur die letzten 10 Tage nachrechnen (Kurs läuft einfach von dort weiter)
     let from = Math.max(st.T + 1, T - 4800);
@@ -1128,7 +1129,7 @@ async function aktienRoute(req, url) {
 // "faul" nachgerechnet bei jedem Abruf. Gewinn → Firmenkasse (abzüglich Investoren-Anteil und Dividende an Aktionäre).
 // 24 Std. am Stück im Minus = Pleite. Ab 500.000 Firmenwert Börsengang: 1.000 Anteile, Gründer behält mindestens 51 %.
 // Anteile anderer Spieler liegen in deren Wirtschafts-Kasse (W.fshares), Dividenden über einen Pro-Anteil-Zähler (dps).
-const FI_FOUND = 50000, FI_START = 20000, FI_SHARES = 1000, FI_IPO_MIN = 500000, FI_LOCK = 24 * HOUR, FI_PLEITE = 24 * HOUR;
+const FI_MAX = 5, FI_FOUND = 50000, FI_START = 20000, FI_SHARES = 1000, FI_IPO_MIN = 500000, FI_LOCK = 24 * HOUR, FI_PLEITE = 24 * HOUR;
 const FI_B = [0, 900, 2000, 4500, 10000, 24000], FI_K = [0, 500, 1100, 2500, 5300, 12000], FI_UP = [0, 0, 50000, 150000, 450000, 1300000];
 const FI_BR = {
   imbiss: { name: "Imbiss", up: 1, lv: ["Imbissbude", "Schnellrestaurant", "Imbiss-Kette", "Food-Court", "Burger-Imperium"] },
@@ -1205,7 +1206,7 @@ function fiAdvance(f, now) {   // verpasste Stunden nachrechnen (höchstens 7 Ta
 }
 async function fiLoad(id, now) {
   const s = getStore("firmen"), f = await s.get("f/" + id, { type: "json" }).catch(() => null);
-  if (f && fiAdvance(f, now)) { await s.setJSON("f/" + id, f); if (f.pleite) { try { await s.delete("o/" + encodeURIComponent(f.owner)); } catch {} } }
+  if (f && fiAdvance(f, now)) await s.setJSON("f/" + id, f);
   return f;
 }
 async function fiPublic(now) {   // alle Firmen an der Börse (für Aktien), 60 s zwischengespeichert
@@ -1221,6 +1222,11 @@ async function fiPublic(now) {   // alle Firmen an der Börse (für Aktien), 60 
 }
 // Offene Dividenden aus Spieler-Firmen (list = fiPublic)
 function fiDivAll(W, list) { let s = num(W.fdivK); for (const [fid, x] of Object.entries(W.fshares || {})) { const pf = list.find((p) => p.id === fid); if (pf) s += fiDivOf(W, fid, pf); } return r2(s); }
+async function fiNameTaken(s, nm, exceptId) {
+  const { blobs } = await s.list({ prefix: "f/" });
+  for (const b of blobs.slice(0, 400)) { const x = await s.get(b.key, { type: "json" }).catch(() => null); if (x && !x.pleite && x.id !== exceptId && x.name.toLowerCase() === nm.toLowerCase()) return true; }
+  return false;
+}
 function fiDivOf(W, fid, f) { const x = W.fshares && W.fshares[fid]; if (!x || !(x.n > 0) || !f) return 0; return x.n * Math.max(0, num(f.dps) - num(x.dps)); }
 function fiView(f, now) {
   if (!f) return null;
@@ -1240,13 +1246,18 @@ async function firmaRoute(req, url) {
   if (acc.banned) return json({ error: "gesperrt", now }, 403);
   if (!authed(req, acc)) return json({ error: "login", now }, 401);
   const s = getStore("firmen"), ws = getStore("wirtschaft"), W = await wirtGet(key);
-  const oid = await s.get("o/" + key, { type: "json" }).catch(() => null);
-  let f = oid && oid.id ? await fiLoad(oid.id, now) : null;
-  if (f && f.pleite) f = null;
+  // Eigene Firmen (o/<Account> = { ids: [...] }, früher { id })
+  const oRec = await s.get("o/" + key, { type: "json" }).catch(() => null);
+  let ids = oRec ? (Array.isArray(oRec.ids) ? oRec.ids : oRec.id ? [oRec.id] : []) : [];
+  const own = [];
+  for (const id of ids) { const x = await fiLoad(id, now); if (x && !x.pleite) own.push(x); }
+  const gone = ids.filter((id) => !own.some((x) => x.id === id));
+  if (gone.length || (oRec && !Array.isArray(oRec.ids))) { ids = own.map((x) => x.id); try { await s.setJSON("o/" + key, { ids }); } catch {} }
+  let f = body.fid ? own.find((x) => x.id === String(body.fid)) || null : null;
   const view = async () => {
     const list = await fiPublic(now), holds = {};
     for (const [fid, x] of Object.entries(W.fshares || {})) { if (!x || !(x.n > 0)) continue; const pf = list.find((p) => p.id === fid); holds[fid] = { n: x.n, avg: x.avg, pleite: !pf }; }
-    return { now, mine: fiView(f, now), list, holds, fdiv: fiDivAll(W, list) };
+    return { now, mines: own.filter((x) => !x.pleite).map((x) => fiView(x, now)), max: FI_MAX, list, holds, fdiv: fiDivAll(W, list) };
   };
   if (req.method === "GET") return json({ ok: true, ...(await view()) });
   const fail = async (e, extra) => json({ error: e, ...(await view()), ...(extra || {}) }, 400);
@@ -1256,17 +1267,17 @@ async function firmaRoute(req, url) {
   const a = body.action;
 
   if (a === "found") {
-    if (f) return fail("schon_firma");
+    if (own.length >= FI_MAX) return fail("max_firmen");
     const nm = String(body.fname || "").trim().replace(/\s+/g, " "), br = String(body.br), col = FI_COLS.includes(body.col) ? body.col : FI_COLS[0];
     if (!FI_NAME_RE.test(nm)) return fail("firmenname");
     if (!FI_BR[br]) return fail("aktion");
     if (FI_FOUND > bal() + 10) return fail("guthaben");
     const { blobs } = await s.list({ prefix: "f/" });
-    for (const b of blobs.slice(0, 300)) { const x = await s.get(b.key, { type: "json" }).catch(() => null); if (x && !x.pleite && x.name.toLowerCase() === nm.toLowerCase()) return fail("name_vergeben"); }
+    if (await fiNameTaken(s, nm, "")) return fail("name_vergeben");
     const id = "F" + now.toString(36).toUpperCase() + Math.floor(Math.random() * 1296).toString(36).toUpperCase();
     f = fiFresh(id, nm, name, col, br, now);
     fiEv(f, now, `${nm} gegründet`, 0);
-    await saveF(); await s.setJSON("o/" + key, { id });
+    await saveF(); own.push(f); ids = own.map((x) => x.id); await s.setJSON("o/" + key, { ids });
     W.in = r2(W.in + FI_FOUND);
     return done({ cost: FI_FOUND });
   }
@@ -1282,21 +1293,21 @@ async function firmaRoute(req, url) {
     const fid = String(body.id), n = Math.floor(num(body.n)), side = body.side, t = await fiLoad(fid, now);
     if (!t || t.pleite || !t.public) return fail("keine_boerse");
     if (!(n >= 1) || n > FI_SHARES) return fail("anzahl");
-    const price = fiPrice(t), own = t.owner === name;
+    const price = fiPrice(t), mine = t.owner === name;
     W.fshares = W.fshares || {};
     const x = W.fshares[fid] || { n: 0, avg: 0, dps: num(t.dps) };
-    if (!own) { W.fdivK = r2(num(W.fdivK) + fiDivOf(W, fid, t)); x.dps = num(t.dps); }
+    if (!mine) { W.fdivK = r2(num(W.fdivK) + fiDivOf(W, fid, t)); x.dps = num(t.dps); }
     if (side === "buy") {
       if (n > t.pool) return fail("keine_anteile", { pool: t.pool });
       const cost = r2(n * price * 1.01);
       if (cost > bal() + 10) return fail("guthaben");
       t.pool -= n; W.in = r2(W.in + cost);
-      if (own) t.fs += n; else { x.avg = r2((x.avg * x.n + cost) / (x.n + n)); x.n += n; W.fshares[fid] = x; t.h[name] = (t.h[name] || 0) + n; }
-      if (own) f = t; await s.setJSON("f/" + t.id, t); try { await s.delete("cache"); } catch {}
+      if (mine) t.fs += n; else { x.avg = r2((x.avg * x.n + cost) / (x.n + n)); x.n += n; W.fshares[fid] = x; t.h[name] = (t.h[name] || 0) + n; }
+      if (mine) { f = t; const k = own.findIndex((x) => x.id === t.id); if (k >= 0) own[k] = t; } await s.setJSON("f/" + t.id, t); try { await s.delete("cache"); } catch {}
       return done({ price, cost, n });
     }
     if (side === "sell") {
-      if (own) {
+      if (mine) {
         if (now < t.ipoAt + FI_LOCK) return fail("sperrfrist");
         if (t.fs - n < FI_SHARES * 0.51) return fail("mind_51");
         t.fs -= n;
@@ -1305,7 +1316,7 @@ async function firmaRoute(req, url) {
         x.n -= n; if (x.n <= 0) delete W.fshares[fid]; else W.fshares[fid] = x;
         t.h[name] = Math.max(0, (t.h[name] || 0) - n); if (!t.h[name]) delete t.h[name];
       }
-      const pay = r2(n * price * 0.99); t.pool += n; W.out = r2(W.out + pay); if (own) f = t;
+      const pay = r2(n * price * 0.99); t.pool += n; W.out = r2(W.out + pay); if (mine) { f = t; const k = own.findIndex((x) => x.id === t.id); if (k >= 0) own[k] = t; }
       await s.setJSON("f/" + t.id, t); try { await s.delete("cache"); } catch {}
       return done({ price, pay, n });
     }
@@ -1313,6 +1324,14 @@ async function firmaRoute(req, url) {
   }
   // ---- Ab hier: eigene Firma
   if (!f) return fail("keine_firma");
+  if (a === "rename") {
+    const nm = String(body.fname || "").trim().replace(/\s+/g, " ");
+    if (!FI_NAME_RE.test(nm)) return fail("firmenname");
+    if (nm === f.name) return done({});
+    if (await fiNameTaken(s, nm, f.id)) return fail("name_vergeben");
+    fiEv(f, now, `Umbenannt (vorher ${f.name})`, 0); f.name = nm; await saveF();
+    return done({});
+  }
   const L = f.lvl, K = FI_K[L], B = FI_B[L];
   if (a === "upgrade") {
     if (L >= 5) return fail("max_stufe");
@@ -1340,7 +1359,8 @@ async function firmaRoute(req, url) {
   if (a === "dissolve") {
     if (f.public) return fail("an_boerse");
     const pay = Math.round(fiValue(f) * 0.6);
-    f.pleite = now; f.dissolved = true; fiEv(f, now, "Firma aufgelöst", pay); await saveF(); await s.delete("o/" + key);
+    f.pleite = now; f.dissolved = true; fiEv(f, now, "Firma aufgelöst", pay); await saveF();
+    const k = own.indexOf(f); if (k >= 0) own.splice(k, 1); await s.setJSON("o/" + key, { ids: own.map((x) => x.id) });
     W.out = r2(W.out + pay); f = null;
     return done({ pay });
   }

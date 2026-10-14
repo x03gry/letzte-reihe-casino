@@ -1602,7 +1602,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .ak-tk-in span b{font:700 13px var(--f-num);margin-left:6px}
 @keyframes akTick{to{transform:translateX(-100%)}}
 @media (prefers-reduced-motion:reduce){.ak-tk-in{animation:none;padding-left:14px}}
-.ak-badge{flex:none;width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font:700 13px var(--f-disp);letter-spacing:.04em;color:#0b141c}
+.ak-badge{flex:none;width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font:700 12px var(--f-disp);letter-spacing:.02em;color:#0b141c}
 .ak-list{display:flex;flex-direction:column;gap:8px}
 .ak-row{display:grid;grid-template-columns:44px minmax(0,1.4fr) minmax(0,1fr) 120px minmax(0,1fr);align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;color:var(--ink);width:100%}
 .ak-row:hover{border-color:var(--line2);background:var(--panel2)}
@@ -1661,6 +1661,15 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .fi-stage{display:flex;gap:4px}.fi-stage i{flex:1;height:7px;border-radius:4px;background:var(--panel3)}.fi-stage i.on{background:var(--brass)}
 .fi-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ak-tag.pf{background:rgba(167,139,250,.18);color:#c4b5fd}
+.fi-back{align-self:flex-start;padding:8px 14px;font-size:13.5px;flex:none}
+.fi-ren{background:none;border:0;color:var(--mute);padding:4px;vertical-align:2px;cursor:pointer;border-radius:6px}.fi-ren:hover{color:var(--brass-hi);background:var(--panel2)}
+.fi-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.fi-card{text-align:left;color:var(--ink);cursor:pointer;gap:10px}.fi-card:hover{border-color:var(--line2);background:var(--panel2)}
+.fi-ch{display:flex;align-items:center;gap:12px}.fi-ch .t{flex:1;min-width:0;display:flex;flex-direction:column}.fi-ch b{font:700 17px var(--f-disp);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fi-ch small{color:var(--mute);font-size:12.5px}
+.fi-card .fi-logo{width:46px;height:46px;font-size:16px;border-radius:12px}
+.fi-new{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:170px;background:transparent;border:2px dashed var(--line2);border-radius:14px;text-align:center}
+.fi-new b{font:700 16px var(--f-disp)}.fi-new small{color:var(--mute)}.fi-plus{width:46px;height:46px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font:700 26px var(--f-num);color:var(--brass-hi)}
+.fi-new:hover{border-color:var(--brass-lo);background:rgba(255,176,32,.05)}
 @media (max-width:760px){.fi-brs{grid-template-columns:1fr}.fi-amt{grid-template-columns:1fr 1fr}.fi-amt .inp{grid-column:1/-1}.fi-step .btn,.fi-two .btn{min-height:44px}}
 /* ---- Tresor ---- */
 .tr-vault{align-items:center;text-align:center;gap:10px;background:radial-gradient(80% 60% at 50% 18%,rgba(255,176,32,.12),rgba(255,176,32,0) 70%),var(--panel)}
@@ -1811,7 +1820,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 
 <!-- ======================= WIRTSCHAFT: AKTIEN ======================= -->
 <section id="v-aktien" class="view wx" hidden>
-  <div class="phead"><div><p class="eyebrow">Wirtschaft</p><h1>Aktien</h1></div><p class="lede">Alle 3 Minuten neue Kurse, für alle gleich. Hohes Risiko: Kurse können stark fallen. Auf jeden Kauf und Verkauf gehen 1 % Gebühr.</p></div>
+  <div class="phead"><div><p class="eyebrow">Wirtschaft</p><h1>Aktien</h1></div><p class="lede">Echte Firmennamen, aber die Kurse sind simuliert und haben nichts mit der echten Börse zu tun. Alle 3 Minuten neue Kurse, für alle gleich. Hohes Risiko: Kurse können stark fallen. Auf jeden Kauf und Verkauf gehen 1 % Gebühr.</p></div>
   <div class="wx-off" id="akOff" hidden></div>
   <div class="ak-ticker" id="akTicker" aria-label="Börsen-News"><div class="ak-tk-in" id="akTickerIn"></div></div>
   <div class="wx-tiles">
@@ -7747,7 +7756,7 @@ function wirtPay(src,total,statPart,msg){const w=wirt();total=r2(total);w.out=r2
 // Einzahlung in die Wirtschaft (erst nachdem der Server zugestimmt hat)
 function wirtSpend(amount){const w=wirt();w.in=r2(w.in+amount);spend(amount)}
 const WERR={guthaben:'Dafür reicht dein Guthaben nicht.',zu_wenig:'Das ist zu wenig.',zu_viel:'Das ist zu viel.',laufzeit:'Diese Laufzeit gibt es nicht.',
-  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Anzahl geht nicht.',schon_firma:'Du hast schon eine Firma.',firmenname:'Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.',name_vergeben:'Diesen Firmennamen gibt es schon.',keine_firma:'Du hast keine Firma (mehr).',min_stufe:'Kleiner geht nicht.',kasse_leer:'Dafür ist nicht genug in der Firmenkasse.',an_boerse:'Eine Firma an der Börse kann nicht aufgelöst werden.',schon_boerse:'Die Firma ist schon an der Börse.',zu_klein:'Für die Börse muss die Firma 500.000 wert sein.',max_investoren:'Mehr Investoren gehen nicht.',pivot_heute:'Pivot geht nur einmal pro Tag.',drop_bald:'Die nächste Kollektion geht erst später.',keine_boerse:'Diese Firma ist nicht (mehr) an der Börse.',keine_anteile:'So viele Anteile sind gerade nicht frei.',sperrfrist:'Nach dem Börsengang darfst du 24 Stunden lang nichts verkaufen.',mind_51:'Du musst mindestens 51 % behalten.',boerse_sperre:'Seit dem Börsengang kannst du nur neue Gewinne abheben.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
+  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Anzahl geht nicht.',schon_firma:'Du hast schon eine Firma.',firmenname:'Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.',name_vergeben:'Diesen Firmennamen gibt es schon.',keine_firma:'Du hast keine Firma (mehr).',min_stufe:'Kleiner geht nicht.',kasse_leer:'Dafür ist nicht genug in der Firmenkasse.',an_boerse:'Eine Firma an der Börse kann nicht aufgelöst werden.',schon_boerse:'Die Firma ist schon an der Börse.',zu_klein:'Für die Börse muss die Firma 500.000 wert sein.',max_investoren:'Mehr Investoren gehen nicht.',max_firmen:'Mehr Firmen gehen nicht.',pivot_heute:'Pivot geht nur einmal pro Tag.',drop_bald:'Die nächste Kollektion geht erst später.',keine_boerse:'Diese Firma ist nicht (mehr) an der Börse.',keine_anteile:'So viele Anteile sind gerade nicht frei.',sperrfrist:'Nach dem Börsengang darfst du 24 Stunden lang nichts verkaufen.',mind_51:'Du musst mindestens 51 % behalten.',boerse_sperre:'Seit dem Börsengang kannst du nur neue Gewinne abheben.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
   gesperrt:'Dein Account ist gesperrt.',aktion:'Das geht so nicht.'};
 let wxBusy=false,wxReq=false;
 // Anfrage an einen Wirtschafts-Endpunkt. Wartet vorher, bis der Spielstand gespeichert ist (damit sich nichts überkreuzt).
@@ -8135,7 +8144,7 @@ const AKS=(()=>{
     const dp=dep();let val=0,cost=0,n=0;for(const [id,x] of Object.entries(dp)){const p=PX(id);if(!x||!p)continue;val+=x.n*p;cost+=x.n*x.avg;n++}
     setT($('akT1'),fmt0(val));setT($('akT1s'),n?`${n} ${n===1?'Aktie':'Aktien'} im Depot`:'noch nichts gekauft');
     const gv=val-cost;setT($('akT2'),n?(gv>=0?'+':'−')+fmt0(Math.abs(gv)):'–');$('akT2').className='num '+(n?(gv>=0?'pos':'neg'):'');setT($('akT2s'),n&&cost?`${pc(gv/cost*100)} seit Kauf (inkl. Gebühr)`:'Kursgewinn deiner Aktien');
-    const dv=D.mine?D.mine.div:0;setT($('akDiv'),f2(dv));setT($('akDivS'),D.mine&&D.mine.divEarned?`bisher ${fmt0(D.mine.divEarned)}`:'Brezn, Tafelwisch, Mensa + Spieler-Firmen');
+    const dv=D.mine?D.mine.div:0;setT($('akDiv'),f2(dv));setT($('akDivS'),D.mine&&D.mine.divEarned?`bisher ${fmt0(D.mine.divEarned)}`:'Allianz, Telekom, Siemens + Spieler-Firmen');
     const b=$('akDivBtn');b.disabled=busy||off||dv<.01;
     setT($('akNext'),'· neuer Kurs in '+wxDur(D.next-srvNow()));
     if(srvNow()>=D.next+1500)pull(true)}
@@ -8189,33 +8198,36 @@ const FI=(()=>{
   const FI_LV={imbiss:['Imbissbude','Schnellrestaurant','Imbiss-Kette','Food-Court','Burger-Imperium'],startup:['Garage','Coworking-Platz','Büroetage','Campus','Tech-Konzern'],
     mode:['Hinterhof-Label','Boutique','Flagship-Store','Modehaus','Weltmarke'],energie:['Dachanlage','Kleinkraftwerk','Kraftwerk','Energiepark','Energiekonzern']};
   let ipoN=250;
-  let D=null,pulled=0,pulling=false,busy=false,fname='',fcol=COLS[0],fbr='imbiss',amt='';
+  let D=null,pulled=0,pulling=false,busy=false,fname='',fcol=COLS[0],fbr='imbiss',amt='',sel=null,founding=false,quitId=null;
   const ic=b=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BR[b][2]}</svg>`;
   const ini=n=>String(n||'?').split(/[\s-]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
   const logo=(n,c)=>`<span class="fi-logo" style="background:linear-gradient(140deg,${c},${c}bb)">${esc(ini(n))}</span>`;
   const sg=v=>(v>0?'+':v<0?'−':'±')+fmt0(Math.abs(v));
-  const F=()=>D&&D.mine;
-  function take(d){if(d&&d.list){D=d;const w=wirt(),was=w.firma;if(was&&was.name&&!d.mine&&!d.ok)toast(`<b>${esc(was.name)}</b> ist pleite gegangen. Du kannst eine neue Firma gründen.`,'bad');w.firma=d.mine?{id:d.mine.id,name:d.mine.name,br:d.mine.br,lvl:d.mine.lvl}:null}}
+  const MY=()=>D&&D.mines||[];
+  const F=()=>sel?MY().find(x=>x.id===sel)||null:null;
+  function take(d){if(!d||!d.list)return;D=d;const w=wirt(),was=Array.isArray(w.firmen)?w.firmen:[],now=d.mines||[];
+    for(const o of was)if(!now.some(x=>x.id===o.id)&&o.id!==quitId)toast(`<b>${esc(o.name)}</b> ist pleite gegangen.`,'bad');
+    w.firmen=now.map(x=>({id:x.id,name:x.name,br:x.br,lvl:x.lvl}));delete w.firma;if(sel&&!now.some(x=>x.id===sel))sel=null}
   async function pull(force){if(!ACCOUNTS||!acct||pulling)return;if(!force&&Date.now()-pulled<60000)return;if(force&&Date.now()-pulled<3000)return;pulled=Date.now();pulling=true;
     const d=await wxFetch('firma=1');pulling=false;if(d&&!d.failed)take(d);render(true)}
-  async function post(body,okFn){if(busy)return;busy=true;render(true);const d=await wxFetch('firma=1',body);busy=false;if(d){take(d);if(d.ok){okFn&&okFn(d);save()}}render(true);return d}
+  async function post(body,okFn){if(busy)return;if(sel&&!body.fid&&body.action!=='found'&&body.action!=='trade')body.fid=sel;busy=true;render(true);const d=await wxFetch('firma=1',body);busy=false;if(d){take(d);if(d.ok){okFn&&okFn(d);save()}}render(true);return d}
   function ask(title,text,btn,fn,danger){modal(`<p class="eyebrow">${esc(F()?F().name:'Firma')}</p><h2>${title}</h2><p>${text}</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn ${danger?'stop':'gold'}" data-ok>${btn}</button></div>`,fn)}
   // ---- Aktionen
   function found(){const nm=fname.trim().replace(/\s+/g,' ');
     if(!/^[A-Za-zÄÖÜäöüß0-9][A-Za-zÄÖÜäöüß0-9 \-]{1,22}[A-Za-zÄÖÜäöüß0-9]$/.test(nm)){toast('Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.','bad');return}
     if(S.bal<50000){toast(WERR.guthaben,'bad');return}
-    post({action:'found',fname:nm,col:fcol,br:fbr},d=>{wirtSpend(d.cost);SND.win();confetti(140);toast(`<b>${esc(nm)}</b> ist gegründet!`,'good')})}
+    post({action:'found',fname:nm,col:fcol,br:fbr},d=>{wirtSpend(d.cost);SND.win();confetti(140);toast(`<b>${esc(nm)}</b> ist gegründet!`,'good');founding=false;fname='';const f=(d.mines||[]).find(x=>x.name===nm);if(f)sel=f.id})}
   function lever(k,v,cost,label){const go=()=>post({action:'setLever',k,v},()=>{SND.tick()});if(cost)ask(label,`Das kostet <b class="num" style="color:var(--ink)">${fmt0(cost)}</b> aus der Firmenkasse.`,'Machen · '+fmt0(cost),go);else go()}
   // ---- Anzeige
   const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
   function foundHTML(){const prevName=fname.trim()||'Deine Firma';
-    return `<div class="wx-grid"><div class="panel"><div class="ph"><h2>Firma gründen</h2><span class="chip">50.000 · davon 20.000 Startkapital</span></div>
+    return `${MY().length?'<button class="btn fi-back" type="button" data-back>← Meine Firmen</button>':''}<div class="wx-grid"><div class="panel"><div class="ph"><h2>${MY().length?'Neue Firma gründen':'Firma gründen'}</h2><span class="chip">50.000 · davon 20.000 Startkapital</span></div>
       <label class="lbl" for="fiName">Firmenname</label><input class="inp" id="fiName" maxlength="24" autocomplete="off" placeholder="z. B. Pausenbrot GmbH" value="${esc(fname)}">
       <span class="lbl">Logo-Farbe</span><div class="fi-cols">${COLS.map(c=>`<button class="fi-col" type="button" data-col="${c}" aria-pressed="${c===fcol}" aria-label="Farbe ${c}" style="background:${c}"></button>`).join('')}</div>
       <span class="lbl">Branche</span><div class="fi-brs">${Object.keys(BR).map(b=>`<button class="fi-br" type="button" data-br="${b}" aria-pressed="${b===fbr}">${ic(b)}<span><b>${BR[b][0]}</b><small>${BR[b][1]}</small></span></button>`).join('')}</div>
       <div class="fi-prev" id="fiPrev">${logo(prevName,fcol)}<span><b>${esc(prevName)}</b><small>${BR[fbr][0]} · Stufe 1</small></span></div>
       <button class="btn gold big" type="button" id="fiFound" ${busy||!ACCOUNTS||!acct?'disabled':''}>${busy?'Einen Moment …':'Gründen · 50.000'}</button>
-      <p class="note">Eine Firma pro Spieler. Jede Stunde rechnet der Server Gewinn oder Verlust aus. Ist die Firmenkasse 24 Stunden am Stück im Minus, ist die Firma pleite.</p></div>
+      <p class="note">Bis zu ${D&&D.max||5} Firmen pro Spieler. Jede Stunde rechnet der Server Gewinn oder Verlust aus. Ist die Firmenkasse 24 Stunden am Stück im Minus, ist die Firma pleite.</p></div>
       <div class="panel"><div class="ph"><h2>So läuft es</h2></div><div class="fi-ev">
         <div><span>Ausbauen: 5 Stufen, jede bringt mehr Gewinn, aber auch mehr laufende Kosten.</span></div>
         <div><span>Stellschrauben: je nach Branche Filialen, Entwickler, Kollektionen oder Kraftwerk.</span></div>
@@ -8242,7 +8254,7 @@ const FI=(()=>{
   function firmHTML(f){const t=srvNow(),neg=f.negSince?Math.max(0,f.negSince+86400000-t):0,ipoOk=f.value>=500000,locked=f.public&&t<f.lockUntil;
     const kh=f.kh||[],mn=Math.min(...kh,0),mx=Math.max(...kh,1),r=mx-mn||1,col=f.kasse>=0?'#2fe08f':'#ff6b84';
     const chart=kh.length>1?`<svg class="fi-chart" viewBox="0 0 240 70" preserveAspectRatio="none" aria-hidden="true">${mn<0?`<line x1="0" x2="240" y1="${(66-(0-mn)/r*62).toFixed(1)}" y2="${(66-(0-mn)/r*62).toFixed(1)}" stroke="#2f4960" stroke-dasharray="3 3"/>`:''}<polyline points="${kh.map((v,i)=>`${(i/(kh.length-1)*240).toFixed(1)},${(66-(v-mn)/r*62).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`:'<p class="note">Der Verlauf erscheint nach der ersten vollen Stunde.</p>';
-    return `<div class="panel fi-head">${logo(f.name,f.col)}<div class="t"><h2>${esc(f.name)}</h2><small>${f.brName} · Stufe ${f.lvl} · ${esc(f.level)}</small><div class="fi-stage" style="margin-top:6px;max-width:220px">${[1,2,3,4,5].map(i=>`<i class="${i<=f.lvl?'on':''}"></i>`).join('')}</div></div>
+    return `<button class="btn fi-back" type="button" data-back>← Meine Firmen</button><div class="panel fi-head">${logo(f.name,f.col)}<div class="t"><h2>${esc(f.name)} <button class="fi-ren" type="button" data-ren aria-label="Firma umbenennen" title="Umbenennen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></h2><small>${f.brName} · Stufe ${f.lvl} · ${esc(f.level)}</small><div class="fi-stage" style="margin-top:6px;max-width:220px">${[1,2,3,4,5].map(i=>`<i class="${i<=f.lvl?'on':''}"></i>`).join('')}</div></div>
         ${f.public?`<span class="chip" style="display:inline-flex">An der Börse · ${f.price.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} je Anteil</span>`:''}</div>
       ${neg?`<div class="fi-warn"><b>Kasse im Minus</b> – noch ${wxHM(neg)} Std. bis zur Pleite. Zahl Geld ein, verkleinere die Firma oder dreh an den Stellschrauben.</div>`:''}
       <div class="wx-tiles">
@@ -8258,14 +8270,28 @@ const FI=(()=>{
             :`<button class="btn ${ipoOk?'gold':''}" type="button" data-ipo ${!ipoOk||busy?'disabled':''}>${ipoOk?'An die Börse bringen':'An die Börse ab 500.000'}</button><span class="note">Du verkaufst bis zu 49 % der Anteile und bekommst sofort Coins.</span>`}</div>
           <div class="fi-row"><span class="lbl">Notausgang</span><button class="btn" type="button" data-dis ${f.public||busy?'disabled':''}>${f.public?'An der Börse nicht auflösbar':`Firma auflösen · +${fmt0(Math.round(f.value*.6))}`}</button></div></div></div>
       <div class="panel"><div class="ph"><h2>Ereignisse</h2></div><div class="fi-ev">${(f.ev||[]).length?f.ev.map(e=>`<div><span><small>${wxWhen(e.t).replace(' Uhr','')}</small>${esc(e.text)}</span>${e.a?`<b class="${e.a>0?'pos':'neg'}">${sg(e.a)}</b>`:''}</div>`).join(''):'<div><span>Noch nichts passiert.</span></div>'}</div></div>`}
+  function listHTML(){const L=MY(),k=L.reduce((a,f)=>a+f.kasse,0),g=L.reduce((a,f)=>a+f.avg,0),v=L.reduce((a,f)=>a+f.value,0);
+    return `<div class="wx-tiles"><div class="wx-tile"><span>Deine Firmen</span><b class="num">${L.length} von ${D.max||5}</b><small>${L.filter(f=>f.public).length} an der Börse</small></div>
+      <div class="wx-tile"><span>Gewinn / Std. gesamt</span><b class="num ${g>0?'pos':g<0?'neg':''}">${sg(g)}</b><small>Ø der letzten 24 Std.</small></div>
+      <div class="wx-tile"><span>Firmenwert gesamt</span><b class="num">${fmt0(v)}</b><small>Kassen zusammen ${fmt0(k)}</small></div></div>
+      <div class="fi-list">${L.map(f=>{const neg=f.negSince?Math.max(0,f.negSince+86400000-srvNow()):0;return `<button class="panel fi-card" type="button" data-open="${f.id}"><div class="fi-ch">${logo(f.name,f.col)}<span class="t"><b>${esc(f.name)}</b><small>${f.brName} · Stufe ${f.lvl} · ${esc(f.level)}</small></span>${f.public?'<span class="chip" style="display:inline-flex">Börse</span>':''}</div>
+        <div class="im-ms"><div class="ms"><span>Kasse</span><b class="num ${f.kasse<0?'neg':''}">${fmt0(f.kasse)}</b></div><div class="ms"><span>Gewinn / Std.</span><b class="num ${f.avg>0?'pos':f.avg<0?'neg':''}">${sg(f.avg)}</b></div><div class="ms"><span>Wert</span><b class="num">${fmt0(f.value)}</b></div></div>
+        ${neg?`<span class="fi-warn" style="padding:6px 10px;font-size:13px"><b>Kasse im Minus</b> – Pleite in ${wxHM(neg)} Std.</span>`:''}</button>`}).join('')}
+        ${L.length<(D.max||5)?`<button class="fi-card fi-new" type="button" data-new><span class="fi-plus">+</span><b>Neue Firma gründen</b><small>50.000 · ${(D.max||5)-L.length} ${(D.max||5)-L.length===1?'Platz':'Plätze'} frei</small></button>`:''}</div>`}
   function render(force){if(cur!=='firmen')return;const off=!ACCOUNTS||!acct,o=$('fiOff');o.hidden=!off;if(off)o.textContent='Die Wirtschaft läuft über den Server. Melde dich auf der Website mit deinem Account an, um sie zu nutzen.';
     const b=$('fiBody');if(!D){setH(b,`<div class="im-empty">${off?'Nur online mit Account.':'Lädt …'}</div>`);return}
-    if(!F()){if(force||b._mode!=='found'){const a=document.activeElement&&document.activeElement.id==='fiName';setH(b,foundHTML());b._mode='found';if(a){const i=$('fiName');i.focus();i.setSelectionRange(i.value.length,i.value.length)}}return}
+    if(!F()&&(founding||!MY().length)){if(force||b._mode!=='found'){const a=document.activeElement&&document.activeElement.id==='fiName';setH(b,foundHTML());b._mode='found';if(a){const i=$('fiName');i.focus();i.setSelectionRange(i.value.length,i.value.length)}}return}
+    if(!F()){b._mode='list';setH(b,listHTML());return}
     b._mode='firm';const a=document.activeElement&&document.activeElement.id==='fiAmt';setH(b,firmHTML(F()));if(a){const i=$('fiAmt');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}live()}
-  function live(){if(cur!=='firmen'||!F())return;const n=$('fiNext');if(n)n.textContent=wxHM(F().nextH-srvNow()).replace(/^0:/,'')+' Min.';if(srvNow()>=F().nextH+3000)pull(true)}
+  function live(){if(cur!=='firmen')return;if(!F()){if(MY().some(f=>f.nextH&&srvNow()>=f.nextH+3000))pull(true);return}const n=$('fiNext');if(n)n.textContent=wxHM(F().nextH-srvNow()).replace(/^0:/,'')+' Min.';if(srvNow()>=F().nextH+3000)pull(true)}
   // ---- Eingaben
   $('fiBody').addEventListener('input',e=>{if(e.target.id==='fiName'){fname=e.target.value;const p=$('fiPrev');if(p)p.innerHTML=`${logo(fname.trim()||'Deine Firma',fcol)}<span><b>${esc(fname.trim()||'Deine Firma')}</b><small>${BR[fbr][0]} · Stufe 1</small></span>`}if(e.target.id==='fiAmt')amt=e.target.value});
-  $('fiBody').addEventListener('click',e=>{const t=e.target,f=F();
+  $('fiBody').addEventListener('click',e=>{const t=e.target;
+    if(t.closest('[data-back]')){sel=null;founding=false;SND.tick();render(true);window.scrollTo(0,0);return}
+    const op=t.closest('[data-open]');if(op){sel=op.dataset.open;SND.tick();render(true);window.scrollTo(0,0);return}
+    if(t.closest('[data-new]')){founding=true;sel=null;SND.tick();render(true);window.scrollTo(0,0);return}
+    if(t.closest('[data-ren]')){rename();return}
+    const f=F();
     const c=t.closest('[data-col]');if(c){fcol=c.dataset.col;SND.tick();render(true);return}
     const br=t.closest('[data-br]');if(br){fbr=br.dataset.br;SND.tick();render(true);return}
     if(t.closest('#fiFound')){ac();found();return}
@@ -8280,7 +8306,12 @@ const FI=(()=>{
     if(t.closest('[data-dep]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'deposit',amount:a},d=>{wirtSpend(d.cost);amt='';toast(`<b class="num">${fmt0(a)}</b> in die Firmenkasse eingezahlt.`,'good')});return}
     if(t.closest('[data-wd]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>f.maxOut){toast(f.public?`Seit dem Börsengang höchstens ${fmt0(f.maxOut)}.`:'So viel ist nicht in der Firmenkasse.','bad');return}post({action:'withdraw',amount:a},d=>{wirtPay('firma',d.pay,d.stat,`<b class="num">+${fmt(d.pay)}</b> aus der Firmenkasse`);amt=''});return}
     if(t.closest('[data-ipo]:not([disabled])')){ipo();return}
-    if(t.closest('[data-dis]:not([disabled])')){ask('Firma auflösen?',`Die Firma wird geschlossen. Du bekommst <b class="num" style="color:var(--ink)">${fmt0(Math.round(f.value*.6))}</b> (60 % des Firmenwerts). Das lässt sich nicht rückgängig machen.`,'Auflösen',()=>post({action:'dissolve'},d=>wirtPay('firma',d.pay,d.pay,`Firma aufgelöst: <b class="num">+${fmt(d.pay)}</b>`)),true)}});
+    if(t.closest('[data-dis]:not([disabled])')){ask('Firma auflösen?',`Die Firma wird geschlossen. Du bekommst <b class="num" style="color:var(--ink)">${fmt0(Math.round(f.value*.6))}</b> (60 % des Firmenwerts). Das lässt sich nicht rückgängig machen.`,'Auflösen',()=>{quitId=f.id;post({action:'dissolve'},d=>{sel=null;wirtPay('firma',d.pay,d.pay,`Firma aufgelöst: <b class="num">+${fmt(d.pay)}</b>`)})},true)}});
+  function rename(){const f=F();if(!f)return;
+    modal(`<p class="eyebrow">Firma</p><h2>Umbenennen</h2><input class="inp" id="fiRen" maxlength="24" autocomplete="off" value="${esc(f.name)}" aria-label="Neuer Firmenname"><p class="note">3 bis 24 Zeichen: Buchstaben, Zahlen, Leerzeichen, Bindestrich.</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>Umbenennen</button></div>`,
+      ()=>{const nm=(window.__fiRen||'').trim().replace(/\s+/g,' ');if(!/^[A-Za-zÄÖÜäöüß0-9][A-Za-zÄÖÜäöüß0-9 \-]{1,22}[A-Za-zÄÖÜäöüß0-9]$/.test(nm)){toast('Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.','bad');return}
+        post({action:'rename',fname:nm},()=>toast(`Heißt jetzt <b>${esc(nm)}</b>.`,'good'))});
+    const i=$('fiRen');window.__fiRen=i.value;i.oninput=()=>{window.__fiRen=i.value};i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector('#modal [data-ok]').click()}};i.focus();i.select()}
   function ipo(){const f=F(),pr=Math.round(f.value/1000*100)/100;
     modal(`<p class="eyebrow">${esc(f.name)}</p><h2>An die Börse</h2><p>Die Firma wird in 1.000 Anteile geteilt, einer kostet <b class="num" style="color:var(--ink)">${pr.toLocaleString('de-DE',{minimumFractionDigits:2})}</b>. Du verkaufst jetzt bis zu 490 Anteile an die Börse und bekommst sofort das Geld. Danach können alle Spieler Anteile kaufen. 24 Stunden lang darfst du selbst nichts verkaufen.</p>
       <label class="lbl" for="fiIpoN"><span>Anteile verkaufen</span><span id="fiIpoV" style="text-transform:none;letter-spacing:0"></span></label><input id="fiIpoN" type="range" min="1" max="490" step="1" value="${ipoN}" style="width:100%">
