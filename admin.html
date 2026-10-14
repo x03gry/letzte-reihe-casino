@@ -240,6 +240,11 @@ textarea.inp{min-height:90px;resize:vertical}
       <p class="note">Würfelt die Angebote der laufenden Stunde neu aus und gibt sie wieder frei (auch schon verkaufte). Häuser, die Spieler schon besitzen, bleiben unverändert. Die Stadtteil-Kurse ändern sich dadurch nicht.</p>
       <div class="row"><button class="btn red" id="wxImmoReset">Markt zurücksetzen</button></div>
     </div>
+    <div class="panel">
+      <h2 style="font-size:16px">Aktienkurse neu starten</h2>
+      <p class="note">Alle 8 Börsen-Firmen fangen wieder bei ihrem Startkurs an, Verlauf und News werden gelöscht. Die Depots der Spieler bleiben (ihr Einstand bleibt gleich, der Kurs ist dann ein anderer).</p>
+      <div class="row"><button class="btn red" id="wxAkReset">Kurse neu starten</button></div>
+    </div>
   </section>
 
   <section id="t-msg" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -300,6 +305,9 @@ document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.cl
 let wxArm=0;$('wxImmoReset').onclick=async()=>{if(Date.now()-wxArm>4000){wxArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}wxArm=0;
   try{await api('immoReset');toast('Immobilienmarkt zurückgesetzt')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 
+let akArm=0;$('wxAkReset').onclick=async()=>{if(Date.now()-akArm>4000){akArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}akArm=0;
+  try{await api('aktienReset');toast('Aktienkurse neu gestartet')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
+
 // ---------- Accounts ----------
 async function loadAccounts(){try{const d=await api('list');ACC=d.accounts||[];renderAccounts()}catch(e){if(e.message!=='401')toast('Laden fehlgeschlagen: '+e.message,true)}}
 function renderAccounts(){
@@ -323,6 +331,7 @@ function wirtInfo(w){if(!w)return'<p class="note">Noch nichts in der Wirtschaft.
   return `<p class="note"><b style="color:var(--ink)">Tresor:</b> ${t?`${fmt0(t.betrag)} Coins, +${Math.round(t.satz*100)} %, bereit ${d(t.ende)}${Date.now()>=t.ende?' (abholbereit)':''}`:'leer'}${w.earned?` · bisher ${fmt0(w.earned)} Zinsen verdient`:''}</p>
   <p class="note"><b style="color:var(--ink)">Geschäfte:</b> ${(()=>{const N={kaugummi:'Kaugummiautomat',getraenke:'Getränkeautomat',kiosk:'Kiosk',wasch:'Waschsalon',spielhalle:'Spielhalle',passage:'Einkaufspassage'},L=Object.entries(w.shops||{}).filter(([k,v])=>v&&v.level>0);return L.length?L.map(([k,v])=>`${N[k]||k} (Stufe ${v.level})`).join(', '):'keine'})()}${w.shopEarned?` · bisher ${fmt0(w.shopEarned)} abgeholt`:''}</p>
   <p class="note"><b style="color:var(--ink)">Häuser:</b> ${(()=>{const T={villa:'Stadtvilla',alt:'Altbau',loft:'Loft',platte:'Plattenbau'},H=(w.immo&&w.immo.houses)||[];return H.length?H.map(h=>{const c=Date.now()<h.renoAt?100:Math.max(0,100-Math.floor((Date.now()-h.renoAt)/12600000)),x=Object.keys(h.extras||{});return `${esc(h.name)} (${T[h.type]||h.type}, gekauft ${fmt0(h.paid)}, Zustand ${c} %${x.length?', '+x.join(', '):''})`}).join(' · '):'keine'})()}${w.immoRent?` · bisher ${fmt0(w.immoRent)} Miete`:''}</p>
+  <p class="note"><b style="color:var(--ink)">Depot:</b> ${Object.entries(w.depot||{}).filter(([k,v])=>v&&v.n>0).map(([k,v])=>`${k} ${fmt0(v.n)} Stück (Ø ${v.avg})`).join(' · ')||'leer'}${w.divEarned?` · bisher ${fmt0(w.divEarned)} Dividende`:''}</p>
   <p class="note">Insgesamt eingezahlt <b class="num" style="color:var(--ink)">${fmt0(w.in||0)}</b> · ausgezahlt <b class="num" style="color:var(--ink)">${fmt0(w.out||0)}</b></p>`}
 function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.lastRestart<36e5;
   $('modal').innerHTML=`<div class="mbox" role="dialog" aria-modal="true">

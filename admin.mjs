@@ -29,7 +29,7 @@ async function wipeStore(name, keep) {
 }
 async function purgeAll() {
   const accounts = await wipeStore("spielstaende");
-  for (const n of ["posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft", "immo"]) await wipeStore(n);
+  for (const n of ["posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft", "immo", "aktien"]) await wipeStore(n);
   await wipeStore("wetten", (k) => k.startsWith("e/"));
   const admin = getStore("admin");
   for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
@@ -337,6 +337,12 @@ export default async (req) => {
 
   // Jackpot-Ziehung: Teilnehmer ansehen, Topf aufstocken (z. B. als Startgeld)
   if (action === "lotto") return json(await lottoInfo(now));
+  if (action === "aktienReset") {
+    const s = getStore("aktien"), cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 };
+    await s.setJSON("cfg", { epoch: num(cfg.epoch) + 1, t: now });
+    try { await s.delete("state"); } catch {}
+    return json({ ok: true });
+  }
   if (action === "immoReset") {
     const s = getStore("immo"), cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 };
     await s.setJSON("cfg", { epoch: num(cfg.epoch) + 1, t: now });

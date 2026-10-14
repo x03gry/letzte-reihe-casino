@@ -1595,6 +1595,37 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .im-of.sold{opacity:.6}.im-of .by{font-size:13px;color:var(--mute);min-width:120px;text-align:right}
 @media (max-width:1000px){.im-dists{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){.wx-tile.im-kasse{flex-direction:column;align-items:stretch}.im-kasse>b{text-align:left}.im-dists{grid-template-columns:1fr 1fr}.im-of .inf{flex-basis:calc(100% - 120px)}.im-of .pr{min-width:0;text-align:left;flex:1}.im-of .btn{min-height:44px}.im-chip{min-height:38px}.im-btns .btn{min-height:44px}}
+/* ---- Aktien ---- */
+.ak-ticker{overflow:hidden;background:var(--bg2);border:1px solid var(--line);border-radius:12px;height:40px;position:relative;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.ak-tk-in{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:34px;white-space:nowrap;padding-left:100%;animation:akTick 60s linear infinite;font-size:13.5px}
+.ak-ticker:hover .ak-tk-in{animation-play-state:paused}
+.ak-tk-in span b{font:700 13px var(--f-num);margin-left:6px}
+@keyframes akTick{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ak-tk-in{animation:none;padding-left:14px}}
+.ak-badge{flex:none;width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font:700 13px var(--f-disp);letter-spacing:.04em;color:#0b141c}
+.ak-list{display:flex;flex-direction:column;gap:8px}
+.ak-row{display:grid;grid-template-columns:44px minmax(0,1.4fr) minmax(0,1fr) 120px minmax(0,1fr);align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;color:var(--ink);width:100%}
+.ak-row:hover{border-color:var(--line2);background:var(--panel2)}
+.ak-row .nm{display:flex;flex-direction:column;min-width:0}.ak-row .nm b{font:700 15px var(--f-disp);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ak-row .nm small{color:var(--mute);font-size:12px}
+.ak-row .px{display:flex;flex-direction:column;align-items:flex-end}.ak-row .px b{font:700 16px var(--f-num)}.ak-row .px small{font:700 12.5px var(--f-num)}
+.ak-row svg{width:120px;height:34px;display:block}
+.ak-row .dp{display:flex;flex-direction:column;align-items:flex-end;font-size:12.5px;color:var(--mute)}.ak-row .dp b{font:700 13.5px var(--f-num)}
+.ak-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.ak-tag.div{background:rgba(47,224,143,.14);color:var(--win)}
+.mbox:has(.ak-dlg){max-width:560px;text-align:left}
+.ak-dlg{display:flex;flex-direction:column;gap:12px}
+.ak-dh{display:flex;align-items:center;gap:12px}.ak-dh .t{flex:1;min-width:0}.ak-dh h2{margin:0;font:700 19px var(--f-disp)}.ak-dh small{color:var(--mute)}
+.ak-dh .px{text-align:right}.ak-dh .px b{font:700 22px var(--f-num);display:block}.ak-dh .px small{font:700 13px var(--f-num)}
+.ak-chart{width:100%;height:190px;display:block;background:var(--bg2);border:1px solid var(--line);border-radius:12px}
+.ak-qty{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,auto);gap:6px}
+.ak-qty .btn{padding:8px 10px;font-size:13px}
+.ak-sum{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:13.5px;color:var(--mute)}
+.ak-sum b{color:var(--ink);font:700 14px var(--f-num);text-align:right}
+.ak-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ak-btns .btn{min-height:46px;font-size:15px}
+.btn.sellb{background:rgba(255,77,106,.14);border-color:rgba(255,77,106,.5);color:#ff8095;font-weight:700}
+@media (max-width:760px){.ak-row{grid-template-columns:40px minmax(0,1fr) auto;gap:4px 12px}.ak-row svg{display:none}.ak-row .dp{grid-column:2/4;flex-direction:row;justify-content:space-between;width:100%}.ak-badge{width:40px;height:40px;font-size:12px}
+  .ak-qty{grid-template-columns:repeat(4,1fr)}.ak-qty .inp{grid-column:1/-1}}
+.linkbtn{background:none;border:0;padding:0;color:var(--brass-hi);font:inherit;text-decoration:underline;cursor:pointer}
 /* ---- Tresor ---- */
 .tr-vault{align-items:center;text-align:center;gap:10px;background:radial-gradient(80% 60% at 50% 18%,rgba(255,176,32,.12),rgba(255,176,32,0) 70%),var(--panel)}
 .tr-vault.ready{border-color:var(--win);background:radial-gradient(80% 60% at 50% 18%,rgba(47,224,143,.16),rgba(47,224,143,0) 70%),var(--panel)}
@@ -1647,6 +1678,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     <button class="navbtn" data-go="tresor" data-nav="tresor"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="11" cy="11.5" r="3.5"/><path d="M11 8v1M11 14v1M7.5 11.5h1M13.5 11.5h1M18 9v5M6 19v2M16 19v2"/></svg>Tresor</button>
     <button class="navbtn" data-go="geschaefte" data-nav="geschaefte"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v8h14v-8M10 21v-5h4v5"/></svg>Geschäfte</button>
     <button class="navbtn" data-go="immobilien" data-nav="immobilien"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Immobilien</button>
+    <button class="navbtn" data-go="aktien" data-nav="aktien"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Aktien</button>
     <h3>Spiele</h3>
     <div id="sideGames"></div>
     <a class="adminlink" id="adminLink" href="/admin" hidden>Admin-Ansicht</a>
@@ -1738,6 +1770,19 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   <section class="im-sec"><h2>Stadtteile <small>· letzte 24 Std.</small></h2><div class="im-dists" id="imDists"></div></section>
   <section class="im-sec"><h2>Deine Häuser <small id="imHN">· 0 von 8</small></h2><div class="im-houses" id="imHouses"></div></section>
   <section class="panel im-market"><div class="ph"><h2>Zum Kauf</h2><span class="note" id="imNext">&nbsp;</span></div><p class="note">+5 % Kaufnebenkosten · Verkauf in den ersten 24 Std. −10 % · jedes Angebot gibt es nur einmal</p><div class="im-offers" id="imOffers"></div></section>
+</section>
+
+<!-- ======================= WIRTSCHAFT: AKTIEN ======================= -->
+<section id="v-aktien" class="view wx" hidden>
+  <div class="phead"><div><p class="eyebrow">Wirtschaft</p><h1>Aktien</h1></div><p class="lede">Alle 3 Minuten neue Kurse, für alle gleich. Hohes Risiko: Kurse können stark fallen. Auf jeden Kauf und Verkauf gehen 1 % Gebühr.</p></div>
+  <div class="wx-off" id="akOff" hidden></div>
+  <div class="ak-ticker" id="akTicker" aria-label="Börsen-News"><div class="ak-tk-in" id="akTickerIn"></div></div>
+  <div class="wx-tiles">
+    <div class="wx-tile"><span>Depotwert</span><b class="num" id="akT1">–</b><small id="akT1s">&nbsp;</small></div>
+    <div class="wx-tile"><span>Gewinn / Verlust gesamt</span><b class="num" id="akT2">–</b><small id="akT2s">&nbsp;</small></div>
+    <div class="wx-tile im-kasse"><div class="im-kh"><span>Dividende bereit</span><small id="akDivS">&nbsp;</small></div><b class="num" id="akDiv">–</b><button class="btn gold" type="button" id="akDivBtn">Dividende abholen</button></div>
+  </div>
+  <section class="im-sec"><h2>Börse <small id="akNext">&nbsp;</small></h2><div class="ak-list" id="akList"></div></section>
 </section>
 
 <!-- ======================= BONUS ======================= -->
@@ -2954,8 +2999,8 @@ $('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Gu
   modal(`<p class="eyebrow">Geschafft</p><h2>Stern Nr. ${S.stars}</h2><p>Zurück auf 1.000 Coins. Auf ein Neues!</p><div class="row"><button class="btn gold" data-close>Weiter</button></div>`)})};
 
 // ================= Router =================
-const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte','immobilien'];
-const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte',immobilien:'Immobilien'};
+const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte','immobilien','aktien'];
+const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte',immobilien:'Immobilien',aktien:'Aktien'};
 let cur='lobby';const onShow={};
 function go(v){if(v==='wirt')v=(S.prefs&&WIRT_VIEWS.includes(S.prefs.wirtLast)&&S.prefs.wirtLast)||'tresor';if(!VIEWS.includes(v))v='lobby';if(WIRT_VIEWS.includes(v))S.prefs.wirtLast=v;if(PLAY.includes(v)&&!owns(v)){askUnlock(v);v='lobby'}
   cur=v;document.querySelectorAll('main>.view').forEach(s=>s.hidden=s.id!=='v-'+v);
@@ -7639,7 +7684,7 @@ onShow.slot=SL.show;
 // ================= Wirtschaft: gemeinsame Helfer =================
 // Alles, was Geld bewegt, läuft über den Server (/api/spielstand?wirt=1 …). Der Spielstand trägt in S.wirt.in/out dieselben
 // Summen wie die Kasse auf dem Server; beim Speichern gleicht der Server das Guthaben ab (wie bei Überweisungen).
-const WIRT_VIEWS=['tresor','geschaefte','immobilien'];
+const WIRT_VIEWS=['tresor','geschaefte','immobilien','aktien'];
 const WIRT_KEYS=['tresor','shops','immo','immoSell','aktien','divi','firma'];
 let srvOff=0,srvSeen=0;
 const srvNow=()=>Date.now()+srvOff;
@@ -7658,7 +7703,7 @@ function wirtPay(src,total,statPart,msg){const w=wirt();total=r2(total);w.out=r2
 // Einzahlung in die Wirtschaft (erst nachdem der Server zugestimmt hat)
 function wirtSpend(amount){const w=wirt();w.in=r2(w.in+amount);spend(amount)}
 const WERR={guthaben:'Dafür reicht dein Guthaben nicht.',zu_wenig:'Das ist zu wenig.',zu_viel:'Das ist zu viel.',laufzeit:'Diese Laufzeit gibt es nicht.',
-  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',
+  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Stückzahl geht nicht.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
   gesperrt:'Dein Account ist gesperrt.',aktion:'Das geht so nicht.'};
 let wxBusy=false,wxReq=false;
 // Anfrage an einen Wirtschafts-Endpunkt. Wartet vorher, bis der Spielstand gespeichert ist (damit sich nichts überkreuzt).
@@ -8001,6 +8046,86 @@ const IM=(()=>{
   setInterval(()=>{if(cur!=='immobilien'||document.hidden)return;live();pull()},1000);
   return{show(){render();pull(true)},render}})();
 onShow.immobilien=IM.show;
+// ================= Wirtschaft: Aktien =================
+const AKS=(()=>{
+  let D=null,pulled=0,pulling=false,busy=false,sel=null,range='24',qty=10,lastTick=0;
+  const IDS=()=>D?Object.keys(D.prices):[];
+  const dep=()=>D&&D.mine?D.mine.depot||{}:{};
+  const f2=v=>v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const pc=v=>(v>0?'+':v<0?'−':'±')+Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';
+  const ch24=id=>{const a=D.h24[id];return a&&a.length>1?(a[a.length-1]/a[0]-1)*100:0};
+  function take(d){if(!d||!d.prices)return;D=d;lastTick=d.tick;if(d.mine)wirt().depot=JSON.parse(JSON.stringify(d.mine.depot||{}))}
+  async function pull(force){if(!ACCOUNTS||!acct||pulling)return;if(!force&&Date.now()-pulled<30000)return;if(force&&Date.now()-pulled<3000)return;pulled=Date.now();pulling=true;
+    const d=await wxFetch('aktien=1');pulling=false;if(d&&!d.failed)take(d);render()}
+  async function post(body,okFn){if(busy)return;busy=true;render();const d=await wxFetch('aktien=1',body);busy=false;if(d){take(d);if(d.ok){okFn&&okFn(d);save()}}render()}
+  // ---- Charts
+  function spark(a){if(!a||a.length<2)return'';const mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1,col=a[a.length-1]>=a[0]?'#2fe08f':'#ff6b84';
+    return `<svg viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true"><polyline points="${a.map((v,i)=>`${(i/(a.length-1)*120).toFixed(1)},${(31-(v-mn)/r*28).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
+  function bigChart(a,avg){const W=520,H=190,pl=8,pr=58,pt=12,pb=18;if(!a||a.length<2)return'';let mn=Math.min(...a),mx=Math.max(...a);if(avg){mn=Math.min(mn,avg);mx=Math.max(mx,avg)}const r=(mx-mn)||mx*.01||1;mn-=r*.08;mx+=r*.08;
+    const X=i=>pl+i/(a.length-1)*(W-pl-pr),Y=v=>pt+(mx-v)/(mx-mn)*(H-pt-pb),up=a[a.length-1]>=a[0],col=up?'#2fe08f':'#ff6b84',pts=a.map((v,i)=>`${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    const grid=[0,1,2,3].map(k=>{const v=mn+(mx-mn)*(k+.5)/4;return `<line x1="${pl}" x2="${W-pr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="#22364a"/><text x="${W-pr+6}" y="${(Y(v)+4).toFixed(1)}" fill="#5d7387" font-size="10.5" font-family="Chakra Petch, monospace">${f2(v)}</text>`}).join('');
+    const last=a[a.length-1],ly=Y(last);
+    return `<svg class="ak-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Kursverlauf"><defs><linearGradient id="akG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>${grid}
+      <polygon points="${X(0)},${H-pb} ${pts} ${X(a.length-1)},${H-pb}" fill="url(#akG)"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
+      ${avg?`<line x1="${pl}" x2="${W-pr}" y1="${Y(avg).toFixed(1)}" y2="${Y(avg).toFixed(1)}" stroke="#ffb020" stroke-dasharray="4 4" opacity=".8"/><text x="${pl+4}" y="${(Y(avg)-4).toFixed(1)}" fill="#ffd27a" font-size="10.5" font-family="Rubik, sans-serif">dein Einstand</text>`:''}
+      <rect x="${W-pr+2}" y="${(ly-9).toFixed(1)}" width="${pr-4}" height="18" rx="4" fill="${col}"/><text x="${W-pr/2}" y="${(ly+4).toFixed(1)}" text-anchor="middle" fill="#0b141c" font-size="11" font-weight="700" font-family="Chakra Petch, monospace">${f2(last)}</text></svg>`}
+  // ---- Liste
+  const setT=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
+  const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
+  function badge(id){const c=D.info[id].col;return `<span class="ak-badge" style="background:linear-gradient(140deg,${c},${c}cc)">${id}</span>`}
+  function render(){if(cur!=='aktien')return;const off=!ACCOUNTS||!acct,o=$('akOff');o.hidden=!off;if(off)o.textContent='Die Wirtschaft läuft über den Server. Melde dich auf der Website mit deinem Account an, um sie zu nutzen.';
+    if(!D){setH($('akList'),`<div class="im-empty">${off?'Nur online mit Account.':'Lädt …'}</div>`);live();return}
+    const dp=dep(),news=D.news||[];
+    setH($('akTickerIn'),news.length?news.concat(news).map(n=>`<span>${esc(n.text)}<b class="${n.pct>0?'pos':'neg'}">${n.pct>0?'+':'−'}${Math.abs(n.pct).toLocaleString('de-DE')} %</b></span>`).join(''):'<span>Noch keine News. Die Börse ist ruhig.</span>');
+    setH($('akList'),IDS().map(id=>{const p=D.prices[id],c=ch24(id),x=dp[id],info=D.info[id];const gv=x?(p-x.avg)*x.n:0;
+      return `<button class="ak-row" type="button" data-ak="${id}">${badge(id)}<span class="nm"><b>${esc(info.name)}</b><small>${id}${info.div?`<span class="ak-tag div">Dividende ${(info.div*100).toLocaleString('de-DE')} %/Tag</span>`:''}</small></span>
+        <span class="px"><b>${f2(p)}</b><small class="${c>=0?'pos':'neg'}">${pc(c)}</small></span>${spark(D.h24[id])}
+        <span class="dp">${x?`<span>${fmt0(x.n)} Stück</span><b class="${gv>=0?'pos':'neg'}">${gv>=0?'+':'−'}${fmt0(Math.abs(gv))}</b>`:'<span>nicht im Depot</span>'}</span></button>`}).join(''));
+    live();if(sel&&!$('modal').hidden&&$('akDlg'))dlgUpdate()}
+  function live(){if(cur!=='aktien')return;const off=!ACCOUNTS||!acct;
+    if(!D){['akT1','akT2','akDiv'].forEach(i=>setT($(i),'–'));$('akDivBtn').disabled=true;return}
+    const dp=dep();let val=0,cost=0,n=0;for(const [id,x] of Object.entries(dp)){if(!x||!D.prices[id])continue;val+=x.n*D.prices[id];cost+=x.n*x.avg;n++}
+    setT($('akT1'),fmt0(val));setT($('akT1s'),n?`${n} ${n===1?'Aktie':'Aktien'} im Depot`:'noch nichts gekauft');
+    const gv=val-cost;setT($('akT2'),n?(gv>=0?'+':'−')+fmt0(Math.abs(gv)):'–');$('akT2').className='num '+(n?(gv>=0?'pos':'neg'):'');setT($('akT2s'),n&&cost?`${pc(gv/cost*100)} seit Kauf (inkl. Gebühr)`:'Kursgewinn deiner Aktien');
+    const dv=D.mine?D.mine.div:0;setT($('akDiv'),f2(dv));setT($('akDivS'),D.mine&&D.mine.divEarned?`bisher ${fmt0(D.mine.divEarned)}`:'Brezn, Tafelwisch, Mensa');
+    const b=$('akDivBtn');b.disabled=busy||off||dv<.01;
+    setT($('akNext'),'· neuer Kurs in '+wxDur(D.next-srvNow()));
+    if(srvNow()>=D.next+1500)pull(true)}
+  // ---- Detail
+  function rangeData(id){const a=D.h24[id]||[];if(range==='2')return a.slice(-41);if(range==='7')return(D.h7[id]||[]).concat([D.prices[id]]);return a}
+  function maxBuy(id){return Math.max(0,Math.floor((S.bal+1e-9)/(D.prices[id]*1.01)))}
+  function open(id){sel=id;qty=Math.max(1,qty|0);
+    modal(`<div class="ak-dlg" id="akDlg"><div class="ak-dh">${badge(id)}<div class="t"><h2>${esc(D.info[id].name)}</h2><small>${id}${D.info[id].div?` · Dividende ${(D.info[id].div*100).toLocaleString('de-DE')} % pro Tag`:''}</small></div><div class="px"><b id="akDP">–</b><small id="akDC">–</small></div></div>
+      <div class="seg" id="akRange" role="group" aria-label="Zeitraum"><button type="button" data-r="2">2 Std.</button><button type="button" data-r="24">24 Std.</button><button type="button" data-r="7">7 Tage</button></div>
+      <div id="akChart"></div><p class="note" id="akHold"></p>
+      <div class="ak-qty"><input class="inp num" id="akQty" type="text" inputmode="numeric" autocomplete="off" aria-label="Stückzahl"><button class="btn" type="button" data-q="1">1</button><button class="btn" type="button" data-q="10">10</button><button class="btn" type="button" data-q="100">100</button><button class="btn" type="button" data-q="max">Max</button></div>
+      <div class="ak-sum" id="akSum"></div>
+      <div class="ak-btns"><button class="btn gold" type="button" id="akBuy">Kaufen</button><button class="btn sellb" type="button" id="akSell">Verkaufen</button></div>
+      <div class="row"><button class="btn" type="button" data-close>Schließen</button></div></div>`);
+    $('akQty').value=qty;dlgUpdate()}
+  function dlgUpdate(){const id=sel;if(!id||!$('akDlg')||!D)return;const p=D.prices[id],c=ch24(id),x=dep()[id];
+    setT($('akDP'),f2(p));setT($('akDC'),pc(c)+' in 24 Std.');$('akDC').className=c>=0?'pos':'neg';
+    $('akRange').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.r===range)));
+    setH($('akChart'),bigChart(rangeData(id),x?x.avg:0));
+    setH($('akHold'),x?`Im Depot: <b style="color:var(--ink)">${fmt0(x.n)} Stück</b> · Ø Einstand ${f2(x.avg)} · <span class="${(p-x.avg)*x.n>=0?'pos':'neg'}">${(p-x.avg)*x.n>=0?'Gewinn':'Verlust'} ${fmt0(Math.abs((p-x.avg)*x.n))}</span> · <button class="linkbtn" type="button" data-q="all">alle auswählen</button>`:'Noch nicht im Depot.');
+    const q=Math.max(0,wxParse($('akQty').value)),gross=q*p,fee=gross*.01;
+    $('akSum').innerHTML=`<span>${fmt0(q)} × ${f2(p)}</span><b>${f2(gross)}</b><span>Gebühr 1 %</span><b>${f2(fee)}</b><span>Kaufen kostet</span><b>${f2(gross+fee)}</b><span>Verkaufen bringt</span><b>${f2(gross-fee)}</b>`;
+    const off=!ACCOUNTS||!acct;$('akBuy').disabled=busy||off||q<1||gross+fee>S.bal+1e-9;$('akSell').disabled=busy||off||q<1||!x||x.n<q;
+    setT($('akBuy'),busy?'…':`Kaufen · ${fmt0(gross+fee)}`);setT($('akSell'),busy?'…':x?`Verkaufen · ${fmt0(gross-fee)}`:'Verkaufen')}
+  function trade(side){const id=sel,q=wxParse($('akQty').value);if(!id||q<1)return;qty=q;
+    post({action:'trade',id,n:q,side},d=>{if(side==='buy'){wirtSpend(d.cost);toast(`<b>${fmt0(d.n)}</b> ${id} gekauft zu je <b class="num">${f2(d.price)}</b>.`,'good')}
+      else wirtPay('aktien',d.pay,d.pay,`<b>${fmt0(d.n)}</b> ${id} verkauft: <b class="num">+${fmt(d.pay)}</b>`)})}
+  document.addEventListener('click',e=>{if(!e.target.closest('#akDlg'))return;
+    const r=e.target.closest('[data-r]');if(r){range=r.dataset.r;SND.tick();dlgUpdate();return}
+    const q=e.target.closest('[data-q]');if(q){const v=q.dataset.q==='max'?maxBuy(sel):q.dataset.q==='all'?(dep()[sel]?dep()[sel].n:0):+q.dataset.q;$('akQty').value=Math.max(1,v);SND.tick();dlgUpdate();return}
+    if(e.target.closest('#akBuy')&&!$('akBuy').disabled){ac();trade('buy');return}
+    if(e.target.closest('#akSell')&&!$('akSell').disabled){ac();trade('sell')}});
+  document.addEventListener('input',e=>{if(e.target.id==='akQty')dlgUpdate()});
+  $('akList').addEventListener('click',e=>{const b=e.target.closest('[data-ak]');if(b&&D){ac();open(b.dataset.ak)}});
+  $('akDivBtn').onclick=()=>{ac();post({action:'divCollect'},d=>{wirtPay('divi',d.pay,d.pay,`Dividende abgeholt: <b class="num">+${fmt(d.pay)}</b>`)})};
+  setInterval(()=>{if(cur!=='aktien'||document.hidden)return;live();pull()},1000);
+  return{show(){render();pull(true)},render}})();
+onShow.aktien=AKS.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;

@@ -48,7 +48,7 @@ async function wipeStore(name, keep) {
   for (const b of blobs) { if (keep && keep(b.key)) continue; try { await st.delete(b.key); } catch {} }
 }
 async function purgeAll() {
-  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft", "immo"]) await wipeStore(n);
+  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft", "immo", "aktien"]) await wipeStore(n);
   await wipeStore("wetten", (k) => k.startsWith("e/"));   // Fragen bleiben, Tipps/Vorschläge/Ausschlüsse weg
   const admin = getStore("admin");
   for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
@@ -663,14 +663,14 @@ const SHOP_MAX = 10, SHOP_STORE_H = 8;
 const shopCost = (sh, lvl) => Math.round(sh.price * Math.pow(1.6, lvl - 1));        // Kosten für Stufe lvl (1 = Kauf)
 const shopRate = (sh, lvl) => (lvl > 0 ? sh.base * Math.pow(1.4, lvl - 1) : 0);     // Einnahmen pro Stunde
 const shopStored = (sh, s, now) => r2(shopRate(sh, s.level) * Math.min(SHOP_STORE_H, Math.max(0, now - num(s.lastCollect)) / 3_600_000));
-const wirtFresh = () => ({ in: 0, out: 0, tresor: [], shops: {}, immo: { houses: [], log: [] } });
+const wirtFresh = () => ({ in: 0, out: 0, tresor: [], shops: {}, immo: { houses: [], log: [] }, depot: {}, divK: 0 });
 async function wirtGet(key) {
   const w = await getStore("wirtschaft").get(key, { type: "json" });
   const f = wirtFresh();
   if (!w) return f;
   const im = w.immo && typeof w.immo === "object" ? w.immo : {};
   return { ...f, ...w, in: r2(num(w.in)), out: r2(num(w.out)), tresor: Array.isArray(w.tresor) ? w.tresor : [], shops: w.shops && typeof w.shops === "object" ? w.shops : {},
-    immo: { houses: Array.isArray(im.houses) ? im.houses : [], log: Array.isArray(im.log) ? im.log : [] } };
+    immo: { houses: Array.isArray(im.houses) ? im.houses : [], log: Array.isArray(im.log) ? im.log : [] }, depot: w.depot && typeof w.depot === "object" ? w.depot : {} };
 }
 function wirtNormalize(state, W) {
   const sw = state.wirt && typeof state.wirt === "object" ? state.wirt : {};
@@ -973,6 +973,148 @@ async function immoRoute(req, url) {
   return fail("aktion");
 }
 
+// ================= Aktien (/api/spielstand?aktien=1) =================
+// 8 Fake-Firmen. Alle 3 Minuten ein neuer Kurs (Tick), für alle gleich: Zufallsbewegung + langsamer Trend + seltene News-Sprünge,
+// jeder Schritt aus HMAC(Geheimnis, Firma, Tick). Der Server rechnet beim Abruf die verpassten Ticks nach und speichert
+// Kurse + Verlauf (24 Std. fein, 7 Tage alle 30 Min.) im Store "aktien". Depot und Dividenden liegen in der Wirtschafts-Kasse.
+const AK_TICK = 180_000, AK_FEE = 0.01, AK_H24 = 480, AK_H7 = 336, AK_DIV_CAP = 24 * HOUR;
+const AK = {
+  BRZ: { name: "Brezn AG", start: 120, sig: 0.00055, ts: 0.00002, phi: 0.998, kap: 0.0002, jp: 1 / 2600, jm: [0.03, 0.08], div: 0.003, col: "#c98500",
+    up: ["eröffnet 50 neue Filialen", "gewinnt Oktoberfest-Auftrag", "Rekord beim Brezel-Absatz"], dn: ["Mehlpreise steigen", "Bäcker streiken", "Salz-Skandal in der Backstube"] },
+  TWE: { name: "Tafelwisch Energie", start: 85, sig: 0.0007, ts: 0.00003, phi: 0.998, kap: 0.0002, jp: 1 / 2600, jm: [0.03, 0.09], div: 0.0025, col: "#199e70",
+    up: ["neues Windrad-Feld genehmigt", "Strompreise steigen", "Großauftrag von der Schule"], dn: ["Kraftwerk muss gewartet werden", "Stromausfall im Netz", "Kunden wechseln zur Konkurrenz"] },
+  MMG: { name: "Mensa-Mampf GmbH", start: 40, sig: 0.0014, ts: 0.00005, phi: 0.998, kap: 0.0002, jp: 1 / 2000, jm: [0.04, 0.12], div: 0.0015, col: "#d95926",
+    up: ["neues Pizza-Menü ein Hit", "bekommt fünf neue Schulen", "Testsieger beim Schnitzel"], dn: ["Lebensmittelkontrolle findet Mängel", "Schüler boykottieren Spinat-Tag", "Lieferant pleite"] },
+  SBL: { name: "Schulbus Logistik", start: 60, sig: 0.0013, ts: 0.00012, phi: 0.999, kap: 0.00015, jp: 1 / 2200, jm: [0.04, 0.12], div: 0, col: "#ffb020",
+    up: ["neue Buslinien bestellt", "Spritpreise fallen", "Rekord bei Pünktlichkeit"], dn: ["Busse bleiben im Stau", "Streik der Fahrer", "Dieselpreis explodiert"] },
+  PHH: { name: "Pausenhof Holdings", start: 200, sig: 0.0015, ts: 0.00015, phi: 0.9993, kap: 0.00012, jp: 1 / 2200, jm: [0.05, 0.13], div: 0, col: "#3987e5",
+    up: ["kauft Kiosk-Kette", "Pausenhof wird Trend-Spot", "Fusion mit Schulhof AG"], dn: ["Pause wird gekürzt", "Regenwoche leert den Hof", "Chef tritt zurück"] },
+  KSC: { name: "Kreidestaub Corp", start: 15, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 1500, jm: [0.08, 0.22], div: 0, col: "#a78bfa",
+    up: ["Tafeln feiern Comeback", "Bunte Kreide ausverkauft", "Großauftrag aus Bayern"], dn: ["Schulen kaufen Whiteboards", "Kreide-Allergie in den Schlagzeilen", "Lager abgebrannt"] },
+  HAI: { name: "Hausaufgaben.io", start: 300, sig: 0.004, ts: 0.00012, phi: 0.998, kap: 0.0002, jp: 1 / 1400, jm: [0.08, 0.25], div: 0, col: "#38bdf8",
+    up: ["neue KI-Version gestartet", "1 Mio. neue Nutzer", "Lehrer lieben die App"], dn: ["Server down", "Schulen sperren die App", "Datenleck entdeckt"] },
+  PXG: { name: "Pixelpause Games", start: 25, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 2800, jm: [0.25, 0.6], div: 0, col: "#ec4899",
+    up: ["Spiel geht viral", "Riesen-Update begeistert Fans", "Preis für bestes Indie-Spiel"], dn: ["Spiel voller Bugs", "Release verschoben", "Spieler hauen ab"] },
+};
+const AK_IDS = Object.keys(AK);
+let akSec = null;
+function akRand(epoch, id, T) {   // 4 Zufallszahlen pro Firma und Tick
+  const h = createHmac("sha256", akSec).update(`ak|${epoch}|${id}|${T}`).digest("hex");
+  return [0, 13, 26, 39].map((o) => parseInt(h.slice(o, o + 13), 16) / 2 ** 52);
+}
+function akFresh(T, epoch) {
+  const st = { v: 1, epoch, T, p: {}, tr: {}, h24: {}, h7: {}, news: [] };
+  for (const id of AK_IDS) { st.p[id] = AK[id].start; st.tr[id] = 0; st.h24[id] = [AK[id].start]; st.h7[id] = [AK[id].start]; }
+  return st;
+}
+function akStep(st, T) {
+  for (const id of AK_IDS) {
+    const P = AK[id], [u1, u2, u3, u4] = akRand(st.epoch, id, T);
+    const z = Math.sqrt(-2 * Math.log(Math.max(1e-12, u1))) * Math.cos(2 * Math.PI * u2);
+    // Trend: AR(1) mit Standardabweichung P.ts pro Tick (gleichverteilter Anstoß, passend skaliert)
+    st.tr[id] = num(st.tr[id]) * P.phi + (u3 * 2 - 1) * P.ts * Math.sqrt(3 * (1 - P.phi * P.phi));
+    let lp = Math.log(st.p[id]);
+    lp += st.tr[id] + P.sig * z - P.kap * (lp - Math.log(P.start));
+    if (u4 < P.jp) {
+      const up = u3 < 0.5, m = P.jm[0] + (u4 / P.jp) * (P.jm[1] - P.jm[0]), list = up ? P.up : P.dn;
+      lp += Math.log(up ? 1 + m : 1 - m);
+      st.news.unshift({ t: T * AK_TICK, id, text: `${P.name}: ${list[Math.floor(u1 * list.length)]}`, pct: Math.round((up ? m : -m) * 1000) / 10 });
+      st.news = st.news.slice(0, 20);
+    }
+    st.p[id] = Math.max(1, Math.round(Math.exp(lp) * 100) / 100);
+    st.h24[id].push(st.p[id]); if (st.h24[id].length > AK_H24 + 1) st.h24[id] = st.h24[id].slice(-AK_H24 - 1);
+    if (T % 10 === 0) { st.h7[id].push(st.p[id]); if (st.h7[id].length > AK_H7 + 1) st.h7[id] = st.h7[id].slice(-AK_H7 - 1); }
+  }
+  st.T = T;
+}
+async function akState(now) {
+  if (!akSec) akSec = await secret();
+  const s = getStore("aktien"), T = Math.floor(now / AK_TICK);
+  const cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 };
+  let st = await s.get("state", { type: "json" }).catch(() => null);
+  if (!st || st.epoch !== num(cfg.epoch)) st = akFresh(T - 1, num(cfg.epoch));
+  if (st.T < T) {
+    // Mehr als 10 Tage verpasst: nur die letzten 10 Tage nachrechnen (Kurs läuft einfach von dort weiter)
+    let from = Math.max(st.T + 1, T - 4800);
+    for (let t = from; t <= T; t++) akStep(st, t);
+    try { await s.setJSON("state", st); } catch {}
+  }
+  return st;
+}
+const akDivRate = (id) => (AK[id] ? AK[id].div : 0);
+function akDivAccrue(W, st, now) {   // offene Dividende (gedeckelt auf 24 Std. je Position)
+  let sum = num(W.divK);
+  for (const [id, x] of Object.entries(W.depot || {})) {
+    if (!x || !(x.n > 0) || !akDivRate(id)) continue;
+    sum += x.n * st.p[id] * akDivRate(id) * Math.min(AK_DIV_CAP, Math.max(0, now - num(x.divFrom))) / AK_DIV_CAP;
+  }
+  return r2(sum);
+}
+function akDivSettle(W, st, now, id) {   // Dividende einer Position festhalten, bevor sich die Stückzahl ändert
+  const x = W.depot[id]; if (!x || !(x.n > 0) || !akDivRate(id)) { if (x) x.divFrom = now; return; }
+  W.divK = r2(num(W.divK) + x.n * st.p[id] * akDivRate(id) * Math.min(AK_DIV_CAP, Math.max(0, now - num(x.divFrom))) / AK_DIV_CAP);
+  x.divFrom = now;
+}
+async function aktienRoute(req, url) {
+  const now = Date.now();
+  let name = "", body = {};
+  if (req.method === "POST") { try { body = await req.json(); } catch { return json({ error: "kaputt", now }, 400); } name = normName(body.name); }
+  else name = normName(url.searchParams.get("name") || "");
+  const st = await akState(now);
+  const view = (W) => {
+    const out = { now, tick: st.T, next: (st.T + 1) * AK_TICK, prices: st.p, h24: st.h24, h7: st.h7, news: st.news.slice(0, 8),
+      info: Object.fromEntries(AK_IDS.map((id) => [id, { name: AK[id].name, col: AK[id].col, div: AK[id].div }])) };
+    if (W) out.mine = { depot: W.depot, div: akDivAccrue(W, st, now), divEarned: num(W.divEarned) };
+    return out;
+  };
+  let acc = null, key = "", W = null;
+  if (name) {
+    if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name", now }, 400);
+    key = encodeURIComponent(name);
+    acc = await getStore("spielstaende").get(key, { type: "json" });
+    if (!acc) return json({ error: "unbekannt", now }, 404);
+    if (acc.banned) return json({ error: "gesperrt", now }, 403);
+    if (!authed(req, acc)) return json({ error: "login", now }, 401);
+    W = await wirtGet(key);
+  }
+  if (req.method === "GET") return json({ ok: true, ...view(W) });
+  if (req.method !== "POST") return json({ error: "methode", now }, 405);
+  if (!W) return json({ error: "login", now }, 401);
+  const ws = getStore("wirtschaft"), fail = (e) => json({ error: e, ...view(W) }, 400);
+  const done = async (extra) => { await ws.setJSON(key, W); return json({ ok: true, ...view(W), ...extra }); };
+  if (body.action === "trade") {
+    const id = String(body.id), n = Math.floor(num(body.n)), side = body.side;
+    if (!AK[id]) return fail("aktion");
+    if (!(n >= 1) || n > 1_000_000) return fail("anzahl");
+    const price = st.p[id], x = W.depot[id] || { n: 0, avg: 0, divFrom: now };
+    if (side === "buy") {
+      const cost = r2(n * price * (1 + AK_FEE));
+      if (cost > wirtBal(acc.state || {}, W) + 10) return fail("guthaben");
+      akDivSettle(W, st, now, id);
+      x.avg = r2((num(x.avg) * num(x.n) + cost) / (num(x.n) + n)); x.n = num(x.n) + n; x.divFrom = now; W.depot[id] = x;
+      W.in = r2(W.in + cost);
+      return done({ price, cost, n });
+    }
+    if (side === "sell") {
+      if (!(num(x.n) >= n)) return fail("zu_wenig_aktien");
+      akDivSettle(W, st, now, id);
+      const pay = r2(n * price * (1 - AK_FEE));
+      x.n = num(x.n) - n; if (x.n <= 0) delete W.depot[id]; else W.depot[id] = x;
+      W.out = r2(W.out + pay);
+      return done({ price, pay, n });
+    }
+    return fail("aktion");
+  }
+  if (body.action === "divCollect") {
+    const pay = akDivAccrue(W, st, now);
+    if (!(pay >= 0.01)) return fail("leer");
+    for (const [id, x] of Object.entries(W.depot)) if (x) x.divFrom = now;
+    W.divK = 0; W.out = r2(W.out + pay); W.divEarned = r2(num(W.divEarned) + pay);
+    return done({ pay });
+  }
+  return fail("aktion");
+}
+
 // ================= Crash (/api/spielstand?crash=1) =================
 // Gemeinsame Runden für alle: 7 s Wettphase, Flug (m(t) = e^(0,00006·t)), Absturz, 3 s Pause, nächste Runde.
 // Crash-Punkt jeder Runde = aus HMAC(Server-Geheimnis, "crash|<id>") ("reveal"). Vorab wird nur SHA-256(reveal) gezeigt.
@@ -1168,6 +1310,7 @@ export default async (req) => {
   if (url.searchParams.has("wetten")) return wetten(req, url);
   if (url.searchParams.has("wirt")) return wirtRoute(req, url);
   if (url.searchParams.has("immo")) return immoRoute(req, url);
+  if (url.searchParams.has("aktien")) return aktienRoute(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");
