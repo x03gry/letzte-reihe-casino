@@ -1513,6 +1513,33 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .wx-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 .wx-off{background:rgba(255,77,106,.08);border:1px solid rgba(255,77,106,.35);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:14px}
 .side .navbtn .wx-ic{width:20px;height:20px}
+/* ---- Geschäfte ---- */
+.gs-all{align-self:flex-start;min-width:240px;min-height:46px;font-size:15px}
+.gs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.gs-card{gap:10px;position:relative;overflow:hidden}
+.gs-card.full{border-color:var(--brass-lo);box-shadow:0 0 0 1px rgba(255,176,32,.25),0 8px 24px rgba(255,176,32,.08)}
+.gs-top{display:flex;gap:12px;align-items:center}
+.gs-ill{flex:none;width:72px;height:72px;border-radius:14px;background:radial-gradient(70% 70% at 50% 35%,#24384a,#0b141c);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center}
+.gs-ill svg{width:60px;height:60px}
+.gs-h{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gs-h b{font:700 17px var(--f-disp)}
+.gs-h small{color:var(--mute);font-size:13px}
+.gs-h small b{font:700 14px var(--f-num);color:var(--win)}
+.gs-lv{display:flex;gap:3px;margin-top:1px}
+.gs-lv i{width:9px;height:5px;border-radius:2px;background:var(--panel3)}
+.gs-lv i.on{background:var(--brass)}
+.gs-store .lbl{margin-bottom:5px}
+.gs-store .lbl b{color:var(--ink);font:700 13px var(--f-num);letter-spacing:0;text-transform:none}
+.gs-card.full .gs-store .lbl b{color:var(--brass-hi)}
+.gs-up{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:46px}
+.gs-up small{font-size:11.5px;color:var(--mute);font-weight:600}
+.gs-up.gold small{color:#5a3a00}
+.gs-card.locked .gs-ill svg{filter:grayscale(1) brightness(.55)}
+.gs-card.locked .gs-h b{color:var(--mute)}
+.gs-lock{position:absolute;top:12px;right:12px;color:var(--dim)}
+.gs-card.locked .gs-up{opacity:.6}
+@media (max-width:1100px){.gs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.gs-grid{grid-template-columns:1fr}.gs-all{align-self:stretch}.gs-ill{width:64px;height:64px}.gs-ill svg{width:52px;height:52px}}
 /* ---- Tresor ---- */
 .tr-vault{align-items:center;text-align:center;gap:10px;background:radial-gradient(80% 60% at 50% 18%,rgba(255,176,32,.12),rgba(255,176,32,0) 70%),var(--panel)}
 .tr-vault.ready{border-color:var(--win);background:radial-gradient(80% 60% at 50% 18%,rgba(47,224,143,.16),rgba(47,224,143,0) 70%),var(--panel)}
@@ -1563,6 +1590,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     <button class="navbtn" data-go="stats" data-nav="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Statistik</button>
     <h3>Wirtschaft</h3>
     <button class="navbtn" data-go="tresor" data-nav="tresor"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="11" cy="11.5" r="3.5"/><path d="M11 8v1M11 14v1M7.5 11.5h1M13.5 11.5h1M18 9v5M6 19v2M16 19v2"/></svg>Tresor</button>
+    <button class="navbtn" data-go="geschaefte" data-nav="geschaefte"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v8h14v-8M10 21v-5h4v5"/></svg>Geschäfte</button>
     <h3>Spiele</h3>
     <div id="sideGames"></div>
     <a class="adminlink" id="adminLink" href="/admin" hidden>Admin-Ansicht</a>
@@ -1614,7 +1642,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   <div class="wx-grid">
     <div class="panel tr-vault" id="trVault"></div>
     <div class="panel tr-form">
-      <div class="ph"><h2>Neue Einlage</h2><span class="chip">1.000 bis 250.000</span></div>
+      <div class="ph"><h2>Neue Einlage</h2><span class="chip">ab 1.000 · ohne Limit</span></div>
       <label class="lbl" for="trAmt"><span>Betrag</span><span id="trMaxL" style="text-transform:none;letter-spacing:0">max –</span></label>
       <div class="tr-amt"><input class="inp num" id="trAmt" type="text" inputmode="numeric" autocomplete="off" placeholder="z. B. 10.000" aria-label="Betrag in Coins"><span>Coins</span></div>
       <div class="tr-quick" id="trQuick"><button class="btn" type="button" data-p="1000">1.000</button><button class="btn" type="button" data-p=".25">25 %</button><button class="btn" type="button" data-p=".5">50 %</button><button class="btn" type="button" data-p="max">Max</button></div>
@@ -1625,6 +1653,19 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
       <p class="note" id="trNote">Es kann immer nur eine Einlage gleichzeitig laufen.</p>
     </div>
   </div>
+</section>
+
+<!-- ======================= WIRTSCHAFT: GESCHÄFTE ======================= -->
+<section id="v-geschaefte" class="view wx" hidden>
+  <div class="phead"><div><p class="eyebrow">Wirtschaft</p><h1>Geschäfte</h1></div><p class="lede">Deine Läden verdienen jede Stunde fest Geld, ganz ohne Zufall. Das Lager hält 8 Stunden, also regelmäßig abholen.</p></div>
+  <div class="wx-off" id="gsOff" hidden></div>
+  <div class="wx-tiles">
+    <div class="wx-tile"><span>Einnahmen pro Stunde</span><b class="num" id="gsT1">0</b><small id="gsT1s">&nbsp;</small></div>
+    <div class="wx-tile"><span>Im Lager</span><b class="num pos" id="gsT2">0</b><small id="gsT2s">&nbsp;</small></div>
+    <div class="wx-tile"><span>Lager voll in</span><b class="num" id="gsT3">–</b><small id="gsT3s">&nbsp;</small></div>
+  </div>
+  <button class="btn gold big gs-all" type="button" id="gsAll">Alles abholen</button>
+  <div class="gs-grid" id="gsGrid"></div>
 </section>
 
 <!-- ======================= BONUS ======================= -->
@@ -2841,8 +2882,8 @@ $('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Gu
   modal(`<p class="eyebrow">Geschafft</p><h2>Stern Nr. ${S.stars}</h2><p>Zurück auf 1.000 Coins. Auf ein Neues!</p><div class="row"><button class="btn gold" data-close>Weiter</button></div>`)})};
 
 // ================= Router =================
-const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor'];
-const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor'};
+const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte'];
+const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte'};
 let cur='lobby';const onShow={};
 function go(v){if(v==='wirt')v=(S.prefs&&WIRT_VIEWS.includes(S.prefs.wirtLast)&&S.prefs.wirtLast)||'tresor';if(!VIEWS.includes(v))v='lobby';if(WIRT_VIEWS.includes(v))S.prefs.wirtLast=v;if(PLAY.includes(v)&&!owns(v)){askUnlock(v);v='lobby'}
   cur=v;document.querySelectorAll('main>.view').forEach(s=>s.hidden=s.id!=='v-'+v);
@@ -7526,7 +7567,7 @@ onShow.slot=SL.show;
 // ================= Wirtschaft: gemeinsame Helfer =================
 // Alles, was Geld bewegt, läuft über den Server (/api/spielstand?wirt=1 …). Der Spielstand trägt in S.wirt.in/out dieselben
 // Summen wie die Kasse auf dem Server; beim Speichern gleicht der Server das Guthaben ab (wie bei Überweisungen).
-const WIRT_VIEWS=['tresor'];
+const WIRT_VIEWS=['tresor','geschaefte'];
 const WIRT_KEYS=['tresor','shops','immo','immoSell','aktien','divi','firma'];
 let srvOff=0,srvSeen=0;
 const srvNow=()=>Date.now()+srvOff;
@@ -7545,7 +7586,7 @@ function wirtPay(src,total,statPart,msg){const w=wirt();total=r2(total);w.out=r2
 // Einzahlung in die Wirtschaft (erst nachdem der Server zugestimmt hat)
 function wirtSpend(amount){const w=wirt();w.in=r2(w.in+amount);spend(amount)}
 const WERR={guthaben:'Dafür reicht dein Guthaben nicht.',zu_wenig:'Das ist zu wenig.',zu_viel:'Das ist zu viel.',laufzeit:'Diese Laufzeit gibt es nicht.',
-  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',
+  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Das Lager ist noch leer.',
   gesperrt:'Dein Account ist gesperrt.',aktion:'Das geht so nicht.'};
 let wxBusy=false,wxReq=false;
 // Anfrage an einen Wirtschafts-Endpunkt. Wartet vorher, bis der Spielstand gespeichert ist (damit sich nichts überkreuzt).
@@ -7562,13 +7603,14 @@ async function wxFetch(q,body){if(!ACCOUNTS||!acct){toast('Die Wirtschaft gibt e
   if(r.status===403){logout('Dieser Account wurde gesperrt.');return null}
   if(!r.ok||!d.ok){if(body)toast(WERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.','bad');d.failed=true}
   return d}
+const wxHM=ms=>{const m=Math.floor(Math.max(0,ms)/60000);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};
 const wxDur=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}:${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`:`${m}:${String(s%60).padStart(2,'0')}`};
 const WXF=new Intl.DateTimeFormat('de-DE',{weekday:'short',hour:'2-digit',minute:'2-digit'});
 const wxWhen=t=>WXF.format(t).replace(',',' um')+' Uhr';
 const wxParse=v=>{v=String(v||'').replace(/\s/g,'').replace(/\./g,'').replace(',','.');const n=parseFloat(v);return isFinite(n)?Math.floor(n):0};
 
 // ================= Wirtschaft: Tresor =================
-const TR=(()=>{const RATES={4:.03,12:.10,24:.25},MIN=1000,MAX=250000;
+const TR=(()=>{const RATES={4:.03,12:.10,24:.25},MIN=1000,MAX=Infinity;
   let loaded=false,busy=false,pullAt=0,h=+(S.prefs&&S.prefs.trH)||12,lastDone='';
   const dep=()=>wirt().tresor[0]||null;
   const maxAmt=()=>Math.max(0,Math.min(MAX,Math.floor(S.bal)));
@@ -7651,7 +7693,7 @@ const TR=(()=>{const RATES={4:.03,12:.10,24:.25},MIN=1000,MAX=250000;
   $('trAmt').addEventListener('blur',()=>{const a=wxParse($('trAmt').value);if(a>0)$('trAmt').value=fmt0(a)});
   $('trAmt').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lock()}});
   $('trQuick').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;const p=b.dataset.p,mx=maxAmt();
-    let v=p==='max'?mx:p.startsWith('.')?Math.floor(Math.min(MAX,S.bal*+p)):+p;v=Math.max(0,Math.min(v,mx));$('trAmt').value=v>0?fmt0(v):'';SND.tick();render()});
+    let v=p==='max'?mx:p.startsWith('.')?Math.floor(S.bal*+p):+p;v=Math.max(0,Math.min(v,mx));$('trAmt').value=v>0?fmt0(v):'';SND.tick();render()});
   $('trDur').addEventListener('click',e=>{const b=e.target.closest('[data-h]');if(!b)return;h=+b.dataset.h;S.prefs.trH=h;save();SND.tick();render()});
   $('trGo').onclick=()=>{ac();lock()};
   $('trVault').addEventListener('click',e=>{if(e.target.closest('#trCollect')){ac();collect()}else if(e.target.closest('#trEarly'))early()});
@@ -7659,6 +7701,68 @@ const TR=(()=>{const RATES={4:.03,12:.10,24:.25},MIN=1000,MAX=250000;
   return{show(){render();pull(true)},render,
     lobby(){const e=dep();if(!e)return'Leer';return srvNow()>=e.ende?'Bereit zum Abholen!':'noch '+wxDur(e.ende-srvNow())}}})();
 onShow.tresor=TR.show;
+// ================= Wirtschaft: Geschäfte =================
+const GS=(()=>{
+  const LIST=[{id:'kaugummi',name:'Kaugummiautomat',price:2000,base:40},{id:'getraenke',name:'Getränkeautomat',price:10000,base:180},{id:'kiosk',name:'Kiosk',price:40000,base:650},
+    {id:'wasch',name:'Waschsalon',price:150000,base:2200},{id:'spielhalle',name:'Spielhalle',price:500000,base:6500},{id:'passage',name:'Einkaufspassage',price:1500000,base:17000}];
+  const MAXL=10,STORE=8*3600000;
+  const cost=(sh,l)=>Math.round(sh.price*Math.pow(1.6,l-1)),rate=(sh,l)=>l>0?sh.base*Math.pow(1.4,l-1):0;
+  const lv=id=>{const x=wirt().shops[id];return x&&x.level>0?x.level:0};
+  const stored=(sh,t)=>{const x=wirt().shops[sh.id];if(!x||!(x.level>0))return 0;return rate(sh,x.level)*Math.min(STORE,Math.max(0,t-x.lastCollect))/3600000};
+  let busy=false,pulled=0;
+  const ART={
+    kaugummi:`<svg viewBox="0 0 80 80"><rect x="30" y="56" width="20" height="16" rx="3" fill="#c2334a"/><rect x="24" y="70" width="32" height="5" rx="2" fill="#7a1d2c"/><rect x="26" y="44" width="28" height="14" rx="4" fill="#ff4d6a"/><rect x="36" y="49" width="8" height="5" rx="1.5" fill="#2a0a10"/><circle cx="40" cy="27" r="20" fill="rgba(170,215,255,.18)" stroke="#e9f0f6" stroke-opacity=".55" stroke-width="2"/>${[[32,30,'#ffb020'],[42,34,'#2fe08f'],[48,26,'#38bdf8'],[36,20,'#ec4899'],[44,17,'#a78bfa'],[30,38,'#f97316'],[40,40,'#e9f0f6'],[50,36,'#ffd27a']].map(([x,y,c])=>`<circle cx="${x}" cy="${y}" r="4.6" fill="${c}"/><circle cx="${x-1.4}" cy="${y-1.6}" r="1.3" fill="#fff" opacity=".7"/>`).join('')}<path d="M27 15a17 17 0 0 1 10-7" stroke="#fff" stroke-opacity=".6" stroke-width="2.5" fill="none" stroke-linecap="round"/><rect x="34" y="4" width="12" height="5" rx="2" fill="#c2334a"/></svg>`,
+    getraenke:`<svg viewBox="0 0 80 80"><rect x="16" y="6" width="48" height="68" rx="5" fill="#1d6fa5"/><rect x="16" y="6" width="48" height="10" rx="5" fill="#38bdf8"/><text x="40" y="14" text-anchor="middle" font-family="Chakra Petch" font-weight="700" font-size="6.5" fill="#06263d">KALT</text><rect x="21" y="20" width="27" height="40" rx="2" fill="#0b2233"/>${[0,1,2,3].map(r=>[0,1,2].map(c=>`<rect x="${24+c*8}" y="${23+r*9.5}" width="5" height="7.5" rx="1.5" fill="${['#ff4d6a','#2fe08f','#ffb020','#e9f0f6'][(r+c)%4]}"/>`).join('')).join('')}<rect x="51" y="22" width="9" height="12" rx="1.5" fill="#0b2233"/>${[0,1,2].map(i=>`<circle cx="${53.5+(i%2)*4}" cy="${39+i*5}" r="1.6" fill="#ffd27a"/>`).join('')}<rect x="23" y="63" width="23" height="6" rx="1.5" fill="#06263d"/><path d="M23 22l6 0" stroke="#fff" stroke-opacity=".35" stroke-width="2"/></svg>`,
+    kiosk:`<svg viewBox="0 0 80 80"><rect x="12" y="30" width="56" height="42" rx="3" fill="#24384a"/><rect x="18" y="38" width="44" height="18" rx="2" fill="#ffd27a" opacity=".9"/>${[0,1,2,3,4].map(i=>`<rect x="${21+i*8}" y="${42+(i%2)*3}" width="5" height="${11-(i%2)*3}" rx="1" fill="${['#ff4d6a','#38bdf8','#2fe08f','#a78bfa','#f97316'][i]}"/>`).join('')}<rect x="12" y="56" width="56" height="5" fill="#152230"/><path d="M8 30h64l-5-14H13z" fill="#ffb020"/>${[0,1,2,3,4,5,6].map(i=>`<path d="M${13+i*8.3} 16h4.2l-1.6 14h-4.2z" fill="#fff" opacity=".85"/>`).join('')}<path d="M8 30q4 5 8 0q4 5 8 0q4 5 8 0q4 5 8 0q4 5 8 0q4 5 8 0q4 5 8 0q4 5 8 0" fill="#ffb020"/><rect x="30" y="8" width="20" height="8" rx="2" fill="#152230"/><text x="40" y="14.3" text-anchor="middle" font-family="Chakra Petch" font-weight="700" font-size="5.5" fill="#ffd27a">KIOSK</text></svg>`,
+    wasch:`<svg viewBox="0 0 80 80"><rect x="14" y="8" width="52" height="64" rx="6" fill="#dfe8f0"/><rect x="14" y="8" width="52" height="13" rx="6" fill="#b9c8d6"/><circle cx="24" cy="14.5" r="2.5" fill="#2fe08f"/><rect x="40" y="12" width="20" height="5" rx="2" fill="#24384a"/><circle cx="40" cy="45" r="19" fill="#8ba2b7"/><circle cx="40" cy="45" r="15" fill="#1d6fa5"/><path d="M26 47q7-6 14 0t14 0v4a15 15 0 0 1-28 0z" fill="#38bdf8"/><circle cx="34" cy="40" r="2" fill="#fff" opacity=".8"/><circle cx="45" cy="52" r="1.6" fill="#fff" opacity=".7"/><path d="M29 36a14 14 0 0 1 9-5" stroke="#fff" stroke-opacity=".7" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+    spielhalle:`<svg viewBox="0 0 80 80"><path d="M22 8h36l4 6v58H18V14z" fill="#3b1d5a"/><rect x="18" y="6" width="44" height="10" rx="3" fill="#ec4899"/><text x="40" y="13.4" text-anchor="middle" font-family="Chakra Petch" font-weight="700" font-size="6" fill="#fff">ARCADE</text><rect x="24" y="20" width="32" height="24" rx="3" fill="#0b141c" stroke="#a78bfa" stroke-width="1.5"/><rect x="30" y="27" width="5" height="5" fill="#2fe08f"/><rect x="40" y="31" width="5" height="5" fill="#ffb020"/><rect x="45" y="25" width="4" height="4" fill="#ff4d6a"/><path d="M27 40h26" stroke="#38bdf8" stroke-width="1.5"/><path d="M18 50h44l-4 8H22z" fill="#5b2d86"/><circle cx="30" cy="51" r="3.4" fill="#ff4d6a"/><rect x="29" y="51" width="2" height="5" fill="#1b1b1b"/><circle cx="44" cy="54" r="2.3" fill="#ffd27a"/><circle cx="50" cy="54" r="2.3" fill="#38bdf8"/><rect x="34" y="62" width="12" height="5" rx="1.5" fill="#1b0d2b"/></svg>`,
+    passage:`<svg viewBox="0 0 80 80"><rect x="6" y="24" width="68" height="48" rx="2" fill="#24384a"/><path d="M4 26L40 8l36 18z" fill="#2f4960"/><rect x="26" y="15" width="28" height="8" rx="2" fill="#ffb020"/><text x="40" y="21" text-anchor="middle" font-family="Chakra Petch" font-weight="700" font-size="5.5" fill="#1d1300">PASSAGE</text>${[0,1,2].map(i=>`<path d="M${11+i*21} 70V44a8 8 0 0 1 16 0v26z" fill="#ffd27a" opacity="${i===1?.95:.7}"/><path d="M${19+i*21} 70V37" stroke="#24384a" stroke-width="1.2"/>`).join('')}${[0,1,2,3,4,5].map(i=>`<rect x="${10+i*10.5}" y="29" width="6" height="7" rx="1" fill="#38bdf8" opacity=".65"/>`).join('')}<rect x="6" y="70" width="68" height="3" fill="#152230"/></svg>`};
+  const LOCK='<svg class="gs-lock" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  // ---- Server
+  async function pull(force){if(!ACCOUNTS||!acct)return;if(!force&&Date.now()-pulled<60000)return;pulled=Date.now();
+    const d=await wxFetch('wirt=1');if(d&&!d.failed){wirt().shops=d.wirt.shops||{};wirt().tresor=d.wirt.tresor||[];save()}render()}
+  async function act(id){if(busy)return;const i=LIST.findIndex(x=>x.id===id),sh=LIST[i],l=lv(id);
+    if(!sh)return;if(l>=MAXL)return;if(i>0&&!lv(LIST[i-1].id)){toast(`Erst ${LIST[i-1].name} kaufen.`,'bad');return}
+    const c=cost(sh,l+1),pend=l?stored(sh,srvNow()):0;
+    if(c>S.bal+pend+1e-9){toast(WERR.guthaben,'bad');return}
+    busy=true;render();const d=await wxFetch('wirt=1',{action:l?'shopUp':'shopBuy',id});busy=false;
+    if(d&&d.ok){wirt().shops=d.wirt.shops;if(d.pay>0)wirtPay('shops',d.pay,d.pay);wirtSpend(d.cost);
+      SND.win();if(!l){toast(`<b>${sh.name}</b> gehört jetzt dir! Ab jetzt <b class="num">${fmt0(sh.base)}</b> Coins pro Stunde.`,'good');confetti(60)}else toast(`<b>${sh.name}</b> auf Stufe ${d.level}: <b class="num">${fmt0(rate(sh,d.level))}</b> Coins pro Stunde.`,'good')}
+    else if(d&&d.wirt)wirt().shops=d.wirt.shops;
+    render()}
+  async function collectAll(){if(busy)return;const t=srvNow(),sum=LIST.reduce((a,sh)=>a+stored(sh,t),0);if(sum<.01){toast('Das Lager ist noch leer.','bad');return}
+    busy=true;render();const d=await wxFetch('wirt=1',{action:'shopCollect'});busy=false;
+    if(d&&d.ok){wirt().shops=d.wirt.shops;wirtPay('shops',d.pay,d.pay,`Geschäfte abgeholt: <b class="num">+${fmt(d.pay)}</b>`);if(d.pay>=1000)confetti(50)}
+    else if(d&&d.wirt)wirt().shops=d.wirt.shops;
+    render()}
+  // ---- Anzeige
+  const setT=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
+  function card(sh,i){const l=lv(sh.id),open=i===0||lv(LIST[i-1].id)>0,off=!ACCOUNTS||!acct;
+    if(!l){const c=sh.price;return `<div class="panel gs-card ${open?'':'locked'}" data-id="${sh.id}">${open?'':LOCK}<div class="gs-top"><div class="gs-ill">${ART[sh.id]}</div><div class="gs-h"><b>${sh.name}</b><small><b>${fmt0(sh.base)}</b> / Std.</small></div></div>
+      <p class="note">${open?'Noch nicht gekauft. Zahlt sich nach etwa '+Math.round(sh.price/sh.base)+' Stunden aus.':'Wird frei, sobald du '+LIST[i-1].name+' hast.'}</p>
+      <button class="btn ${open?'gold':''} gs-up" type="button" data-act="${sh.id}" ${!open||busy||off?'disabled':''}>${open?'Kaufen':'Gesperrt'} · ${fmt0(c)}</button></div>`}
+    const nx=l<MAXL?cost(sh,l+1):0;
+    return `<div class="panel gs-card" data-id="${sh.id}"><div class="gs-top"><div class="gs-ill">${ART[sh.id]}</div><div class="gs-h"><b>${sh.name}</b><div class="gs-lv" title="Stufe ${l} von ${MAXL}">${Array.from({length:MAXL},(_,k)=>`<i class="${k<l?'on':''}"></i>`).join('')}</div><small>Stufe ${l} · <b>${fmt0(rate(sh,l))}</b> / Std.</small></div></div>
+      <div class="gs-store"><div class="lbl"><span>Lager</span><b id="gsS-${sh.id}">–</b></div><div class="tr-bar"><i id="gsB-${sh.id}"></i></div></div>
+      ${l<MAXL?`<button class="btn gs-up" type="button" data-act="${sh.id}" ${busy||off?'disabled':''}>Upgrade · ${fmt0(nx)}<small>dann ${fmt0(rate(sh,l+1))} / Std.</small></button>`:`<button class="btn gs-up" type="button" disabled>Höchste Stufe erreicht</button>`}</div>`}
+  function live(){if(cur!=='geschaefte')return;const t=srvNow();let sum=0,perH=0,minLeft=Infinity,full=0,own=0;
+    for(const sh of LIST){const x=wirt().shops[sh.id];if(!x||!(x.level>0))continue;own++;const st=stored(sh,t),age=Math.max(0,t-x.lastCollect),isFull=age>=STORE;
+      sum+=st;perH+=rate(sh,x.level);if(isFull)full++;else minLeft=Math.min(minLeft,STORE-age);
+      setT($('gsS-'+sh.id),isFull?`${fmt0(st)} · Lager voll!`:`${fmt0(st)} · ${wxHM(age)} von 8 Std.`);
+      const b=$('gsB-'+sh.id);if(b)b.style.width=(Math.min(1,age/STORE)*100).toFixed(2)+'%';
+      const c=document.querySelector(`.gs-card[data-id="${sh.id}"]`);if(c)c.classList.toggle('full',isFull)}
+    setT($('gsT1'),fmt0(perH));setT($('gsT1s'),own?`aus ${own} ${own===1?'Geschäft':'Geschäften'}`:'noch kein Geschäft');
+    setT($('gsT2'),fmt0(sum));setT($('gsT2s'),S.bonus.shops>=1?`bisher ${fmt0(S.bonus.shops)} abgeholt`:'seit dem letzten Abholen');
+    setT($('gsT3'),!own?'–':full?'Voll!':wxHM(minLeft)+' Std.');$('gsT3').className='num'+(full?' neg':'');
+    setT($('gsT3s'),!own?'kauf dein erstes Geschäft':full?`${full} ${full===1?'Lager ist':'Lager sind'} voll, abholen!`:'dann kommt nichts mehr dazu');
+    const all=$('gsAll');all.disabled=busy||!own||sum<.01||!ACCOUNTS||!acct;setT(all,busy?'Einen Moment …':own?`Alles abholen · ${fmt0(sum)}`:'Alles abholen')}
+  function render(){if(cur!=='geschaefte')return;const off=!ACCOUNTS||!acct,g=$('gsGrid'),h=LIST.map(card).join('');if(g._h!==h){g.innerHTML=h;g._h=h}
+    const o=$('gsOff');o.hidden=!off;if(off)o.textContent='Die Wirtschaft läuft über den Server. Melde dich auf der Website mit deinem Account an, um sie zu nutzen.';live()}
+  $('gsGrid').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.disabled)return;ac();act(b.dataset.act)});
+  $('gsAll').onclick=()=>{ac();collectAll()};
+  setInterval(()=>{if(cur!=='geschaefte'||document.hidden)return;live();pull()},1000);
+  return{show(){render();pull(true)},render}})();
+onShow.geschaefte=GS.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;

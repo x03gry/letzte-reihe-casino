@@ -308,6 +308,7 @@ async function openAccount(name){try{const d=await api('get',{name});current={..
 // Wirtschaft eines Spielers (nur Anzeige)
 function wirtInfo(w){if(!w)return'<p class="note">Noch nichts in der Wirtschaft.</p>';const t=(w.tresor||[])[0],d=v=>new Date(v).toLocaleString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
   return `<p class="note"><b style="color:var(--ink)">Tresor:</b> ${t?`${fmt0(t.betrag)} Coins, +${Math.round(t.satz*100)} %, bereit ${d(t.ende)}${Date.now()>=t.ende?' (abholbereit)':''}`:'leer'}${w.earned?` · bisher ${fmt0(w.earned)} Zinsen verdient`:''}</p>
+  <p class="note"><b style="color:var(--ink)">Geschäfte:</b> ${(()=>{const N={kaugummi:'Kaugummiautomat',getraenke:'Getränkeautomat',kiosk:'Kiosk',wasch:'Waschsalon',spielhalle:'Spielhalle',passage:'Einkaufspassage'},L=Object.entries(w.shops||{}).filter(([k,v])=>v&&v.level>0);return L.length?L.map(([k,v])=>`${N[k]||k} (Stufe ${v.level})`).join(', '):'keine'})()}${w.shopEarned?` · bisher ${fmt0(w.shopEarned)} abgeholt`:''}</p>
   <p class="note">Insgesamt eingezahlt <b class="num" style="color:var(--ink)">${fmt0(w.in||0)}</b> · ausgezahlt <b class="num" style="color:var(--ink)">${fmt0(w.out||0)}</b></p>`}
 function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.lastRestart<36e5;
   $('modal').innerHTML=`<div class="mbox" role="dialog" aria-modal="true">

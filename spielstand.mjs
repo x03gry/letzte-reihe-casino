@@ -654,7 +654,15 @@ async function lotto(req, url) {
 // (wie bei Überweisungen): fehlt eine Ein-/Auszahlung im Stand, wird sie nachgebucht; mehr als der Server kennt geht nicht.
 // Wirtschafts-Gutschriften zählen deshalb nicht gegen das Bonus-Limit pro Speicherung.
 const WIRT_KEYS = new Set(["tresor", "shops", "immo", "immoSell", "aktien", "divi", "firma"]);
-const TR_RATES = { 4: 0.03, 12: 0.10, 24: 0.25 }, TR_MIN = 1000, TR_MAX = 250_000;
+const TR_RATES = { 4: 0.03, 12: 0.10, 24: 0.25 }, TR_MIN = 1000;   // keine Obergrenze
+// Geschäfte: feste Einnahmen pro Stunde, Lager hält 8 Stunden. Nächstes Geschäft erst, wenn das vorige gekauft ist.
+const SHOPS = [
+  { id: "kaugummi", price: 2000, base: 40 }, { id: "getraenke", price: 10000, base: 180 }, { id: "kiosk", price: 40000, base: 650 },
+  { id: "wasch", price: 150000, base: 2200 }, { id: "spielhalle", price: 500000, base: 6500 }, { id: "passage", price: 1500000, base: 17000 }];
+const SHOP_MAX = 10, SHOP_STORE_H = 8;
+const shopCost = (sh, lvl) => Math.round(sh.price * Math.pow(1.6, lvl - 1));        // Kosten für Stufe lvl (1 = Kauf)
+const shopRate = (sh, lvl) => (lvl > 0 ? sh.base * Math.pow(1.4, lvl - 1) : 0);     // Einnahmen pro Stunde
+const shopStored = (sh, s, now) => r2(shopRate(sh, s.level) * Math.min(SHOP_STORE_H, Math.max(0, now - num(s.lastCollect)) / 3_600_000));
 const wirtFresh = () => ({ in: 0, out: 0, tresor: [], shops: {} });
 async function wirtGet(key) {
   const w = await getStore("wirtschaft").get(key, { type: "json" });
@@ -700,7 +708,6 @@ async function wirtRoute(req, url) {
     const a = Math.floor(num(body.betrag)), h = Number(body.std), satz = TR_RATES[h];
     if (!satz) return fail("laufzeit");
     if (!(a >= TR_MIN)) return fail("zu_wenig");
-    if (a > TR_MAX) return fail("zu_viel");
     if (W.tresor.length) return fail("schon_belegt");
     if (a > wirtBal(st, W) + 10) return fail("guthaben");
     const e = { id: "t" + now.toString(36), betrag: a, start: now, ende: now + h * 3_600_000, satz, std: h };
@@ -718,6 +725,33 @@ async function wirtRoute(req, url) {
     W.tresor = W.tresor.filter((x) => x.id !== e.id); W.out = r2(W.out + pay);
     W.earned = r2(num(W.earned) + zinsen);
     return done({ betrag: e.betrag, zinsen, pay });
+  }
+  // ---- Geschäfte
+  if (body.action === "shopBuy" || body.action === "shopUp") {
+    const i = SHOPS.findIndex((x) => x.id === body.id), sh = SHOPS[i];
+    if (!sh) return fail("aktion");
+    const cur = W.shops[sh.id] && num(W.shops[sh.id].level) > 0 ? W.shops[sh.id] : null;
+    if (body.action === "shopBuy") {
+      if (cur) return fail("schon_gekauft");
+      if (i > 0 && !(W.shops[SHOPS[i - 1].id] && num(W.shops[SHOPS[i - 1].id].level) > 0)) return fail("gesperrt_shop");
+    } else {
+      if (!cur) return fail("aktion");
+      if (num(cur.level) >= SHOP_MAX) return fail("max_stufe");
+    }
+    const lvl = cur ? num(cur.level) + 1 : 1, cost = shopCost(sh, lvl);
+    // Beim Ausbauen wird das Lager dieses Geschäfts vorher geleert (zum alten Satz)
+    const pay = cur ? shopStored(sh, cur, now) : 0;
+    if (cost > wirtBal(st, W) + pay + 10) return fail("guthaben");
+    W.shops[sh.id] = { level: lvl, lastCollect: now };
+    W.in = r2(W.in + cost); W.out = r2(W.out + pay); W.shopEarned = r2(num(W.shopEarned) + pay);
+    return done({ cost, pay, level: lvl });
+  }
+  if (body.action === "shopCollect") {
+    let pay = 0;
+    for (const sh of SHOPS) { const x = W.shops[sh.id]; if (!x || !(num(x.level) > 0)) continue; pay = r2(pay + shopStored(sh, x, now)); x.lastCollect = now; }
+    if (!(pay > 0)) return fail("leer");
+    W.out = r2(W.out + pay); W.shopEarned = r2(num(W.shopEarned) + pay);
+    return done({ pay });
   }
   return fail("aktion");
 }
