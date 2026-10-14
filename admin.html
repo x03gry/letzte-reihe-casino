@@ -245,6 +245,11 @@ textarea.inp{min-height:90px;resize:vertical}
       <p class="note">Alle 8 Börsen-Firmen fangen wieder bei ihrem Startkurs an, Verlauf und News werden gelöscht. Die Depots der Spieler bleiben (ihr Einstand bleibt gleich, der Kurs ist dann ein anderer).</p>
       <div class="row"><button class="btn red" id="wxAkReset">Kurse neu starten</button></div>
     </div>
+    <div class="panel" style="padding:6px 12px">
+      <h2 style="font-size:16px;padding-top:8px">Firmen der Spieler</h2>
+      <p class="note">Umbenennen bei unpassenden Namen. Löschen erstattet allen Aktionären ihre Anteile zum letzten Kurs (kommt in ihren Posteingang), der Gründer bekommt nichts.</p>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Gründer</th><th>Branche</th><th>Kasse</th><th>Wert</th><th>Börse</th><th></th></tr></thead><tbody id="fiRows"><tr><td colspan="7" class="empty">Lädt …</td></tr></tbody></table></div>
+    </div>
   </section>
 
   <section id="t-msg" hidden style="display:flex;flex-direction:column;gap:14px">
@@ -299,12 +304,18 @@ $('logout').onclick=()=>logout('');
 document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;
   document.querySelectorAll('.tabs [data-tab]').forEach(x=>x.setAttribute('aria-selected',x===b));
   ['acc','rej','wet','lot','wx','msg'].forEach(t=>$('t-'+t).hidden=t!==b.dataset.tab);
-  if(b.dataset.tab==='rej')loadRejects();if(b.dataset.tab==='msg')loadMsg();if(b.dataset.tab==='wet')loadW();if(b.dataset.tab==='lot')loadL()});
+  if(b.dataset.tab==='rej')loadRejects();if(b.dataset.tab==='msg')loadMsg();if(b.dataset.tab==='wet')loadW();if(b.dataset.tab==='lot')loadL();if(b.dataset.tab==='wx')loadFirms()});
 
 // ---------- Wirtschaft ----------
 let wxArm=0;$('wxImmoReset').onclick=async()=>{if(Date.now()-wxArm>4000){wxArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}wxArm=0;
   try{await api('immoReset');toast('Immobilienmarkt zurückgesetzt')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 
+const BRN={imbiss:'Imbiss',startup:'Startup',mode:'Modelabel',energie:'Energie'};
+async function loadFirms(){try{const d=await api('firmList');$('fiRows').innerHTML=d.firms.length?d.firms.map(f=>`<tr data-fid="${f.id}"><td class="name">${esc(f.name)}${f.pleite?' <span class="chip ban">pleite</span>':''}</td><td>${esc(f.owner)}</td><td>${BRN[f.br]||f.br} · Stufe ${f.lvl}</td><td class="num ${f.kasse<0?'neg':''}">${fmt0(f.kasse)}</td><td class="num">${fmt0(f.value)}</td><td>${f.public?`ja (${f.holders} Aktionäre)`:'nein'}</td>
+  <td>${f.pleite?'':`<button class="btn" data-frn="${f.id}">Umbenennen</button> <button class="btn red" data-fdel="${f.id}">Löschen</button>`}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Noch keine Firmen.</td></tr>'}catch(e){if(e.message!=='401')toast('Laden fehlgeschlagen: '+e.message,true)}}
+let fiArm='';$('fiRows').addEventListener('click',async e=>{const r=e.target.closest('[data-frn]'),d=e.target.closest('[data-fdel]');
+  if(r){const nm=prompt('Neuer Firmenname (3–24 Zeichen):');if(!nm)return;try{await api('firmRename',{id:r.dataset.frn,fname:nm});toast('Umbenannt');loadFirms()}catch(x){if(x.message!=='401')toast('Fehler: '+x.message,true)}return}
+  if(d){if(fiArm!==d.dataset.fdel){fiArm=d.dataset.fdel;toast('Zum Löschen nochmal klicken');setTimeout(()=>{fiArm=''},4000);return}fiArm='';try{await api('firmDelete',{id:d.dataset.fdel});toast('Firma gelöscht');loadFirms()}catch(x){if(x.message!=='401')toast('Fehler: '+x.message,true)}}});
 let akArm=0;$('wxAkReset').onclick=async()=>{if(Date.now()-akArm>4000){akArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}akArm=0;
   try{await api('aktienReset');toast('Aktienkurse neu gestartet')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 
@@ -332,6 +343,7 @@ function wirtInfo(w){if(!w)return'<p class="note">Noch nichts in der Wirtschaft.
   <p class="note"><b style="color:var(--ink)">Geschäfte:</b> ${(()=>{const N={kaugummi:'Kaugummiautomat',getraenke:'Getränkeautomat',kiosk:'Kiosk',wasch:'Waschsalon',spielhalle:'Spielhalle',passage:'Einkaufspassage'},L=Object.entries(w.shops||{}).filter(([k,v])=>v&&v.level>0);return L.length?L.map(([k,v])=>`${N[k]||k} (Stufe ${v.level})`).join(', '):'keine'})()}${w.shopEarned?` · bisher ${fmt0(w.shopEarned)} abgeholt`:''}</p>
   <p class="note"><b style="color:var(--ink)">Häuser:</b> ${(()=>{const T={villa:'Stadtvilla',alt:'Altbau',loft:'Loft',platte:'Plattenbau'},H=(w.immo&&w.immo.houses)||[];return H.length?H.map(h=>{const c=Date.now()<h.renoAt?100:Math.max(0,100-Math.floor((Date.now()-h.renoAt)/12600000)),x=Object.keys(h.extras||{});return `${esc(h.name)} (${T[h.type]||h.type}, gekauft ${fmt0(h.paid)}, Zustand ${c} %${x.length?', '+x.join(', '):''})`}).join(' · '):'keine'})()}${w.immoRent?` · bisher ${fmt0(w.immoRent)} Miete`:''}</p>
   <p class="note"><b style="color:var(--ink)">Depot:</b> ${Object.entries(w.depot||{}).filter(([k,v])=>v&&v.n>0).map(([k,v])=>`${k} ${fmt0(v.n)} Stück (Ø ${v.avg})`).join(' · ')||'leer'}${w.divEarned?` · bisher ${fmt0(w.divEarned)} Dividende`:''}</p>
+  <p class="note"><b style="color:var(--ink)">Firma:</b> ${w.firma?`${esc(w.firma.name)} (${({imbiss:'Imbiss',startup:'Startup',mode:'Modelabel',energie:'Energie'})[w.firma.br]||w.firma.br}, Stufe ${w.firma.lvl}, Kasse ${fmt0(w.firma.kasse)}${w.firma.public?', an der Börse':''})`:'keine'}</p>
   <p class="note">Insgesamt eingezahlt <b class="num" style="color:var(--ink)">${fmt0(w.in||0)}</b> · ausgezahlt <b class="num" style="color:var(--ink)">${fmt0(w.out||0)}</b></p>`}
 function renderModal(){const a=current;const cd=a.lastRestart&&Date.now()-a.lastRestart<36e5;
   $('modal').innerHTML=`<div class="mbox" role="dialog" aria-modal="true">

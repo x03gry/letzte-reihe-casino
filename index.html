@@ -1626,6 +1626,42 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 @media (max-width:760px){.ak-row{grid-template-columns:40px minmax(0,1fr) auto;gap:4px 12px}.ak-row svg{display:none}.ak-row .dp{grid-column:2/4;flex-direction:row;justify-content:space-between;width:100%}.ak-badge{width:40px;height:40px;font-size:12px}
   .ak-qty{grid-template-columns:repeat(4,1fr)}.ak-qty .inp{grid-column:1/-1}}
 .linkbtn{background:none;border:0;padding:0;color:var(--brass-hi);font:inherit;text-decoration:underline;cursor:pointer}
+/* ---- Firmen ---- */
+.fi-logo{flex:none;width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font:700 19px var(--f-disp);color:#0b141c;letter-spacing:.02em}
+.fi-cols{display:flex;gap:8px;flex-wrap:wrap}
+.fi-col{width:40px;height:40px;border-radius:10px;border:2px solid transparent;cursor:pointer}
+.fi-col[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg2) inset}
+.fi-brs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fi-br{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--ink)}
+.fi-br[aria-pressed="true"]{border-color:var(--brass);background:rgba(255,176,32,.08)}
+.fi-br svg{flex:none;width:26px;height:26px;color:var(--brass-hi)}
+.fi-br b{display:block;font:700 15px var(--f-disp)}.fi-br small{color:var(--mute);font-size:12.5px;line-height:1.35}
+.fi-prev{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px dashed var(--line2);border-radius:12px;padding:10px 12px}
+.fi-prev b{font:700 17px var(--f-disp)}.fi-prev small{display:block;color:var(--mute);font-size:12.5px}
+.fi-head{flex-direction:row;align-items:center;gap:14px;flex-wrap:wrap}
+.fi-head .t{flex:1;min-width:0}.fi-head h2{margin:0;font:700 22px var(--f-disp);overflow-wrap:anywhere}.fi-head small{color:var(--mute);font-size:13px}
+.fi-warn{background:rgba(255,77,106,.1);border:1px solid rgba(255,77,106,.45);border-radius:12px;padding:10px 14px;font-size:14px}
+.fi-warn b{color:#ff8095}
+.fi-row{display:flex;flex-direction:column;gap:5px;padding:10px 0;border-top:1px solid var(--line)}
+.fi-row:first-of-type{border-top:0;padding-top:0}
+.fi-row .lbl b{color:var(--ink);font:700 12.5px var(--f-num);letter-spacing:0;text-transform:none}
+.fi-row .note{font-size:12.5px}
+.fi-step{display:grid;grid-template-columns:48px 1fr 48px;gap:6px;align-items:stretch}
+.fi-step b{display:flex;align-items:center;justify-content:center;background:var(--bg2);border:1px solid var(--line);border-radius:10px;font:700 18px var(--f-num)}
+.fi-step .btn{font-size:20px;padding:6px 0}
+.fi-hype{height:12px;border-radius:7px;background:var(--bg2);border:1px solid var(--line);overflow:hidden}
+.fi-hype i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#ec4899,#ffb020);transition:width .5s}
+.fi-chart{width:100%;height:70px;display:block}
+.fi-amt{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px}
+.fi-amt .btn{padding:8px 12px}
+.fi-ev{display:flex;flex-direction:column;gap:6px}
+.fi-ev div{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;background:var(--bg2);border-radius:9px;padding:7px 10px}
+.fi-ev small{color:var(--mute);font-family:var(--f-num);margin-right:8px}
+.fi-ev b{font:700 13px var(--f-num);white-space:nowrap}
+.fi-stage{display:flex;gap:4px}.fi-stage i{flex:1;height:7px;border-radius:4px;background:var(--panel3)}.fi-stage i.on{background:var(--brass)}
+.fi-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ak-tag.pf{background:rgba(167,139,250,.18);color:#c4b5fd}
+@media (max-width:760px){.fi-brs{grid-template-columns:1fr}.fi-amt{grid-template-columns:1fr 1fr}.fi-amt .inp{grid-column:1/-1}.fi-step .btn,.fi-two .btn{min-height:44px}}
 /* ---- Tresor ---- */
 .tr-vault{align-items:center;text-align:center;gap:10px;background:radial-gradient(80% 60% at 50% 18%,rgba(255,176,32,.12),rgba(255,176,32,0) 70%),var(--panel)}
 .tr-vault.ready{border-color:var(--win);background:radial-gradient(80% 60% at 50% 18%,rgba(47,224,143,.16),rgba(47,224,143,0) 70%),var(--panel)}
@@ -1679,6 +1715,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     <button class="navbtn" data-go="geschaefte" data-nav="geschaefte"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v8h14v-8M10 21v-5h4v5"/></svg>Geschäfte</button>
     <button class="navbtn" data-go="immobilien" data-nav="immobilien"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Immobilien</button>
     <button class="navbtn" data-go="aktien" data-nav="aktien"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Aktien</button>
+    <button class="navbtn" data-go="firmen" data-nav="firmen"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5"/><path d="M8 11h2M14 11h2"/></svg>Firmen</button>
     <h3>Spiele</h3>
     <div id="sideGames"></div>
     <a class="adminlink" id="adminLink" href="/admin" hidden>Admin-Ansicht</a>
@@ -1783,6 +1820,13 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     <div class="wx-tile im-kasse"><div class="im-kh"><span>Dividende bereit</span><small id="akDivS">&nbsp;</small></div><b class="num" id="akDiv">–</b><button class="btn gold" type="button" id="akDivBtn">Dividende abholen</button></div>
   </div>
   <section class="im-sec"><h2>Börse <small id="akNext">&nbsp;</small></h2><div class="ak-list" id="akList"></div></section>
+</section>
+
+<!-- ======================= WIRTSCHAFT: FIRMEN ======================= -->
+<section id="v-firmen" class="view wx" hidden>
+  <div class="phead"><div><p class="eyebrow">Wirtschaft</p><h1>Firmen</h1></div><p class="lede">Gründe deine eigene Firma, bau sie aus und bring sie an die Börse. Jede Stunde gibt es ein Ergebnis: Gewinn oder Verlust. 24 Stunden am Stück im Minus heißt Pleite.</p></div>
+  <div class="wx-off" id="fiOff" hidden></div>
+  <div id="fiBody" class="wx"></div>
 </section>
 
 <!-- ======================= BONUS ======================= -->
@@ -2999,8 +3043,8 @@ $('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Gu
   modal(`<p class="eyebrow">Geschafft</p><h2>Stern Nr. ${S.stars}</h2><p>Zurück auf 1.000 Coins. Auf ein Neues!</p><div class="row"><button class="btn gold" data-close>Weiter</button></div>`)})};
 
 // ================= Router =================
-const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte','immobilien','aktien'];
-const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte',immobilien:'Immobilien',aktien:'Aktien'};
+const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte','immobilien','aktien','firmen'];
+const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte',immobilien:'Immobilien',aktien:'Aktien',firmen:'Firmen'};
 let cur='lobby';const onShow={};
 function go(v){if(v==='wirt')v=(S.prefs&&WIRT_VIEWS.includes(S.prefs.wirtLast)&&S.prefs.wirtLast)||'tresor';if(!VIEWS.includes(v))v='lobby';if(WIRT_VIEWS.includes(v))S.prefs.wirtLast=v;if(PLAY.includes(v)&&!owns(v)){askUnlock(v);v='lobby'}
   cur=v;document.querySelectorAll('main>.view').forEach(s=>s.hidden=s.id!=='v-'+v);
@@ -7684,7 +7728,7 @@ onShow.slot=SL.show;
 // ================= Wirtschaft: gemeinsame Helfer =================
 // Alles, was Geld bewegt, läuft über den Server (/api/spielstand?wirt=1 …). Der Spielstand trägt in S.wirt.in/out dieselben
 // Summen wie die Kasse auf dem Server; beim Speichern gleicht der Server das Guthaben ab (wie bei Überweisungen).
-const WIRT_VIEWS=['tresor','geschaefte','immobilien','aktien'];
+const WIRT_VIEWS=['tresor','geschaefte','immobilien','aktien','firmen'];
 const WIRT_KEYS=['tresor','shops','immo','immoSell','aktien','divi','firma'];
 let srvOff=0,srvSeen=0;
 const srvNow=()=>Date.now()+srvOff;
@@ -7703,7 +7747,7 @@ function wirtPay(src,total,statPart,msg){const w=wirt();total=r2(total);w.out=r2
 // Einzahlung in die Wirtschaft (erst nachdem der Server zugestimmt hat)
 function wirtSpend(amount){const w=wirt();w.in=r2(w.in+amount);spend(amount)}
 const WERR={guthaben:'Dafür reicht dein Guthaben nicht.',zu_wenig:'Das ist zu wenig.',zu_viel:'Das ist zu viel.',laufzeit:'Diese Laufzeit gibt es nicht.',
-  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Stückzahl geht nicht.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
+  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Anzahl geht nicht.',schon_firma:'Du hast schon eine Firma.',firmenname:'Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.',name_vergeben:'Diesen Firmennamen gibt es schon.',keine_firma:'Du hast keine Firma (mehr).',min_stufe:'Kleiner geht nicht.',kasse_leer:'Dafür ist nicht genug in der Firmenkasse.',an_boerse:'Eine Firma an der Börse kann nicht aufgelöst werden.',schon_boerse:'Die Firma ist schon an der Börse.',zu_klein:'Für die Börse muss die Firma 500.000 wert sein.',max_investoren:'Mehr Investoren gehen nicht.',pivot_heute:'Pivot geht nur einmal pro Tag.',drop_bald:'Die nächste Kollektion geht erst später.',keine_boerse:'Diese Firma ist nicht (mehr) an der Börse.',keine_anteile:'So viele Anteile sind gerade nicht frei.',sperrfrist:'Nach dem Börsengang darfst du 24 Stunden lang nichts verkaufen.',mind_51:'Du musst mindestens 51 % behalten.',boerse_sperre:'Seit dem Börsengang kannst du nur neue Gewinne abheben.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
   gesperrt:'Dein Account ist gesperrt.',aktion:'Das geht so nicht.'};
 let wxBusy=false,wxReq=false;
 // Anfrage an einen Wirtschafts-Endpunkt. Wartet vorher, bis der Spielstand gespeichert ist (damit sich nichts überkreuzt).
@@ -8049,11 +8093,15 @@ onShow.immobilien=IM.show;
 // ================= Wirtschaft: Aktien =================
 const AKS=(()=>{
   let D=null,pulled=0,pulling=false,busy=false,sel=null,range='24',qty=10,lastTick=0;
-  const IDS=()=>D?Object.keys(D.prices):[];
-  const dep=()=>D&&D.mine?D.mine.depot||{}:{};
+  const isPF=id=>id&&id[0]==='F',PF=id=>D&&D.pf?D.pf.find(p=>p.id===id):null;
+  const IDS=()=>D?Object.keys(D.prices).concat((D.pf||[]).map(p=>p.id)):[];
+  const dep=()=>{if(!D||!D.mine)return{};const o=Object.assign({},D.mine.depot||{});for(const [k,v] of Object.entries(D.mine.holds||{}))if(!v.pleite)o[k]=v;return o};
+  const PX=id=>isPF(id)?(PF(id)?PF(id).price:0):D.prices[id];
+  const H24=id=>isPF(id)?(PF(id)?PF(id).ph.slice(-25):[]):D.h24[id];
+  const INFO=id=>isPF(id)?(p=>({name:p?p.name:'?',col:p?p.col:'#8ba2b7',div:0,pf:p}))(PF(id)):D.info[id];
   const f2=v=>v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
   const pc=v=>(v>0?'+':v<0?'−':'±')+Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';
-  const ch24=id=>{const a=D.h24[id];return a&&a.length>1?(a[a.length-1]/a[0]-1)*100:0};
+  const ch24=id=>{const a=H24(id);return a&&a.length>1&&a[0]>0?(a[a.length-1]/a[0]-1)*100:0};
   function take(d){if(!d||!d.prices)return;D=d;lastTick=d.tick;if(d.mine)wirt().depot=JSON.parse(JSON.stringify(d.mine.depot||{}))}
   async function pull(force){if(!ACCOUNTS||!acct||pulling)return;if(!force&&Date.now()-pulled<30000)return;if(force&&Date.now()-pulled<3000)return;pulled=Date.now();pulling=true;
     const d=await wxFetch('aktien=1');pulling=false;if(d&&!d.failed)take(d);render()}
@@ -8072,30 +8120,30 @@ const AKS=(()=>{
   // ---- Liste
   const setT=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
   const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
-  function badge(id){const c=D.info[id].col;return `<span class="ak-badge" style="background:linear-gradient(140deg,${c},${c}cc)">${id}</span>`}
+  function badge(id){const i=INFO(id),c=i.col,t=isPF(id)?String(i.name).split(/[\s-]+/).filter(Boolean).slice(0,3).map(w=>w[0].toUpperCase()).join(''):id;return `<span class="ak-badge" style="background:linear-gradient(140deg,${c},${c}cc)">${esc(t)}</span>`}
   function render(){if(cur!=='aktien')return;const off=!ACCOUNTS||!acct,o=$('akOff');o.hidden=!off;if(off)o.textContent='Die Wirtschaft läuft über den Server. Melde dich auf der Website mit deinem Account an, um sie zu nutzen.';
     if(!D){setH($('akList'),`<div class="im-empty">${off?'Nur online mit Account.':'Lädt …'}</div>`);live();return}
     const dp=dep(),news=D.news||[];
     setH($('akTickerIn'),news.length?news.concat(news).map(n=>`<span>${esc(n.text)}<b class="${n.pct>0?'pos':'neg'}">${n.pct>0?'+':'−'}${Math.abs(n.pct).toLocaleString('de-DE')} %</b></span>`).join(''):'<span>Noch keine News. Die Börse ist ruhig.</span>');
-    setH($('akList'),IDS().map(id=>{const p=D.prices[id],c=ch24(id),x=dp[id],info=D.info[id];const gv=x?(p-x.avg)*x.n:0;
-      return `<button class="ak-row" type="button" data-ak="${id}">${badge(id)}<span class="nm"><b>${esc(info.name)}</b><small>${id}${info.div?`<span class="ak-tag div">Dividende ${(info.div*100).toLocaleString('de-DE')} %/Tag</span>`:''}</small></span>
-        <span class="px"><b>${f2(p)}</b><small class="${c>=0?'pos':'neg'}">${pc(c)}</small></span>${spark(D.h24[id])}
+    setH($('akList'),IDS().map(id=>{const p=PX(id),c=ch24(id),x=dp[id],info=INFO(id);const gv=x?(p-x.avg)*x.n:0;
+      return `<button class="ak-row" type="button" data-ak="${id}">${badge(id)}<span class="nm"><b>${esc(info.name)}</b><small>${info.pf?`<span class="ak-tag pf" style="margin-left:0">Spieler-Firma</span> von ${esc(info.pf.owner)}`:id}${info.div?`<span class="ak-tag div">Dividende ${(info.div*100).toLocaleString('de-DE')} %/Tag</span>`:''}${info.pf&&info.pf.divPct?`<span class="ak-tag div">${info.pf.divPct} % Dividende</span>`:''}</small></span>
+        <span class="px"><b>${f2(p)}</b><small class="${c>=0?'pos':'neg'}">${pc(c)}</small></span>${spark(H24(id))}
         <span class="dp">${x?`<span>${fmt0(x.n)} Stück</span><b class="${gv>=0?'pos':'neg'}">${gv>=0?'+':'−'}${fmt0(Math.abs(gv))}</b>`:'<span>nicht im Depot</span>'}</span></button>`}).join(''));
     live();if(sel&&!$('modal').hidden&&$('akDlg'))dlgUpdate()}
   function live(){if(cur!=='aktien')return;const off=!ACCOUNTS||!acct;
     if(!D){['akT1','akT2','akDiv'].forEach(i=>setT($(i),'–'));$('akDivBtn').disabled=true;return}
-    const dp=dep();let val=0,cost=0,n=0;for(const [id,x] of Object.entries(dp)){if(!x||!D.prices[id])continue;val+=x.n*D.prices[id];cost+=x.n*x.avg;n++}
+    const dp=dep();let val=0,cost=0,n=0;for(const [id,x] of Object.entries(dp)){const p=PX(id);if(!x||!p)continue;val+=x.n*p;cost+=x.n*x.avg;n++}
     setT($('akT1'),fmt0(val));setT($('akT1s'),n?`${n} ${n===1?'Aktie':'Aktien'} im Depot`:'noch nichts gekauft');
     const gv=val-cost;setT($('akT2'),n?(gv>=0?'+':'−')+fmt0(Math.abs(gv)):'–');$('akT2').className='num '+(n?(gv>=0?'pos':'neg'):'');setT($('akT2s'),n&&cost?`${pc(gv/cost*100)} seit Kauf (inkl. Gebühr)`:'Kursgewinn deiner Aktien');
-    const dv=D.mine?D.mine.div:0;setT($('akDiv'),f2(dv));setT($('akDivS'),D.mine&&D.mine.divEarned?`bisher ${fmt0(D.mine.divEarned)}`:'Brezn, Tafelwisch, Mensa');
+    const dv=D.mine?D.mine.div:0;setT($('akDiv'),f2(dv));setT($('akDivS'),D.mine&&D.mine.divEarned?`bisher ${fmt0(D.mine.divEarned)}`:'Brezn, Tafelwisch, Mensa + Spieler-Firmen');
     const b=$('akDivBtn');b.disabled=busy||off||dv<.01;
     setT($('akNext'),'· neuer Kurs in '+wxDur(D.next-srvNow()));
     if(srvNow()>=D.next+1500)pull(true)}
   // ---- Detail
-  function rangeData(id){const a=D.h24[id]||[];if(range==='2')return a.slice(-41);if(range==='7')return(D.h7[id]||[]).concat([D.prices[id]]);return a}
-  function maxBuy(id){return Math.max(0,Math.floor((S.bal+1e-9)/(D.prices[id]*1.01)))}
+  function rangeData(id){if(isPF(id)){const a=PF(id)?PF(id).ph:[];return range==='2'?a.slice(-3):range==='24'?a.slice(-25):a}const a=D.h24[id]||[];if(range==='2')return a.slice(-41);if(range==='7')return(D.h7[id]||[]).concat([D.prices[id]]);return a}
+  function maxBuy(id){const m=Math.max(0,Math.floor((S.bal+1e-9)/(PX(id)*1.01)));return isPF(id)&&PF(id)?Math.min(m,PF(id).pool):m}
   function open(id){sel=id;qty=Math.max(1,qty|0);
-    modal(`<div class="ak-dlg" id="akDlg"><div class="ak-dh">${badge(id)}<div class="t"><h2>${esc(D.info[id].name)}</h2><small>${id}${D.info[id].div?` · Dividende ${(D.info[id].div*100).toLocaleString('de-DE')} % pro Tag`:''}</small></div><div class="px"><b id="akDP">–</b><small id="akDC">–</small></div></div>
+    modal(`<div class="ak-dlg" id="akDlg"><div class="ak-dh">${badge(id)}<div class="t"><h2>${esc(INFO(id).name)}</h2><small>${isPF(id)?`Spieler-Firma von ${esc(INFO(id).pf.owner)} · ${INFO(id).pf.divPct} % Dividende vom Gewinn · <span id="akPool">${INFO(id).pf.pool}</span> Anteile frei · Kurs stündlich`:id+(D.info[id].div?` · Dividende ${(D.info[id].div*100).toLocaleString('de-DE')} % pro Tag`:'')}</small></div><div class="px"><b id="akDP">–</b><small id="akDC">–</small></div></div>
       <div class="seg" id="akRange" role="group" aria-label="Zeitraum"><button type="button" data-r="2">2 Std.</button><button type="button" data-r="24">24 Std.</button><button type="button" data-r="7">7 Tage</button></div>
       <div id="akChart"></div><p class="note" id="akHold"></p>
       <div class="ak-qty"><input class="inp num" id="akQty" type="text" inputmode="numeric" autocomplete="off" aria-label="Stückzahl"><button class="btn" type="button" data-q="1">1</button><button class="btn" type="button" data-q="10">10</button><button class="btn" type="button" data-q="100">100</button><button class="btn" type="button" data-q="max">Max</button></div>
@@ -8103,16 +8151,20 @@ const AKS=(()=>{
       <div class="ak-btns"><button class="btn gold" type="button" id="akBuy">Kaufen</button><button class="btn sellb" type="button" id="akSell">Verkaufen</button></div>
       <div class="row"><button class="btn" type="button" data-close>Schließen</button></div></div>`);
     $('akQty').value=qty;dlgUpdate()}
-  function dlgUpdate(){const id=sel;if(!id||!$('akDlg')||!D)return;const p=D.prices[id],c=ch24(id),x=dep()[id];
+  function dlgUpdate(){const id=sel;if(!id||!$('akDlg')||!D)return;if(isPF(id)&&!PF(id)){closeModal();sel=null;return}const p=PX(id),c=ch24(id),x=dep()[id];if(isPF(id)&&$('akPool'))setT($('akPool'),String(PF(id).pool));
     setT($('akDP'),f2(p));setT($('akDC'),pc(c)+' in 24 Std.');$('akDC').className=c>=0?'pos':'neg';
     $('akRange').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.r===range)));
     setH($('akChart'),bigChart(rangeData(id),x?x.avg:0));
     setH($('akHold'),x?`Im Depot: <b style="color:var(--ink)">${fmt0(x.n)} Stück</b> · Ø Einstand ${f2(x.avg)} · <span class="${(p-x.avg)*x.n>=0?'pos':'neg'}">${(p-x.avg)*x.n>=0?'Gewinn':'Verlust'} ${fmt0(Math.abs((p-x.avg)*x.n))}</span> · <button class="linkbtn" type="button" data-q="all">alle auswählen</button>`:'Noch nicht im Depot.');
     const q=Math.max(0,wxParse($('akQty').value)),gross=q*p,fee=gross*.01;
     $('akSum').innerHTML=`<span>${fmt0(q)} × ${f2(p)}</span><b>${f2(gross)}</b><span>Gebühr 1 %</span><b>${f2(fee)}</b><span>Kaufen kostet</span><b>${f2(gross+fee)}</b><span>Verkaufen bringt</span><b>${f2(gross-fee)}</b>`;
-    const off=!ACCOUNTS||!acct;$('akBuy').disabled=busy||off||q<1||gross+fee>S.bal+1e-9;$('akSell').disabled=busy||off||q<1||!x||x.n<q;
+    const off=!ACCOUNTS||!acct;$('akBuy').disabled=busy||off||q<1||gross+fee>S.bal+1e-9||(isPF(id)&&q>PF(id).pool);$('akSell').disabled=busy||off||q<1||!x||x.n<q;
     setT($('akBuy'),busy?'…':`Kaufen · ${fmt0(gross+fee)}`);setT($('akSell'),busy?'…':x?`Verkaufen · ${fmt0(gross-fee)}`:'Verkaufen')}
+  async function tradePF(id,q,side){if(busy)return;busy=true;dlgUpdate();const d=await wxFetch('firma=1',{action:'trade',id,n:q,side});busy=false;
+    if(d&&d.ok){if(side==='buy'){wirtSpend(d.cost);toast(`<b>${fmt0(d.n)}</b> Anteile gekauft zu je <b class="num">${f2(d.price)}</b>.`,'good')}else wirtPay('aktien',d.pay,d.pay,`<b>${fmt0(d.n)}</b> Anteile verkauft: <b class="num">+${fmt(d.pay)}</b>`);save()}
+    pulled=0;await pull(true);dlgUpdate()}
   function trade(side){const id=sel,q=wxParse($('akQty').value);if(!id||q<1)return;qty=q;
+    if(isPF(id)){tradePF(id,q,side);return}
     post({action:'trade',id,n:q,side},d=>{if(side==='buy'){wirtSpend(d.cost);toast(`<b>${fmt0(d.n)}</b> ${id} gekauft zu je <b class="num">${f2(d.price)}</b>.`,'good')}
       else wirtPay('aktien',d.pay,d.pay,`<b>${fmt0(d.n)}</b> ${id} verkauft: <b class="num">+${fmt(d.pay)}</b>`)})}
   document.addEventListener('click',e=>{if(!e.target.closest('#akDlg'))return;
@@ -8126,6 +8178,117 @@ const AKS=(()=>{
   setInterval(()=>{if(cur!=='aktien'||document.hidden)return;live();pull()},1000);
   return{show(){render();pull(true)},render}})();
 onShow.aktien=AKS.show;
+// ================= Wirtschaft: Firmen =================
+const FI=(()=>{
+  const BR={imbiss:['Imbiss','Wenig Gewinn, dafür sehr stabil.','<path d="M4 11h16M5 11a7 7 0 0 1 14 0M4 15h16l-1 3H5zM8 7l1-3M12 6V3M16 7l-1-3"/>'],
+    startup:['Startup','Erst Verlust, dann vielleicht riesig – oder Pleite.','<path d="M12 3c3 2 5 6 4 11l-4 3-4-3c-1-5 1-9 4-11z"/><circle cx="12" cy="10" r="1.6"/><path d="M8 17l-2 4 4-2M16 17l2 4-4-2"/>'],
+    mode:['Modelabel','Hype-Phasen: mal extrem, mal Flaute.','<path d="M8 3l4 3 4-3 5 4-3 4-2-1v11H8V10l-2 1-3-4z"/>'],
+    energie:['Energie','Teuer im Ausbau, dafür sicherer Langzeitgewinn.','<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>']};
+  const COLS=['#ffb020','#2fe08f','#38bdf8','#ec4899','#a78bfa','#ff4d6a'];
+  const FI_BC=[0,900,2000,4500,10000,24000],FI_KC=[0,500,1100,2500,5300,12000];
+  const FI_LV={imbiss:['Imbissbude','Schnellrestaurant','Imbiss-Kette','Food-Court','Burger-Imperium'],startup:['Garage','Coworking-Platz','Büroetage','Campus','Tech-Konzern'],
+    mode:['Hinterhof-Label','Boutique','Flagship-Store','Modehaus','Weltmarke'],energie:['Dachanlage','Kleinkraftwerk','Kraftwerk','Energiepark','Energiekonzern']};
+  let ipoN=250;
+  let D=null,pulled=0,pulling=false,busy=false,fname='',fcol=COLS[0],fbr='imbiss',amt='';
+  const ic=b=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BR[b][2]}</svg>`;
+  const ini=n=>String(n||'?').split(/[\s-]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
+  const logo=(n,c)=>`<span class="fi-logo" style="background:linear-gradient(140deg,${c},${c}bb)">${esc(ini(n))}</span>`;
+  const sg=v=>(v>0?'+':v<0?'−':'±')+fmt0(Math.abs(v));
+  const F=()=>D&&D.mine;
+  function take(d){if(d&&d.list){D=d;const w=wirt(),was=w.firma;if(was&&was.name&&!d.mine&&!d.ok)toast(`<b>${esc(was.name)}</b> ist pleite gegangen. Du kannst eine neue Firma gründen.`,'bad');w.firma=d.mine?{id:d.mine.id,name:d.mine.name,br:d.mine.br,lvl:d.mine.lvl}:null}}
+  async function pull(force){if(!ACCOUNTS||!acct||pulling)return;if(!force&&Date.now()-pulled<60000)return;if(force&&Date.now()-pulled<3000)return;pulled=Date.now();pulling=true;
+    const d=await wxFetch('firma=1');pulling=false;if(d&&!d.failed)take(d);render(true)}
+  async function post(body,okFn){if(busy)return;busy=true;render(true);const d=await wxFetch('firma=1',body);busy=false;if(d){take(d);if(d.ok){okFn&&okFn(d);save()}}render(true);return d}
+  function ask(title,text,btn,fn,danger){modal(`<p class="eyebrow">${esc(F()?F().name:'Firma')}</p><h2>${title}</h2><p>${text}</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn ${danger?'stop':'gold'}" data-ok>${btn}</button></div>`,fn)}
+  // ---- Aktionen
+  function found(){const nm=fname.trim().replace(/\s+/g,' ');
+    if(!/^[A-Za-zÄÖÜäöüß0-9][A-Za-zÄÖÜäöüß0-9 \-]{1,22}[A-Za-zÄÖÜäöüß0-9]$/.test(nm)){toast('Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.','bad');return}
+    if(S.bal<50000){toast(WERR.guthaben,'bad');return}
+    post({action:'found',fname:nm,col:fcol,br:fbr},d=>{wirtSpend(d.cost);SND.win();confetti(140);toast(`<b>${esc(nm)}</b> ist gegründet!`,'good')})}
+  function lever(k,v,cost,label){const go=()=>post({action:'setLever',k,v},()=>{SND.tick()});if(cost)ask(label,`Das kostet <b class="num" style="color:var(--ink)">${fmt0(cost)}</b> aus der Firmenkasse.`,'Machen · '+fmt0(cost),go);else go()}
+  // ---- Anzeige
+  const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
+  function foundHTML(){const prevName=fname.trim()||'Deine Firma';
+    return `<div class="wx-grid"><div class="panel"><div class="ph"><h2>Firma gründen</h2><span class="chip">50.000 · davon 20.000 Startkapital</span></div>
+      <label class="lbl" for="fiName">Firmenname</label><input class="inp" id="fiName" maxlength="24" autocomplete="off" placeholder="z. B. Pausenbrot GmbH" value="${esc(fname)}">
+      <span class="lbl">Logo-Farbe</span><div class="fi-cols">${COLS.map(c=>`<button class="fi-col" type="button" data-col="${c}" aria-pressed="${c===fcol}" aria-label="Farbe ${c}" style="background:${c}"></button>`).join('')}</div>
+      <span class="lbl">Branche</span><div class="fi-brs">${Object.keys(BR).map(b=>`<button class="fi-br" type="button" data-br="${b}" aria-pressed="${b===fbr}">${ic(b)}<span><b>${BR[b][0]}</b><small>${BR[b][1]}</small></span></button>`).join('')}</div>
+      <div class="fi-prev" id="fiPrev">${logo(prevName,fcol)}<span><b>${esc(prevName)}</b><small>${BR[fbr][0]} · Stufe 1</small></span></div>
+      <button class="btn gold big" type="button" id="fiFound" ${busy||!ACCOUNTS||!acct?'disabled':''}>${busy?'Einen Moment …':'Gründen · 50.000'}</button>
+      <p class="note">Eine Firma pro Spieler. Jede Stunde rechnet der Server Gewinn oder Verlust aus. Ist die Firmenkasse 24 Stunden am Stück im Minus, ist die Firma pleite.</p></div>
+      <div class="panel"><div class="ph"><h2>So läuft es</h2></div><div class="fi-ev">
+        <div><span>Ausbauen: 5 Stufen, jede bringt mehr Gewinn, aber auch mehr laufende Kosten.</span></div>
+        <div><span>Stellschrauben: je nach Branche Filialen, Entwickler, Kollektionen oder Kraftwerk.</span></div>
+        <div><span>Auszahlen: Geld aus der Firmenkasse auf dein Konto holen.</span></div>
+        <div><span>Börsengang ab 500.000 Firmenwert: bis zu 49 % verkaufen, andere können Anteile kaufen.</span></div>
+        <div><span>Notbremse: Stufe verkaufen bringt 50 % der Ausbau-Kosten zurück.</span></div></div>
+        ${D&&D.list&&D.list.length?`<p class="note">An der Börse: ${D.list.map(p=>esc(p.name)).join(', ')}. Handeln kannst du sie bei <a href="#aktien" data-go="aktien">Aktien</a>.</p>`:''}</div></div>`}
+  function leversHTML(f){const lv=f.lv,L=f.lvl,dis=busy?'disabled':'',seg=(k,opts,cur,extra)=>`<div class="seg" role="group">${opts.map((o,i)=>`<button type="button" data-lv="${k}" data-v="${i+(extra||0)}" aria-pressed="${cur===i+(extra||0)}" ${dis}>${o}</button>`).join('')}</div>`;
+    if(f.br==='imbiss')return `<div class="fi-row"><span class="lbl">Filialen <b>${lv.fil} von 5</b></span><div class="fi-step"><button class="btn" type="button" data-lv="fil" data-v="${lv.fil-1}" ${lv.fil<=0||busy?'disabled':''} aria-label="Filiale schließen">−</button><b>${lv.fil}</b><button class="btn" type="button" data-lv="fil" data-v="${lv.fil+1}" data-cost="${10000*L}" ${lv.fil>=5||busy?'disabled':''} aria-label="Filiale eröffnen">+</button></div><span class="note">Neue Filiale ${fmt0(10000*L)} aus der Kasse: +20 % Umsatz, +15 % Kosten.</span></div>
+      <div class="fi-row"><span class="lbl">Qualität</span>${seg('q',['Billig','Normal','Premium'],lv.q)}<span class="note">${['Mehr Marge, aber hohes Risiko bei der Lebensmittelkontrolle.','Ausgewogen.','Mehr Umsatz, teurer im Einkauf, kaum Kontroll-Risiko.'][lv.q]}</span></div>
+      <div class="fi-row"><span class="lbl">Öffnungszeiten</span>${seg('o',['Kurz','Normal','Lang'],lv.o)}<span class="note">${['Weniger Umsatz, weniger Personal.','Ausgewogen.','Mehr Umsatz, mehr Personalkosten.'][lv.o]}</span></div>`;
+    if(f.br==='startup'){const ch=((.004+.0015*lv.dev)*f.st.pm*100).toLocaleString('de-DE',{maximumFractionDigits:2});const pivLeft=(f.pivotAt||0)+86400000-srvNow();
+      return `<div class="fi-row"><span class="lbl">Entwickler <b>${lv.dev} von 10</b></span><div class="fi-step"><button class="btn" type="button" data-lv="dev" data-v="${lv.dev-1}" ${lv.dev<=0||busy?'disabled':''} aria-label="weniger">−</button><b>${lv.dev}</b><button class="btn" type="button" data-lv="dev" data-v="${lv.dev+1}" ${lv.dev>=10||busy?'disabled':''} aria-label="mehr">+</button></div><span class="note">Je ${fmt0(90*L)} pro Std. ${f.st.br?`Durchbruch geschafft: Umsatz ×${f.st.M.toLocaleString('de-DE',{maximumFractionDigits:1})}.`:`Chance auf den Durchbruch: ${ch} % pro Stunde.`}</span></div>
+      <div class="fi-row"><span class="lbl">Investoren <b>${f.invPct} % vom Gewinn</b></span><button class="btn" type="button" data-inv ${f.invPct>=30||busy?'disabled':''}>${f.invPct>=30?'Mehr Investoren gehen nicht':`Investoren holen · +${fmt0(Math.round(.1*Math.max(f.value,120000*L)))}`}</button><span class="note">Sofort Geld in die Kasse, dafür gehen dauerhaft 10 % des Gewinns an sie (höchstens 30 %).</span></div>
+      <div class="fi-row"><span class="lbl">Pivot <b>Faktor ×${f.st.pm.toLocaleString('de-DE',{maximumFractionDigits:2})}</b></span><button class="btn" type="button" data-pivot ${pivLeft>0||busy?'disabled':''}>${pivLeft>0?'Pivot wieder in '+wxHM(pivLeft)+' Std.':'Pivot wagen'}</button><span class="note">1× pro Tag: neue Idee. Kann die Firma besser oder schlechter machen.</span></div>`}
+    if(f.br==='mode'){const dl=(f.dropAt||0)+6*3600000-srvNow();
+      return `<div class="fi-row"><span class="lbl">Hype <b>${Math.round(f.st.H/3*100)} %</b></span><div class="fi-hype"><i style="width:${(f.st.H/3*100).toFixed(1)}%"></i></div><span class="note">Ohne Hype verkauft sich kaum etwas. Er lässt jede Stunde nach.</span></div>
+      <div class="fi-row"><span class="lbl">Kollektion</span><button class="btn gold" type="button" data-drop data-cost="${2*FI_BC[L]}" ${dl>0||busy||f.kasse<2*FI_BC[L]?'disabled':''}>${dl>0?'Nächster Drop in '+wxHM(dl)+' Std.':`Kollektion droppen · ${fmt0(2*FI_BC[L])}`}</button></div>
+      <div class="fi-row"><span class="lbl">Marketing</span>${seg('mkt',['Aus','Etwas','Viel','Maximal'],lv.mkt)}<span class="note">Hype hält länger. Kostet ${fmt0(.2*FI_KC[L])} pro Stufe und Stunde.</span></div>
+      <div class="fi-row"><span class="lbl">Stil</span>${seg('style',['Limitiert','Massenware'],lv.style)}<span class="note">${lv.style?'Langer, flacher Hype.':'Kurzer, sehr starker Hype.'}</span></div>`}
+    return `<div class="fi-row"><span class="lbl">Kraftwerk</span><div class="seg" role="group">${['Kohle','Gas','Solar','Wind'].map((o,i)=>`<button type="button" data-lv="typ" data-v="${i}" ${i!==lv.typ?`data-cost="${20000*L}"`:''} aria-pressed="${lv.typ===i}" ${dis}>${o}</button>`).join('')}</div><span class="note">${['Billig, aber Risiko CO₂-Steuer.','Mittel, manchmal Gaspreis-Schock.','Teurer, tagsüber viel, nachts kaum Strom.','Teurer, schwankt mit dem Wind.'][lv.typ]} Umbau ${fmt0(20000*L)}.</span></div>
+      <div class="fi-row"><span class="lbl">Kapazität</span><div class="seg" role="group">${[1,2,3].map(c=>`<button type="button" data-lv="cap" data-v="${c}" ${c>lv.cap?`data-cost="${(c-lv.cap)*30000*L}"`:''} aria-pressed="${lv.cap===c}" ${dis}>${c===1?'Klein':c===2?'Mittel':'Groß'}</button>`).join('')}</div><span class="note">Mehr Strom, mehr Gewinn, mehr Kosten. Ausbau ${fmt0(30000*L)} je Stufe.</span></div>
+      <div class="fi-row"><span class="lbl">Wartung</span>${seg('wart',['Sparen','Normal','Gründlich'],lv.wart)}<span class="note">${['Billiger, aber oft Stromausfälle.','Ausgewogen.','Teurer, dafür keine Ausfälle.'][lv.wart]}</span></div>`}
+  function firmHTML(f){const t=srvNow(),neg=f.negSince?Math.max(0,f.negSince+86400000-t):0,ipoOk=f.value>=500000,locked=f.public&&t<f.lockUntil;
+    const kh=f.kh||[],mn=Math.min(...kh,0),mx=Math.max(...kh,1),r=mx-mn||1,col=f.kasse>=0?'#2fe08f':'#ff6b84';
+    const chart=kh.length>1?`<svg class="fi-chart" viewBox="0 0 240 70" preserveAspectRatio="none" aria-hidden="true">${mn<0?`<line x1="0" x2="240" y1="${(66-(0-mn)/r*62).toFixed(1)}" y2="${(66-(0-mn)/r*62).toFixed(1)}" stroke="#2f4960" stroke-dasharray="3 3"/>`:''}<polyline points="${kh.map((v,i)=>`${(i/(kh.length-1)*240).toFixed(1)},${(66-(v-mn)/r*62).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`:'<p class="note">Der Verlauf erscheint nach der ersten vollen Stunde.</p>';
+    return `<div class="panel fi-head">${logo(f.name,f.col)}<div class="t"><h2>${esc(f.name)}</h2><small>${f.brName} · Stufe ${f.lvl} · ${esc(f.level)}</small><div class="fi-stage" style="margin-top:6px;max-width:220px">${[1,2,3,4,5].map(i=>`<i class="${i<=f.lvl?'on':''}"></i>`).join('')}</div></div>
+        ${f.public?`<span class="chip" style="display:inline-flex">An der Börse · ${f.price.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} je Anteil</span>`:''}</div>
+      ${neg?`<div class="fi-warn"><b>Kasse im Minus</b> – noch ${wxHM(neg)} Std. bis zur Pleite. Zahl Geld ein, verkleinere die Firma oder dreh an den Stellschrauben.</div>`:''}
+      <div class="wx-tiles">
+        <div class="wx-tile"><span>Firmenkasse</span><b class="num ${f.kasse<0?'neg':''}">${fmt0(f.kasse)}</b><small>nächstes Ergebnis in <span id="fiNext">–</span></small></div>
+        <div class="wx-tile"><span>Gewinn / Std. (Ø 24 Std.)</span><b class="num ${f.avg>0?'pos':f.avg<0?'neg':''}">${sg(f.avg)}</b><small>${(f.pr||[]).length?'letzte Stunde '+sg(f.pr[f.pr.length-1]):'noch keine volle Stunde'}</small></div>
+        <div class="wx-tile"><span>Firmenwert</span><b class="num">${fmt0(f.value)}</b><small>${f.public?`du hast ${f.fs/10} % der Anteile`:ipoOk?'bereit für die Börse!':`Börse ab 500.000 (noch ${fmt0(500000-f.value)})`}</small></div></div>
+      <div class="wx-grid"><div class="panel"><div class="ph"><h2>Kasse · 24 Std.</h2></div>${chart}<div class="ph" style="margin-top:6px"><h2>Stellschrauben</h2></div>${leversHTML(f)}</div>
+        <div class="panel"><div class="ph"><h2>Ausbau</h2></div>
+          <div class="fi-row"><span class="lbl">Stufe <b>${f.lvl} von 5</b></span><div class="fi-two"><button class="btn gold" type="button" data-up ${f.lvl>=5||busy?'disabled':''}>${f.lvl>=5?'Höchste Stufe':`Ausbauen · ${fmt0(f.upCost)}`}</button><button class="btn" type="button" data-down ${f.lvl<=1||busy?'disabled':''}>${f.lvl<=1?'Kleinste Stufe':`Verkleinern · +${fmt0(f.downBack)}`}</button></div>
+            <span class="note">${f.lvl<5?`Nächste Stufe: ${esc(FI_LV[f.br][f.lvl])}. `:''}Verkleinern gibt 50 % der Ausbau-Kosten zurück.</span></div>
+          <div class="fi-row"><span class="lbl">Firmenkasse</span><div class="fi-amt"><input class="inp num" id="fiAmt" type="text" inputmode="numeric" autocomplete="off" placeholder="Betrag" value="${esc(amt)}" aria-label="Betrag"><button class="btn" type="button" data-dep ${busy?'disabled':''}>Einzahlen</button><button class="btn gold" type="button" data-wd ${busy||f.maxOut<1?'disabled':''}>Auszahlen</button></div><span class="note">${f.public?`Seit dem Börsengang kannst du nur neue Gewinne abheben: höchstens ${fmt0(f.maxOut)}.`:'Rücklagen in der Kasse sind dein Puffer gegen die Pleite.'}</span></div>
+          <div class="fi-row"><span class="lbl">Börse</span>${f.public?`<div class="seg" role="group">${[0,10,25,50].map(p=>`<button type="button" data-div="${p}" aria-pressed="${f.divPct===p}" ${busy?'disabled':''}>${p} %</button>`).join('')}</div><span class="note">Dividende: so viel vom Stundengewinn geht an die Aktionäre. ${f.pool} Anteile frei an der Börse.${locked?` Verkaufen darfst du erst ${wxWhen(f.lockUntil)}.`:''} Handeln bei <a href="#aktien" data-go="aktien">Aktien</a>.</span>`
+            :`<button class="btn ${ipoOk?'gold':''}" type="button" data-ipo ${!ipoOk||busy?'disabled':''}>${ipoOk?'An die Börse bringen':'An die Börse ab 500.000'}</button><span class="note">Du verkaufst bis zu 49 % der Anteile und bekommst sofort Coins.</span>`}</div>
+          <div class="fi-row"><span class="lbl">Notausgang</span><button class="btn" type="button" data-dis ${f.public||busy?'disabled':''}>${f.public?'An der Börse nicht auflösbar':`Firma auflösen · +${fmt0(Math.round(f.value*.6))}`}</button></div></div></div>
+      <div class="panel"><div class="ph"><h2>Ereignisse</h2></div><div class="fi-ev">${(f.ev||[]).length?f.ev.map(e=>`<div><span><small>${wxWhen(e.t).replace(' Uhr','')}</small>${esc(e.text)}</span>${e.a?`<b class="${e.a>0?'pos':'neg'}">${sg(e.a)}</b>`:''}</div>`).join(''):'<div><span>Noch nichts passiert.</span></div>'}</div></div>`}
+  function render(force){if(cur!=='firmen')return;const off=!ACCOUNTS||!acct,o=$('fiOff');o.hidden=!off;if(off)o.textContent='Die Wirtschaft läuft über den Server. Melde dich auf der Website mit deinem Account an, um sie zu nutzen.';
+    const b=$('fiBody');if(!D){setH(b,`<div class="im-empty">${off?'Nur online mit Account.':'Lädt …'}</div>`);return}
+    if(!F()){if(force||b._mode!=='found'){const a=document.activeElement&&document.activeElement.id==='fiName';setH(b,foundHTML());b._mode='found';if(a){const i=$('fiName');i.focus();i.setSelectionRange(i.value.length,i.value.length)}}return}
+    b._mode='firm';const a=document.activeElement&&document.activeElement.id==='fiAmt';setH(b,firmHTML(F()));if(a){const i=$('fiAmt');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}live()}
+  function live(){if(cur!=='firmen'||!F())return;const n=$('fiNext');if(n)n.textContent=wxHM(F().nextH-srvNow()).replace(/^0:/,'')+' Min.';if(srvNow()>=F().nextH+3000)pull(true)}
+  // ---- Eingaben
+  $('fiBody').addEventListener('input',e=>{if(e.target.id==='fiName'){fname=e.target.value;const p=$('fiPrev');if(p)p.innerHTML=`${logo(fname.trim()||'Deine Firma',fcol)}<span><b>${esc(fname.trim()||'Deine Firma')}</b><small>${BR[fbr][0]} · Stufe 1</small></span>`}if(e.target.id==='fiAmt')amt=e.target.value});
+  $('fiBody').addEventListener('click',e=>{const t=e.target,f=F();
+    const c=t.closest('[data-col]');if(c){fcol=c.dataset.col;SND.tick();render(true);return}
+    const br=t.closest('[data-br]');if(br){fbr=br.dataset.br;SND.tick();render(true);return}
+    if(t.closest('#fiFound')){ac();found();return}
+    if(!f)return;const L=f.lvl;
+    const lv=t.closest('[data-lv]');if(lv&&!lv.disabled){const k=lv.dataset.lv,v=+lv.dataset.v,cost=+lv.dataset.cost||0;if(f.lv[k]===v)return;lever(k,v,cost,{fil:'Neue Filiale eröffnen?',typ:'Kraftwerk umbauen?',cap:'Kapazität erweitern?'}[k]||'Ändern?');return}
+    if(t.closest('[data-inv]:not([disabled])')){const c=Math.round(.1*Math.max(f.value,120000*L));ask('Investoren holen?',`Die Firma bekommt sofort <b class="num" style="color:var(--ink)">${fmt0(c)}</b> in die Kasse. Dafür gehen ab jetzt dauerhaft 10 % des Gewinns an die Investoren (dann ${f.invPct+10} %).`,'Deal!',()=>post({action:'setLever',k:'invest'},()=>SND.win()));return}
+    if(t.closest('[data-pivot]:not([disabled])')){ask('Pivot wagen?','Die Firma probiert eine neue Idee. Das kann sie besser oder schlechter machen. Geht nur einmal pro Tag.','Pivot!',()=>post({action:'setLever',k:'pivot'}));return}
+    if(t.closest('[data-drop]:not([disabled])')){lever('drop',1,2*FI_BC[L],'Kollektion droppen?');return}
+    const dv=t.closest('[data-div]');if(dv&&!dv.disabled){post({action:'setDividend',pct:+dv.dataset.div});return}
+    if(t.closest('[data-up]:not([disabled])')){ask('Ausbauen?',`Auf <b>${esc(FI_LV[f.br][f.lvl])}</b> für <b class="num" style="color:var(--ink)">${fmt0(f.upCost)}</b>. Mehr Gewinn, aber auch höhere laufende Kosten.`,'Ausbauen · '+fmt0(f.upCost),()=>{if(f.upCost>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'upgrade'},d=>{wirtSpend(d.cost);SND.win();confetti(80)})});return}
+    if(t.closest('[data-down]:not([disabled])')){ask('Verkleinern?',`Zurück auf <b>${esc(FI_LV[f.br][f.lvl-2])}</b>. Du bekommst <b class="num" style="color:var(--ink)">${fmt0(f.downBack)}</b> zurück, die laufenden Kosten sinken.`,'Verkleinern',()=>post({action:'downgrade'},d=>wirtPay('firma',d.pay,0,`<b class="num">+${fmt(d.pay)}</b> zurück`)),true);return}
+    if(t.closest('[data-dep]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'deposit',amount:a},d=>{wirtSpend(d.cost);amt='';toast(`<b class="num">${fmt0(a)}</b> in die Firmenkasse eingezahlt.`,'good')});return}
+    if(t.closest('[data-wd]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>f.maxOut){toast(f.public?`Seit dem Börsengang höchstens ${fmt0(f.maxOut)}.`:'So viel ist nicht in der Firmenkasse.','bad');return}post({action:'withdraw',amount:a},d=>{wirtPay('firma',d.pay,d.stat,`<b class="num">+${fmt(d.pay)}</b> aus der Firmenkasse`);amt=''});return}
+    if(t.closest('[data-ipo]:not([disabled])')){ipo();return}
+    if(t.closest('[data-dis]:not([disabled])')){ask('Firma auflösen?',`Die Firma wird geschlossen. Du bekommst <b class="num" style="color:var(--ink)">${fmt0(Math.round(f.value*.6))}</b> (60 % des Firmenwerts). Das lässt sich nicht rückgängig machen.`,'Auflösen',()=>post({action:'dissolve'},d=>wirtPay('firma',d.pay,d.pay,`Firma aufgelöst: <b class="num">+${fmt(d.pay)}</b>`)),true)}});
+  function ipo(){const f=F(),pr=Math.round(f.value/1000*100)/100;
+    modal(`<p class="eyebrow">${esc(f.name)}</p><h2>An die Börse</h2><p>Die Firma wird in 1.000 Anteile geteilt, einer kostet <b class="num" style="color:var(--ink)">${pr.toLocaleString('de-DE',{minimumFractionDigits:2})}</b>. Du verkaufst jetzt bis zu 490 Anteile an die Börse und bekommst sofort das Geld. Danach können alle Spieler Anteile kaufen. 24 Stunden lang darfst du selbst nichts verkaufen.</p>
+      <label class="lbl" for="fiIpoN"><span>Anteile verkaufen</span><span id="fiIpoV" style="text-transform:none;letter-spacing:0"></span></label><input id="fiIpoN" type="range" min="1" max="490" step="1" value="${ipoN}" style="width:100%">
+      <div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>Börsengang</button></div>`,()=>{const n=ipoN;post({action:'ipo',n},d=>{wirtPay('firma',d.pay,d.pay,`Börsengang! <b class="num">+${fmt(d.pay)}</b>`);confetti(200);SND.win()})});
+    const upd=()=>{const n=ipoN=+$('fiIpoN').value;$('fiIpoV').textContent=`${n} (${(n/10).toLocaleString('de-DE')} %) · +${fmt0(n*pr)}`};$('fiIpoN').oninput=upd;upd();}
+  setInterval(()=>{if(cur!=='firmen'||document.hidden)return;live();pull()},1000);
+  return{show(){render(true);pull(true)},render}})();
+onShow.firmen=FI.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
