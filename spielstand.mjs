@@ -48,7 +48,7 @@ async function wipeStore(name, keep) {
   for (const b of blobs) { if (keep && keep(b.key)) continue; try { await st.delete(b.key); } catch {} }
 }
 async function purgeAll() {
-  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft"]) await wipeStore(n);
+  for (const n of ["spielstaende", "posteingang", "stapel", "rennen", "lotto", "crash", "wirtschaft", "immo"]) await wipeStore(n);
   await wipeStore("wetten", (k) => k.startsWith("e/"));   // Fragen bleiben, Tipps/Vorschläge/Ausschlüsse weg
   const admin = getStore("admin");
   for (const k of ["board", "rejects", "stapelPot"]) { try { await admin.delete(k); } catch {} }
@@ -663,12 +663,14 @@ const SHOP_MAX = 10, SHOP_STORE_H = 8;
 const shopCost = (sh, lvl) => Math.round(sh.price * Math.pow(1.6, lvl - 1));        // Kosten für Stufe lvl (1 = Kauf)
 const shopRate = (sh, lvl) => (lvl > 0 ? sh.base * Math.pow(1.4, lvl - 1) : 0);     // Einnahmen pro Stunde
 const shopStored = (sh, s, now) => r2(shopRate(sh, s.level) * Math.min(SHOP_STORE_H, Math.max(0, now - num(s.lastCollect)) / 3_600_000));
-const wirtFresh = () => ({ in: 0, out: 0, tresor: [], shops: {} });
+const wirtFresh = () => ({ in: 0, out: 0, tresor: [], shops: {}, immo: { houses: [], log: [] } });
 async function wirtGet(key) {
   const w = await getStore("wirtschaft").get(key, { type: "json" });
   const f = wirtFresh();
   if (!w) return f;
-  return { ...f, ...w, in: r2(num(w.in)), out: r2(num(w.out)), tresor: Array.isArray(w.tresor) ? w.tresor : [], shops: w.shops && typeof w.shops === "object" ? w.shops : {} };
+  const im = w.immo && typeof w.immo === "object" ? w.immo : {};
+  return { ...f, ...w, in: r2(num(w.in)), out: r2(num(w.out)), tresor: Array.isArray(w.tresor) ? w.tresor : [], shops: w.shops && typeof w.shops === "object" ? w.shops : {},
+    immo: { houses: Array.isArray(im.houses) ? im.houses : [], log: Array.isArray(im.log) ? im.log : [] } };
 }
 function wirtNormalize(state, W) {
   const sw = state.wirt && typeof state.wirt === "object" ? state.wirt : {};
@@ -752,6 +754,221 @@ async function wirtRoute(req, url) {
     if (!(pay > 0)) return fail("leer");
     W.out = r2(W.out + pay); W.shopEarned = r2(num(W.shopEarned) + pay);
     return done({ pay });
+  }
+  return fail("aktion");
+}
+
+// ================= Immobilien (/api/spielstand?immo=1) =================
+// Vier Stadtteile mit eigenem Kursindex (Start 100, 60–160), für alle gleich, aus dem Server-Geheimnis berechnet:
+// zwei langsame Sinuswellen (Perioden von Tagen) + geglättetes Rauschen + Stadtteil-Events. Der Client sieht nur Gegenwart und Vergangenheit.
+// Jede volle Stunde 3 Angebote (+ 1× am Tag eine Stadtvilla). Jedes Angebot gibt es nur einmal: der erste Käufer bekommt es.
+// Häuser liegen beim Server (Store "wirtschaft"), Leerstand und Haus-Events pro Haus und Stunde aus HMAC(Geheimnis, Haus-ID, Stunde).
+const HOUR = 3_600_000;
+const IM_DIST = {
+  eppendorf: { name: "Eppendorf", a1: 0.07, p1: 130, a2: 0.03, p2: 47, nz: 0.016, note: "Luxusvillen – sehr teuer, sehr sicher" },
+  altstadt: { name: "Altstadt", a1: 0.08, p1: 98, a2: 0.04, p2: 35, nz: 0.016, note: "Teuer, stabil" },
+  szene: { name: "Szeneviertel", a1: 0.2, p1: 71, a2: 0.11, p2: 26, nz: 0.038, note: "Im Hype – kann kippen" },
+  platte: { name: "Plattenbau", a1: 0.04, p1: 160, a2: 0.035, p2: 41, nz: 0.018, note: "Billig, hohe Miete im Verhältnis" },
+};
+const IM_TYPES = {
+  platte: { d: "platte", name: "Plattenbau", min: 60000, max: 95000, rate: 0.0105, reno: 4, w: 35 },
+  alt: { d: "altstadt", name: "Altbau", min: 120000, max: 220000, rate: 0.005, reno: 2, w: 35 },
+  loft: { d: "szene", name: "Loft", min: 200000, max: 450000, rate: 0.005, reno: 3, w: 30 },
+  villa: { d: "eppendorf", name: "Stadtvilla", min: 900000, max: 1600000, rate: 0.0036, reno: 6, w: 0 },
+};
+const IM_EXTRAS = { garten: { c: 0.04, w: 0.05, m: 0.05 }, garage: { c: 0.07, w: 0.06, m: 0.05 }, pool: { c: 0.14, w: 0.12, m: 0.15 }, solar: { c: 0.06, w: 0.06, m: 0.08 } };
+const IM_TIERS = [{ f: 0.8, v: 0 }, { f: 1, v: 0.1 }, { f: 1.35, v: 0.35 }];
+const IM_MAX = 8, IM_CAP = 8 * HOUR, IM_DECAY = 3.5 * HOUR;
+const IM_STREETS = ["Mühlenstraße", "Lindenallee", "Hafenweg", "Kastanienplatz", "Am Stadtpark", "Bergstraße", "Rosenweg", "Brunnengasse", "Schillerstraße", "Goethering", "Elbchaussee", "Kirchgasse", "Marktplatz", "Schulweg", "Bahnhofstraße", "Ahornweg", "Feldstraße", "Domplatz", "Uferstraße", "Sonnenhang"];
+const IM_EVENTS = {
+  altstadt: [["Neue U-Bahn-Station", 0.15], ["Altstadtfest lockt Touristen", 0.06], ["Großbaustelle vor der Tür", -0.08], ["Denkmalschutz-Streit", -0.05]],
+  szene: [["Neuer Club eröffnet", 0.14], ["Hype-Artikel im Stadtmagazin", 0.10], ["Influencer zieht weg", -0.12], ["Mieten-Debatte im Viertel", -0.09]],
+  platte: [["Neuer Park", 0.08], ["Sanierungsprogramm der Stadt", 0.06], ["Fabrik schließt", -0.07]],
+  eppendorf: [["Promi kauft Villa", 0.06], ["Neuer Golfplatz", 0.04], ["Gerücht über Villensteuer", -0.04]],
+};
+let imSec = null;
+const imR = (...p) => parseInt(createHmac("sha256", imSec).update("immo|" + p.join("|")).digest("hex").slice(0, 13), 16) / 2 ** 52;
+const imMemo = new Map();
+function imEvents(day) {   // Events, die an Tag "day" (UTC) beginnen
+  const out = [], keys = Object.keys(IM_DIST), n = 1 + (imR("evn", day) < 0.5 ? 1 : 0);
+  for (let j = 0; j < n; j++) {
+    const d = keys[Math.floor(imR("evd", day, j) * keys.length)], list = IM_EVENTS[d], t = list[Math.floor(imR("evt", day, j) * list.length)];
+    out.push({ id: day + "-" + j, d, text: t[0], pct: t[1], start: day * 24 + Math.floor(imR("evs", day, j) * 24), dur: 6 + Math.floor(imR("evl", day, j) * 43) });
+  }
+  return out;
+}
+function imEvEffect(d, h) {
+  let s = 0;
+  for (let day = Math.floor(h / 24) - 2; day <= Math.floor(h / 24); day++) for (const e of imEvents(day)) {
+    if (e.d !== d) continue; const r = h - e.start; if (r < 0 || r >= e.dur) continue;
+    const ramp = Math.min(1, (r + 1) / 3) * (r > e.dur * 0.7 ? Math.max(0, (e.dur - r) / (e.dur * 0.3)) : 1);
+    s += Math.log(1 + e.pct) * ramp;
+  }
+  return s;
+}
+function imIdx(d, h) {
+  const k = d + "|" + h; if (imMemo.has(k)) return imMemo.get(k);
+  const P = IM_DIST[d], kn = Math.floor(h / 4), f = (h % 4) / 4, sm = f * f * (3 - 2 * f);
+  const v = (x) => (imR("nz", d, x) * 2 - 1) * P.nz * 2;
+  const lg = P.a1 * Math.sin((2 * Math.PI * h) / P.p1 + imR("ph1", d) * 6.283) + P.a2 * Math.sin((2 * Math.PI * h) / P.p2 + imR("ph2", d) * 6.283)
+    + v(kn) + (v(kn + 1) - v(kn)) * sm + imEvEffect(d, h);
+  const x = Math.round(Math.min(160, Math.max(60, 100 * Math.exp(lg))) * 100) / 100;
+  if (imMemo.size > 20000) imMemo.clear();
+  imMemo.set(k, x); return x;
+}
+function imOffers(H, epoch) {
+  const out = [], types = ["platte", "alt", "loft"];
+  const mk = (i, type) => {
+    const T = IM_TYPES[type], base = Math.round((T.min + imR("ob", epoch, H, i) * (T.max - T.min)) / 500) * 500;
+    const street = IM_STREETS[Math.floor(imR("os", epoch, H, i) * IM_STREETS.length)] + " " + (1 + Math.floor(imR("on", epoch, H, i) * 60));
+    return { id: H + "-" + i, i, type, d: T.d, name: T.name + " " + street, base, price: Math.round(base * imIdx(T.d, H) / 100 * 1.05), rent: Math.round(base * T.rate), lux: type === "villa" };
+  };
+  for (let i = 0; i < 3; i++) { const r = imR("ot", epoch, H, i) * 100; out.push(mk(i, r < 35 ? "platte" : r < 70 ? "alt" : "loft")); }
+  const day = Math.floor(H / 24);
+  if (H === day * 24 + 6 + Math.floor(imR("vh", epoch, day) * 14)) out.push(mk(3, "villa"));   // 1× am Tag, tagsüber
+  return out;
+}
+const imCond = (h, t) => (t < num(h.renoAt) ? 100 : Math.max(0, 100 - Math.floor((t - num(h.renoAt)) / IM_DECAY)));
+const imBm = (c) => (c >= 70 ? 1 : c >= 50 ? 0.5 : 0);
+const imCondF = (c) => (c >= 70 ? 1 : c >= 50 ? 0.85 : 0.6);
+const imSum = (h, f) => Object.keys(h.extras || {}).reduce((s, k) => s + (h.extras[k] && IM_EXTRAS[k] ? IM_EXTRAS[k][f] : 0), 0);
+const imReno = (h, t) => num(h.renoUntil) > t && t >= num(h.renoStart);
+function imRentAt(h, t, H) {   // Miete pro Stunde in Stunde H (0 bei Leerstand/Renovierung)
+  if (imReno(h, t)) return { r: 0, vac: false };
+  const tier = IM_TIERS[h.tier] || IM_TIERS[1], vac = imR("vac", h.id, H) < tier.v, c = imCond(h, t);
+  return { r: vac ? 0 : h.base * IM_TYPES[h.type].rate * tier.f * imCondF(c) * (1 + imBm(c) * imSum(h, "m")), vac };
+}
+function imAccrue(h, from, to) {
+  let rent = 0, cost = 0; const ev = [];
+  for (let t = from; t < to;) {
+    const H = Math.floor(t / HOUR), end = Math.min(to, (H + 1) * HOUR), x = imRentAt(h, t, H);
+    let r = x.r * (end - t) / HOUR;
+    if (end === (H + 1) * HOUR && !imReno(h, t)) {          // Haus-Events nur für volle, abgelaufene Stunden
+      const u = imR("hev", h.id, H);
+      if (u < 0.004) { const c = Math.round(h.base * 0.05); cost += c; ev.push({ t: end, k: "wasser", a: -c }); }
+      else if (u < 0.007 && x.r > 0) { ev.push({ t: end, k: "zahlt", a: -Math.round(r) }); r = 0; }
+      else if (u < 0.010 && x.r > 0) { r += x.r; ev.push({ t: end, k: "treu", a: Math.round(x.r) }); }
+    }
+    rent += r; t = end;
+  }
+  return { rent, cost, ev };
+}
+function imSettle(h, t) {
+  const end = Math.min(t, num(h.lastCol) + IM_CAP);
+  if (end > num(h.rentFrom)) { const a = imAccrue(h, num(h.rentFrom), end); h.kasse = r2(num(h.kasse) + a.rent); h.cost = r2(num(h.cost) + a.cost); h.ev = (h.ev || []).concat(a.ev).slice(-10); h.rentFrom = end; }
+}
+const imValue = (h, t) => { const c = imCond(h, t); return Math.round(h.base * imIdx(h.d, Math.floor(t / HOUR)) / 100 * (0.7 + 0.3 * c / 100) * (1 + imBm(c) * imSum(h, "w"))); };
+const imRenoCost = (h, t) => Math.max(1000, Math.round(h.base * 0.08 * (100 - imCond(h, t)) / 100 * (1 + 0.125 * Object.keys(h.extras || {}).length)));
+function imHouseView(h, t) {
+  const H = Math.floor(t / HOUR), c = imCond(h, t), cur = imRentAt(h, t, H), copy = JSON.parse(JSON.stringify(h));
+  imSettle(copy, t);
+  return { ...h, cond: c, value: imValue(h, t), rentH: Math.round(cur.r * 100) / 100, vacant: cur.vac, reno: imReno(h, t),
+    renoCost: imRenoCost(h, t), kasse: r2(Math.max(0, num(copy.kasse) - num(copy.cost))), ev: copy.ev || [], capEnd: num(h.lastCol) + IM_CAP,
+    trend: Math.round((imIdx(h.d, H) / imIdx(h.d, H - 24) - 1) * 10000) / 100 };
+}
+async function immoRoute(req, url) {
+  const now = Date.now(), H = Math.floor(now / HOUR);
+  if (!imSec) imSec = await secret();
+  const s = getStore("immo"), cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 }, epoch = num(cfg.epoch);
+  let name = "", body = {};
+  if (req.method === "POST") { try { body = await req.json(); } catch { return json({ error: "kaputt", now }, 400); } name = normName(body.name); }
+  else name = normName(url.searchParams.get("name") || "");
+  // Markt und Stadtteile (für alle gleich)
+  async function market() {
+    const offers = imOffers(H, epoch);
+    const sold = await Promise.all(offers.map((o) => s.get(`s/${H}/${o.i}`, { type: "json" }).catch(() => null)));
+    offers.forEach((o, k) => { o.by = sold[k] ? sold[k].by : null; });
+    const index = {}, history24 = {};
+    for (const d of Object.keys(IM_DIST)) { index[d] = imIdx(d, H); history24[d] = Array.from({ length: 25 }, (_, k) => imIdx(d, H - 24 + k)); }
+    const events = [];
+    for (let day = Math.floor(H / 24) - 2; day <= Math.floor(H / 24); day++) for (const e of imEvents(day)) if (e.start <= H && H < e.start + e.dur) events.push({ id: e.id, d: e.d, text: e.text, pct: e.pct, start: e.start * HOUR, end: (e.start + e.dur) * HOUR });
+    return { now, hour: H, next: (H + 1) * HOUR, offers, index, history24, events };
+  }
+  let acc = null, key = "", W = null;
+  if (name) {
+    if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name", now }, 400);
+    key = encodeURIComponent(name);
+    acc = await getStore("spielstaende").get(key, { type: "json" });
+    if (!acc) return json({ error: "unbekannt", now }, 404);
+    if (acc.banned) return json({ error: "gesperrt", now }, 403);
+    if (!authed(req, acc)) return json({ error: "login", now }, 401);
+    W = await wirtGet(key);
+  }
+  const mine = () => ({ houses: W.immo.houses.map((h) => imHouseView(h, now)), log: W.immo.log.slice(0, 12), in: W.in, out: W.out });
+  if (req.method === "GET") return json({ ok: true, ...(await market()), ...(W ? { mine: mine() } : {}) });
+  if (req.method !== "POST") return json({ error: "methode", now }, 405);
+  if (!W) return json({ error: "login", now }, 401);
+  const st = acc.state || {}, ws = getStore("wirtschaft");
+  const fail = async (e, extra) => json({ error: e, ...(await market()), mine: mine(), ...(extra || {}) }, 400);
+  const done = async (extra) => { await ws.setJSON(key, W); return json({ ok: true, ...(await market()), mine: mine(), ...extra }); };
+  const hs = W.immo.houses, h = body.id ? hs.find((x) => x.id === body.id) : null;
+
+  if (body.action === "buy") {
+    const [hh, ii] = String(body.offerId || "").split("-").map(Number);
+    if (hh !== H) return fail("angebot_weg");
+    const o = imOffers(H, epoch).find((x) => x.i === ii);
+    if (!o) return fail("angebot_weg");
+    if (hs.length >= IM_MAX) return fail("max_haeuser");
+    if (o.price > wirtBal(st, W) + 10) return fail("guthaben");
+    const sk = `s/${H}/${o.i}`, prev = await s.get(sk, { type: "json" }).catch(() => null);
+    if (prev) return fail("verkauft", { by: prev.by });
+    // Gleichzeitige Käufer: jeder legt einen Anspruch ab, nach kurzer Wartezeit gewinnt der früheste
+    await s.setJSON(`c/${H}/${o.i}/${key}`, { t: now, n: name });
+    await new Promise((z) => setTimeout(z, 350));
+    const { blobs } = await s.list({ prefix: `c/${H}/${o.i}/` });
+    const claims = (await Promise.all(blobs.map((b) => s.get(b.key, { type: "json" }).catch(() => null)))).filter(Boolean).sort((a, b) => a.t - b.t || (a.n < b.n ? -1 : 1));
+    const again = await s.get(sk, { type: "json" }).catch(() => null);
+    if (again && again.by !== name) return fail("verkauft", { by: again.by });
+    if (claims.length && claims[0].n !== name) return fail("verkauft", { by: claims[0].n });
+    await s.setJSON(sk, { by: name, t: now });
+    hs.push({ id: "h" + now.toString(36) + Math.floor(Math.random() * 1296).toString(36), type: o.type, d: o.d, name: o.name, base: o.base, paid: o.price, boughtAt: now,
+      tier: 1, extras: {}, renoAt: now, renoStart: 0, renoUntil: 0, rentFrom: now, lastCol: now, kasse: 0, cost: 0, ev: [] });
+    W.in = r2(W.in + o.price);
+    return done({ cost: o.price, house: hs[hs.length - 1].id });
+  }
+  if (body.action === "collect") {
+    let pay = 0; const log = [];
+    for (const x of hs) {
+      imSettle(x, now); const p = r2(Math.max(0, num(x.kasse) - num(x.cost))); pay = r2(pay + p);
+      for (const e of x.ev || []) log.push({ ...e, n: x.name });
+      x.kasse = 0; x.cost = 0; x.ev = []; x.lastCol = now; x.rentFrom = now;
+    }
+    W.immo.log = log.sort((a, b) => b.t - a.t).concat(W.immo.log).slice(0, 12);
+    if (!(pay > 0)) { await ws.setJSON(key, W); return fail("leer"); }
+    W.out = r2(W.out + pay); W.immoRent = r2(num(W.immoRent) + pay);
+    return done({ pay });
+  }
+  if (!h) return fail("haus_weg");
+  if (body.action === "tier") {
+    const t = Number(body.tier); if (!(t === 0 || t === 1 || t === 2)) return fail("aktion");
+    imSettle(h, now); h.tier = t; return done({});
+  }
+  if (body.action === "extra") {
+    const k = String(body.key), E = IM_EXTRAS[k];
+    if (!E) return fail("aktion");
+    if (imReno(h, now)) return fail("renoviert");
+    if (h.extras[k]) return fail("schon_gebaut");
+    const c = Math.round(h.base * E.c);
+    if (c > wirtBal(st, W) + 10) return fail("guthaben");
+    imSettle(h, now); h.extras[k] = true; W.in = r2(W.in + c);
+    return done({ cost: c });
+  }
+  if (body.action === "reno") {
+    if (imReno(h, now)) return fail("renoviert");
+    if (imCond(h, now) >= 95) return fail("top");
+    const c = imRenoCost(h, now), dur = (IM_TYPES[h.type].reno + Object.keys(h.extras).length) * HOUR;
+    if (c > wirtBal(st, W) + 10) return fail("guthaben");
+    imSettle(h, now); h.renoStart = now; h.renoUntil = now + dur; h.renoAt = now + dur; W.in = r2(W.in + c);
+    return done({ cost: c, until: h.renoUntil });
+  }
+  if (body.action === "sell") {
+    if (imReno(h, now)) return fail("renoviert");
+    imSettle(h, now);
+    const v = imValue(h, now), sale = Math.round(now - h.boughtAt < 24 * HOUR ? v * 0.9 : v), rent = r2(Math.max(0, num(h.kasse) - num(h.cost)));
+    W.immo.houses = hs.filter((x) => x !== h);
+    W.immo.log = (h.ev || []).map((e) => ({ ...e, n: h.name })).concat(W.immo.log).slice(0, 12);
+    W.out = r2(W.out + sale + rent); W.immoRent = r2(num(W.immoRent) + rent); W.immoSales = r2(num(W.immoSales) + sale);
+    return done({ sale, rent });
   }
   return fail("aktion");
 }
@@ -950,6 +1167,7 @@ export default async (req) => {
   if (url.searchParams.has("crash")) return crash(req, url);
   if (url.searchParams.has("wetten")) return wetten(req, url);
   if (url.searchParams.has("wirt")) return wirtRoute(req, url);
+  if (url.searchParams.has("immo")) return immoRoute(req, url);
   // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");

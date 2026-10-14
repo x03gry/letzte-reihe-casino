@@ -1540,6 +1540,61 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .gs-card.locked .gs-up{opacity:.6}
 @media (max-width:1100px){.gs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){.gs-grid{grid-template-columns:1fr}.gs-all{align-self:stretch}.gs-ill{width:64px;height:64px}.gs-ill svg{width:52px;height:52px}}
+/* ---- Immobilien ---- */
+.im-evs{display:flex;flex-direction:column;gap:8px}
+.im-ev{display:flex;align-items:center;gap:10px;border-radius:12px;padding:9px 14px;font-size:14px;border:1px solid}
+.im-ev.up{background:rgba(47,224,143,.08);border-color:rgba(47,224,143,.35)}
+.im-ev.dn{background:rgba(255,77,106,.08);border-color:rgba(255,77,106,.35)}
+.im-ev b{font:700 14px var(--f-num)}.im-ev.up b{color:var(--win)}.im-ev.dn b{color:var(--loss)}
+.im-ev small{margin-left:auto;color:var(--mute);font-size:12px;white-space:nowrap}
+.im-kasse{border-color:var(--brass-lo);background:linear-gradient(160deg,var(--panel2),var(--panel));gap:7px}
+.im-kh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.im-kasse>b{color:var(--brass-hi);font-size:24px}
+.im-kasse .btn{min-height:42px}
+.im-log{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--mute)}
+.im-log span b{font-family:var(--f-num)}
+.im-sec{display:flex;flex-direction:column;gap:10px}
+.im-sec h2{margin:0;font-size:15px;font-weight:700}.im-sec h2 small{color:var(--mute);font-weight:500;font-size:13px}
+.im-dists{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.im-dist{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.im-dist .t{display:flex;justify-content:space-between;align-items:center;gap:8px}.im-dist .t span{font-weight:600}.im-dist .t b{font:700 14px var(--f-num)}
+.im-dist svg{width:100%;height:32px;display:block}
+.im-dist small{font-size:12.5px;color:var(--mute)}
+.im-houses{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:16px}
+.im-empty{background:var(--panel);border:1px dashed var(--line2);border-radius:14px;padding:22px;color:var(--mute);text-align:center}
+.im-h{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.im-pic{position:relative;aspect-ratio:2/1;background:#0b141c}
+.im-pic svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.im-pic .tag{position:absolute;top:10px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.im-pic .tag.l{left:10px;background:rgba(11,19,27,.82);color:var(--ink);font-weight:600}
+.im-pic .tag.r{right:10px}
+.st-ok{background:rgba(47,224,143,.18);color:var(--win)}.st-vac{background:rgba(255,77,106,.22);color:#ff8095}.st-bad{background:rgba(255,176,32,.22);color:var(--brass-hi)}.st-reno{background:rgba(56,189,248,.2);color:#7dd3fc}
+.im-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.im-nm{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.im-nm h3{margin:0;font:700 17px var(--f-disp);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.im-nm b{font:700 13px var(--f-num);flex:none}
+.im-ms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.im-ms .ms b{font-size:15px}
+.im-occ{font-size:12.5px;color:var(--mute)}
+.im-chips{display:flex;flex-wrap:wrap;gap:6px}
+.im-chip{font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:999px;background:transparent;color:var(--mute);border:1px dashed var(--line2);min-height:32px}
+.im-chip.own{background:rgba(47,224,143,.14);color:var(--win);border:1px solid rgba(47,224,143,.4);cursor:default}
+.im-chip.broke{background:rgba(255,176,32,.12);color:var(--brass-hi);border:1px solid rgba(255,176,32,.35)}
+.im-chip:disabled:not(.own):not(.broke){opacity:.5}
+.im-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.im-btns .btn{font-size:13.5px;padding:10px 8px}.im-btns .btn small{color:var(--mute);font-family:var(--f-num)}
+.im-offers{display:flex;flex-direction:column;gap:8px}
+.im-of{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:var(--bg2);border-radius:10px;padding:8px 10px}
+.im-of .pv{width:96px;height:48px;border-radius:8px;overflow:hidden;flex:none;position:relative}
+.im-of .pv svg{position:absolute;inset:0;width:100%;height:100%}
+.im-of .inf{display:flex;flex-direction:column;min-width:150px;flex:1 1 160px}.im-of .inf span{font-weight:600}.im-of .inf small{font-size:12.5px;color:var(--mute)}
+.im-of .tg{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px}
+.tg-lux{background:rgba(255,176,32,.18);color:var(--brass-hi)}.tg-ok{background:rgba(47,224,143,.16);color:var(--win)}.tg-hype{background:rgba(213,81,129,.2);color:#ff8fb0}.tg-rent{background:rgba(56,189,248,.16);color:#7dd3fc}
+.im-of .pr{font:700 16px var(--f-num);font-variant-numeric:tabular-nums;min-width:96px;text-align:right}
+.im-of .btn{flex:none;padding:8px 16px;min-height:40px}
+.im-of.sold{opacity:.6}.im-of .by{font-size:13px;color:var(--mute);min-width:120px;text-align:right}
+@media (max-width:1000px){.im-dists{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.wx-tile.im-kasse{flex-direction:column;align-items:stretch}.im-kasse>b{text-align:left}.im-dists{grid-template-columns:1fr 1fr}.im-of .inf{flex-basis:calc(100% - 120px)}.im-of .pr{min-width:0;text-align:left;flex:1}.im-of .btn{min-height:44px}.im-chip{min-height:38px}.im-btns .btn{min-height:44px}}
 /* ---- Tresor ---- */
 .tr-vault{align-items:center;text-align:center;gap:10px;background:radial-gradient(80% 60% at 50% 18%,rgba(255,176,32,.12),rgba(255,176,32,0) 70%),var(--panel)}
 .tr-vault.ready{border-color:var(--win);background:radial-gradient(80% 60% at 50% 18%,rgba(47,224,143,.16),rgba(47,224,143,0) 70%),var(--panel)}
@@ -1591,6 +1646,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     <h3>Wirtschaft</h3>
     <button class="navbtn" data-go="tresor" data-nav="tresor"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="11" cy="11.5" r="3.5"/><path d="M11 8v1M11 14v1M7.5 11.5h1M13.5 11.5h1M18 9v5M6 19v2M16 19v2"/></svg>Tresor</button>
     <button class="navbtn" data-go="geschaefte" data-nav="geschaefte"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v8h14v-8M10 21v-5h4v5"/></svg>Geschäfte</button>
+    <button class="navbtn" data-go="immobilien" data-nav="immobilien"><svg class="wx-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Immobilien</button>
     <h3>Spiele</h3>
     <div id="sideGames"></div>
     <a class="adminlink" id="adminLink" href="/admin" hidden>Admin-Ansicht</a>
@@ -1666,6 +1722,22 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
   </div>
   <button class="btn gold big gs-all" type="button" id="gsAll">Alles abholen</button>
   <div class="gs-grid" id="gsGrid"></div>
+</section>
+
+<!-- ======================= WIRTSCHAFT: IMMOBILIEN ======================= -->
+<section id="v-immobilien" class="view wx" hidden>
+  <div class="phead"><div><p class="eyebrow">Wirtschaft</p><h1>Immobilien</h1></div><p class="lede">Häuser kaufen, vermieten, ausbauen. Miete sammelt sich bis zu 8 Stunden an. Die Werte schwanken je nach Stadtteil, für alle Spieler gleich.</p></div>
+  <div class="wx-off" id="imOff" hidden></div>
+  <div class="im-evs" id="imEvs"></div>
+  <div class="wx-tiles">
+    <div class="wx-tile"><span>Gesamtwert</span><b class="num" id="imT1">–</b><small id="imT1s">&nbsp;</small></div>
+    <div class="wx-tile"><span>Miete pro Stunde</span><b class="num" id="imT2">–</b><small id="imT2s">&nbsp;</small></div>
+    <div class="wx-tile im-kasse"><div class="im-kh"><span>Mietkasse</span><small id="imKFull">&nbsp;</small></div><b class="num" id="imK">–</b><div class="tr-bar"><i id="imKBar"></i></div>
+      <button class="btn gold" type="button" id="imCollect">Abholen</button><div class="im-log" id="imLog"></div></div>
+  </div>
+  <section class="im-sec"><h2>Stadtteile <small>· letzte 24 Std.</small></h2><div class="im-dists" id="imDists"></div></section>
+  <section class="im-sec"><h2>Deine Häuser <small id="imHN">· 0 von 8</small></h2><div class="im-houses" id="imHouses"></div></section>
+  <section class="panel im-market"><div class="ph"><h2>Zum Kauf</h2><span class="note" id="imNext">&nbsp;</span></div><p class="note">+5 % Kaufnebenkosten · Verkauf in den ersten 24 Std. −10 % · jedes Angebot gibt es nur einmal</p><div class="im-offers" id="imOffers"></div></section>
 </section>
 
 <!-- ======================= BONUS ======================= -->
@@ -2882,8 +2954,8 @@ $('starBtn').onclick=()=>{if(S.bal<CAP)return;confirmBox('Stern holen?','Dein Gu
   modal(`<p class="eyebrow">Geschafft</p><h2>Stern Nr. ${S.stars}</h2><p>Zurück auf 1.000 Coins. Auf ein Neues!</p><div class="row"><button class="btn gold" data-close>Weiter</button></div>`)})};
 
 // ================= Router =================
-const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte'];
-const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte'};
+const VIEWS=['lobby','vitrine','bonus','stats',...PLAY,'tresor','geschaefte','immobilien'];
+const TITLES={lobby:'Spiele',vitrine:'Vitrine',bonus:'Bonus',stats:'Statistik',tresor:'Tresor',geschaefte:'Geschäfte',immobilien:'Immobilien'};
 let cur='lobby';const onShow={};
 function go(v){if(v==='wirt')v=(S.prefs&&WIRT_VIEWS.includes(S.prefs.wirtLast)&&S.prefs.wirtLast)||'tresor';if(!VIEWS.includes(v))v='lobby';if(WIRT_VIEWS.includes(v))S.prefs.wirtLast=v;if(PLAY.includes(v)&&!owns(v)){askUnlock(v);v='lobby'}
   cur=v;document.querySelectorAll('main>.view').forEach(s=>s.hidden=s.id!=='v-'+v);
@@ -7567,7 +7639,7 @@ onShow.slot=SL.show;
 // ================= Wirtschaft: gemeinsame Helfer =================
 // Alles, was Geld bewegt, läuft über den Server (/api/spielstand?wirt=1 …). Der Spielstand trägt in S.wirt.in/out dieselben
 // Summen wie die Kasse auf dem Server; beim Speichern gleicht der Server das Guthaben ab (wie bei Überweisungen).
-const WIRT_VIEWS=['tresor','geschaefte'];
+const WIRT_VIEWS=['tresor','geschaefte','immobilien'];
 const WIRT_KEYS=['tresor','shops','immo','immoSell','aktien','divi','firma'];
 let srvOff=0,srvSeen=0;
 const srvNow=()=>Date.now()+srvOff;
@@ -7586,7 +7658,7 @@ function wirtPay(src,total,statPart,msg){const w=wirt();total=r2(total);w.out=r2
 // Einzahlung in die Wirtschaft (erst nachdem der Server zugestimmt hat)
 function wirtSpend(amount){const w=wirt();w.in=r2(w.in+amount);spend(amount)}
 const WERR={guthaben:'Dafür reicht dein Guthaben nicht.',zu_wenig:'Das ist zu wenig.',zu_viel:'Das ist zu viel.',laufzeit:'Diese Laufzeit gibt es nicht.',
-  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Das Lager ist noch leer.',
+  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',
   gesperrt:'Dein Account ist gesperrt.',aktion:'Das geht so nicht.'};
 let wxBusy=false,wxReq=false;
 // Anfrage an einen Wirtschafts-Endpunkt. Wartet vorher, bis der Spielstand gespeichert ist (damit sich nichts überkreuzt).
@@ -7601,7 +7673,7 @@ async function wxFetch(q,body){if(!ACCOUNTS||!acct){toast('Die Wirtschaft gibt e
   srvClock(d.now,t0);
   if(r.status===401){logout('Bitte melde dich neu an.');return null}
   if(r.status===403){logout('Dieser Account wurde gesperrt.');return null}
-  if(!r.ok||!d.ok){if(body)toast(WERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.','bad');d.failed=true}
+  if(!r.ok||!d.ok){if(body&&!(d.error==='verkauft'&&d.by))toast(WERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.','bad');d.failed=true}
   return d}
 const wxHM=ms=>{const m=Math.floor(Math.max(0,ms)/60000);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};
 const wxDur=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}:${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`:`${m}:${String(s%60).padStart(2,'0')}`};
@@ -7763,6 +7835,172 @@ const GS=(()=>{
   setInterval(()=>{if(cur!=='geschaefte'||document.hidden)return;live();pull()},1000);
   return{show(){render();pull(true)},render}})();
 onShow.geschaefte=GS.show;
+// ================= Wirtschaft: Hausbild (Inline-SVG 320×160, zeigt immer den aktuellen Stand) =================
+// type: villa|alt|loft|platte · x: {garten,garage,pool,solar} · o: {lit (vermietet), cond (Zustand %), reno (Renovierung), uid}
+function houseSVG(type,x,o){x=x||{};o=o||{};const u='h'+(o.uid||'x').replace(/[^a-z0-9]/gi,''),cond=o.cond==null?100:o.cond,worn=cond<50,faded=cond>=50&&cond<70,reno=!!o.reno,lit=o.lit!==false&&!reno;
+  const D=b=>b?'inline':'none',walls={villa:['#f4f0e6','#3d4756'],alt:['#ede3cc','#8a3d2c'],loft:['#8e3b2f','#5a2219'],platte:['#a7b2bc','#6c7884']}[type]||['#f4f0e6','#3d4756'];
+  const win=reno?'#2a3644':!lit?'#1c2c3c':worn?'#d9a650':'#ffc965',garten=!!x.garten,solarF=worn?'#141a22':'#1c3768',solarS=worn?'#3a4250':'#a9c1e0',solarL=worn?'#2a3038':'#7f9cc6';
+  const crackS=worn?`<path d="M100 20l7 9-4 5 6 8M150 14l-3 10 5 6M200 22l-6 8 4 6" stroke="#8a95a3" stroke-width=".8" fill="none"/>`:'';
+  const solarV=`<g display="${D(x.solar)}"><polygon points="86,46 102,31 218,31 234,46" fill="${solarF}" stroke="${solarS}" stroke-width=".6"/><path d="M104.5 46L116.5 31M123 46L131 31M141.5 46L145.5 31M160 46L160 31M178.5 46L174.5 31M197 46L189 31M215.5 46L203.5 31M94 38.5H226" stroke="${solarL}" stroke-width=".5"/>${worn?'<path d="M118 34l6 6 4-3 5 7M190 33l-5 5 3 4" stroke="#8a95a3" stroke-width=".7" fill="none"/>':''}</g>`;
+  const solarA=`<g display="${D(x.solar)}"><polygon points="108,39 126,30 194,30 212,39" fill="${solarF}" stroke="${solarS}" stroke-width=".6"/><path d="M128.8 39L139.6 30M149.6 39L153.2 30M170.4 39L166.8 30M191.2 39L180.4 30M117 34.5H203" stroke="${solarL}" stroke-width=".5"/>${worn?'<path d="M140 32l5 5 4-2M180 31l-4 6" stroke="#8a95a3" stroke-width=".7" fill="none"/>':''}</g>`;
+  const solarL4=`<g display="${D(x.solar)}" fill="${solarF}" stroke="${solarS}" stroke-width=".6"><polygon points="94,36 100,27 118,27 112,36"/><polygon points="114,36 120,27 138,27 132,36"/><polygon points="188,36 194,27 212,27 206,36"/><polygon points="208,36 214,27 232,27 226,36"/>${worn?'<path d="M100 29l6 5M196 30l7 4" stroke="#8a95a3" fill="none"/>':''}</g>`;
+  const solarP=`<g display="${D(x.solar)}" fill="${solarF}" stroke="${solarS}" stroke-width=".6"><polygon points="66,22 74,12 96,12 88,22"/><polygon points="98,22 106,12 128,12 120,22"/><polygon points="130,22 138,12 160,12 152,22"/><polygon points="162,22 170,12 192,12 184,22"/><polygon points="194,22 202,12 224,12 216,22"/>${worn?'<path d="M104 14l6 6M170 15l8 5" stroke="#8a95a3" fill="none"/>':''}</g>`;
+  const bbox={villa:[74,20,256,128],alt:[95,7,240,128],loft:[86,20,250,128],platte:[56,12,254,128]}[type]||[74,20,256,128];
+  let scaf='';if(reno){const[a,t,b,bt]=bbox;let p='';for(let xx=a;xx<=b;xx+=26)p+=`M${xx} ${t-2}V${bt}`;let h='';for(let yy=bt-24;yy>t;yy-=24)h+=`<rect x="${a-2}" y="${yy}" width="${b-a+4}" height="3" fill="#b88a4a"/>`;
+    let br='';for(let xx=a;xx+26<=b;xx+=52)br+=`M${xx} ${bt-24}L${xx+26} ${t+10}`;
+    scaf=`<g><path d="${p}" stroke="#c9a46a" stroke-width="2.2"/>${h}<path d="${br}" stroke="#9c7742" stroke-width="1.2" fill="none"/></g>
+    <g>${Array.from({length:9},(_,i)=>`<rect x="${4+i*35}" y="129" width="33" height="12" fill="${i%2?'#ffffff':'#ff4d6a'}" opacity=".95"/><rect x="${4+i*35}" y="129" width="33" height="12" fill="none" stroke="#0b141c" stroke-opacity=".25"/>`).join('')}
+      ${Array.from({length:10},(_,i)=>`<rect x="${3+i*35}" y="127" width="2.5" height="17" fill="#d0d6dc"/>`).join('')}<rect x="122" y="118" width="76" height="11" rx="2" fill="#ffb020"/><text x="160" y="126" text-anchor="middle" font-size="7" font-weight="700" fill="#1d1300" font-family="Chakra Petch, monospace" letter-spacing="1.2">BAUSTELLE</text></g>`}
+  return `<svg viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${({villa:'Stadtvilla',alt:'Altbau',loft:'Loft',platte:'Plattenbau'})[type]||'Haus'}">
+  <defs><linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1c2e"/><stop offset=".65" stop-color="#22405a"/><stop offset="1" stop-color="#4a5f6e"/></linearGradient>
+    <linearGradient id="${u}w" x1="0" y1="0" x2="0" y2="1">${worn?'<stop offset="0" stop-color="#7d8f45"/><stop offset="1" stop-color="#3e4d1f"/>':'<stop offset="0" stop-color="#7fe0f7"/><stop offset="1" stop-color="#1b7cc0"/>'}</linearGradient>
+    <linearGradient id="${u}l" x1="0" y1="0" x2="0" y2="1">${worn?'<stop offset="0" stop-color="#7a6a3a"/><stop offset="1" stop-color="#4b4024"/>':'<stop offset="0" stop-color="#3f8a47"/><stop offset="1" stop-color="#22532a"/>'}</linearGradient>
+    <linearGradient id="${u}h" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient>
+    <filter id="${u}f"><feColorMatrix type="saturate" values="${worn?.45:.75}"/><feComponentTransfer><feFuncR type="linear" slope=".92"/><feFuncG type="linear" slope=".92"/><feFuncB type="linear" slope=".92"/></feComponentTransfer></filter>
+    <pattern id="${u}b" width="12" height="6" patternUnits="userSpaceOnUse"><rect width="12" height="6" fill="#8e3b2f"/><path d="M0 0.3H12M0 3.3H12M6 0V3M0 3V6M12 3V6" stroke="#6b2a21" stroke-width=".7"/></pattern></defs>
+  <rect width="320" height="160" fill="url(#${u}s)"/>
+  <circle cx="282" cy="24" r="7" fill="#f6ead0" opacity=".9"/><circle cx="282" cy="24" r="16" fill="#f6ead0" opacity=".08"/>
+  <g fill="#ffffff" opacity=".55"><circle cx="30" cy="16" r=".8"/><circle cx="72" cy="10" r=".7"/><circle cx="118" cy="20" r=".6"/><circle cx="214" cy="12" r=".8"/><circle cx="246" cy="30" r=".6"/><circle cx="306" cy="48" r=".7"/></g>
+  <g display="${D(type!=='villa')}" fill="#173049"><rect x="0" y="70" width="30" height="60"/><rect x="26" y="86" width="26" height="44"/><rect x="50" y="58" width="20" height="72"/><rect x="246" y="64" width="26" height="66"/><rect x="270" y="82" width="22" height="48"/><rect x="290" y="56" width="30" height="74"/>
+    <g fill="#2a4762"><rect x="6" y="78" width="3" height="3"/><rect x="16" y="90" width="3" height="3"/><rect x="56" y="66" width="3" height="3"/><rect x="62" y="84" width="3" height="3"/><rect x="296" y="66" width="3" height="3"/><rect x="306" y="80" width="3" height="3"/><rect x="254" y="74" width="3" height="3"/></g></g>
+  <g display="${D(type==='villa')}"><circle cx="14" cy="96" r="24" fill="#16352a"/><circle cx="44" cy="86" r="28" fill="#1a3e30"/><circle cx="72" cy="100" r="20" fill="#16352a"/><circle cx="262" cy="94" r="22" fill="#16352a"/><circle cx="290" cy="84" r="28" fill="#1a3e30"/><circle cx="318" cy="98" r="20" fill="#16352a"/></g>
+  <g display="${D(!garten)}"><rect x="0" y="128" width="320" height="32" fill="#3a4653"/><rect x="0" y="128" width="320" height="2.5" fill="#556372"/><rect x="0" y="146" width="320" height="14" fill="#232c36"/><path d="M10 153H34M58 153H82M106 153H130M154 153H178M202 153H226M250 153H274M298 153H320" stroke="#7d8996" stroke-width="1.2"/></g>
+  <g display="${D(garten)}"><rect x="0" y="128" width="320" height="32" fill="url(#${u}l)"/><polygon points="150,128 170,128 180,160 140,160" fill="#cbbfa9"/>
+    <rect x="0" y="122" width="58" height="10" rx="5" fill="${worn?'#5d5530':'#2c6b34'}"/><rect x="212" y="123" width="40" height="9" rx="4.5" fill="${worn?'#5d5530':'#2c6b34'}"/><rect x="34" y="94" width="5" height="38" fill="#5a3d26"/>
+    ${worn?'<path d="M36 96L26 80M36 92L48 76M30 86L22 84M44 82L52 80M36 100L28 92" stroke="#5a3d26" stroke-width="2.2" stroke-linecap="round" fill="none"/>':'<circle cx="36" cy="88" r="19" fill="#2f7a3c"/><circle cx="24" cy="96" r="12" fill="#296c35"/><circle cx="49" cy="95" r="13" fill="#3a8a46"/><g><circle cx="108" cy="133" r="1.8" fill="#ff5c8a"/><circle cx="116" cy="135" r="1.8" fill="#ffd27a"/><circle cx="124" cy="133" r="1.8" fill="#ff5c8a"/><circle cx="196" cy="133" r="1.8" fill="#ffd27a"/><circle cx="204" cy="135" r="1.8" fill="#ff5c8a"/><circle cx="212" cy="133" r="1.8" fill="#ffd27a"/></g>'}</g>
+  <g display="${D(x.garage)}"><polygon points="254,160 306,160 300,128 262,128" fill="#4b5562"/><rect x="258" y="100" width="52" height="28" fill="${walls[0]}"/><rect x="258" y="100" width="52" height="28" fill="url(#${u}h)"/><rect x="255" y="96" width="58" height="5" fill="${walls[1]}"/>
+    ${worn?'<rect x="264" y="106" width="40" height="22" fill="#141a20"/><rect x="264" y="106" width="40" height="12" fill="#8b5a3c"/><path d="M264 110H304M264 114H304" stroke="#6b4129" stroke-width="1"/><circle cx="270" cy="108" r="1.6" fill="#a8693f"/><circle cx="292" cy="112" r="2" fill="#a8693f"/>':'<rect x="264" y="106" width="40" height="22" fill="#9aa5b1"/><path d="M264 110.5H304M264 115H304M264 119.5H304M264 124H304" stroke="#76818d" stroke-width="1"/><rect x="304" y="108" width="3" height="3" fill="#ffcf73"/>'}</g>
+  <ellipse cx="160" cy="129" rx="104" ry="4.5" fill="#000" opacity=".28"/>
+  <g${faded||worn?` filter="url(#${u}f)"`:''}>
+  <g display="${D(type==='villa')}"><polygon points="240,52 254,46 254,122 240,128" fill="#cfc8b9"/><rect x="80" y="52" width="160" height="76" fill="#f4f0e6"/><polygon points="74,52 108,24 212,24 246,52" fill="#3d4756"/><polygon points="246,52 212,24 222,20 256,46" fill="#2a323e"/><path d="M86 44H234M96 36H224M104 30H216" stroke="#353e4c" stroke-width="1"/>${solarV}
+    <rect x="76" y="49" width="168" height="5" fill="#e3ddcf"/><rect x="136" y="46" width="48" height="82" fill="#fbf8f1"/><polygon points="131,48 160,27 189,48" fill="#fbf8f1" stroke="#ddd6c6" stroke-width="1.5"/><circle cx="160" cy="40" r="4.5" fill="${win}" stroke="#ddd6c6" stroke-width="2"/><rect x="80" y="88" width="160" height="3" fill="#e3ddcf"/>
+    <g fill="#ffffff"><rect x="90" y="56" width="18" height="26"/><rect x="112" y="56" width="18" height="26"/><rect x="150" y="56" width="20" height="26"/><rect x="190" y="56" width="18" height="26"/><rect x="212" y="56" width="18" height="26"/><rect x="90" y="95" width="18" height="28"/><rect x="112" y="95" width="18" height="28"/><rect x="190" y="95" width="18" height="28"/><rect x="212" y="95" width="18" height="28"/></g>
+    <g fill="${win}"><rect x="92" y="58" width="14" height="22"/><rect x="114" y="58" width="14" height="22"/><rect x="152" y="58" width="16" height="22"/><rect x="192" y="58" width="14" height="22"/><rect x="214" y="58" width="14" height="22"/><rect x="92" y="97" width="14" height="24"/><rect x="114" y="97" width="14" height="24"/><rect x="192" y="97" width="14" height="24"/><rect x="214" y="97" width="14" height="24"/></g>
+    <path d="M99 58V80M92 66H106M121 58V80M114 66H128M160 58V80M152 66H168M199 58V80M192 66H206M221 58V80M214 66H228M99 97V121M92 105H106M121 97V121M114 105H128M199 97V121M192 105H206M221 97V121M214 105H228" stroke="#ffffff" stroke-width="1.4"/>
+    <g fill="#2f5440"><rect x="86" y="56" width="3" height="26"/><rect x="231" y="56" width="3" height="26"/><rect x="86" y="95" width="3" height="28"/><rect x="231" y="95" width="3" height="28"/></g><rect x="136" y="88" width="48" height="4" fill="#e3ddcf"/><rect x="140" y="92" width="4" height="34" fill="#ffffff"/><rect x="176" y="92" width="4" height="34" fill="#ffffff"/><rect x="149" y="95" width="22" height="31" fill="#ffffff"/><rect x="151" y="97" width="18" height="29" fill="${win}"/><path d="M160 97V126" stroke="#ffffff" stroke-width="1.4"/><rect x="142" y="126" width="36" height="3" fill="#d8d1c2"/><rect x="80" y="52" width="160" height="76" fill="url(#${u}h)" opacity=".5"/></g>
+  <g display="${D(type==='alt')}"><rect x="190" y="14" width="9" height="18" fill="#6b3a2c"/><rect x="188" y="12" width="13" height="3" fill="#4a2a20"/><polygon points="223,41 160,12 174,7 238,36" fill="#6a2c20"/><polygon points="97,41 160,12 223,41" fill="#8a3d2c"/><path d="M110 35H210M123 29H197M136 23H184" stroke="#6f3022" stroke-width="1"/>${solarA}
+    <polygon points="220,44 236,38 236,122 220,128" fill="#bdb096"/><rect x="100" y="44" width="120" height="84" fill="#ede3cc"/><rect x="97" y="41" width="126" height="5" fill="#e2d6bb"/><rect x="100" y="72" width="120" height="3" fill="#d6c9ab"/><rect x="100" y="98" width="120" height="3" fill="#d6c9ab"/><rect x="100" y="118" width="120" height="10" fill="#b7a98c"/>
+    <g fill="#d6c9ab"><rect x="109" y="47" width="22" height="3"/><rect x="149" y="47" width="22" height="3"/><rect x="189" y="47" width="22" height="3"/><rect x="109" y="75" width="22" height="3"/><rect x="149" y="75" width="22" height="3"/><rect x="189" y="75" width="22" height="3"/></g>
+    <g fill="#f8f3e7"><rect x="110" y="51" width="20" height="19"/><rect x="150" y="51" width="20" height="19"/><rect x="190" y="51" width="20" height="19"/><rect x="110" y="79" width="20" height="17"/><rect x="150" y="79" width="20" height="17"/><rect x="190" y="79" width="20" height="17"/><rect x="110" y="103" width="20" height="14"/><rect x="190" y="103" width="20" height="14"/></g>
+    <g fill="${win}"><rect x="112" y="53" width="16" height="15"/><rect x="152" y="53" width="16" height="15"/><rect x="192" y="53" width="16" height="15"/><rect x="112" y="81" width="16" height="13"/><rect x="152" y="81" width="16" height="13"/><rect x="192" y="81" width="16" height="13"/><rect x="112" y="105" width="16" height="10"/><rect x="192" y="105" width="16" height="10"/></g>
+    <path d="M120 53V68M112 59H128M160 53V68M152 59H168M200 53V68M192 59H208M120 81V94M112 86H128M160 81V94M152 86H168M200 81V94M192 86H208M120 105V115M200 105V115" stroke="#f8f3e7" stroke-width="1.3"/><rect x="152" y="66" width="16" height="3" fill="#7b8a96"/><rect x="147" y="100" width="26" height="28" fill="#d6c9ab"/><rect x="150" y="103" width="20" height="25" fill="#4a2e1c"/><path d="M160 103V128" stroke="#3a2214" stroke-width="1"/><rect x="152" y="104" width="16" height="5" fill="${win}" opacity=".8"/><rect x="100" y="44" width="120" height="84" fill="url(#${u}h)" opacity=".45"/></g>
+  <g display="${D(type==='loft')}">${solarL4}<polygon points="230,40 246,34 246,122 230,128" fill="#6a2a21"/><rect x="90" y="40" width="140" height="88" fill="url(#${u}b)"/><rect x="88" y="35" width="144" height="6" fill="#5a2219"/><polygon points="232,35 248,29 248,35 232,41" fill="#481b14"/><rect x="90" y="84" width="140" height="4" fill="#6b2a21"/>
+    <rect x="137" y="22" width="46" height="12" rx="2" fill="#15191e" stroke="#ff5c8a" stroke-width="1"/><text x="160" y="31" text-anchor="middle" font-size="8.5" font-weight="700" fill="${worn||reno?'#7a4a5a':'#ff7aa1'}" font-family="Chakra Petch, monospace" letter-spacing="1.5">LOFT</text><rect x="142" y="34" width="2" height="2" fill="#3a3f46"/><rect x="176" y="34" width="2" height="2" fill="#3a3f46"/>
+    <g fill="#2a2f36"><path d="M100 80V56A15 9 0 0 1 130 56V80Z"/><path d="M145 80V56A15 9 0 0 1 175 56V80Z"/><path d="M190 80V56A15 9 0 0 1 220 56V80Z"/><rect x="100" y="94" width="30" height="24"/><rect x="190" y="94" width="30" height="24"/><rect x="148" y="94" width="24" height="34"/></g>
+    <g fill="${win}"><path d="M102 78V57A13 7.5 0 0 1 128 57V78Z"/><path d="M147 78V57A13 7.5 0 0 1 173 57V78Z"/><path d="M192 78V57A13 7.5 0 0 1 218 57V78Z"/><rect x="102" y="96" width="26" height="20"/><rect x="192" y="96" width="26" height="20"/><rect x="150" y="96" width="20" height="32"/></g>
+    <path d="M110.7 51V78M119.3 51V78M102 66H128M155.7 51V78M164.3 51V78M147 66H173M200.7 51V78M209.3 51V78M192 66H218M110.7 96V116M119.3 96V116M102 106H128M200.7 96V116M209.3 96V116M192 106H218M160 96V128M150 110H170" stroke="#2a2f36" stroke-width="1.6"/><rect x="90" y="40" width="140" height="88" fill="url(#${u}h)" opacity=".5"/></g>
+  <g display="${D(type==='platte')}">${solarP}<polygon points="234,26 250,20 250,122 234,128" fill="#7b8691"/><rect x="60" y="26" width="174" height="102" fill="#a7b2bc"/><rect x="58" y="22" width="178" height="5" fill="#6c7884"/><polygon points="236,22 252,16 252,21 236,27" fill="#56616c"/><path d="M89 26V112M116 26V112M143 26V112M170 26V112M197 26V112M60 48H234M60 70H234M60 92H234" stroke="#96a1ab" stroke-width="1"/>
+    <g fill="${win}"><rect x="68" y="32" width="16" height="12"/><rect x="95" y="32" width="16" height="12"/><rect x="122" y="32" width="16" height="12"/><rect x="149" y="32" width="16" height="12"/><rect x="176" y="32" width="16" height="12"/><rect x="203" y="32" width="16" height="12"/><rect x="68" y="54" width="16" height="12"/><rect x="95" y="54" width="16" height="12"/><rect x="122" y="54" width="16" height="12"/><rect x="149" y="54" width="16" height="12"/><rect x="176" y="54" width="16" height="12"/><rect x="203" y="54" width="16" height="12"/><rect x="68" y="76" width="16" height="12"/><rect x="95" y="76" width="16" height="12"/><rect x="122" y="76" width="16" height="12"/><rect x="149" y="76" width="16" height="12"/><rect x="176" y="76" width="16" height="12"/><rect x="203" y="76" width="16" height="12"/><rect x="68" y="98" width="16" height="10"/><rect x="95" y="98" width="16" height="10"/><rect x="122" y="98" width="16" height="10"/><rect x="176" y="98" width="16" height="10"/><rect x="203" y="98" width="16" height="10"/></g>
+    <g fill="#c25b3c"><rect x="93" y="44" width="20" height="3"/><rect x="174" y="66" width="20" height="3"/><rect x="93" y="88" width="20" height="3"/><rect x="174" y="44" width="20" height="3"/></g><rect x="60" y="112" width="174" height="16" fill="#8c97a2"/><rect x="146" y="105" width="28" height="3" fill="#5d6874"/><rect x="150" y="108" width="20" height="20" fill="#3a2a1c"/><rect x="152" y="110" width="16" height="7" fill="${win}" opacity=".7"/><rect x="60" y="26" width="174" height="102" fill="url(#${u}h)" opacity=".5"/></g>
+  </g>
+  <g display="${D(worn&&!reno)}"><path d="M${bbox[0]+20} 46l5 7-3 5 4 8M${bbox[2]-34} 60l-4 6 3 5-5 7M${(bbox[0]+bbox[2])/2-30} 96l5-5 6 3 4-6M${bbox[2]-24} 30l-3 9 2 6M${bbox[0]+40} 104l4 6-2 5" stroke="#2f343b" stroke-width="1.1" fill="none"/><g fill="#5b4a33" opacity=".35"><rect x="${bbox[0]+12}" y="44" width="3" height="16"/><rect x="${bbox[0]+50}" y="66" width="3" height="20"/><rect x="${bbox[2]-44}" y="88" width="3" height="14"/><rect x="${(bbox[0]+bbox[2])/2}" y="44" width="2" height="12"/></g></g>
+  <g display="${D(x.pool)}"><rect x="8" y="133" width="88" height="23" rx="3" fill="#ddd2bd"/><rect x="13" y="137" width="78" height="15" rx="2" fill="url(#${u}w)"/>
+    ${worn?'<g fill="#2e3b14" opacity=".6"><circle cx="24" cy="144" r="2.2"/><circle cx="50" cy="148" r="1.6"/><circle cx="70" cy="142" r="2.6"/><circle cx="38" cy="140" r="1.2"/></g><path d="M58 146c3-1 5 1 8 0" stroke="#a8b56a" stroke-width="1" fill="none"/>':'<path d="M20 142h12M44 147h14M66 141h12M36 145h6" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>'}
+    <path d="M84 134v8M88 134v8M84 137h4M84 140h4" stroke="#e9f0f6" stroke-width="1"/><rect x="13" y="137" width="78" height="2" fill="#0e5d94" opacity=".35"/></g>
+  ${scaf}
+  <g display="${D(!lit&&!reno)}"><rect x="77" y="110" width="2" height="21" fill="#8b6b4a"/><rect x="58" y="100" width="40" height="13" rx="1.5" fill="#ff4d6a"/><text x="78" y="109.5" text-anchor="middle" font-size="7.5" font-weight="700" fill="#ffffff" font-family="Rubik, sans-serif" letter-spacing=".5">ZU MIETEN</text></g>
+</svg>`}
+
+// ================= Wirtschaft: Immobilien =================
+const IM=(()=>{
+  const DN={eppendorf:'Eppendorf',altstadt:'Altstadt',szene:'Szeneviertel',platte:'Plattenbau'};
+  const DNOTE={eppendorf:'Luxusvillen – sehr teuer, sehr sicher',altstadt:'Teuer, stabil',szene:'Im Hype – kann kippen',platte:'Billig, hohe Miete im Verhältnis'};
+  const TN={villa:'Stadtvilla',alt:'Altbau',loft:'Loft',platte:'Plattenbau'};
+  const EX=[['garten','Garten',.04],['garage','Garage',.07],['pool','Pool',.14],['solar','Solardach',.06]];
+  const TIERS=[['Günstig','Immer vermietet','pos'],['Normal','Meist vermietet',''],['Teuer','Leerstand-Risiko 35 %','neg']];
+  const RENO_H={platte:4,alt:2,loft:3,villa:6};
+  let D=null,at=0,pulled=0,busy=false,lastH=0,offline=false,pulling=false;
+  const mine=()=>D&&D.mine?D.mine.houses:[];
+  const sgnP=v=>(v>0?'+':v<0?'−':'±')+Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';
+  const pc=(a,b)=>b?(a/b-1)*100:0;
+  // ---- Server
+  function take(d){if(!d||!d.offers)return false;D=d;at=Date.now();lastH=d.hour;
+    if(d.mine){const w=wirt();w.immo.houses=d.mine.houses.map(h=>({id:h.id,type:h.type,district:h.d,name:h.name,base:h.base,paid:h.paid,boughtAt:h.boughtAt,tier:h.tier,extras:h.extras,renoAt:h.renoAt,renoUntil:h.renoUntil,rentFrom:h.rentFrom}))}
+    return true}
+  async function pull(force){if(!ACCOUNTS||!acct||pulling)return;if(!force&&Date.now()-pulled<60000)return;if(force&&Date.now()-pulled<4000)return;pulled=Date.now();pulling=true;
+    const d=await wxFetch('immo=1');pulling=false;if(d&&!d.failed){take(d);offline=false}else if(!d)offline=true;render()}
+  async function post(body,okFn){if(busy)return;busy=true;render();const d=await wxFetch('immo=1',body);busy=false;
+    if(d&&d.ok){take(d);okFn&&okFn(d);save()}else if(d){take(d);if(d.error==='verkauft'&&d.by)toast(`Zu spät – <b>${esc(d.by)}</b> war schneller.`,'bad')}
+    render();return d}
+  // ---- Live-Werte (zwischen zwei Abfragen weiterrechnen)
+  function kasseNow(h,t){if(h.reno||!D)return h.kasse;return h.kasse+h.rentH*Math.max(0,Math.min(t,h.capEnd)-Math.max(D.now,h.rentFrom||0))/3600000}
+  // ---- Aktionen
+  function buy(o){if(!ACCOUNTS||!acct)return;if(mine().length>=8){toast('Mehr als 8 Häuser gehen nicht.','bad');return}
+    if(o.price>S.bal+1e-9){toast(WERR.guthaben,'bad');return}
+    post({action:'buy',offerId:o.id},d=>{wirtSpend(d.cost);SND.win();confetti(70);toast(`<b>${esc(o.name)}</b> gehört jetzt dir!`,'good')})}
+  function collect(){const t=srvNow(),sum=mine().reduce((a,h)=>a+kasseNow(h,t),0);if(sum<.01){toast('Die Mietkasse ist noch leer.','bad');return}
+    post({action:'collect'},d=>{wirtPay('immo',d.pay,d.pay,`Miete abgeholt: <b class="num">+${fmt(d.pay)}</b>`);if(d.pay>=1000)confetti(60)})}
+  function tier(h,t){if(h.tier===t)return;SND.tick();post({action:'tier',id:h.id,tier:t})}
+  function extra(h,k){const e=EX.find(x=>x[0]===k),c=Math.round(h.base*e[2]);
+    modal(`<p class="eyebrow">${esc(h.name)}</p><h2>${e[1]} bauen?</h2><p>Kostet <b class="num" style="color:var(--ink)">${fmt0(c)}</b> Coins. Bringt mehr Wert und mehr Miete und bleibt für immer.</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>Bauen · ${fmt0(c)}</button></div>`,()=>{
+      if(c>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'extra',id:h.id,key:k},d=>{wirtSpend(d.cost);SND.win();toast(`${e[1]} gebaut!`,'good')})})}
+  function reno(h){const n=Object.keys(h.extras||{}).length,dur=RENO_H[h.type]+n;
+    modal(`<p class="eyebrow">${esc(h.name)}</p><h2>Renovieren?</h2><p>Kostet <b class="num" style="color:var(--ink)">${fmt0(h.renoCost)}</b> Coins und dauert <b style="color:var(--ink)">${dur} Std.</b> In der Zeit gibt es keine Miete, und du kannst nicht verkaufen oder ausbauen. Danach ist das Haus wieder bei 100 %.</p><div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>Renovieren · ${fmt0(h.renoCost)}</button></div>`,()=>{
+      if(h.renoCost>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'reno',id:h.id},d=>{wirtSpend(d.cost);toast(`Die Handwerker sind da. Fertig ${wxWhen(d.until)}.`,'good')})})}
+  function sell(h){const early=srvNow()-h.boughtAt<86400000,v=Math.round(early?h.value*.9:h.value),k=kasseNow(h,srvNow());
+    modal(`<p class="eyebrow">${esc(h.name)}</p><h2>Verkaufen?</h2><p>Die Bank zahlt <b class="num" style="color:var(--ink)">${fmt0(v)}</b> Coins${early?' (−10 %, weil du es erst seit weniger als 24 Std. hast)':''}. Gekauft hast du für <b class="num" style="color:var(--ink)">${fmt0(h.paid)}</b>.${k>=1?` Die Mietkasse des Hauses (<b class="num">${fmt0(k)}</b>) gibt es dazu.`:''}</p><div class="row"><button class="btn" data-close>Behalten</button><button class="btn stop" data-ok>Verkaufen · ${fmt0(v)}</button></div>`,()=>{
+      post({action:'sell',id:h.id},d=>{if(d.rent>0)wirtPay('immo',d.rent,d.rent);wirtPay('immoSell',d.sale,d.sale,`Verkauft für <b class="num">+${fmt(d.sale)}</b>${d.rent>0?` (+${fmt(d.rent)} Miete)`:''}`)})})}
+  // ---- Anzeige
+  const setT=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
+  const setH=(el,h)=>{if(el&&el._h!==h){el.innerHTML=h;el._h=h}};
+  function spark(a,col){if(!a||a.length<2)return'';const mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1;
+    return `<svg viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true"><polyline points="${a.map((v,i)=>`${(i/(a.length-1)*120).toFixed(1)},${(29-(v-mn)/r*26).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`}
+  const EVN={wasser:'Wasserschaden',zahlt:'Mieter zahlt nicht',treu:'Treuer Mieter'};
+  function status(h,t){if(h.reno)return['st-reno','Renovierung · '+wxHM(h.renoUntil-t)+' h'];if(h.cond<50)return['st-bad','Renovieren!'];if(h.vacant)return['st-vac','Leerstand'];return['st-ok','Vermietet']}
+  function houseCard(h,t){const st=status(h,t),cond=h.cond,cc=cond>=70?'pos':cond>=50?'':'neg',dis=busy||!ACCOUNTS||!acct?'disabled':'',tr=h.trend;
+    const occ=h.reno?['Während der Renovierung keine Miete','']:TIERS[h.tier]?[TIERS[h.tier][1],TIERS[h.tier][2]]:['',''];
+    const chips=EX.map(([k,n,p])=>h.extras&&h.extras[k]?`<button class="im-chip ${cond<50?'broke':'own'}" type="button" tabindex="-1" aria-disabled="true">✓ ${n}${cond<50?' (kaputt)':''}</button>`:`<button class="im-chip" type="button" data-ex="${k}" ${h.reno||dis?'disabled':''}>+ ${n} ${fmt0(Math.round(h.base*p))}</button>`).join('');
+    return `<article class="im-h" data-h="${h.id}"><div class="im-pic">${houseSVG(h.type,h.extras,{uid:h.id,lit:!h.vacant,cond,reno:h.reno})}<span class="tag l">${DN[h.d]||''}</span><span class="tag r ${st[0]}" data-st>${st[1]}</span></div>
+      <div class="im-body"><div class="im-nm"><h3>${esc(h.name)}</h3><b class="${tr>0?'pos':tr<0?'neg':''}" title="Stadtteil, letzte 24 Std.">${sgnP(tr)}</b></div>
+        <div class="im-ms"><div class="ms"><span>Wert</span><b class="num">${fmt0(h.value)}</b></div><div class="ms"><span>Miete / Std.</span><b class="num ${h.rentH>0?'':'neg'}">${fmt0(h.rentH)}</b></div><div class="ms"><span>Zustand</span><b class="num ${h.reno?'':cc}">${h.reno?'→ 100 %':cond+' %'}</b></div></div>
+        <div><span class="lbl" style="margin-bottom:5px">Mietpreis</span><div class="seg" role="group" aria-label="Mietpreis">${TIERS.map((x,i)=>`<button type="button" data-tier="${i}" aria-pressed="${h.tier===i}" ${dis}>${x[0]}</button>`).join('')}</div><div class="im-occ ${occ[1]}" style="margin-top:5px">${occ[0]}</div></div>
+        <div><span class="lbl" style="margin-bottom:5px">Ausbauten</span><div class="im-chips">${chips}</div></div>
+        <div class="im-btns"><button class="btn" type="button" data-reno ${h.reno||cond>=95||dis?'disabled':''}>${h.reno?'Renovierung läuft':cond>=95?'Top in Schuss':`Renovieren <small>${fmt0(h.renoCost)}</small>`}</button><button class="btn" type="button" data-sell ${h.reno||dis?'disabled':''}>Verkaufen</button></div></div></article>`}
+  function render(){if(cur!=='immobilien')return;const off=!ACCOUNTS||!acct,o=$('imOff');o.hidden=!off&&!offline;
+    if(off)o.textContent='Die Wirtschaft läuft über den Server. Melde dich auf der Website mit deinem Account an, um sie zu nutzen.';else if(offline)o.textContent='Keine Verbindung zum Server. Neuer Versuch läuft …';
+    if(!D){setH($('imHouses'),`<div class="im-empty">${off?'Nur online mit Account.':'Lädt …'}</div>`);live();return}
+    const t=srvNow(),hs=mine();
+    // Events
+    setH($('imEvs'),(D.events||[]).map(e=>`<div class="im-ev ${e.pct>0?'up':'dn'}">${e.pct>0?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l6 6 4-4 8 8M15 17h6v-6"/></svg>'}<span>${esc(e.text)} – <b>${DN[e.d]} ${e.pct>0?'+':'−'}${Math.round(Math.abs(e.pct)*100)} %</b></span><small>läuft noch ${wxHM(e.end-t)} h</small></div>`).join(''));
+    // Stadtteile
+    setH($('imDists'),Object.keys(DN).map(d=>{const a=D.history24[d]||[],ch=pc(a[a.length-1],a[0]),col=ch>=0?'#2fe08f':'#ff6b84';
+      return `<div class="im-dist"><div class="t"><span>${DN[d]}</span><b style="color:${col}">${sgnP(ch)}</b></div>${spark(a,col)}<small>Index ${fmt0(D.index[d])} · ${DNOTE[d]}</small></div>`}).join(''));
+    // Häuser
+    setT($('imHN'),`· ${hs.length} von 8`);
+    setH($('imHouses'),hs.length?hs.map(h=>houseCard(h,t)).join(''):`<div class="im-empty">Du hast noch kein Haus. Unten bei <b>Zum Kauf</b> gibt es jede Stunde neue Angebote.</div>`);
+    // Angebote
+    const tagOf=o=>o.lux?['tg-lux','Luxus']:o.type==='alt'?['tg-ok','Stabil']:o.type==='platte'?['tg-rent','Hohe Miete']:['tg-hype',(D.history24.szene||[]).slice(-1)[0]>=(D.history24.szene||[0])[0]?'Im Hype':'Wackelig'];
+    setH($('imOffers'),D.offers.map(o=>{const tg=tagOf(o),mineSold=o.by&&normName(o.by)===acct;
+      return `<div class="im-of ${o.by?'sold':''}"><div class="pv">${houseSVG(o.type,{},{uid:'o'+o.id,lit:true,cond:100})}</div><div class="inf"><span>${esc(o.name)}</span><small>${DN[o.d]} · ca. ${fmt0(o.rent)} Miete/Std.</small></div><span class="tg ${tg[0]}">${tg[1]}</span><span class="pr">${fmt0(o.price)}</span>
+        ${o.by?`<span class="by">${mineSold?'Gehört dir':'Verkauft an '+esc(o.by)}</span>`:`<button class="btn gold" type="button" data-buy="${o.id}" ${busy||off||hs.length>=8||o.price>S.bal+1e-9?'disabled':''}>Kaufen</button>`}</div>`}).join(''));
+    // Ereignisse
+    const lg=(D.mine&&D.mine.log||[]).concat(hs.flatMap(h=>(h.ev||[]).map(e=>({...e,n:h.name})))).sort((a,b)=>b.t-a.t).slice(0,3);
+    setH($('imLog'),lg.map(e=>`<span>${EVN[e.k]||e.k} · ${esc(e.n)} <b class="${e.a>0?'pos':'neg'}">${e.a>0?'+':'−'}${fmt0(Math.abs(e.a))}</b></span>`).join(''));
+    live()}
+  function live(){if(cur!=='immobilien')return;const t=srvNow(),hs=mine();
+    if(!D){setT($('imT1'),'–');setT($('imT2'),'–');setT($('imK'),'–');$('imCollect').disabled=true;return}
+    const val=hs.reduce((a,h)=>a+h.value,0),val24=hs.reduce((a,h)=>a+h.value/(1+h.trend/100),0),perH=hs.reduce((a,h)=>a+h.rentH,0),rented=hs.filter(h=>h.rentH>0).length;
+    setT($('imT1'),fmt0(val));const dv=val-val24;setT($('imT1s'),hs.length?`${dv>=0?'+':'−'}${fmt0(Math.abs(dv))} in 24 Std.`:'noch keine Häuser');$('imT1s').className=hs.length?(dv>=0?'pos':'neg'):'';
+    setT($('imT2'),fmt0(perH));setT($('imT2s'),hs.length?`aus ${rented} von ${hs.length} ${hs.length===1?'Haus':'Häusern'}`:'kauf dein erstes Haus');
+    const k=hs.reduce((a,h)=>a+kasseNow(h,t),0),act=hs.filter(h=>!h.reno);
+    const oldest=act.length?Math.min(...act.map(h=>h.capEnd)):0,full=act.some(h=>t>=h.capEnd);
+    setT($('imK'),fmt0(k));setT($('imKFull'),!hs.length?' ':full?'voll – abholen!':'voll in '+wxHM(oldest-t)+' Std.');
+    const b=$('imKBar');if(b)b.style.width=(act.length?Math.min(1,Math.max(0,1-(oldest-t)/(8*3600000)))*100:0).toFixed(1)+'%';
+    const c=$('imCollect');c.disabled=busy||k<.01||!ACCOUNTS||!acct;setT(c,busy?'Einen Moment …':k>=1?`Abholen · ${fmt0(k)}`:'Abholen');
+    setT($('imNext'),'Neue Angebote in '+Math.max(1,Math.ceil((D.next-t)/60000))+' Min.');
+    document.querySelectorAll('#imHouses [data-h]').forEach(el=>{const h=hs.find(x=>x.id===el.dataset.h);if(!h)return;const s=el.querySelector('[data-st]'),st=status(h,t);setT(s,st[1])});
+    if(Math.floor(t/3600000)!==lastH||hs.some(h=>h.reno&&t>=h.renoUntil))pull(true)}
+  // ---- Eingaben
+  $('imCollect').onclick=()=>{ac();collect()};
+  $('imOffers').addEventListener('click',e=>{const b=e.target.closest('[data-buy]');if(!b||b.disabled)return;const o=D&&D.offers.find(x=>x.id===b.dataset.buy);if(o){ac();buy(o)}});
+  $('imHouses').addEventListener('click',e=>{const card=e.target.closest('[data-h]');if(!card)return;const h=mine().find(x=>x.id===card.dataset.h);if(!h)return;
+    const tb=e.target.closest('[data-tier]');if(tb&&!tb.disabled){tier(h,+tb.dataset.tier);return}
+    const xb=e.target.closest('[data-ex]');if(xb&&!xb.disabled){extra(h,xb.dataset.ex);return}
+    if(e.target.closest('[data-reno]:not([disabled])')){reno(h);return}
+    if(e.target.closest('[data-sell]:not([disabled])')){sell(h);return}});
+  setInterval(()=>{if(cur!=='immobilien'||document.hidden)return;live();pull()},1000);
+  return{show(){render();pull(true)},render}})();
+onShow.immobilien=IM.show;
 
 // ================= Tastatur, Loop, Start =================
 document.addEventListener('keydown',e=>{if(!$('modal').hidden)return;const tg=e.target.tagName;if(tg==='INPUT'||tg==='SELECT'||tg==='TEXTAREA')return;if(tg==='BUTTON'&&e.code==='Space')return;
