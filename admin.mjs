@@ -62,15 +62,19 @@ async function lottoInfo(now) {
   const s = getStore("lotto"), D = nextDraw(now);
   const [{ blobs: ab }, { blobs: bb }] = await Promise.all([s.list({ prefix: `a/${D}/` }), s.list({ prefix: `b/${D}/` })]);
   const get = (k) => s.get(k, { type: "json" }).catch(() => null);
-  const P = new Map(), of = (k) => { if (!P.has(k)) P.set(k, { name: decodeURIComponent(k), c: 0, slots: 0, n: 0 }); return P.get(k); };
+  const dec = (k) => { try { return decodeURIComponent(k); } catch { return k; } };
+  const P = new Map(), of = (k) => { if (!P.has(k)) P.set(k, { k, name: dec(k), c: 0, slots: 0, n: 0 }); return P.get(k); };
   let added = 0;
   for (const b of ab) { const v = await get(b.key), k = b.key.slice(`a/${D}/`.length); if (!v) continue; if (k.startsWith("~")) { added = r2(added + num(v.c)); continue; } const p = of(k); p.c = r2(num(v.c)); p.slots = Array.isArray(v.s) ? v.s.length : 0; }
   for (const b of bb) { const v = await get(b.key); if (v) of(b.key.slice(`b/${D}/`.length)).n = Math.round(num(v.n)); }
   const bans = (await get("bans")) || {};
-  // Lose von gelöschten Accounts (zählen bei der Ziehung nicht, liegen aber noch im Topf)
-  const { blobs: accB } = await getStore("spielstaende").list(), alive = new Set(accB.map((b) => b.key));
-  const orphans = [...P.values()].filter((p) => !alive.has(encodeURIComponent(p.name))).map((p) => ({ name: p.name, n: p.n, f: Math.min(4, Math.floor(p.slots / 6)), c: p.c }));
-  const players = [...P.values()].filter((p) => !bans[encodeURIComponent(p.name)] && alive.has(encodeURIComponent(p.name))).map((p) => ({ ...p, f: Math.min(4, Math.floor(p.slots / 6)) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
+  // Gibt es den Account noch? Jeder Eintrag wird einzeln über seinen genauen Schlüssel geprüft
+  const accS = getStore("spielstaende"), all = [...P.values()];
+  for (let i = 0; i < all.length; i += 20) await Promise.all(all.slice(i, i + 20).map(async (p) => { p.gone = !(await accS.get(p.k, { type: "json" }).catch(() => "?")); }));
+  const fr = (p) => Math.min(4, Math.floor(p.slots / 6));
+  const orphans = all.filter((p) => p.gone).map((p) => ({ k: p.k, name: p.name, n: p.n, f: fr(p), c: p.c }));
+  const players = all.filter((p) => !p.gone && !bans[p.k]).map((p) => ({ ...p, f: fr(p) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
+  const rows = all.map((p) => ({ k: p.k, name: p.name, n: p.n, f: fr(p), c: p.c, st: p.gone ? "geloescht" : bans[p.k] ? "gesperrt" : "ok" })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
   // Topf = Rest aus der letzten Ziehung + Verluste/Aufstockungen + gekaufte Lose (wie in spielstand.mjs)
   const { blobs: rb } = await s.list({ prefix: "r/" });
   const ids = rb.map((b) => +b.key.slice(2)).filter((n) => n > 0 && n < D).sort((a, b) => b - a).slice(0, 8);
@@ -78,7 +82,7 @@ async function lottoInfo(now) {
   const carry = hist[0] ? r2(num(hist[0].carry)) : 0;
   const banned = Object.entries(bans).map(([k, t]) => ({ name: decodeURIComponent(k), t: num(t), c: P.has(k) ? P.get(k).c : 0 })).sort((a, b) => b.t - a.t);
   const pot = r2(carry + added + players.reduce((t, p) => t + p.c + 250 * p.n, 0) + banned.reduce((t, p) => t + p.c, 0) + orphans.reduce((t, p) => t + p.c + 250 * p.n, 0));
-  return { d: D, players, banned, orphans, added, carry, pot, hist };
+  return { d: D, players, rows, banned, orphans, added, carry, pot, hist };
 }
 // Einträge eines Accounts aus der laufenden Ziehung entfernen (Lose + eingezahlte Verluste)
 async function ltRemove(key, now) {
@@ -398,9 +402,14 @@ export default async (req) => {
   // Spieler für den Jackpot sperren: Lose fliegen aus dem Topf, gekaufte Lose werden erstattet
   // Alle Lose von gelöschten Accounts aus dem Topf nehmen
   if (action === "lottoPurge") {
-    const info = await lottoInfo(now);
-    for (const o of info.orphans) await ltRemove(encodeURIComponent(o.name), now);
-    return json({ ok: true, removed: info.orphans.length, tickets: info.orphans.reduce((t, o) => t + o.n + o.f, 0), ...(await lottoInfo(now)) });
+    const info = await lottoInfo(now), keys = body.k ? info.orphans.filter((o) => o.k === String(body.k)) : info.orphans;
+    let removed = 0, tickets = 0;
+    for (const o of keys) {
+      // Sicherheitsprüfung direkt vor dem Löschen: nur wenn der Account wirklich nicht mehr existiert
+      if (await getStore("spielstaende").get(o.k, { type: "json" }).catch(() => "?")) continue;
+      await ltRemove(o.k, now); removed++; tickets += o.n + o.f;
+    }
+    return json({ ok: true, removed, tickets, ...(await lottoInfo(now)) });
   }
   if (action === "lottoBan" || action === "lottoUnban") {
     const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
