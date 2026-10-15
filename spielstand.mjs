@@ -1234,6 +1234,40 @@ function fiView(f, now) {
     maxOut: Math.floor(f.public ? Math.max(0, f.kasse - num(f.ipoKasse)) : Math.max(0, f.kasse)), upCost: f.lvl < 5 ? fiUpCost(f, f.lvl + 1) : 0, downBack: f.lvl > 1 ? Math.round(fiUpCost(f, f.lvl) / 2) : 0, lockUntil: f.ipoAt ? f.ipoAt + FI_LOCK : 0, nextH: (Math.floor(now / HOUR) + 1) * HOUR };
   delete v.h; return v;
 }
+// ---- Gesamtvermögen (für Leaderboard und Profil)
+async function wealthCtx(now, allFirms) {
+  const ak = await akState(now), pub = await fiPublic(now), firms = new Map();
+  if (allFirms) {
+    const s = getStore("firmen"), { blobs } = await s.list({ prefix: "f/" });
+    const keys = blobs.slice(0, 400).map((b) => b.key);
+    for (let i = 0; i < keys.length; i += 25) {
+      const fs = await Promise.all(keys.slice(i, i + 25).map((k) => s.get(k, { type: "json" }).catch(() => null)));
+      for (const f of fs) { if (!f || f.pleite || !f.owner) continue; const o = normName(f.owner); if (!firms.has(o)) firms.set(o, []); firms.get(o).push(f); }
+    }
+  }
+  return { now, ak, pub, firms };
+}
+function wealthOf(name, st, W, ctx, detail) {
+  const now = ctx.now, bal = Math.max(0, wirtBal(st, W));
+  const tresor = W.tresor.reduce((a, e) => a + num(e.betrag), 0);
+  let shops = 0; const shopL = [];
+  for (const sh of SHOPS) { const x = W.shops[sh.id]; if (!x || !(x.level > 0)) continue; let inv = 0; for (let l = 1; l <= x.level; l++) inv += shopCost(sh, l);
+    const sto = shopStored(sh, x, now); shops += inv + sto; shopL.push({ id: sh.id, level: x.level, rate: Math.round(shopRate(sh, x.level)), value: inv }); }
+  let immo = 0; const houses = [];
+  for (const h of W.immo.houses) { const v = imHouseView(h, now); immo += num(v.value) + num(v.kasse); houses.push({ name: h.name, d: h.d, type: h.type, value: num(v.value), rentH: v.rentH, cond: v.cond, extras: Object.keys(h.extras || {}).filter((k) => h.extras[k]) }); }
+  let depot = 0; const stocks = [];
+  for (const [id, x] of Object.entries(W.depot || {})) { if (!(x && x.n > 0) || !AK[id]) continue; const v = x.n * num(ctx.ak.p[id]); depot += v; stocks.push({ id, name: AK[id].name, n: x.n, value: Math.round(v) }); }
+  for (const [fid, x] of Object.entries(W.fshares || {})) { if (!(x && x.n > 0)) continue; const pf = ctx.pub.find((p) => p.id === fid); if (!pf) continue; const v = x.n * pf.price; depot += v; stocks.push({ id: fid, name: pf.name, n: x.n, value: Math.round(v), pf: true }); }
+  let firmen = 0; const fl = [];
+  for (const f of ctx.firms.get(normName(name)) || []) { const v = fiValue(f) * num(f.fs) / FI_SHARES; firmen += v; fl.push({ name: f.name, col: f.col, br: f.br, brName: FI_BR[f.br] ? FI_BR[f.br].name : "", lvl: f.lvl, level: FI_BR[f.br] ? FI_BR[f.br].lv[f.lvl - 1] : "", value: Math.round(v), avg: Math.round(fiAvg(f)), public: !!f.public, stake: Math.round(num(f.fs) / FI_SHARES * 1000) / 10 }); }
+  const it = (st.owned && st.owned.items) || {}; let items = 0; const itemL = [];
+  for (const k of Object.keys(it)) if (it[k] && ITEM_PRICE[k]) { items += ITEM_PRICE[k]; itemL.push(k); }
+  const parts = { bal: r2(bal), tresor: Math.round(tresor), shops: Math.round(shops), immo: Math.round(immo), depot: Math.round(depot), firmen: Math.round(firmen), items };
+  const total = r2(Object.values(parts).reduce((a, b) => a + b, 0));
+  if (!detail) return { total };
+  const tr = W.tresor[0];
+  return { total, parts, tresor: tr ? { betrag: num(tr.betrag), ende: num(tr.ende), std: tr.std } : null, shops: shopL, houses, stocks: stocks.sort((a, b) => b.value - a.value), firmen: fl, items: itemL };
+}
 async function firmaRoute(req, url) {
   const now = Date.now();
   if (!akSec) akSec = await secret();
@@ -1607,7 +1641,21 @@ export default async (req) => {
   if (url.searchParams.has("immo")) return immoRoute(req, url);
   if (url.searchParams.has("aktien")) return aktienRoute(req, url);
   if (url.searchParams.has("firma")) return firmaRoute(req, url);
-  // Leaderboard: Name, Guthaben, Sterne, Spielzeit aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
+  // Profil eines Spielers (öffentlich): Vermögen und Besitz
+  if (url.searchParams.has("profil")) {
+    const name = normName(url.searchParams.get("profil") || "");
+    if (!NAME_RE.test(name)) return json({ error: "ungueltiger_name" }, 400);
+    const key = encodeURIComponent(name), rec = await getStore("spielstaende").get(key, { type: "json" }).catch(() => null);
+    if (!rec || rec.banned || !rec.state) return json({ error: "unbekannt" }, 404);
+    const now = Date.now(), ctx = await wealthCtx(now, false), fs = getStore("firmen");
+    const o = await fs.get("o/" + key, { type: "json" }).catch(() => null), ids = o ? (Array.isArray(o.ids) ? o.ids : o.id ? [o.id] : []) : [];
+    const firms = [];
+    for (const id of ids.slice(0, FI_MAX)) { const f = await fiLoad(id, now); if (f && !f.pleite) firms.push(f); }
+    ctx.firms.set(name, firms);
+    const w = wealthOf(name, rec.state, await wirtGet(key), ctx, true);
+    return json({ ok: true, now, name, stars: num(rec.state.stars), ...w });
+  }
+  // Leaderboard: Name, Guthaben, Gesamtvermögen, Sterne aller (nicht gesperrten) Spieler, 30 s zwischengespeichert
   if (url.searchParams.has("board")) {
     const admin = getStore("admin");
     const cached = await admin.get("board", { type: "json" });
@@ -1620,9 +1668,17 @@ export default async (req) => {
       const recs = await Promise.all(keys.slice(i, i + 25).map((k) => store.get(k, { type: "json" }).catch(() => null)));
       recs.forEach((rec, j) => {
         if (!rec || rec.banned || !rec.state) return;
-        players.push({ n: decodeURIComponent(keys[i + j]), b: Math.round(num(rec.state.bal) * 100) / 100, s: num(rec.state.stars), t: num(rec.state.playMs) });
+        players.push({ n: decodeURIComponent(keys[i + j]), b: Math.round(num(rec.state.bal) * 100) / 100, s: num(rec.state.stars), t: num(rec.state.playMs), _st: rec.state, _k: keys[i + j] });
       });
     }
+    // Gesamtvermögen: Guthaben + Tresor + Geschäfte + Häuser + Aktien + Firmen + Vitrine
+    let ctx = null; try { ctx = await wealthCtx(Date.now(), true); } catch {}
+    for (let i = 0; i < players.length; i += 25) {
+      await Promise.all(players.slice(i, i + 25).map(async (p) => {
+        try { p.w = ctx ? wealthOf(p.n, p._st, await wirtGet(p._k), ctx, false).total : p.b; } catch { p.w = p.b; }
+      }));
+    }
+    players.forEach((p) => { delete p._st; delete p._k; });
     await admin.setJSON("board", { t: Date.now(), players });
     return json({ players });
   }
