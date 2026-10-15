@@ -462,8 +462,10 @@ const ltRand = async (D, i) => {
 };
 
 // Alle Einträge einer Ziehung: Verluste, Aktivität, gekaufte Lose
+// Vom Admin für den Jackpot gesperrte Spieler (Schlüssel = Account): keine Lose, nehmen an keiner Ziehung teil
+async function ltBans() { const b = await getStore("lotto").get("bans", { type: "json" }).catch(() => null); return b && typeof b === "object" ? b : {}; }
 async function ltEntries(D) {
-  const s = getStore("lotto");
+  const s = getStore("lotto"), bans = await ltBans();
   const [{ blobs: ab }, { blobs: bb }] = await Promise.all([s.list({ prefix: `a/${D}/` }), s.list({ prefix: `b/${D}/` })]);
   const get = (k) => s.get(k, { type: "json" }).catch(() => null);
   const [A, B] = await Promise.all([Promise.all(ab.map((b) => get(b.key))), Promise.all(bb.map((b) => get(b.key)))]);
@@ -471,7 +473,7 @@ async function ltEntries(D) {
   ab.forEach((b, i) => { const v = A[i]; if (!v) return; const p = of(b.key.slice(`a/${D}/`.length)); p.c = r2(p.c + num(v.c)); p.s = Array.isArray(v.s) ? v.s.length : 0; });
   bb.forEach((b, i) => { const v = B[i]; if (!v) return; of(b.key.slice(`b/${D}/`.length)).n = Math.min(LT_MAX, Math.max(0, Math.round(num(v.n)))); });
   const list = [...P.values()].sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : 0));
-  const players = list.filter((p) => !p.k.startsWith("~")).map((p) => ({ ...p, f: ltFree(p.s), t: p.n + ltFree(p.s) }));
+  const players = list.filter((p) => !p.k.startsWith("~") && !bans[p.k]).map((p) => ({ ...p, f: ltFree(p.s), t: p.n + ltFree(p.s) }));
   return { list, players };
 }
 // Rest aus der letzten ausgeführten Ziehung vor D (auch über eine Umstellung der Uhrzeit hinweg)
@@ -609,7 +611,8 @@ async function lotto(req, url) {
       const k = encodeURIComponent(me);
       const [a, b] = await Promise.all([s.get(`a/${D}/${k}`, { type: "json" }).catch(() => null), s.get(`b/${D}/${k}`, { type: "json" }).catch(() => null)]);
       const slots = a && Array.isArray(a.s) ? a.s.length : 0;
-      out.mine = { n: b ? Math.round(num(b.n)) : 0, t: b ? num(b.t) : 0, m: b && b.mig ? 1 : 0, f: ltFree(slots), s: slots, c: a ? num(a.c) : 0 };
+      if ((await ltBans())[k]) out.mine = { n: 0, t: 0, m: 0, f: 0, s: slots, c: a ? num(a.c) : 0, banned: 1 };
+      else out.mine = { n: b ? Math.round(num(b.n)) : 0, t: b ? num(b.t) : 0, m: b && b.mig ? 1 : 0, f: ltFree(slots), s: slots, c: a ? num(a.c) : 0 };
       // Lose der letzten Ziehung (für „Deine Lose“ im Ergebnis)
       const P = prevDraw(now);
       if (P && hist[0] && hist[0].d === P) {
@@ -633,6 +636,7 @@ async function lotto(req, url) {
 
   if (body.action === "buy") {
     const n = Number(body.n), d = Number(body.d);
+    if ((await ltBans())[key]) return json({ error: "jackpot_gesperrt", d: D, now }, 403);
     if (!Number.isInteger(n) || n < 1 || n > LT_MAX) return json({ error: "anzahl" }, 400);
     if (d && d !== D) return json({ error: "gezogen", d: D, now }, 409);   // inzwischen wurde gezogen
     const k = `b/${D}/${key}`, b = (await s.get(k, { type: "json" })) || { n: 0 };
@@ -1129,7 +1133,16 @@ async function aktienRoute(req, url) {
 // "faul" nachgerechnet bei jedem Abruf. Gewinn → Firmenkasse (abzüglich Investoren-Anteil und Dividende an Aktionäre).
 // 24 Std. am Stück im Minus = Pleite. Ab 500.000 Firmenwert Börsengang: 1.000 Anteile, Gründer behält mindestens 51 %.
 // Anteile anderer Spieler liegen in deren Wirtschafts-Kasse (W.fshares), Dividenden über einen Pro-Anteil-Zähler (dps).
-const FI_MAX = 5, FI_FOUND = 50000, FI_START = 20000, FI_SHARES = 1000, FI_IPO_MIN = 500000, FI_LOCK = 24 * HOUR, FI_PLEITE = 24 * HOUR;
+const FI_MAX = 5, FI_FOUND = 50000, FI_START = 20000, FI_SHARES = 1000, FI_IPO_MIN = 500000, FI_PLEITE = 24 * HOUR;
+// Börse: Der Gründer hält f.fs Anteile, andere Spieler f.h[name], die Firma selbst f.pool (frei zum Kauf).
+// Kurs = Firmenwert / Anteile im Umlauf (Gründer + Aktionäre). Wer kauft, zahlt in die Firmenkasse, wer verkauft, bekommt Geld aus der Firmenkasse.
+// So entsteht kein Geld aus dem Nichts, und der Gründer darf jederzeit auszahlen: Aktionäre bekommen dabei ihren Anteil als Sonderdividende.
+const FI_DEVMAX = [0, 4, 6, 9, 12, 16];
+// Gründer behält mindestens 10 % (fs ≥ 10 % aller Anteile). Unter 50 % bestimmen die Aktionäre mit: mindestens 10 % Dividende.
+// f.poolOwn = Anteile, die der Gründer selbst zum Verkauf anbietet (Erlös geht an ihn), der Rest von f.pool gehört der Firma (Erlös in die Kasse).
+// Börsengang: frühestens 24 Std. nach Gründung, ab 500.000 Firmenwert, 2 % Bankgebühr, 24 Std. Zeichnungsfrist zum festen Ausgabepreis.
+// Kredit: bis 40 % vom Firmenwert ohne Kredit, 0,2 % Zinsen pro Stunde. Auszahlen nur, was über dem Kredit liegt.
+const FI_MIN_OWN = 0.10, FI_IPO_AGE = 24 * HOUR, FI_IPO_FEE = 0.02, FI_SUB = 24 * HOUR, FI_RATE = 0.002, FI_LOAN_CAP = 5_000_000;
 const FI_B = [0, 900, 2000, 4500, 10000, 24000], FI_K = [0, 500, 1100, 2500, 5300, 12000], FI_UP = [0, 0, 50000, 150000, 450000, 1300000];
 const FI_BR = {
   imbiss: { name: "Imbiss", up: 1, lv: ["Imbissbude", "Schnellrestaurant", "Imbiss-Kette", "Food-Court", "Burger-Imperium"] },
@@ -1159,16 +1172,17 @@ function fiHour(f, H) {
   } else if (f.br === "startup") {
     cost = K + lv.dev * 90 * L;
     if (!st.br) {
-      rev = B * 0.3 * st.pm * (1 + (u1 - 0.5) * 0.4);
+      rev = B * 0.3 * st.pm * (1 + 0.03 * lv.dev) * (1 + (u1 - 0.5) * 0.4);
       if (u2 < (0.004 + 0.0015 * lv.dev) * st.pm) { st.br = true; st.M = 2.5 + u3 * 3.5; fiEv(f, t, "Durchbruch! Die App geht durch die Decke", 0); }
     } else {
-      rev = B * st.M * st.pm * (1 + (u1 - 0.5) * 0.7);
+      rev = B * st.M * st.pm * (1 + 0.02 * lv.dev) * (1 + (u1 - 0.5) * 0.7);
       if (u2 > 0.993) { rev = 0; fiEv(f, t, "Server-Crash: eine Stunde offline", 0); }
     }
   } else if (f.br === "mode") {
-    rev = B * (0.4 + 0.85 * st.H) * (1 + (u1 - 0.5) * 0.3);
-    cost = K + lv.mkt * 0.2 * K;
-    st.H = Math.max(0, st.H - [0.14, 0.05][lv.style] * (1 - 0.22 * lv.mkt));
+    const pr = lv.price == null ? 1 : lv.price, shop = num(lv.shop), onl = lv.online ? 1 : 0;
+    rev = B * (0.4 + 0.85 * st.H) * [0.8, 1, 1.35][pr] * (1 + 0.15 * onl) * (1 + (u1 - 0.5) * 0.3) + B * 0.22 * shop * (0.6 + 0.4 * Math.min(1, st.H));
+    cost = K + lv.mkt * 0.2 * K + shop * 0.15 * K + onl * 0.25 * K;
+    st.H = Math.max(0, st.H - [0.14, 0.05][lv.style] * (1 - 0.22 * lv.mkt) * [0.75, 1, 1.3][pr] * (onl ? 0.9 : 1));
     if (u2 < 0.008) { st.H = Math.min(3, st.H + 1); fiEv(f, t, "Viral auf TikTok", 0); }
     else if (u2 > 0.994) { st.H = Math.max(0, st.H - 1); fiEv(f, t, "Shitstorm wegen Billig-Nähten", 0); }
   } else if (f.br === "energie") {
@@ -1180,10 +1194,14 @@ function fiHour(f, H) {
     else if (lv.typ === 1 && u3 < 0.012) { cost += 2 * K; fiEv(f, t, "Gaspreis-Schock", -2 * K); }
     else if (u2 > 0.995) { rev += 3 * B; fiEv(f, t, "Großkunde gewonnen", 3 * B); }
   }
+  const zins = num(f.loan) > 0 ? num(f.loan) * FI_RATE : 0; cost += zins;
   let net = rev - cost;
   if (net > 0 && f.invPct > 0) net -= net * f.invPct / 100;
-  let out = 0;
-  if (net > 0 && f.public && f.divPct > 0) { const perShare = net * f.divPct / 100 / FI_SHARES; f.dps = num(f.dps) + perShare; out = perShare * (FI_SHARES - f.fs); }
+  let out = 0, perShare = 0;
+  if (f.public && fiOwnShares(f) / fiOut(f) < 0.5 && f.divPct < 10) f.divPct = 10;
+  if (net > 0 && f.public && f.divPct > 0) { const held = fiHeld(f); perShare = net * f.divPct / 100 / fiOut(f); f.dps = num(f.dps) + perShare; out = perShare * held; }
+  f.rv = (f.rv || []).concat(Math.round(rev)).slice(-24); f.co = (f.co || []).concat(Math.round(cost)).slice(-24); f.zi = (f.zi || []).concat(Math.round(zins)).slice(-24);
+  f.dv = (f.dv || []).concat(Math.round(perShare * 10000) / 10000).slice(-24);
   f.kasse = r2(f.kasse + net - out);
   f.pr.push(Math.round(net)); f.pr = f.pr.slice(-24);
   f.kh.push(Math.round(f.kasse)); f.kh = f.kh.slice(-25);
@@ -1191,8 +1209,21 @@ function fiHour(f, H) {
   f.ph.push(fiPrice(f)); f.ph = f.ph.slice(-169);
 }
 const fiAvg = (f) => (f.pr.length ? f.pr.reduce((s, v) => s + v, 0) / f.pr.length : 0);
-const fiValue = (f) => Math.max(0, Math.round(Math.max(f.kasse, f.kasse + 48 * fiAvg(f))));
-const fiPrice = (f) => { const held = Math.max(0, f.float - f.pool), dem = f.float ? 0.1 * (held / f.float * 2 - 1) : 0; return Math.max(0.01, Math.round(fiValue(f) / FI_SHARES * (1 + dem) * 100) / 100); };
+const fiValue = (f) => { const k = f.kasse - num(f.loan); return Math.max(0, Math.round(Math.max(k, k + 48 * fiAvg(f)))); };
+const fiHeld = (f) => Object.values(f.h || {}).reduce((a, n) => a + Math.max(0, num(n)), 0);   // Anteile anderer Spieler
+const fiOwnShares = (f) => num(f.fs) + num(f.poolOwn);                                          // Gründer inkl. zum Verkauf angebotener
+const fiOut = (f) => Math.max(1, fiOwnShares(f) + fiHeld(f));                                    // Anteile im Umlauf (ohne Firmenbestand)
+const fiTotal = (f) => num(f.fs) + fiHeld(f) + Math.max(0, num(f.pool));
+const fiPrice = (f) => Math.max(0.01, Math.round(fiValue(f) / (f.public ? fiOut(f) : Math.max(1, num(f.fs) || FI_SHARES)) * 100) / 100);
+const fiSubOpen = (f, now) => f.public && num(f.ipoUntil) > now && num(f.pool) > 0;
+const fiBuyPrice = (f, now) => (fiSubOpen(f, now) ? num(f.ipoPrice) : fiPrice(f));
+// Gründer behält mindestens 10 % aller Anteile (auch wenn alle freien Anteile verkauft werden)
+const fiDivRule = (f) => { if (f.public && fiOwnShares(f) / fiOut(f) < 0.5 && num(f.divPct) < 10) f.divPct = 10; };
+const fiMaxEmit = (f) => Math.max(0, Math.floor(num(f.fs) / FI_MIN_OWN - fiTotal(f)));
+const fiMaxSellOwn = (f) => Math.max(0, Math.floor(num(f.fs) - FI_MIN_OWN * fiTotal(f)));
+const fiFree = (f) => Math.max(0, num(f.kasse) - num(f.loan));
+const fiMaxOut = (f) => Math.max(0, Math.floor(fiFree(f) * (f.public ? fiOwnShares(f) / fiOut(f) : 1)));
+const fiMaxLoan = (f) => Math.max(0, Math.min(FI_LOAN_CAP, Math.floor(0.4 * Math.max(0, num(f.kasse) - num(f.loan) + 48 * Math.max(0, fiAvg(f))))) - Math.floor(num(f.loan)));   // noch möglicher Kredit
 function fiAdvance(f, now) {   // verpasste Stunden nachrechnen (höchstens 7 Tage)
   if (f.pleite) return false;
   const H = Math.floor(now / HOUR) - 1;
@@ -1215,7 +1246,7 @@ async function fiPublic(now) {   // alle Firmen an der Börse (für Aktien), 60 
   const { blobs } = await s.list({ prefix: "f/" }), list = [];
   for (const b of blobs.slice(0, 200)) {
     const f = await fiLoad(b.key.slice(2), now); if (!f || f.pleite || !f.public) continue;
-    list.push({ id: f.id, name: f.name, owner: f.owner, col: f.col, br: f.br, price: fiPrice(f), ph: f.ph.slice(-169), pool: f.pool, divPct: f.divPct, dps: num(f.dps), ipoAt: f.ipoAt, fs: f.fs });
+    list.push({ id: f.id, name: f.name, owner: f.owner, col: f.col, br: f.br, price: fiPrice(f), buyPrice: fiBuyPrice(f, now), subUntil: fiSubOpen(f, now) ? num(f.ipoUntil) : 0, ph: f.ph.slice(-169), pool: f.pool, poolOwn: num(f.poolOwn), held: fiHeld(f), out: fiOut(f), ownShares: fiOwnShares(f), kasse: Math.round(f.kasse), free: Math.round(fiFree(f)), maxSellOwn: fiMaxSellOwn(f), value: fiValue(f), avg: Math.round(fiAvg(f)), holders: Object.entries(f.h || {}).filter(([, n]) => n > 0).map(([n, c]) => ({ n, c })).sort((a, b) => b.c - a.c).slice(0, 8), divPct: f.divPct, dps: num(f.dps), ipoAt: f.ipoAt, fs: f.fs });
   }
   try { await s.setJSON("cache", { t: now, list }); } catch {}
   return list;
@@ -1231,7 +1262,10 @@ function fiDivOf(W, fid, f) { const x = W.fshares && W.fshares[fid]; if (!x || !
 function fiView(f, now) {
   if (!f) return null;
   const v = { ...f, value: fiValue(f), avg: Math.round(fiAvg(f)), price: fiPrice(f), level: FI_BR[f.br].lv[f.lvl - 1], brName: FI_BR[f.br].name,
-    maxOut: Math.floor(f.public ? Math.max(0, f.kasse - num(f.ipoKasse)) : Math.max(0, f.kasse)), upCost: f.lvl < 5 ? fiUpCost(f, f.lvl + 1) : 0, downBack: f.lvl > 1 ? Math.round(fiUpCost(f, f.lvl) / 2) : 0, lockUntil: f.ipoAt ? f.ipoAt + FI_LOCK : 0, nextH: (Math.floor(now / HOUR) + 1) * HOUR };
+    maxOut: fiMaxOut(f), held: fiHeld(f), out: fiOut(f), total: fiTotal(f), ownShares: fiOwnShares(f), poolOwn: num(f.poolOwn), loan: num(f.loan), maxLoan: fiMaxLoan(f), rate: FI_RATE,
+    maxEmit: f.public ? fiMaxEmit(f) : 0, maxSellOwn: f.public ? fiMaxSellOwn(f) : 0, devMax: FI_DEVMAX[f.lvl], minOwn: FI_MIN_OWN,
+    buyPrice: fiBuyPrice(f, now), subUntil: fiSubOpen(f, now) ? num(f.ipoUntil) : 0, ipoReadyAt: num(f.founded) + FI_IPO_AGE, ipoFee: FI_IPO_FEE,
+    holders: Object.entries(f.h || {}).filter(([, n]) => n > 0).map(([n, c]) => ({ n, c })).sort((a, b) => b.c - a.c), upCost: f.lvl < 5 ? fiUpCost(f, f.lvl + 1) : 0, downBack: f.lvl > 1 ? Math.round(fiUpCost(f, f.lvl) / 2) : 0, nextH: (Math.floor(now / HOUR) + 1) * HOUR };
   delete v.h; return v;
 }
 // ---- Gesamtvermögen (für Leaderboard und Profil)
@@ -1259,7 +1293,7 @@ function wealthOf(name, st, W, ctx, detail) {
   for (const [id, x] of Object.entries(W.depot || {})) { if (!(x && x.n > 0) || !AK[id]) continue; const v = x.n * num(ctx.ak.p[id]); depot += v; stocks.push({ id, name: AK[id].name, n: x.n, value: Math.round(v) }); }
   for (const [fid, x] of Object.entries(W.fshares || {})) { if (!(x && x.n > 0)) continue; const pf = ctx.pub.find((p) => p.id === fid); if (!pf) continue; const v = x.n * pf.price; depot += v; stocks.push({ id: fid, name: pf.name, n: x.n, value: Math.round(v), pf: true }); }
   let firmen = 0; const fl = [];
-  for (const f of ctx.firms.get(normName(name)) || []) { const v = fiValue(f) * num(f.fs) / FI_SHARES; firmen += v; fl.push({ name: f.name, col: f.col, br: f.br, brName: FI_BR[f.br] ? FI_BR[f.br].name : "", lvl: f.lvl, level: FI_BR[f.br] ? FI_BR[f.br].lv[f.lvl - 1] : "", value: Math.round(v), avg: Math.round(fiAvg(f)), public: !!f.public, stake: Math.round(num(f.fs) / FI_SHARES * 1000) / 10 }); }
+  for (const f of ctx.firms.get(normName(name)) || []) { const v = fiValue(f) * (f.public ? fiOwnShares(f) / fiOut(f) : 1); firmen += v; fl.push({ name: f.name, col: f.col, br: f.br, brName: FI_BR[f.br] ? FI_BR[f.br].name : "", lvl: f.lvl, level: FI_BR[f.br] ? FI_BR[f.br].lv[f.lvl - 1] : "", value: Math.round(v), avg: Math.round(fiAvg(f)), public: !!f.public, stake: Math.round((f.public ? fiOwnShares(f) / fiOut(f) : 1) * 1000) / 10 }); }
   const it = (st.owned && st.owned.items) || {}; let items = 0; const itemL = [];
   for (const k of Object.keys(it)) if (it[k] && ITEM_PRICE[k]) { items += ITEM_PRICE[k]; itemL.push(k); }
   const parts = { bal: r2(bal), tresor: Math.round(tresor), shops: Math.round(shops), immo: Math.round(immo), depot: Math.round(depot), firmen: Math.round(firmen), items };
@@ -1326,31 +1360,37 @@ async function firmaRoute(req, url) {
     }
     const fid = String(body.id), n = Math.floor(num(body.n)), side = body.side, t = await fiLoad(fid, now);
     if (!t || t.pleite || !t.public) return fail("keine_boerse");
-    if (!(n >= 1) || n > FI_SHARES) return fail("anzahl");
-    const price = fiPrice(t), mine = t.owner === name;
+    if (!(n >= 1) || n > 100000) return fail("anzahl");
+    const mine = t.owner === name, price = side === "buy" ? fiBuyPrice(t, now) : fiPrice(t);
     W.fshares = W.fshares || {};
     const x = W.fshares[fid] || { n: 0, avg: 0, dps: num(t.dps) };
     if (!mine) { W.fdivK = r2(num(W.fdivK) + fiDivOf(W, fid, t)); x.dps = num(t.dps); }
     if (side === "buy") {
-      if (n > t.pool) return fail("keine_anteile", { pool: t.pool });
+      const firmPart = Math.max(0, t.pool - num(t.poolOwn));
+      if (mine && fiSubOpen(t, now)) return fail("zeichnung_eigene");
+      if (n > (mine ? firmPart : t.pool)) return fail("keine_anteile", { pool: mine ? firmPart : t.pool });
       const cost = r2(n * price * 1.01);
       if (cost > bal() + 10) return fail("guthaben");
-      t.pool -= n; W.in = r2(W.in + cost);
+      // Erst die Anteile des Gründers (Erlös an ihn, per Posteingang), dann die der Firma (Erlös in die Kasse)
+      const fromOwn = mine ? 0 : Math.min(n, num(t.poolOwn)), fromFirm = n - fromOwn;
+      t.pool -= n; t.poolOwn = num(t.poolOwn) - fromOwn; W.in = r2(W.in + cost); t.kasse = r2(t.kasse + fromFirm * price); if (t.kasse >= 0) t.negSince = 0;
+      if (fromOwn > 0) { const a = r2(fromOwn * price); try { await getStore("posteingang").setJSON(`${encodeURIComponent(t.owner)}/${now}-fi${Math.random().toString(36).slice(2, 7)}`, { f: `${t.name}: ${fromOwn} Anteile an ${name} verkauft`, a, t: now }); } catch {} fiEv(t, now, `${name} kauft ${fromOwn} deiner Anteile`, a); }
+      if (fromFirm > 0) fiEv(t, now, `${mine ? "Du kaufst" : name + " kauft"} ${fromFirm} Anteile der Firma`, r2(fromFirm * price));
       if (mine) t.fs += n; else { x.avg = r2((x.avg * x.n + cost) / (x.n + n)); x.n += n; W.fshares[fid] = x; t.h[name] = (t.h[name] || 0) + n; }
-      if (mine) { f = t; const k = own.findIndex((x) => x.id === t.id); if (k >= 0) own[k] = t; } await s.setJSON("f/" + t.id, t); try { await s.delete("cache"); } catch {}
+      if (mine) { f = t; const k = own.findIndex((x) => x.id === t.id); if (k >= 0) own[k] = t; } fiDivRule(t); await s.setJSON("f/" + t.id, t); try { await s.delete("cache"); } catch {}
       return done({ price, cost, n });
     }
     if (side === "sell") {
+      if (n * price > t.kasse) return fail("kasse_knapp", { max: Math.max(0, Math.floor(t.kasse / price)) });
       if (mine) {
-        if (now < t.ipoAt + FI_LOCK) return fail("sperrfrist");
-        if (t.fs - n < FI_SHARES * 0.51) return fail("mind_51");
+        if (n > fiMaxSellOwn(t)) return fail("min_anteil", { max: fiMaxSellOwn(t) });
         t.fs -= n;
       } else {
         if (x.n < n) return fail("zu_wenig_aktien");
         x.n -= n; if (x.n <= 0) delete W.fshares[fid]; else W.fshares[fid] = x;
         t.h[name] = Math.max(0, (t.h[name] || 0) - n); if (!t.h[name]) delete t.h[name];
       }
-      const pay = r2(n * price * 0.99); t.pool += n; W.out = r2(W.out + pay); if (mine) { f = t; const k = own.findIndex((x) => x.id === t.id); if (k >= 0) own[k] = t; }
+      const pay = r2(n * price * 0.99); t.pool += n; t.kasse = r2(t.kasse - n * price); W.out = r2(W.out + pay); fiEv(t, now, `${mine ? "Du verkaufst" : name + " verkauft"} ${n} Anteile an die Firma`, -r2(n * price)); if (mine) { f = t; const k = own.findIndex((x) => x.id === t.id); if (k >= 0) own[k] = t; }
       await s.setJSON("f/" + t.id, t); try { await s.delete("cache"); } catch {}
       return done({ price, pay, n });
     }
@@ -1376,22 +1416,23 @@ async function firmaRoute(req, url) {
   if (a === "downgrade") {
     if (L <= 1) return fail("min_stufe");
     const back = Math.round(fiUpCost(f, L) / 2);
-    f.lvl--; fiEv(f, now, `Verkleinert: ${FI_BR[f.br].lv[f.lvl - 1]}`, 0); W.out = r2(W.out + back); await saveF();
+    f.lvl--; if (f.br === "startup") f.lv.dev = Math.min(f.lv.dev, FI_DEVMAX[f.lvl]); if (f.br === "mode") f.lv.shop = Math.min(num(f.lv.shop), f.lvl); fiEv(f, now, `Verkleinert: ${FI_BR[f.br].lv[f.lvl - 1]}`, 0); W.out = r2(W.out + back); await saveF();
     return done({ pay: back });
   }
   if (a === "deposit" || a === "withdraw") {
     const amt = Math.floor(num(body.amount));
     if (!(amt >= 1)) return fail("anzahl");
     if (a === "deposit") { if (amt > bal() + 10) return fail("guthaben"); f.kasse = r2(f.kasse + amt); f.dep = r2(num(f.dep) + amt); if (f.kasse >= 0) f.negSince = 0; W.in = r2(W.in + amt); fiEv(f, now, "Geld eingezahlt", amt); await saveF(); return done({ cost: amt }); }
-    // Nach dem Börsengang darf der Gründer nur Gewinne seit dem Börsengang abheben (sonst Kasse leeren und Aktionäre bleiben auf nichts sitzen)
-    const maxOut = f.public ? Math.max(0, f.kasse - num(f.ipoKasse)) : f.kasse;
-    if (amt > maxOut) return fail(f.public ? "boerse_sperre" : "kasse_leer", { max: Math.floor(maxOut) });
-    f.kasse = r2(f.kasse - amt); const back = Math.min(num(f.dep), amt); f.dep = r2(num(f.dep) - back);
-    W.out = r2(W.out + amt); fiEv(f, now, "Auszahlung an dich", -amt); await saveF();
+    // An der Börse: Aktionäre bekommen beim Auszahlen ihren Anteil als Sonderdividende (gleicher Betrag pro Anteil wie der Gründer)
+    if (amt > fiMaxOut(f)) return fail("kasse_leer", { max: fiMaxOut(f) });
+    let side = 0;
+    if (f.public) { const held = fiHeld(f), d = amt / Math.max(1, fiOwnShares(f)); side = r2(d * held); if (held > 0) f.dps = num(f.dps) + d; }
+    f.kasse = r2(f.kasse - amt - side); const back = Math.min(num(f.dep), amt); f.dep = r2(num(f.dep) - back);
+    W.out = r2(W.out + amt); fiEv(f, now, side > 0 ? `Auszahlung an dich (Aktionäre bekommen ${Math.round(side).toLocaleString("de-DE")})` : "Auszahlung an dich", -(amt + side)); await saveF();
     return done({ pay: amt, stat: r2(amt - back) });
   }
   if (a === "dissolve") {
-    if (f.public) return fail("an_boerse");
+    if (f.public && fiHeld(f) > 0) return fail("an_boerse");
     const pay = Math.round(fiValue(f) * 0.6);
     f.pleite = now; f.dissolved = true; fiEv(f, now, "Firma aufgelöst", pay); await saveF();
     const k = own.indexOf(f); if (k >= 0) own.splice(k, 1); await s.setJSON("o/" + key, { ids: own.map((x) => x.id) });
@@ -1401,13 +1442,52 @@ async function firmaRoute(req, url) {
   if (a === "ipo") {
     if (f.public) return fail("schon_boerse");
     const v = fiValue(f); if (v < FI_IPO_MIN) return fail("zu_klein");
-    const n = Math.floor(num(body.n)); if (!(n >= 1) || n > 490) return fail("anzahl");
-    const price = Math.round(v / FI_SHARES * 100) / 100, pay = r2(n * price);
-    f.public = true; f.ipoAt = now; f.float = n; f.pool = n; f.fs = FI_SHARES - n; f.ph = [price]; f.ipoKasse = f.kasse;
-    fiEv(f, now, `Börsengang: ${n} Anteile zu je ${price.toLocaleString("de-DE")}`, pay); W.out = r2(W.out + pay); await saveF();
-    return done({ pay, price, n });
+    if (now < num(f.founded) + FI_IPO_AGE) return fail("zu_jung");
+    const fs0 = Math.max(1, num(f.fs) || FI_SHARES), n = Math.floor(num(body.n)), m = Math.floor(num(body.m)), disc = Number(body.disc);
+    if (![0, 5, 10, 15, 20].includes(disc)) return fail("aktion");
+    if (!(n >= 0 && m >= 0 && n + m >= 1) || n > 2 * fs0 || fs0 - m < FI_MIN_OWN * (fs0 + n)) return fail("min_anteil");
+    const fair = v / fs0, price = Math.max(0.01, Math.round(fair * (1 - disc / 100) * 100) / 100), fee = Math.round(FI_IPO_FEE * (n + m) * price);
+    if (fee > f.kasse) return fail("kasse_leer");
+    f.kasse = r2(f.kasse - fee); f.fs = fs0 - m; f.public = true; f.ipoAt = now; f.ipoUntil = now + FI_SUB; f.ipoPrice = price; f.pool = n + m; f.poolOwn = m; f.h = f.h || {}; f.ph = [price]; f.divPct = num(f.divPct);
+    delete f.ipoKasse; delete f.float;
+    fiEv(f, now, `Börsengang: ${n + m} Anteile zu je ${price.toLocaleString("de-DE")} (${n} neu, ${m} von dir), Bankgebühr`, -fee); await saveF();
+    return done({ price, n, m, fee });
   }
-  if (a === "setDividend") { const p = Number(body.pct); if (![0, 10, 25, 50].includes(p)) return fail("aktion"); f.divPct = p; await saveF(); return done({}); }
+  // Eigene Anteile zum Verkauf anbieten: Käufer zahlen den Kurs an dich (Posteingang)
+  if (a === "offer") {
+    if (!f.public) return fail("keine_boerse");
+    const n = Math.floor(num(body.n)); if (!(n >= 1) || n > fiMaxSellOwn(f)) return fail("min_anteil", { max: fiMaxSellOwn(f) });
+    f.fs -= n; f.pool += n; f.poolOwn = num(f.poolOwn) + n; fiEv(f, now, `Du bietest ${n} Anteile zum Verkauf an`, 0); await saveF();
+    return done({ n });
+  }
+  // Kredit aufnehmen / tilgen
+  if (a === "loan" || a === "repay") {
+    const amt = Math.floor(num(body.amount)); if (!(amt >= 1)) return fail("anzahl");
+    if (a === "loan") { if (amt > fiMaxLoan(f)) return fail("kredit_max", { max: fiMaxLoan(f) }); f.loan = num(f.loan) + amt; f.kasse = r2(f.kasse + amt); if (f.kasse >= 0) f.negSince = 0; fiEv(f, now, "Kredit aufgenommen", amt); }
+    else { const x = Math.min(amt, num(f.loan)); if (!(x >= 1)) return fail("kein_kredit"); if (x > f.kasse) return fail("kasse_leer"); f.loan = num(f.loan) - x; f.kasse = r2(f.kasse - x); fiEv(f, now, "Kredit getilgt", -x); }
+    await saveF(); return done({});
+  }
+  // Weitere Anteile an die Börse bringen (Kapitalerhöhung): neue Anteile gehen in den freien Bestand, Käufer zahlen in die Firmenkasse
+  if (a === "emit") {
+    if (!f.public) return fail("keine_boerse");
+    const n = Math.floor(num(body.n)); if (!(n >= 1) || n > fiMaxEmit(f)) return fail("min_anteil", { max: fiMaxEmit(f) });
+    f.pool += n; fiEv(f, now, `${n} neue Anteile an die Börse gebracht`, 0); await saveF();
+    return done({ n });
+  }
+  // Freie Anteile zurückziehen (kostet nichts, sie gehören der Firma). Ohne Aktionäre: ganz von der Börse gehen
+  if (a === "retire" || a === "delist") {
+    if (!f.public) return fail("keine_boerse");
+    if (a === "delist") {
+      if (fiHeld(f) > 0) return fail("an_boerse");
+      f.fs = num(f.fs) + num(f.poolOwn); f.pool = 0; f.poolOwn = 0; f.public = false; f.divPct = 0; f.ipoUntil = 0; f.ph = [fiPrice(f)]; fiEv(f, now, "Von der Börse genommen", 0); await saveF();
+      return done({});
+    }
+    const n = Math.floor(num(body.n)); if (!(n >= 1) || n > f.pool) return fail("anzahl");
+    const back = Math.min(n, num(f.poolOwn)); f.poolOwn = num(f.poolOwn) - back; f.fs += back; f.pool -= n;
+    fiEv(f, now, back ? `${n} Anteile zurückgezogen (${back} davon wieder bei dir)` : `${n} freie Anteile zurückgezogen`, 0); await saveF();
+    return done({ n });
+  }
+  if (a === "setDividend") { const p = Number(body.pct); if (![0, 10, 25, 50].includes(p)) return fail("aktion"); if (p < 10 && f.public && fiOwnShares(f) / fiOut(f) < 0.5) return fail("dividende_pflicht"); f.divPct = p; await saveF(); return done({}); }
   if (a === "setLever") {
     const k = String(body.k), v = Number(body.v), lv = f.lv, pay = (c) => { if (c > f.kasse) return false; f.kasse = r2(f.kasse - c); return true; };
     if (f.br === "imbiss") {
@@ -1415,7 +1495,7 @@ async function firmaRoute(req, url) {
       else if (k === "q" || k === "o") { if (![0, 1, 2].includes(v)) return fail("aktion"); lv[k] = v; }
       else return fail("aktion");
     } else if (f.br === "startup") {
-      if (k === "dev") { if (!Number.isInteger(v) || v < 0 || v > 10) return fail("aktion"); lv.dev = v; }
+      if (k === "dev") { if (!Number.isInteger(v) || v < 0 || v > FI_DEVMAX[L]) return fail("max_entwickler"); lv.dev = v; }
       else if (k === "invest") {
         if (f.invPct >= 30) return fail("max_investoren");
         const c = Math.round(0.1 * Math.max(fiValue(f), 120000 * L)); f.invPct += 10; f.kasse = r2(f.kasse + c); if (f.kasse >= 0) f.negSince = 0;
@@ -1428,6 +1508,22 @@ async function firmaRoute(req, url) {
     } else if (f.br === "mode") {
       if (k === "mkt") { if (![0, 1, 2, 3].includes(v)) return fail("aktion"); lv.mkt = v; }
       else if (k === "style") { if (![0, 1].includes(v)) return fail("aktion"); lv.style = v; }
+      else if (k === "price") { if (![0, 1, 2].includes(v)) return fail("aktion"); lv.price = v; }
+      else if (k === "shop") {
+        if (!Number.isInteger(v) || v < 0 || v > L) return fail("aktion");
+        if (v > num(lv.shop)) { const c = (v - num(lv.shop)) * 15000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Eigener Laden eröffnet", -c); }
+        lv.shop = v;
+      } else if (k === "online") {
+        if (![0, 1].includes(v)) return fail("aktion");
+        if (v && !lv.online) { const c = 10000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Onlineshop gestartet", -c); }
+        lv.online = v;
+      } else if (k === "collab") {
+        if (now - num(f.collabAt) < 12 * HOUR) return fail("collab_bald");
+        const c = 3 * B; if (!pay(c)) return fail("kasse_leer");
+        const [u] = fiR(f.id, "collab", now); f.collabAt = now;
+        if (u < 0.15) { f.st.H = Math.max(0, f.st.H - 0.5); fiEv(f, now, "Influencer-Kooperation: Skandal um den Influencer", -c); }
+        else { f.st.H = Math.min(3, f.st.H + 1.2); fiEv(f, now, "Influencer-Kooperation geht viral", -c); }
+      }
       else if (k === "drop") {
         if (now - num(f.dropAt) < 6 * HOUR) return fail("drop_bald");
         const c = 2 * B; if (!pay(c)) return fail("kasse_leer");
@@ -1570,6 +1666,10 @@ async function crash(req, url) {
 }
 
 // ================= Registrieren / Einloggen / Abmelden / Passwort ändern (/api/spielstand?auth=1) =================
+// Neue Accounts: höchstens einer pro Gerät und Woche. Das Gerät schickt eine zufällige Geräte-ID mit,
+// die im Browser gespeichert bleibt (gespeichert wird nur ein Hash davon).
+const DEV_WEEK = 7 * 86_400_000, DEV_RE = /^[a-z0-9]{20,40}$/;
+async function devKey(dev) { return createHmac("sha256", await secret()).update("dev|" + dev).digest("hex").slice(0, 32); }
 async function authRoute(req) {
   if (req.method !== "POST") return json({ error: "methode" }, 405);
   let body;
@@ -1593,10 +1693,16 @@ async function authRoute(req) {
     const state = body.state;
     const err = basicCheck(state) || (looksFresh(state) ? null : "kein_neuer_spielstand");
     if (err) return json({ error: err }, 422);
+    const dev = String(body.dev || "");
+    if (!DEV_RE.test(dev)) return json({ error: "geraet" }, 400);
+    const devS = getStore("geraete"), devK = await devKey(dev);
+    const last = await devS.get(devK, { type: "json" }).catch(() => null);
+    if (last && now - num(last.t) < DEV_WEEK) return json({ error: "geraet_limit", until: num(last.t) + DEV_WEEK }, 429);
     state.sent = 0; state.recv = 0;
     const salt = randomBytes(16).toString("hex"), token = newToken();
     await store.setJSON(key, { state, rev: 1, savedAt: now, sentTotal: 0, recvTotal: 0, seen: [], created: now, potMark: 0, lossMark: ltGross(state),
       pw: { s: salt, h: await scrypt(body.pw, salt) }, tokens: [{ h: sha(token), t: now }] });
+    try { await devS.setJSON(devK, { t: now, n: name }); } catch {}
     return json({ ok: true, rev: 1, token });
   }
 

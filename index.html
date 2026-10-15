@@ -1621,6 +1621,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .ak-tk-in span b{font:700 13px var(--f-num);margin-left:6px}
 @keyframes akTick{to{transform:translateX(-100%)}}
 @media (prefers-reduced-motion:reduce){.ak-tk-in{animation:none;padding-left:14px}}
+.ak-hold{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.ak-hold span{background:var(--bg2);border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:12.5px;color:var(--mute)}.ak-hold b{color:var(--ink)}
 .ak-badge{flex:none;width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font:700 12px var(--f-disp);letter-spacing:.02em;color:#0b141c}
 .ak-list{display:flex;flex-direction:column;gap:8px}
 .ak-row{display:grid;grid-template-columns:44px minmax(0,1.4fr) minmax(0,1fr) 120px minmax(0,1fr);align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;color:var(--ink);width:100%}
@@ -1658,7 +1659,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .fi-prev{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px dashed var(--line2);border-radius:12px;padding:10px 12px}
 .fi-prev b{font:700 17px var(--f-disp)}.fi-prev small{display:block;color:var(--mute);font-size:12.5px}
 .fi-head{flex-direction:row;align-items:center;gap:14px;flex-wrap:wrap}
-.fi-head .t{flex:1;min-width:0}.fi-head h2{margin:0;font:700 22px var(--f-disp);overflow-wrap:anywhere}.fi-head small{color:var(--mute);font-size:13px}
+.fi-head .t{flex:1;min-width:160px}.fi-head h2{margin:0;font:700 22px var(--f-disp);overflow-wrap:break-word}.fi-head>.chip{flex:none}@media (max-width:600px){.fi-head>.chip{flex-basis:100%;justify-content:center}}.fi-head small{color:var(--mute);font-size:13px}
 .fi-warn{background:rgba(255,77,106,.1);border:1px solid rgba(255,77,106,.45);border-radius:12px;padding:10px 14px;font-size:14px}
 .fi-warn b{color:#ff8095}
 .fi-row{display:flex;flex-direction:column;gap:5px;padding:10px 0;border-top:1px solid var(--line)}
@@ -1680,6 +1681,16 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
 .fi-stage{display:flex;gap:4px}.fi-stage i{flex:1;height:7px;border-radius:4px;background:var(--panel3)}.fi-stage i.on{background:var(--brass)}
 .fi-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ak-tag.pf{background:rgba(167,139,250,.18);color:#c4b5fd}
+.fi-tabs{margin-top:2px}.fi-tabs button{min-height:44px;font-weight:700}
+.fi-guv{display:flex;flex-direction:column;gap:0}.fi-guv>div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.fi-guv>div span{color:var(--mute)}.fi-guv .sum{border-bottom:0;border-top:2px solid var(--line2)}.fi-guv .sum span{color:var(--ink);font-weight:700}
+.fi-bars{width:100%;height:70px;display:block}
+.fi-chk{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}.fi-chk>div{display:flex;gap:10px;align-items:flex-start;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 11px}.fi-chk>div>b{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:rgba(255,77,106,.15);color:#ff6b84;font-size:13px}.fi-chk>div.ok>b{background:rgba(47,224,143,.15);color:#2fe08f}.fi-chk span{display:flex;flex-direction:column;font-weight:600}.fi-chk small{color:var(--mute);font-weight:400}
+.fi-sub{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;border:1px solid var(--brass-lo);background:rgba(255,176,32,.08)}.fi-sub>b{color:var(--brass-hi)}.fi-sub span{color:var(--ink);font-size:14px}
+.fi-cap{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:2px;margin-bottom:10px}.fi-cap i{display:block;min-width:3px}
+.fi-hold{display:flex;flex-direction:column;gap:6px}.fi-hold>div{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 11px}.fi-hold>div.me{border-color:var(--brass-lo)}.fi-hold i{width:10px;height:10px;border-radius:3px;flex:none}.fi-hold .firm i{background:var(--line2)}
+.fi-hold span{display:flex;flex-direction:column;min-width:0;flex:1}.fi-hold span b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fi-hold small{color:var(--mute);font-size:12px}.fi-hold .v{flex:none;align-items:flex-end}
+.fi-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:8px}.fi-acts .btn{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;padding:11px 13px;min-height:58px}.fi-acts .btn small{color:var(--mute);font-weight:500;font-size:12.5px}
+.fi-own{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.fi-own div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;min-width:0}.fi-own span{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;font-weight:600}.fi-own b{font-size:16px}.fi-own small{font-size:12px;color:var(--mute)}
 .fi-back{align-self:flex-start;padding:8px 14px;font-size:13.5px;flex:none}
 .fi-ren{background:none;border:0;color:var(--mute);padding:4px;vertical-align:2px;cursor:pointer;border-radius:6px}.fi-ren:hover{color:var(--brass-hi);background:var(--panel2)}
 .fi-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
@@ -2574,7 +2585,7 @@ body:has(#v-stapel:not([hidden])) .bottomnav,#v-stapel .mainact{backdrop-filter:
     </div>
   </div>
   <details class="odds"><summary>Auszahlung und Regeln</summary>
-    <p>Jeder Chip pendelt über dem Turm, jede Etage ein Stück schneller. Was übersteht, wird abgeschnitten, der Turm wird also schmaler. Triffst du genau, wird nichts abgeschnitten, und ab drei Perfekten in Folge wächst der Chip wieder. Die Runde läuft, bis ein Chip danebenfällt. Dann bekommst du automatisch Einsatz × Faktor deiner erreichten Höhe. Die Chips starten langsam und werden mit jeder Etage schneller, ab Höhe 30 schwankt das Tempo leicht.</p>
+    <p>Jeder Chip pendelt über dem Turm, jede Etage ein Stück schneller. Was übersteht, wird abgeschnitten, der Turm wird also schmaler. Triffst du genau, wird nichts abgeschnitten, und ab drei Perfekten in Folge wächst der Chip wieder. Jeder perfekte Treffer bringt außerdem 5 % vom aktuellen Wert als Bonus (Einsatz × Faktor der erreichten Höhe × 5 %, auf Höhe 30 also Einsatz × 2 × 5 %). Der Bonus wird am Ende mit ausgezahlt, auch wenn ein Chip danebenfällt. Die Runde läuft, bis ein Chip danebenfällt. Dann bekommst du automatisch Einsatz × Faktor deiner erreichten Höhe. Die Chips starten langsam und werden mit jeder Etage schneller, ab Höhe 30 schwankt das Tempo leicht.</p>
     <p>Wer 75 Chips stapelt, hat das Spiel durchgespielt: Es gibt 10× und die Runde endet.</p>
     <p>Dies ist ein Skill-Spiel: Wie viel du im Schnitt zurückbekommst, hängt von deinem Können ab. In Simulationen kommen Gelegenheitsspieler auf etwa 50–90 %, sehr gute Spieler auch über 100 %. Weil man hier mit Können dauerhaft gewinnen kann, ist der Chip-Stapler nur mit weniger als 150.000 Coins Guthaben spielbar.</p>
     <div class="tablewrap"><table id="skTbl"></table></div>
@@ -2921,16 +2932,25 @@ function lgMsg(t,bad){const m=$('lgMsg');m.textContent=t;m.className='msg'+(bad?
 function lgBusy(on){$('lgIn').disabled=on;$('lgNew').disabled=on}
 function setTok(t){tok=t||'';try{if(tok)localStorage.setItem('lr_tok',tok);else localStorage.removeItem('lr_tok')}catch(e){}}
 const LG_ERR={vergeben:'Diesen Namen gibt es schon. Wähle einen anderen oder logge dich ein.',falsch:'Name oder Passwort stimmt nicht.',gesperrt:'Dieser Account ist gesperrt.',
-  zu_viele_versuche:'Zu viele falsche Versuche. Warte 15 Minuten.',name:'Gib einen Namen ein (bis 30 Zeichen).',passwort:'Gib ein Passwort ein.'};
+  zu_viele_versuche:'Zu viele falsche Versuche. Warte 15 Minuten.',geraet_limit:'Auf diesem Gerät wurde diese Woche schon ein Account erstellt. Log dich mit deinem Account ein.',geraet:'Lade die Seite neu und versuch es nochmal.',name:'Gib einen Namen ein (bis 30 Zeichen).',passwort:'Gib ein Passwort ein.'};
+// Geräte-ID: zufällig, bleibt im Browser (localStorage + Cookie), damit pro Gerät nur ein neuer Account pro Woche geht
+function devId(){const ok=v=>/^[a-z0-9]{20,40}$/.test(v||'');let id='';
+  try{id=localStorage.getItem('lr_dev')||''}catch(e){}
+  if(!ok(id)){const m=document.cookie.match(/(?:^|; )lr_dev=([a-z0-9]+)/);if(m)id=m[1]}
+  if(!ok(id)){const a=new Uint8Array(16);crypto.getRandomValues(a);id=[...a].map(b=>b.toString(36).padStart(2,'0')).join('').slice(0,32)}
+  try{localStorage.setItem('lr_dev',id)}catch(e){}
+  try{document.cookie='lr_dev='+id+'; max-age=63072000; path=/; SameSite=Lax'}catch(e){}
+  return id}
+try{devId()}catch(e){}
 async function doLogin(create){const name=normName($('lgName').value),pw=$('lgPw').value;
   if(!NAME_RE.test(name)){lgMsg(LG_ERR.name,true);$('lgName').focus();return}
   if(!pw){lgMsg(LG_ERR.passwort,true);$('lgPw').focus();return}
   lgBusy(true);lgMsg(create?'Account wird erstellt …':'Einloggen …');
   try{let st=null;
     if(create){const snd=S.set.sound;st=fresh();st.set.sound=snd}
-    const r=await fetch(API+'?auth=1',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(create?{action:'register',name,pw,state:st}:{action:'login',name,pw})});
+    const r=await fetch(API+'?auth=1',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(create?{action:'register',name,pw,state:st,dev:devId()}:{action:'login',name,pw})});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.token){if(r.status>=500||!r.status)throw new Error(r.status);lgMsg(LG_ERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.',true);lgBusy(false);return}
+    if(!r.ok||!d.token){if(r.status>=500||!r.status)throw new Error(r.status);lgMsg(d.error==='geraet_limit'&&d.until?`Auf diesem Gerät wurde diese Woche schon ein Account erstellt. Der nächste geht ab ${new Date(d.until).toLocaleString('de-DE',{weekday:'long',day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit'})} Uhr. Log dich so lange mit deinem Account ein.`:LG_ERR[d.error]||'Das hat nicht geklappt. Versuch es nochmal.',true);lgBusy(false);return}
     acct=name;setTok(d.token);
     if(create){S=st;setRev(d.rev)}else{adopt(d.state);setRev(d.rev);setTimeout(()=>showGifts(d.gifts),600)}
     try{localStorage.setItem('lr_user',name);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
@@ -4340,6 +4360,7 @@ const SK=(()=>{
   function spawnChip(){const n=tower.length,top=tower[n-1],l=R.L[R.st.h];
     mv={axis:n%2===1?'x':'z',off:STK.off(l,0),r:top.r,bx:top.x,bz:top.z,col:n%5,y:n*CH,l};chipAge=0;spawnAt=performance.now();shown=[];camTarget=camFor(n)}
   // Ab 150.000 Coins gesperrt (geprüft vor dem Einsatz, laufende Runden bleiben unberührt)
+  const PERF_BONUS=.05;   // je perfektem Treffer 5 % vom aktuellen Wert (Einsatz × Faktor der neuen Höhe)
   const RICH_MSG=`Chip-Stapler ist nur mit weniger als <b class="num">${fmt0(SK_MAXBAL)}</b> Coins Guthaben spielbar.`;
   const rich=()=>S.bal>=SK_MAXBAL;let wasRich=null;
   function start(){
@@ -4347,7 +4368,7 @@ const SK=(()=>{
     ac();if(rich()){toast(RICH_MSG,'bad');ui();return}
     const bet=readBet('skBet');if(!take('stapel',bet))return;
     hideOv();
-    R={bet,seed:cryptoSeed(),st:STK.fresh(),taps:[],t0:Date.now(),ended:false};R.L=STK.plan(R.seed);openSet('stapel','r',bet,STK.mult(0),RTP);
+    R={bet,seed:cryptoSeed(),st:STK.fresh(),taps:[],t0:Date.now(),ended:false,bonus:0};R.L=STK.plan(R.seed);openSet('stapel','r',bet,STK.mult(0),RTP);
     resetTower();setState('play');spawnChip();renderHud(true);ui();blur();ensureLoop()}
   // ts = Zeitpunkt des Tipps (Event-Zeitstempel), damit genau der Moment des Antippens zählt
   function drop(ts){if(state!=='play'||!mv)return;const age=ageAt(ts);if(age<STK.MIN_MS)return;
@@ -4356,17 +4377,18 @@ const SK=(()=>{
     if(res.kind==='fall'){R.st=res.st;fall(x,z,sign);return}
     const was=STK.mult(R.st.h);R.st=res.st;
     if(res.kind==='perfect'){tower.push({x:top.x,z:top.z,r:res.st.r,col:mv.col,anim:{fx:x,fz:z,fr:mv.r,t:0}});ripples.push({x:top.x,z:top.z,y:mv.y+CH,r:res.st.r,t:0});
-      sfxPerfect(res.st.combo);buzz([12,30,12]);let sub=res.st.combo>=2?'Combo ×'+res.st.combo:'';if(res.grew)sub+=(sub?' · ':'')+'Chip wächst!';showToast('PERFEKT!',sub)}
+      sfxPerfect(res.st.combo);buzz([12,30,12]);let sub=res.st.combo>=2?'Combo ×'+res.st.combo:'';if(res.grew)sub+=(sub?' · ':'')+'Chip wächst!';
+      const pb=r2(R.bet*STK.mult(res.st.h)*PERF_BONUS);if(pb>0){R.bonus=r2(R.bonus+pb);sub+=(sub?' · ':'')+'+'+fmt(pb)}showToast('PERFEKT!',sub)}
     else{const nr=res.st.r,ncx=mv.axis==='x'?top.x+d/2:top.x,ncz=mv.axis==='z'?top.z+d/2:top.z,cut=(mv.axis==='x'?top.x:top.z)+sign*top.r;
       falling.push({x,z,y:mv.y,r:mv.r,col:mv.col,axis:mv.axis,cut,sign,t:0});tower.push({x:ncx,z:ncz,r:nr,col:mv.col,anim:{fx:x,fz:z,fr:mv.r,t:0}});sfxPlace();buzz(8)}
-    const h=R.st.h,m=STK.mult(h);if(m!==was)openSet('stapel','r',R.bet,m,RTP);
+    const h=R.st.h,m=STK.mult(h);if(m!==was||res.kind==='perfect')openSet('stapel','r',R.bet,r2(m+R.bonus/R.bet),RTP);
     if(m>was&&res.kind!=='perfect'){sfxStep();showToast(fmtX(m),'Höhe '+h+' erreicht')}else if(m>was)sfxStep();
     renderHud(true);
     if(h>=STK.MAXH){mv=null;end('top');return}
     spawnChip();ui();ensureLoop()}
   function fall(x,z,sign){falling.push({x,z,y:mv.y,r:mv.r,col:mv.col,axis:mv.axis,cut:null,sign,t:0});mv=null;sfxOver();buzz([60,40,90]);shakeT=.3;showToast('DANEBEN!','',true);end('fall')}
   // Runde abrechnen und Kamera rausfahren
-  function end(kind){if(R.ended)return;R.ended=true;const h=R.st.h,m=STK.mult(h),pay=r2(R.bet*m);
+  function end(kind){if(R.ended)return;R.ended=true;const h=R.st.h,m=STK.mult(h),pay=r2(R.bet*m+(R.bonus||0));
     R.kind=kind;R.m=m;R.pay=pay;openDel('stapel','r');settle('stapel',R.bet,pay,m,RTP);
     if(pay>R.bet){setTimeout(()=>SND.win(),450);if(m>=4)confetti(m>=8?200:110)}
     if(h>best){best=h;R.record=true;try{localStorage.setItem('st_best',String(best))}catch(e){}}
@@ -4380,7 +4402,7 @@ const SK=(()=>{
   function setState(s){state=s;root.setAttribute('data-st-state',s)}
   const blur=()=>{const a=document.activeElement;if(a&&a.blur&&a!==document.body)a.blur()};
   function hideOv(){['skStartOv','skResultOv','skPauseOv'].forEach(id=>$(id).classList.add('st-hidden'))}
-  function renderHud(bump){const h=R?R.st.h:0,el=$('skScore');el.textContent=String(h);$('skScoreLab').textContent=R&&STK.mult(h)>0?'Höhe · '+fmtX(STK.mult(h)):'Höhe';
+  function renderHud(bump){const h=R?R.st.h:0,el=$('skScore');el.textContent=String(h);$('skScoreLab').textContent=(R&&STK.mult(h)>0?'Höhe · '+fmtX(STK.mult(h)):'Höhe')+(R&&R.bonus>0?' · Bonus +'+fmt(R.bonus):'');
     if(bump&&!reduced&&el.animate)el.animate([{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:220,easing:'ease-out'})
     const c=$('skCombo'),cb=R?R.st.combo:0;if(cb>=2){c.textContent='Combo ×'+cb;c.classList.add('st-on')}else c.classList.remove('st-on')}
   function showToast(main,sub,loss){const t=$('skToast');$('skToastMain').textContent=main;$('skToastSub').textContent=sub||'';t.classList.toggle('st-loss',!!loss);if(!t.animate)return;if(toastAnim)toastAnim.cancel();
@@ -4399,7 +4421,7 @@ const SK=(()=>{
     $('skResKick').textContent=r.kind==='top'?STK.MAXH+' Chips!':r.pay>r.bet?'Gewonnen':won?'Teilweise zurück':'Daneben';
     $('skResScore').textContent=String(r.st.h);$('skResPerf').textContent=String(r.st.perf);$('skResCombo').textContent=String(r.st.best);$('skResM').textContent=fmtX(r.m||0);
     $('skRecord').classList.toggle('st-hidden',!r.record);
-    const pv=$('skResPay'),net=r2((r.pay||0)-r.bet);$('skResPayL').innerHTML=won?`Ausgezahlt ${fmt(r.pay)}<small>Einsatz ${fmt(r.bet)} × ${fmtX(r.m)}</small>`:`Verloren<small>Einsatz geht in den Jackpot</small>`;
+    const pv=$('skResPay'),net=r2((r.pay||0)-r.bet);$('skResPayL').innerHTML=won?`Ausgezahlt ${fmt(r.pay)}<small>Einsatz ${fmt(r.bet)} × ${fmtX(r.m)}${r.bonus>0?` + Perfekt-Bonus ${fmt(r.bonus)}`:''}</small>`:`Verloren<small>Einsatz geht in den Jackpot</small>`;
     pv.textContent=(net>=0?'+':'−')+fmt(Math.abs(net));pv.parentElement.classList.toggle('neg',net<0);
     $('skResultOv').classList.remove('st-hidden');resultAt=performance.now()}
 
@@ -4658,7 +4680,7 @@ onShow.wetten=WT.show;
 // Gekaufte Lose bucht das Gerät ab (Spielstatistik "lotto"), sobald der Server sie angenommen hat. Gewinne kommen über den Posteingang.
 const LT=(()=>{
   const LAPI='/api/spielstand?lotto=1',PRICE=250,MAX=20,FREE_MAX=4,PER_FREE=6,SHARES=[.5,.25,.1];
-  const ERR={max:`Mehr als ${MAX} Lose pro Ziehung gehen nicht.`,guthaben:'Dafür reicht dein Guthaben nicht.',anzahl:'Diese Anzahl geht nicht.',gesperrt:'Dein Account ist gesperrt.',
+  const ERR={max:`Mehr als ${MAX} Lose pro Ziehung gehen nicht.`,guthaben:'Dafür reicht dein Guthaben nicht.',anzahl:'Diese Anzahl geht nicht.',gesperrt:'Dein Account ist gesperrt.',jackpot_gesperrt:'Du bist vom Admin für den Jackpot gesperrt.',
     gezogen:'Gerade wurde gezogen. Schau dir das Ergebnis an und kauf dann für die nächste Ziehung.',unbekannt:'Dein Account wurde nicht gefunden.'};
   const online=()=>ACCOUNTS&&!!acct;
   const L=()=>{if(!S.lt||typeof S.lt!=='object')S.lt={};const l=S.lt;l.d=+l.d||0;l.n=+l.n||0;l.won=+l.won||0;l.seen=+l.seen||0;return l};
@@ -4672,7 +4694,7 @@ const LT=(()=>{
   function left(ms){if(ms<=0)return'jetzt';const m=Math.floor(ms/60000);if(m>=1440)return`${Math.floor(m/1440)} T ${Math.floor(m%1440/60)} Std.`;if(m>=60)return`${Math.floor(m/60)}:${pad(m%60)} Std.`;return mmss(ms)+' Min.'}
   const mine=()=>I&&I.mine?I.mine:{n:0,f:0,s:0};
   const myT=()=>mine().n+mine().f;
-  const canBuy=()=>Math.max(0,MAX-mine().n);
+  const canBuy=()=>mine().banned?0:Math.max(0,MAX-mine().n);
   const affordable=()=>Math.max(0,Math.floor((S.bal+1e-9)/PRICE));
 
   // ---- Server holen (Ansicht offen: alle 15 s, Lobby: jede Minute, sonst selten; kurz nach 9:35 Uhr: Ergebnis holen)
@@ -4762,14 +4784,14 @@ const LT=(()=>{
     $('ltMinus').disabled=!ok||qty<=1||buying;$('ltPlus').disabled=!ok||qty>=cb||buying;
     $('ltQuick').querySelectorAll('[data-q]').forEach(b=>{const v=b.dataset.q==='max'?maxQ:+b.dataset.q;b.disabled=!ok||buying||v>cb;b.setAttribute('aria-pressed',String(ok&&v===qty))});
     const go=$('ltGo');let lab=`${qty===1?'1 Los':qty+' Lose'} kaufen · ${fmt0(qty*PRICE)}`,dis=false;
-    if(!ACCOUNTS||!acct){lab='Nur mit Account';dis=true}else if(!I){lab='Lädt …';dis=true}else if(buying){lab='Wird gekauft …';dis=true}else if(cb<1){lab='20 Lose gekauft';dis=true}else if(bal+1e-9<qty*PRICE){lab=bal<PRICE?'Guthaben zu niedrig':'Zu wenig Guthaben';dis=true}
+    if(!ACCOUNTS||!acct){lab='Nur mit Account';dis=true}else if(!I){lab='Lädt …';dis=true}else if(buying){lab='Wird gekauft …';dis=true}else if(m.banned){lab='Für den Jackpot gesperrt';dis=true}else if(cb<1){lab='20 Lose gekauft';dis=true}else if(bal+1e-9<qty*PRICE){lab=bal<PRICE?'Guthaben zu niedrig':'Zu wenig Guthaben';dis=true}
     setT(go,lab);go.disabled=dis;
-    setT($('ltInfo'),!ACCOUNTS?'Der Jackpot läuft über den Server, alle Spieler spielen um denselben Topf.':!acct?'Melde dich an, um mitzuspielen.':cb<1?'Mehr Lose gehen für diese Ziehung nicht. Gratis-Lose bekommst du weiter fürs Spielen.':'Jedes Los ist eine Kugel in der Trommel. Lose gelten für die nächste Ziehung.');
+    setT($('ltInfo'),ok&&m.banned?'Der Admin hat dich für den Jackpot gesperrt. Du kannst keine Lose kaufen und nimmst an keiner Ziehung teil. Gekaufte Lose wurden dir erstattet.':!ACCOUNTS?'Der Jackpot läuft über den Server, alle Spieler spielen um denselben Topf.':!acct?'Melde dich an, um mitzuspielen.':cb<1?'Mehr Lose gehen für diese Ziehung nicht. Gratis-Lose bekommst du weiter fürs Spielen.':'Jedes Los ist eine Kugel in der Trommel. Lose gelten für die nächste Ziehung.');
     // Gratis-Lose
     $('ltFree').innerHTML=Array.from({length:FREE_MAX},(_,i)=>`<i class="${i<m.f?'on':''}">${i<m.f?'✓':i+1}</i>`).join('');
     setT($('ltFreeN'),ok?`${m.f} / ${FREE_MAX}`:'');
     const into=m.f>=FREE_MAX?PER_FREE:m.s%PER_FREE;$('ltProg').style.width=(ok?into/PER_FREE*100:0)+'%';
-    setT($('ltProgTxt'),!ok?'Für je 30 Minuten Spielen gibt es ein Gratis-Los, bis zu 4 pro Ziehung.':m.f>=FREE_MAX?'Alle 4 Gratis-Lose für diese Ziehung geholt!':`Noch ${(PER_FREE-into)*5} Minuten spielen bis zum nächsten Gratis-Los (es zählt jeder 5-Minuten-Abschnitt mit mindestens einer Runde).`)}
+    setT($('ltProgTxt'),ok&&m.banned?'Keine Gratis-Lose, solange du gesperrt bist.':!ok?'Für je 30 Minuten Spielen gibt es ein Gratis-Los, bis zu 4 pro Ziehung.':m.f>=FREE_MAX?'Alle 4 Gratis-Lose für diese Ziehung geholt!':`Noch ${(PER_FREE-into)*5} Minuten spielen bis zum nächsten Gratis-Los (es zählt jeder 5-Minuten-Abschnitt mit mindestens einer Runde).`)}
   // Countdown jede Sekunde (nur Text)
   function tickCd(){if(!I||cur!=='lotto')return;const ms=Math.max(0,I.d-now()),s=Math.floor(ms/1000);
     setT($('ltCdD'),String(Math.floor(s/86400)));setT($('ltCdH'),pad(Math.floor(s%86400/3600)));setT($('ltCdM'),pad(Math.floor(s%3600/60)));setT($('ltCdS'),pad(s%60));
@@ -7845,7 +7867,7 @@ function wirtPay(src,total,statPart,msg){const w=wirt();total=r2(total);w.out=r2
 // Einzahlung in die Wirtschaft (erst nachdem der Server zugestimmt hat)
 function wirtSpend(amount){const w=wirt();w.in=r2(w.in+amount);spend(amount)}
 const WERR={guthaben:'Dafür reicht dein Guthaben nicht.',zu_wenig:'Das ist zu wenig.',zu_viel:'Das ist zu viel.',laufzeit:'Diese Laufzeit gibt es nicht.',
-  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Anzahl geht nicht.',schon_firma:'Du hast schon eine Firma.',firmenname:'Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.',name_vergeben:'Diesen Firmennamen gibt es schon.',keine_firma:'Du hast keine Firma (mehr).',min_stufe:'Kleiner geht nicht.',kasse_leer:'Dafür ist nicht genug in der Firmenkasse.',an_boerse:'Eine Firma an der Börse kann nicht aufgelöst werden.',schon_boerse:'Die Firma ist schon an der Börse.',zu_klein:'Für die Börse muss die Firma 500.000 wert sein.',max_investoren:'Mehr Investoren gehen nicht.',max_firmen:'Mehr Firmen gehen nicht.',pivot_heute:'Pivot geht nur einmal pro Tag.',drop_bald:'Die nächste Kollektion geht erst später.',keine_boerse:'Diese Firma ist nicht (mehr) an der Börse.',keine_anteile:'So viele Anteile sind gerade nicht frei.',sperrfrist:'Nach dem Börsengang darfst du 24 Stunden lang nichts verkaufen.',mind_51:'Du musst mindestens 51 % behalten.',boerse_sperre:'Seit dem Börsengang kannst du nur neue Gewinne abheben.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
+  schon_belegt:'Es läuft schon eine Einlage.',weg:'Diese Einlage gibt es nicht mehr.',noch_nicht:'Die Laufzeit ist noch nicht um.',schon_fertig:'Die Laufzeit ist schon um. Hol die Einlage ganz normal ab.',schon_gekauft:'Das Geschäft hast du schon.',gesperrt_shop:'Erst das vorige Geschäft kaufen.',max_stufe:'Höchste Stufe erreicht.',leer:'Da ist noch nichts drin.',angebot_weg:'Dieses Angebot gibt es nicht mehr. Schau dir die neuen an.',max_haeuser:'Mehr als 8 Häuser gehen nicht.',verkauft:'Zu spät, das Haus ist schon weg.',haus_weg:'Dieses Haus gehört dir nicht mehr.',renoviert:'Während der Renovierung geht das nicht.',schon_gebaut:'Das ist schon gebaut.',top:'Das Haus ist top in Schuss.',anzahl:'Diese Anzahl geht nicht.',schon_firma:'Du hast schon eine Firma.',firmenname:'Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.',name_vergeben:'Diesen Firmennamen gibt es schon.',keine_firma:'Du hast keine Firma (mehr).',min_stufe:'Kleiner geht nicht.',kasse_leer:'Dafür ist nicht genug in der Firmenkasse.',an_boerse:'Das geht erst, wenn keine anderen Spieler mehr Anteile haben.',schon_boerse:'Die Firma ist schon an der Börse.',zu_klein:'Für die Börse muss die Firma 500.000 wert sein.',max_investoren:'Mehr Investoren gehen nicht.',max_firmen:'Mehr Firmen gehen nicht.',pivot_heute:'Pivot geht nur einmal pro Tag.',drop_bald:'Die nächste Kollektion geht erst später.',keine_boerse:'Diese Firma ist nicht (mehr) an der Börse.',keine_anteile:'So viele Anteile sind gerade nicht frei.',sperrfrist:'Nach dem Börsengang darfst du 24 Stunden lang nichts verkaufen.',mind_51:'Du musst mindestens 10 % behalten.',min_anteil:'Du musst mindestens 10 % aller Anteile behalten.',zu_jung:'Die Firma muss mindestens 24 Stunden alt sein.',zeichnung_eigene:'Während der Zeichnungsfrist geht das nicht.',kredit_max:'So viel Kredit gibt die Bank nicht.',kein_kredit:'Es ist kein Kredit offen.',dividende_pflicht:'Ohne Mehrheit verlangen die Aktionäre mindestens 10 % Dividende.',kasse_knapp:'Dafür hat die Firmenkasse gerade nicht genug Geld.',max_entwickler:'Mehr Entwickler gehen auf dieser Stufe nicht.',collab_bald:'Die nächste Kooperation geht erst später.',keine_anteile:'So viele freie Anteile gibt es nicht.',boerse_sperre:'Seit dem Börsengang kannst du nur neue Gewinne abheben.',zu_wenig_aktien:'So viele Aktien hast du nicht.',
   gesperrt:'Dein Account ist gesperrt.',aktion:'Das geht so nicht.'};
 let wxBusy=false,wxReq=false;
 // Anfrage an einen Wirtschafts-Endpunkt. Wartet vorher, bis der Spielstand gespeichert ist (damit sich nichts überkreuzt).
@@ -8193,8 +8215,10 @@ const AKS=(()=>{
   let D=null,pulled=0,pulling=false,busy=false,sel=null,range='24',qty=10,lastTick=0;
   const isPF=id=>id&&id[0]==='F',PF=id=>D&&D.pf?D.pf.find(p=>p.id===id):null;
   const IDS=()=>D?Object.keys(D.prices).concat((D.pf||[]).map(p=>p.id)):[];
-  const dep=()=>{if(!D||!D.mine)return{};const o=Object.assign({},D.mine.depot||{});for(const [k,v] of Object.entries(D.mine.holds||{}))if(!v.pleite)o[k]=v;return o};
+  const dep=()=>{if(!D||!D.mine)return{};const o=Object.assign({},D.mine.depot||{});for(const [k,v] of Object.entries(D.mine.holds||{}))if(!v.pleite)o[k]=v;for(const p of D.pf||[])if(acct&&p.owner===acct&&p.fs>0)o[p.id]={n:p.fs,avg:0,own:true};return o};
+  const ownMax=id=>{const p=PF(id);return p?Math.max(0,Math.min(p.maxSellOwn||0,Math.floor(Math.max(0,p.kasse||0)/p.price))):0};
   const PX=id=>isPF(id)?(PF(id)?PF(id).price:0):D.prices[id];
+  const PXB=id=>isPF(id)&&PF(id)&&PF(id).buyPrice?PF(id).buyPrice:PX(id);
   const H24=id=>isPF(id)?(PF(id)?PF(id).ph.slice(-25):[]):D.h24[id];
   const INFO=id=>isPF(id)?(p=>({name:p?p.name:'?',col:p?p.col:'#8ba2b7',div:0,pf:p}))(PF(id)):D.info[id];
   const f2=v=>v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -8226,11 +8250,11 @@ const AKS=(()=>{
     setH($('akList'),IDS().map(id=>{const p=PX(id),c=ch24(id),x=dp[id],info=INFO(id);const gv=x?(p-x.avg)*x.n:0;
       return `<button class="ak-row" type="button" data-ak="${id}">${badge(id)}<span class="nm"><b>${esc(info.name)}</b><small>${info.pf?`<span class="ak-tag pf" style="margin-left:0">Spieler-Firma</span> von ${esc(info.pf.owner)}`:id}${info.div?`<span class="ak-tag div">Dividende ${(info.div*100).toLocaleString('de-DE')} %/Tag</span>`:''}${info.pf&&info.pf.divPct?`<span class="ak-tag div">${info.pf.divPct} % Dividende</span>`:''}</small></span>
         <span class="px"><b>${f2(p)}</b><small class="${c>=0?'pos':'neg'}">${pc(c)}</small></span>${spark(H24(id))}
-        <span class="dp">${x?`<span>${fmt0(x.n)} Stück</span><b class="${gv>=0?'pos':'neg'}">${gv>=0?'+':'−'}${fmt0(Math.abs(gv))}</b>`:'<span>nicht im Depot</span>'}</span></button>`}).join(''));
+        <span class="dp">${x&&x.own?`<span>Deine Firma</span><b>${fmt0(x.n)} Anteile</b>`:x?`<span>${fmt0(x.n)} Stück</span><b class="${gv>=0?'pos':'neg'}">${gv>=0?'+':'−'}${fmt0(Math.abs(gv))}</b>`:'<span>nicht im Depot</span>'}</span></button>`}).join(''));
     live();if(sel&&!$('modal').hidden&&$('akDlg'))dlgUpdate()}
   function live(){if(cur!=='aktien')return;const off=!ACCOUNTS||!acct;
     if(!D){['akT1','akT2','akDiv'].forEach(i=>setT($(i),'–'));$('akDivBtn').disabled=true;return}
-    const dp=dep();let val=0,cost=0,n=0;for(const [id,x] of Object.entries(dp)){const p=PX(id);if(!x||!p)continue;val+=x.n*p;cost+=x.n*x.avg;n++}
+    const dp=dep();let val=0,cost=0,n=0;for(const [id,x] of Object.entries(dp)){const p=PX(id);if(!x||!p||x.own)continue;val+=x.n*p;cost+=x.n*x.avg;n++}
     setT($('akT1'),fmt0(val));setT($('akT1s'),n?`${n} ${n===1?'Aktie':'Aktien'} im Depot`:'noch nichts gekauft');
     const gv=val-cost;setT($('akT2'),n?(gv>=0?'+':'−')+fmt0(Math.abs(gv)):'–');$('akT2').className='num '+(n?(gv>=0?'pos':'neg'):'');setT($('akT2s'),n&&cost?`${pc(gv/cost*100)} seit Kauf (inkl. Gebühr)`:'Kursgewinn deiner Aktien');
     const dv=D.mine?D.mine.div:0;setT($('akDiv'),f2(dv));setT($('akDivS'),D.mine&&D.mine.divEarned?`bisher ${fmt0(D.mine.divEarned)}`:'Allianz, Telekom, Siemens + Spieler-Firmen');
@@ -8239,11 +8263,11 @@ const AKS=(()=>{
     if(srvNow()>=D.next+1500)pull(true)}
   // ---- Detail
   function rangeData(id){if(isPF(id)){const a=PF(id)?PF(id).ph:[];return range==='2'?a.slice(-3):range==='24'?a.slice(-25):a}const a=D.h24[id]||[];if(range==='2')return a.slice(-41);if(range==='7')return(D.h7[id]||[]).concat([D.prices[id]]);return a}
-  function maxBuy(id){const m=Math.max(0,Math.floor((S.bal+1e-9)/(PX(id)*1.01)));return isPF(id)&&PF(id)?Math.min(m,PF(id).pool):m}
+  function maxBuy(id){const m=Math.max(0,Math.floor((S.bal+1e-9)/(PXB(id)*1.01)));return isPF(id)&&PF(id)?Math.min(m,PF(id).pool):m}
   function open(id){sel=id;qty=Math.max(1,qty|0);
     modal(`<div class="ak-dlg" id="akDlg"><div class="ak-dh">${badge(id)}<div class="t"><h2>${esc(INFO(id).name)}</h2><small>${isPF(id)?`Spieler-Firma von ${esc(INFO(id).pf.owner)} · ${INFO(id).pf.divPct} % Dividende vom Gewinn · <span id="akPool">${INFO(id).pf.pool}</span> Anteile frei · Kurs stündlich`:id+(D.info[id].div?` · Dividende ${(D.info[id].div*100).toLocaleString('de-DE')} % pro Tag`:'')}</small></div><div class="px"><b id="akDP">–</b><small id="akDC">–</small></div></div>
       <div class="seg" id="akRange" role="group" aria-label="Zeitraum"><button type="button" data-r="2">2 Std.</button><button type="button" data-r="24">24 Std.</button><button type="button" data-r="7">7 Tage</button></div>
-      <div id="akChart"></div><p class="note" id="akHold"></p>
+      <div id="akChart"></div><p class="note" id="akSubN" hidden></p><div id="akHolders"></div><p class="note" id="akHold"></p>
       <div class="ak-qty"><input class="inp num" id="akQty" type="text" inputmode="numeric" autocomplete="off" aria-label="Stückzahl"><button class="btn" type="button" data-q="1">1</button><button class="btn" type="button" data-q="10">10</button><button class="btn" type="button" data-q="100">100</button><button class="btn" type="button" data-q="max">Max</button></div>
       <div class="ak-sum" id="akSum"></div>
       <div class="ak-btns"><button class="btn gold" type="button" id="akBuy">Kaufen</button><button class="btn sellb" type="button" id="akSell">Verkaufen</button></div>
@@ -8253,11 +8277,15 @@ const AKS=(()=>{
     setT($('akDP'),f2(p));setT($('akDC'),pc(c)+' in 24 Std.');$('akDC').className=c>=0?'pos':'neg';
     $('akRange').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.r===range)));
     setH($('akChart'),bigChart(rangeData(id),x?x.avg:0));
-    setH($('akHold'),x?`Im Depot: <b style="color:var(--ink)">${fmt0(x.n)} Stück</b> · Ø Einstand ${f2(x.avg)} · <span class="${(p-x.avg)*x.n>=0?'pos':'neg'}">${(p-x.avg)*x.n>=0?'Gewinn':'Verlust'} ${fmt0(Math.abs((p-x.avg)*x.n))}</span> · <button class="linkbtn" type="button" data-q="all">alle auswählen</button>`:'Noch nicht im Depot.');
-    const q=Math.max(0,wxParse($('akQty').value)),gross=q*p,fee=gross*.01;
-    $('akSum').innerHTML=`<span>${fmt0(q)} × ${f2(p)}</span><b>${f2(gross)}</b><span>Gebühr 1 %</span><b>${f2(fee)}</b><span>Kaufen kostet</span><b>${f2(gross+fee)}</b><span>Verkaufen bringt</span><b>${f2(gross-fee)}</b>`;
-    const off=!ACCOUNTS||!acct;$('akBuy').disabled=busy||off||q<1||gross+fee>S.bal+1e-9||(isPF(id)&&q>PF(id).pool);$('akSell').disabled=busy||off||q<1||!x||x.n<q;
-    setT($('akBuy'),busy?'…':`Kaufen · ${fmt0(gross+fee)}`);setT($('akSell'),busy?'…':x?`Verkaufen · ${fmt0(gross-fee)}`:'Verkaufen')}
+    const own=x&&x.own,pf=isPF(id)?PF(id):null;
+    if(own)setH($('akHold'),`Deine Firma: du hältst <b style="color:var(--ink)">${fmt0(x.n)} Anteile</b>. Kaufen zahlt in deine Firmenkasse, verkaufen geht bis ${fmt0(ownMax(id))} Stück (51 % bleiben bei dir, die Kasse muss reichen).`);
+    else setH($('akHold'),x?`Im Depot: <b style="color:var(--ink)">${fmt0(x.n)} Stück</b> · Ø Einstand ${f2(x.avg)} · <span class="${(p-x.avg)*x.n>=0?'pos':'neg'}">${(p-x.avg)*x.n>=0?'Gewinn':'Verlust'} ${fmt0(Math.abs((p-x.avg)*x.n))}</span> · <button class="linkbtn" type="button" data-q="all">alle auswählen</button>`:'Noch nicht im Depot.');
+    const q=Math.max(0,wxParse($('akQty').value)),gross=q*p,fee=gross*.01,pb=PXB(id),bg=q*pb,sub=pf&&pf.subUntil&&pf.subUntil>srvNow();
+    const sn=$('akSubN');if(sn){sn.hidden=!sub;if(sub)sn.innerHTML=`<b style="color:var(--brass-hi)">Zeichnungsfrist:</b> noch ${wxHM(pf.subUntil-srvNow())} Std. kaufen alle zum Ausgabepreis von <b class="num" style="color:var(--ink)">${f2(pb)}</b>.`}
+    if(pf)setH($('akHolders'),`<div class="ak-hold">${[{n:pf.owner+' (Gründer)',c:pf.ownShares}].concat(pf.holders||[]).slice(0,6).map(h=>`<span><b>${esc(h.n)}</b> ${((h.c/(pf.out||1))*100).toLocaleString('de-DE',{maximumFractionDigits:1})} %</span>`).join('')}</div>`);else setH($('akHolders'),'');
+    $('akSum').innerHTML=`<span>${fmt0(q)} × ${f2(pb)}</span><b>${f2(bg)}</b><span>Gebühr 1 %</span><b>${f2(bg*.01)}</b><span>Kaufen kostet</span><b>${f2(bg*1.01)}</b><span>Verkaufen bringt</span><b>${f2(gross-fee)}</b>`;
+    const off=!ACCOUNTS||!acct;$('akBuy').disabled=busy||off||q<1||bg*1.01>S.bal+1e-9||(isPF(id)&&q>(own?PF(id).pool-(PF(id).poolOwn||0):PF(id).pool))||(own&&sub);$('akSell').disabled=busy||off||q<1||!x||(own?q>ownMax(id):x.n<q||(pf&&q*p>(pf.kasse||0)));
+    setT($('akBuy'),busy?'…':`Kaufen · ${fmt0(bg*1.01)}`);setT($('akSell'),busy?'…':x?`Verkaufen · ${fmt0(gross-fee)}`:'Verkaufen')}
   async function tradePF(id,q,side){if(busy)return;busy=true;dlgUpdate();const d=await wxFetch('firma=1',{action:'trade',id,n:q,side});busy=false;
     if(d&&d.ok){if(side==='buy'){wirtSpend(d.cost);toast(`<b>${fmt0(d.n)}</b> Anteile gekauft zu je <b class="num">${f2(d.price)}</b>.`,'good')}else wirtPay('aktien',d.pay,d.pay,`<b>${fmt0(d.n)}</b> Anteile verkauft: <b class="num">+${fmt(d.pay)}</b>`);save()}
     pulled=0;await pull(true);dlgUpdate()}
@@ -8267,7 +8295,7 @@ const AKS=(()=>{
       else wirtPay('aktien',d.pay,d.pay,`<b>${fmt0(d.n)}</b> ${id} verkauft: <b class="num">+${fmt(d.pay)}</b>`)})}
   document.addEventListener('click',e=>{if(!e.target.closest('#akDlg'))return;
     const r=e.target.closest('[data-r]');if(r){range=r.dataset.r;SND.tick();dlgUpdate();return}
-    const q=e.target.closest('[data-q]');if(q){const v=q.dataset.q==='max'?maxBuy(sel):q.dataset.q==='all'?(dep()[sel]?dep()[sel].n:0):+q.dataset.q;$('akQty').value=Math.max(1,v);SND.tick();dlgUpdate();return}
+    const q=e.target.closest('[data-q]');if(q){const v=q.dataset.q==='max'?maxBuy(sel):q.dataset.q==='all'?(dep()[sel]?(dep()[sel].own?ownMax(sel):dep()[sel].n):0):+q.dataset.q;$('akQty').value=Math.max(1,v);SND.tick();dlgUpdate();return}
     if(e.target.closest('#akBuy')&&!$('akBuy').disabled){ac();trade('buy');return}
     if(e.target.closest('#akSell')&&!$('akSell').disabled){ac();trade('sell')}});
   document.addEventListener('input',e=>{if(e.target.id==='akQty')dlgUpdate()});
@@ -8287,11 +8315,12 @@ const FI=(()=>{
   const FI_LV={imbiss:['Imbissbude','Schnellrestaurant','Imbiss-Kette','Food-Court','Burger-Imperium'],startup:['Garage','Coworking-Platz','Büroetage','Campus','Tech-Konzern'],
     mode:['Hinterhof-Label','Boutique','Flagship-Store','Modehaus','Weltmarke'],energie:['Dachanlage','Kleinkraftwerk','Kraftwerk','Energiepark','Energiekonzern']};
   let ipoN=250;
-  let D=null,pulled=0,pulling=false,busy=false,fname='',fcol=COLS[0],fbr='imbiss',amt='',sel=null,founding=false,quitId=null;
+  let D=null,pulled=0,pulling=false,busy=false,fname='',fcol=COLS[0],fbr='imbiss',amt='',loanAmt='',sel=null,founding=false,quitId=null,tab='ov';
   const ic=b=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BR[b][2]}</svg>`;
   const ini=n=>String(n||'?').split(/[\s-]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
   const logo=(n,c)=>`<span class="fi-logo" style="background:linear-gradient(140deg,${c},${c}bb)">${esc(ini(n))}</span>`;
   const sg=v=>(v>0?'+':v<0?'−':'±')+fmt0(Math.abs(v));
+  const pctS=x=>(x*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %';
   const MY=()=>D&&D.mines||[];
   const F=()=>sel?MY().find(x=>x.id===sel)||null:null;
   function take(d){if(!d||!d.list)return;D=d;const w=wirt(),was=Array.isArray(w.firmen)?w.firmen:[],now=d.mines||[];
@@ -8321,7 +8350,7 @@ const FI=(()=>{
         <div><span>Ausbauen: 5 Stufen, jede bringt mehr Gewinn, aber auch mehr laufende Kosten.</span></div>
         <div><span>Stellschrauben: je nach Branche Filialen, Entwickler, Kollektionen oder Kraftwerk.</span></div>
         <div><span>Auszahlen: Geld aus der Firmenkasse auf dein Konto holen.</span></div>
-        <div><span>Börsengang ab 500.000 Firmenwert: bis zu 49 % verkaufen, andere können Anteile kaufen.</span></div>
+        <div><span>Börsengang ab 500.000 Firmenwert: neue Anteile an die Börse bringen. Käufer zahlen in die Firmenkasse, du behältst immer die Mehrheit.</span></div>
         <div><span>Notbremse: Stufe verkaufen bringt 50 % der Ausbau-Kosten zurück.</span></div></div>
         ${D&&D.list&&D.list.length?`<p class="note">An der Börse: ${D.list.map(p=>esc(p.name)).join(', ')}. Handeln kannst du sie bei <a href="#aktien" data-go="aktien">Aktien</a>.</p>`:''}</div></div>`}
   function leversHTML(f){const lv=f.lv,L=f.lvl,dis=busy?'disabled':'',seg=(k,opts,cur,extra)=>`<div class="seg" role="group">${opts.map((o,i)=>`<button type="button" data-lv="${k}" data-v="${i+(extra||0)}" aria-pressed="${cur===i+(extra||0)}" ${dis}>${o}</button>`).join('')}</div>`;
@@ -8329,36 +8358,93 @@ const FI=(()=>{
       <div class="fi-row"><span class="lbl">Qualität</span>${seg('q',['Billig','Normal','Premium'],lv.q)}<span class="note">${['Mehr Marge, aber hohes Risiko bei der Lebensmittelkontrolle.','Ausgewogen.','Mehr Umsatz, teurer im Einkauf, kaum Kontroll-Risiko.'][lv.q]}</span></div>
       <div class="fi-row"><span class="lbl">Öffnungszeiten</span>${seg('o',['Kurz','Normal','Lang'],lv.o)}<span class="note">${['Weniger Umsatz, weniger Personal.','Ausgewogen.','Mehr Umsatz, mehr Personalkosten.'][lv.o]}</span></div>`;
     if(f.br==='startup'){const ch=((.004+.0015*lv.dev)*f.st.pm*100).toLocaleString('de-DE',{maximumFractionDigits:2});const pivLeft=(f.pivotAt||0)+86400000-srvNow();
-      return `<div class="fi-row"><span class="lbl">Entwickler <b>${lv.dev} von 10</b></span><div class="fi-step"><button class="btn" type="button" data-lv="dev" data-v="${lv.dev-1}" ${lv.dev<=0||busy?'disabled':''} aria-label="weniger">−</button><b>${lv.dev}</b><button class="btn" type="button" data-lv="dev" data-v="${lv.dev+1}" ${lv.dev>=10||busy?'disabled':''} aria-label="mehr">+</button></div><span class="note">Je ${fmt0(90*L)} pro Std. ${f.st.br?`Durchbruch geschafft: Umsatz ×${f.st.M.toLocaleString('de-DE',{maximumFractionDigits:1})}.`:`Chance auf den Durchbruch: ${ch} % pro Stunde.`}</span></div>
+      return `<div class="fi-row"><span class="lbl">Entwickler <b>${lv.dev} von ${f.devMax}</b></span><div class="fi-step"><button class="btn" type="button" data-lv="dev" data-v="${lv.dev-1}" ${lv.dev<=0||busy?'disabled':''} aria-label="weniger">−</button><b>${lv.dev}</b><button class="btn" type="button" data-lv="dev" data-v="${lv.dev+1}" ${lv.dev>=f.devMax||busy?'disabled':''} aria-label="mehr">+</button></div><span class="note">Je ${fmt0(90*L)} pro Std., jeder bringt etwas mehr Umsatz. ${f.st.br?`Durchbruch geschafft: Umsatz ×${f.st.M.toLocaleString('de-DE',{maximumFractionDigits:1})}.`:`Chance auf den Durchbruch: ${ch} % pro Stunde.`}${f.lvl<5?` Nächste Stufe: bis zu ${[0,4,6,9,12,16][f.lvl+1]} Entwickler.`:''}</span></div>
       <div class="fi-row"><span class="lbl">Investoren <b>${f.invPct} % vom Gewinn</b></span><button class="btn" type="button" data-inv ${f.invPct>=30||busy?'disabled':''}>${f.invPct>=30?'Mehr Investoren gehen nicht':`Investoren holen · +${fmt0(Math.round(.1*Math.max(f.value,120000*L)))}`}</button><span class="note">Sofort Geld in die Kasse, dafür gehen dauerhaft 10 % des Gewinns an sie (höchstens 30 %).</span></div>
       <div class="fi-row"><span class="lbl">Pivot <b>Faktor ×${f.st.pm.toLocaleString('de-DE',{maximumFractionDigits:2})}</b></span><button class="btn" type="button" data-pivot ${pivLeft>0||busy?'disabled':''}>${pivLeft>0?'Pivot wieder in '+wxHM(pivLeft)+' Std.':'Pivot wagen'}</button><span class="note">1× pro Tag: neue Idee. Kann die Firma besser oder schlechter machen.</span></div>`}
     if(f.br==='mode'){const dl=(f.dropAt||0)+6*3600000-srvNow();
       return `<div class="fi-row"><span class="lbl">Hype <b>${Math.round(f.st.H/3*100)} %</b></span><div class="fi-hype"><i style="width:${(f.st.H/3*100).toFixed(1)}%"></i></div><span class="note">Ohne Hype verkauft sich kaum etwas. Er lässt jede Stunde nach.</span></div>
       <div class="fi-row"><span class="lbl">Kollektion</span><button class="btn gold" type="button" data-drop data-cost="${2*FI_BC[L]}" ${dl>0||busy||f.kasse<2*FI_BC[L]?'disabled':''}>${dl>0?'Nächster Drop in '+wxHM(dl)+' Std.':`Kollektion droppen · ${fmt0(2*FI_BC[L])}`}</button></div>
       <div class="fi-row"><span class="lbl">Marketing</span>${seg('mkt',['Aus','Etwas','Viel','Maximal'],lv.mkt)}<span class="note">Hype hält länger. Kostet ${fmt0(.2*FI_KC[L])} pro Stufe und Stunde.</span></div>
-      <div class="fi-row"><span class="lbl">Stil</span>${seg('style',['Limitiert','Massenware'],lv.style)}<span class="note">${lv.style?'Langer, flacher Hype.':'Kurzer, sehr starker Hype.'}</span></div>`}
+      <div class="fi-row"><span class="lbl">Stil</span>${seg('style',['Limitiert','Massenware'],lv.style)}<span class="note">${lv.style?'Langer, flacher Hype.':'Kurzer, sehr starker Hype.'}</span></div>
+      <div class="fi-row"><span class="lbl">Preise</span>${seg('price',['Discount','Normal','Premium'],lv.price==null?1:lv.price)}<span class="note">${['20 % weniger Umsatz, dafür hält der Hype länger.','Ausgewogen.','35 % mehr Umsatz, aber der Hype verfliegt schneller.'][lv.price==null?1:lv.price]}</span></div>
+      <div class="fi-row"><span class="lbl">Eigene Läden <b>${lv.shop||0} von ${L}</b></span><div class="fi-step"><button class="btn" type="button" data-lv="shop" data-v="${(lv.shop||0)-1}" ${!(lv.shop>0)||busy?'disabled':''} aria-label="Laden schließen">−</button><b>${lv.shop||0}</b><button class="btn" type="button" data-lv="shop" data-v="${(lv.shop||0)+1}" data-cost="${15000*L}" ${(lv.shop||0)>=L||busy?'disabled':''} aria-label="Laden eröffnen">+</button></div><span class="note">Neuer Laden ${fmt0(15000*L)} aus der Kasse: verkauft auch ohne Hype, kostet aber Miete. Mehr Läden ab höherer Stufe.</span></div>
+      <div class="fi-row"><span class="lbl">Onlineshop</span>${`<div class="seg" role="group">${['Aus','An'].map((o,i)=>`<button type="button" data-lv="online" data-v="${i}" ${i&&!lv.online?`data-cost="${10000*L}"`:''} aria-pressed="${(lv.online?1:0)===i}" ${dis}>${o}</button>`).join('')}</div>`}<span class="note">+15 % Umsatz, Hype hält etwas länger. ${lv.online?'Läuft.':`Start ${fmt0(10000*L)}, dann laufende Kosten.`}</span></div>
+      <div class="fi-row"><span class="lbl">Influencer</span>${(()=>{const cl=(f.collabAt||0)+12*3600000-srvNow();return `<button class="btn" type="button" data-collab ${cl>0||busy||f.kasse<3*FI_BC[L]?'disabled':''}>${cl>0?'Nächste Kooperation in '+wxHM(cl)+' Std.':`Kooperation · ${fmt0(3*FI_BC[L])}`}</button>`})()}<span class="note">Bringt meist viel Hype. Manchmal gibt's einen Skandal und der Hype sinkt. Alle 12 Std.</span></div>`}
     return `<div class="fi-row"><span class="lbl">Kraftwerk</span><div class="seg" role="group">${['Kohle','Gas','Solar','Wind'].map((o,i)=>`<button type="button" data-lv="typ" data-v="${i}" ${i!==lv.typ?`data-cost="${20000*L}"`:''} aria-pressed="${lv.typ===i}" ${dis}>${o}</button>`).join('')}</div><span class="note">${['Billig, aber Risiko CO₂-Steuer.','Mittel, manchmal Gaspreis-Schock.','Teurer, tagsüber viel, nachts kaum Strom.','Teurer, schwankt mit dem Wind.'][lv.typ]} Umbau ${fmt0(20000*L)}.</span></div>
       <div class="fi-row"><span class="lbl">Kapazität</span><div class="seg" role="group">${[1,2,3].map(c=>`<button type="button" data-lv="cap" data-v="${c}" ${c>lv.cap?`data-cost="${(c-lv.cap)*30000*L}"`:''} aria-pressed="${lv.cap===c}" ${dis}>${c===1?'Klein':c===2?'Mittel':'Groß'}</button>`).join('')}</div><span class="note">Mehr Strom, mehr Gewinn, mehr Kosten. Ausbau ${fmt0(30000*L)} je Stufe.</span></div>
       <div class="fi-row"><span class="lbl">Wartung</span>${seg('wart',['Sparen','Normal','Gründlich'],lv.wart)}<span class="note">${['Billiger, aber oft Stromausfälle.','Ausgewogen.','Teurer, dafür keine Ausfälle.'][lv.wart]}</span></div>`}
-  function firmHTML(f){const t=srvNow(),neg=f.negSince?Math.max(0,f.negSince+86400000-t):0,ipoOk=f.value>=500000,locked=f.public&&t<f.lockUntil;
-    const kh=f.kh||[],mn=Math.min(...kh,0),mx=Math.max(...kh,1),r=mx-mn||1,col=f.kasse>=0?'#2fe08f':'#ff6b84';
+  function bars(a){if(!a||!a.length)return'<p class="note">Erscheint nach der ersten vollen Stunde.</p>';const m=Math.max(1,...a.map(Math.abs)),w=240/a.length;
+    return `<svg class="fi-bars" viewBox="0 0 240 70" preserveAspectRatio="none" aria-hidden="true"><line x1="0" x2="240" y1="35" y2="35" stroke="#2f4960"/>${a.map((v,i)=>{const h=Math.max(1,Math.abs(v)/m*32);return `<rect x="${(i*w+1).toFixed(1)}" width="${Math.max(1,w-2).toFixed(1)}" y="${(v>=0?35-h:35).toFixed(1)}" height="${h.toFixed(1)}" rx="1" fill="${v>=0?'#2fe08f':'#ff6b84'}"/>`}).join('')}</svg>`}
+  function line(a,col){if(!a||a.length<2)return'<p class="note">Der Kursverlauf erscheint nach der ersten vollen Stunde.</p>';const mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||mx*.01||1;
+    return `<svg class="fi-chart" viewBox="0 0 240 70" preserveAspectRatio="none" aria-hidden="true"><polyline points="${a.map((v,i)=>`${(i/(a.length-1)*240).toFixed(1)},${(66-(v-mn)/r*62).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`}
+  const f2=v=>(+v||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const SUM=a=>(a||[]).reduce((x,y)=>x+y,0);
+  const HCOL=['#38bdf8','#ec4899','#a78bfa','#2fe08f','#ff8a3d','#e9f0f6','#ffd27a','#8ba2b7'];
+  function capTable(f){const out=f.out||1,me=acct||'du',rows=[{n:me+' (du)',c:f.ownShares,col:'#ffb020',me:1,sub:f.poolOwn?`davon ${fmt0(f.poolOwn)} zum Verkauf angeboten`:''}].concat((f.holders||[]).map((h,i)=>({n:h.n,c:h.c,col:HCOL[i%HCOL.length]})));
+    const firm=Math.max(0,f.pool-f.poolOwn);
+    return `<div class="fi-cap">${rows.map(r=>`<i style="flex:${r.c};background:${r.col}"></i>`).join('')}</div>
+      <div class="fi-hold">${rows.map(r=>`<div class="${r.me?'me':''}"><i style="background:${r.col}"></i><span><b>${esc(r.n)}</b>${r.sub?`<small>${r.sub}</small>`:''}</span><span class="v"><b class="num">${pctS(r.c/out)}</b><small>${fmt0(r.c)} Anteile</small></span></div>`).join('')}
+        ${firm?`<div class="firm"><i></i><span><b>Firmenbestand</b><small>noch nicht verkauft, zählt nicht mit</small></span><span class="v"><b class="num">${fmt0(firm)}</b><small>Anteile frei</small></span></div>`:''}</div>
+      <p class="note">${fmt0(out)} Anteile im Umlauf · ${(f.holders||[]).length} ${(f.holders||[]).length===1?'Aktionär':'Aktionäre'}${f.ownShares/out<.5?' · <b style="color:var(--brass-hi)">Du hast keine Mehrheit mehr: die Aktionäre verlangen mindestens 10 % Dividende.</b>':''}</p>`}
+  function overviewHTML(f){const kh=f.kh||[],mn=Math.min(...kh,0),mx=Math.max(...kh,1),r=mx-mn||1,col=f.kasse>=0?'#2fe08f':'#ff6b84';
     const chart=kh.length>1?`<svg class="fi-chart" viewBox="0 0 240 70" preserveAspectRatio="none" aria-hidden="true">${mn<0?`<line x1="0" x2="240" y1="${(66-(0-mn)/r*62).toFixed(1)}" y2="${(66-(0-mn)/r*62).toFixed(1)}" stroke="#2f4960" stroke-dasharray="3 3"/>`:''}<polyline points="${kh.map((v,i)=>`${(i/(kh.length-1)*240).toFixed(1)},${(66-(v-mn)/r*62).toFixed(1)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`:'<p class="note">Der Verlauf erscheint nach der ersten vollen Stunde.</p>';
-    return `<button class="btn fi-back" type="button" data-back>← Meine Firmen</button><div class="panel fi-head">${logo(f.name,f.col)}<div class="t"><h2>${esc(f.name)} <button class="fi-ren" type="button" data-ren aria-label="Firma umbenennen" title="Umbenennen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></h2><small>${f.brName} · Stufe ${f.lvl} · ${esc(f.level)}</small><div class="fi-stage" style="margin-top:6px;max-width:220px">${[1,2,3,4,5].map(i=>`<i class="${i<=f.lvl?'on':''}"></i>`).join('')}</div></div>
-        ${f.public?`<span class="chip" style="display:inline-flex">An der Börse · ${f.price.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})} je Anteil</span>`:''}</div>
-      ${neg?`<div class="fi-warn"><b>Kasse im Minus</b> – noch ${wxHM(neg)} Std. bis zur Pleite. Zahl Geld ein, verkleinere die Firma oder dreh an den Stellschrauben.</div>`:''}
-      <div class="wx-tiles">
-        <div class="wx-tile"><span>Firmenkasse</span><b class="num ${f.kasse<0?'neg':''}">${fmt0(f.kasse)}</b><small>nächstes Ergebnis in <span id="fiNext">–</span></small></div>
-        <div class="wx-tile"><span>Gewinn / Std. (Ø 24 Std.)</span><b class="num ${f.avg>0?'pos':f.avg<0?'neg':''}">${sg(f.avg)}</b><small>${(f.pr||[]).length?'letzte Stunde '+sg(f.pr[f.pr.length-1]):'noch keine volle Stunde'}</small></div>
-        <div class="wx-tile"><span>Firmenwert</span><b class="num">${fmt0(f.value)}</b><small>${f.public?`du hast ${f.fs/10} % der Anteile`:ipoOk?'bereit für die Börse!':`Börse ab 500.000 (noch ${fmt0(500000-f.value)})`}</small></div></div>
-      <div class="wx-grid"><div class="panel"><div class="ph"><h2>Kasse · 24 Std.</h2></div>${chart}<div class="ph" style="margin-top:6px"><h2>Stellschrauben</h2></div>${leversHTML(f)}</div>
+    return `<div class="wx-grid"><div class="panel"><div class="ph"><h2>Kasse · 24 Std.</h2></div>${chart}<div class="ph" style="margin-top:6px"><h2>Stellschrauben</h2></div>${leversHTML(f)}</div>
         <div class="panel"><div class="ph"><h2>Ausbau</h2></div>
           <div class="fi-row"><span class="lbl">Stufe <b>${f.lvl} von 5</b></span><div class="fi-two"><button class="btn gold" type="button" data-up ${f.lvl>=5||busy?'disabled':''}>${f.lvl>=5?'Höchste Stufe':`Ausbauen · ${fmt0(f.upCost)}`}</button><button class="btn" type="button" data-down ${f.lvl<=1||busy?'disabled':''}>${f.lvl<=1?'Kleinste Stufe':`Verkleinern · +${fmt0(f.downBack)}`}</button></div>
-            <span class="note">${f.lvl<5?`Nächste Stufe: ${esc(FI_LV[f.br][f.lvl])}. `:''}Verkleinern gibt 50 % der Ausbau-Kosten zurück.</span></div>
-          <div class="fi-row"><span class="lbl">Firmenkasse</span><div class="fi-amt"><input class="inp num" id="fiAmt" type="text" inputmode="numeric" autocomplete="off" placeholder="Betrag" value="${esc(amt)}" aria-label="Betrag"><button class="btn" type="button" data-dep ${busy?'disabled':''}>Einzahlen</button><button class="btn gold" type="button" data-wd ${busy||f.maxOut<1?'disabled':''}>Auszahlen</button></div><span class="note">${f.public?`Seit dem Börsengang kannst du nur neue Gewinne abheben: höchstens ${fmt0(f.maxOut)}.`:'Rücklagen in der Kasse sind dein Puffer gegen die Pleite.'}</span></div>
-          <div class="fi-row"><span class="lbl">Börse</span>${f.public?`<div class="seg" role="group">${[0,10,25,50].map(p=>`<button type="button" data-div="${p}" aria-pressed="${f.divPct===p}" ${busy?'disabled':''}>${p} %</button>`).join('')}</div><span class="note">Dividende: so viel vom Stundengewinn geht an die Aktionäre. ${f.pool} Anteile frei an der Börse.${locked?` Verkaufen darfst du erst ${wxWhen(f.lockUntil)}.`:''} Handeln bei <a href="#aktien" data-go="aktien">Aktien</a>.</span>`
-            :`<button class="btn ${ipoOk?'gold':''}" type="button" data-ipo ${!ipoOk||busy?'disabled':''}>${ipoOk?'An die Börse bringen':'An die Börse ab 500.000'}</button><span class="note">Du verkaufst bis zu 49 % der Anteile und bekommst sofort Coins.</span>`}</div>
-          <div class="fi-row"><span class="lbl">Notausgang</span><button class="btn" type="button" data-dis ${f.public||busy?'disabled':''}>${f.public?'An der Börse nicht auflösbar':`Firma auflösen · +${fmt0(Math.round(f.value*.6))}`}</button></div></div></div>
+            <span class="note">${f.lvl<5?`Nächste Stufe: ${esc(FI_LV[f.br][f.lvl])}. `:''}Ausbau zahlst du aus deinem Guthaben. Verkleinern gibt 50 % der Ausbau-Kosten zurück.</span></div>
+          <div class="fi-row"><span class="lbl">Notausgang</span><button class="btn" type="button" data-dis ${(f.public&&f.held>0)||busy?'disabled':''}>${f.public&&f.held>0?'Mit Aktionären nicht auflösbar':`Firma auflösen · +${fmt0(Math.round(f.value*.6))}`}</button><span class="note">Du bekommst 60 % des Firmenwerts. Offene Kredite sind dabei schon abgezogen.</span></div></div></div>
       <div class="panel"><div class="ph"><h2>Ereignisse</h2></div><div class="fi-ev">${(f.ev||[]).length?f.ev.map(e=>`<div><span><small>${wxWhen(e.t).replace(' Uhr','')}</small>${esc(e.text)}</span>${e.a?`<b class="${e.a>0?'pos':'neg'}">${sg(e.a)}</b>`:''}</div>`).join(''):'<div><span>Noch nichts passiert.</span></div>'}</div></div>`}
+  function financeHTML(f){const rv=SUM(f.rv),zi=SUM(f.zi),co=SUM(f.co)-zi,pr=SUM(f.pr),n=(f.pr||[]).length,inv=Math.round(rv-co-zi-pr);
+    return `<div class="wx-grid"><div class="panel"><div class="ph"><h2>Gewinn und Verlust</h2><span class="chip">${n?`letzte ${n} Std.`:'noch keine Stunde'}</span></div>
+        <div class="fi-guv"><div><span>Umsatz</span><b class="num">${fmt0(rv)}</b></div><div><span>Laufende Kosten</span><b class="num neg">−${fmt0(co)}</b></div>${zi?`<div><span>Kreditzinsen</span><b class="num neg">−${fmt0(zi)}</b></div>`:''}${inv>0?`<div><span>Anteil der Investoren</span><b class="num neg">−${fmt0(inv)}</b></div>`:''}
+          <div class="sum"><span>Gewinn</span><b class="num ${pr>0?'pos':pr<0?'neg':''}">${sg(pr)}</b></div><div><span>Marge</span><b class="num">${rv>0?pctS(pr/rv):'–'}</b></div></div>
+        <span class="lbl" style="margin-top:10px">Gewinn pro Stunde</span>${bars(f.pr)}</div>
+      <div class="panel"><div class="ph"><h2>Firmenkasse</h2></div>
+        <div class="fi-row"><div class="fi-amt"><input class="inp num" id="fiAmt" type="text" inputmode="numeric" autocomplete="off" placeholder="Betrag" value="${esc(amt)}" aria-label="Betrag"><button class="btn" type="button" data-dep ${busy?'disabled':''}>Einzahlen</button><button class="btn gold" type="button" data-wd ${busy||f.maxOut<1?'disabled':''}>Auszahlen</button></div>
+          <span class="note">Du kannst bis zu <b class="num" style="color:var(--ink)">${fmt0(f.maxOut)}</b> auszahlen.${f.loan?' Was als Kredit drinsteckt, bleibt in der Kasse.':''}${f.public&&f.held>0?` Die Aktionäre bekommen beim Auszahlen ihren Anteil mit (${pctS(f.held/f.out)}).`:''}</span></div>
+        <div class="ph" style="margin-top:6px"><h2>Bankkredit</h2>${f.loan?`<span class="chip">${fmt0(f.loan)} offen</span>`:''}</div>
+        <div class="fi-guv"><div><span>Kredit</span><b class="num">${fmt0(f.loan)}</b></div><div><span>Zinsen pro Std.</span><b class="num">${fmt0(f.loan*f.rate)}</b></div><div><span>Noch möglich</span><b class="num">${fmt0(f.maxLoan)}</b></div></div>
+        <div class="fi-row"><div class="fi-amt"><input class="inp num" id="fiLoan" type="text" inputmode="numeric" autocomplete="off" placeholder="Betrag" value="${esc(loanAmt)}" aria-label="Kreditbetrag"><button class="btn" type="button" data-loan ${busy||f.maxLoan<1?'disabled':''}>Aufnehmen</button><button class="btn gold" type="button" data-repay ${busy||!f.loan?'disabled':''}>Tilgen</button></div>
+          <span class="note">Bis 40 % vom Firmenwert, ${(f.rate*100).toLocaleString('de-DE')} % Zinsen pro Stunde. Das Geld landet in der Firmenkasse, zum Beispiel für Läden, Filialen oder als Puffer. Bei einer Pleite ist es weg.</span></div></div></div>`}
+  function boerseHTML(f){const t=srvNow();
+    if(!f.public){const ok1=f.value>=500000,ok2=t>=f.ipoReadyAt;
+      return `<div class="wx-grid"><div class="panel"><div class="ph"><h2>Börsengang</h2></div>
+          <div class="fi-chk"><div class="${ok1?'ok':''}"><b>${ok1?'✓':'✗'}</b><span>Firmenwert mindestens 500.000<small>${ok1?'erreicht: '+fmt0(f.value):'noch '+fmt0(500000-f.value)+' bis dahin'}</small></span></div>
+            <div class="${ok2?'ok':''}"><b>${ok2?'✓':'✗'}</b><span>Firma mindestens 24 Std. alt<small>${ok2?'erfüllt':'noch '+wxHM(f.ipoReadyAt-t)+' Std.'}</small></span></div>
+            <div class="ok"><b>%</b><span>Bankgebühr 2 % vom Ausgabe-Volumen<small>wird aus der Firmenkasse bezahlt</small></span></div></div>
+          <button class="btn gold big" type="button" data-ipo ${!ok1||!ok2||busy?'disabled':''}>${!ok1||!ok2?'Noch nicht bereit':'Börsengang planen'}</button></div>
+        <div class="panel"><div class="ph"><h2>So läuft ein Börsengang</h2></div><div class="fi-ev">
+          <div><span><strong style="color:var(--ink)">Neue Anteile</strong> (Kapitalerhöhung): Käufer zahlen in die Firmenkasse.</span></div>
+          <div><span><strong style="color:var(--ink)">Eigene Anteile</strong> (Umplatzierung): Käufer zahlen direkt an dich.</span></div>
+          <div><span><strong style="color:var(--ink)">Ausgabepreis</strong>: Mit Rabatt ist der Kauf für andere Spieler attraktiver, du gibst dafür aber Wert ab.</span></div>
+          <div><span><strong style="color:var(--ink)">Zeichnungsfrist</strong>: 24 Std. lang kaufen alle zum festen Ausgabepreis, danach gilt der Börsenkurs.</span></div>
+          <div><span><strong style="color:var(--ink)">Danach</strong>: Du behältst mindestens 10 %. Unter 50 % verlangen die Aktionäre mindestens 10 % Dividende.</span></div></div></div></div>`}
+    const ph=f.ph||[],c24=ph.length>24&&ph[ph.length-25]>0?(ph[ph.length-1]/ph[ph.length-25]-1)*100:0,mcap=f.price*f.out,kgv=f.avg>0?mcap/(f.avg*24):0,dy=SUM(f.dv)/(f.price||1),firm=Math.max(0,f.pool-f.poolOwn),sub=f.subUntil&&f.subUntil>t;
+    const needDiv=f.ownShares/f.out<.5;
+    return `${sub?`<div class="fi-sub"><b>Zeichnungsfrist läuft</b><span>Noch ${wxHM(f.subUntil-t)} Std. kaufen alle zum Ausgabepreis von <b class="num">${f2(f.buyPrice)}</b>. Noch ${fmt0(f.pool)} Anteile zu haben.</span></div>`:''}
+      <div class="wx-grid"><div class="panel"><div class="ph"><h2>Kurs</h2><span class="chip"><b class="num">${f2(f.price)}</b>${ph.length>24?` · <span class="${c24>=0?'pos':'neg'}">${c24>=0?'+':'−'}${Math.abs(c24).toLocaleString('de-DE',{maximumFractionDigits:1})} %</span>`:''}</span></div>${line(ph.slice(-169),c24>=0?'#2fe08f':'#ff6b84')}
+          <div class="fi-guv"><div><span>Börsenwert</span><b class="num">${fmt0(mcap)}</b></div><div><span>KGV (Wert ÷ Tagesgewinn)</span><b class="num">${kgv?kgv.toLocaleString('de-DE',{maximumFractionDigits:1}):'–'}</b></div><div><span>Dividendenrendite 24 Std.</span><b class="num">${pctS(dy)}</b></div><div><span>Freie Anteile</span><b class="num">${fmt0(f.pool)}</b></div></div>
+          <span class="lbl" style="margin-top:8px">Dividende</span><div class="seg" role="group">${[0,10,25,50].map(p=>`<button type="button" data-div="${p}" aria-pressed="${f.divPct===p}" ${busy||(needDiv&&p<10)?'disabled':''}>${p} %</button>`).join('')}</div><span class="note">So viel vom Stundengewinn geht an alle Anteile im Umlauf. Deinen Teil behält die Firma.</span></div>
+        <div class="panel"><div class="ph"><h2>Aktionäre</h2></div>${capTable(f)}</div></div>
+      <div class="panel"><div class="ph"><h2>Anteile handeln</h2></div>
+        <div class="fi-acts">
+          <button class="btn" type="button" data-offer ${f.maxSellOwn<1||busy?'disabled':''}><b>Anteile anbieten</b><small>Käufer zahlen an dich</small></button>
+          <button class="btn" type="button" data-sellown ${f.maxSellOwn<1||busy||sub?'disabled':''}><b>An die Firma verkaufen</b><small>sofort, aus der Firmenkasse</small></button>
+          <button class="btn" type="button" data-emit ${f.maxEmit<1||busy?'disabled':''}><b>Neue Anteile ausgeben</b><small>Geld für die Firmenkasse</small></button>
+          <button class="btn" type="button" data-buyown ${firm<1||busy||sub?'disabled':''}><b>Anteile zurückkaufen</b><small>mit deinem Guthaben</small></button>
+          <button class="btn" type="button" data-retire ${f.pool<1||busy?'disabled':''}><b>Angebot zurückziehen</b><small>${f.poolOwn?`${fmt0(f.poolOwn)} von dir, ${fmt0(firm)} der Firma`:`${fmt0(firm)} freie Anteile`}</small></button>
+          ${f.held<1?`<button class="btn" type="button" data-delist ${busy?'disabled':''}><b>Von der Börse nehmen</b><small>niemand sonst hält Anteile</small></button>`:''}</div>
+        <span class="note">Du behältst immer mindestens 10 % aller Anteile. Aktionäre handeln bei <a href="#aktien" data-go="aktien">Aktien</a>.${sub?' Während der Zeichnungsfrist kannst du keine Firmen-Anteile kaufen oder an die Firma verkaufen.':''}</span></div>`}
+  function firmHTML(f){const t=srvNow(),neg=f.negSince?Math.max(0,f.negSince+86400000-t):0,ipoOk=f.value>=500000;
+    return `<button class="btn fi-back" type="button" data-back>← Meine Firmen</button><div class="panel fi-head">${logo(f.name,f.col)}<div class="t"><h2>${esc(f.name)} <button class="fi-ren" type="button" data-ren aria-label="Firma umbenennen" title="Umbenennen"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></h2><small>${f.brName} · Stufe ${f.lvl} · ${esc(f.level)}</small><div class="fi-stage" style="margin-top:6px;max-width:220px">${[1,2,3,4,5].map(i=>`<i class="${i<=f.lvl?'on':''}"></i>`).join('')}</div></div>
+        ${f.public?`<span class="chip" style="display:inline-flex">An der Börse · ${f2(f.price)} je Anteil</span>`:''}</div>
+      ${neg?`<div class="fi-warn"><b>Kasse im Minus</b> – noch ${wxHM(neg)} Std. bis zur Pleite. Zahl Geld ein, nimm einen Kredit auf, verkleinere die Firma oder dreh an den Stellschrauben.</div>`:''}
+      <div class="wx-tiles">
+        <div class="wx-tile"><span>Firmenkasse</span><b class="num ${f.kasse<0?'neg':''}">${fmt0(f.kasse)}</b><small>${f.loan?`davon Kredit ${fmt0(f.loan)} · `:''}nächstes Ergebnis in <span id="fiNext">–</span></small></div>
+        <div class="wx-tile"><span>Gewinn / Std. (Ø 24 Std.)</span><b class="num ${f.avg>0?'pos':f.avg<0?'neg':''}">${sg(f.avg)}</b><small>${(f.pr||[]).length?'letzte Stunde '+sg(f.pr[f.pr.length-1]):'noch keine volle Stunde'}</small></div>
+        <div class="wx-tile"><span>Firmenwert</span><b class="num">${fmt0(f.value)}</b><small>${f.public?`dir gehören ${pctS(f.ownShares/f.out)}`:ipoOk?'bereit für die Börse!':`Börse ab 500.000 (noch ${fmt0(500000-f.value)})`}</small></div></div>
+      <div class="seg fi-tabs" role="tablist">${[['ov','Überblick'],['fin','Finanzen'],['bo','Börse']].map(([k,l])=>`<button type="button" role="tab" data-tab="${k}" aria-pressed="${tab===k}">${l}</button>`).join('')}</div>
+      ${tab==='fin'?financeHTML(f):tab==='bo'?boerseHTML(f):overviewHTML(f)}`}
   function listHTML(){const L=MY(),k=L.reduce((a,f)=>a+f.kasse,0),g=L.reduce((a,f)=>a+f.avg,0),v=L.reduce((a,f)=>a+f.value,0);
     return `<div class="wx-tiles"><div class="wx-tile"><span>Deine Firmen</span><b class="num">${L.length} von ${D.max||5}</b><small>${L.filter(f=>f.public).length} an der Börse</small></div>
       <div class="wx-tile"><span>Gewinn / Std. gesamt</span><b class="num ${g>0?'pos':g<0?'neg':''}">${sg(g)}</b><small>Ø der letzten 24 Std.</small></div>
@@ -8371,13 +8457,14 @@ const FI=(()=>{
     const b=$('fiBody');if(!D){setH(b,`<div class="im-empty">${off?'Nur online mit Account.':'Lädt …'}</div>`);return}
     if(!F()&&(founding||!MY().length)){if(force||b._mode!=='found'){const a=document.activeElement&&document.activeElement.id==='fiName';setH(b,foundHTML());b._mode='found';if(a){const i=$('fiName');i.focus();i.setSelectionRange(i.value.length,i.value.length)}}return}
     if(!F()){b._mode='list';setH(b,listHTML());return}
-    b._mode='firm';const a=document.activeElement&&document.activeElement.id==='fiAmt';setH(b,firmHTML(F()));if(a){const i=$('fiAmt');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}live()}
+    b._mode='firm';const ae=document.activeElement,aid=ae&&(ae.id==='fiAmt'||ae.id==='fiLoan')?ae.id:'';setH(b,firmHTML(F()));if(aid){const i=$(aid);if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}}live()}
   function live(){if(cur!=='firmen')return;if(!F()){if(MY().some(f=>f.nextH&&srvNow()>=f.nextH+3000))pull(true);return}const n=$('fiNext');if(n)n.textContent=wxHM(F().nextH-srvNow()).replace(/^0:/,'')+' Min.';if(srvNow()>=F().nextH+3000)pull(true)}
   // ---- Eingaben
-  $('fiBody').addEventListener('input',e=>{if(e.target.id==='fiName'){fname=e.target.value;const p=$('fiPrev');if(p)p.innerHTML=`${logo(fname.trim()||'Deine Firma',fcol)}<span><b>${esc(fname.trim()||'Deine Firma')}</b><small>${BR[fbr][0]} · Stufe 1</small></span>`}if(e.target.id==='fiAmt')amt=e.target.value});
+  $('fiBody').addEventListener('input',e=>{if(e.target.id==='fiName'){fname=e.target.value;const p=$('fiPrev');if(p)p.innerHTML=`${logo(fname.trim()||'Deine Firma',fcol)}<span><b>${esc(fname.trim()||'Deine Firma')}</b><small>${BR[fbr][0]} · Stufe 1</small></span>`}if(e.target.id==='fiAmt')amt=e.target.value;if(e.target.id==='fiLoan')loanAmt=e.target.value});
   $('fiBody').addEventListener('click',e=>{const t=e.target;
     if(t.closest('[data-back]')){sel=null;founding=false;SND.tick();render(true);window.scrollTo(0,0);return}
-    const op=t.closest('[data-open]');if(op){sel=op.dataset.open;SND.tick();render(true);window.scrollTo(0,0);return}
+    const tb=t.closest('.fi-tabs [data-tab]');if(tb){tab=tb.dataset.tab;SND.tick();render(true);return}
+    const op=t.closest('[data-open]');if(op){sel=op.dataset.open;tab='ov';SND.tick();render(true);window.scrollTo(0,0);return}
     if(t.closest('[data-new]')){founding=true;sel=null;SND.tick();render(true);window.scrollTo(0,0);return}
     if(t.closest('[data-ren]')){rename();return}
     const f=F();
@@ -8385,7 +8472,17 @@ const FI=(()=>{
     const br=t.closest('[data-br]');if(br){fbr=br.dataset.br;SND.tick();render(true);return}
     if(t.closest('#fiFound')){ac();found();return}
     if(!f)return;const L=f.lvl;
-    const lv=t.closest('[data-lv]');if(lv&&!lv.disabled){const k=lv.dataset.lv,v=+lv.dataset.v,cost=+lv.dataset.cost||0;if(f.lv[k]===v)return;lever(k,v,cost,{fil:'Neue Filiale eröffnen?',typ:'Kraftwerk umbauen?',cap:'Kapazität erweitern?'}[k]||'Ändern?');return}
+    const lv=t.closest('[data-lv]');if(lv&&!lv.disabled){const k=lv.dataset.lv,v=+lv.dataset.v,cost=+lv.dataset.cost||0;if(f.lv[k]===v)return;lever(k,v,cost,{fil:'Neue Filiale eröffnen?',typ:'Kraftwerk umbauen?',cap:'Kapazität erweitern?',shop:'Neuen Laden eröffnen?',online:'Onlineshop starten?'}[k]||'Ändern?');return}
+    if(t.closest('[data-collab]:not([disabled])')){lever('collab',1,3*FI_BC[L],'Influencer-Kooperation?');return}
+    if(t.closest('[data-emit]:not([disabled])')){shares('emit');return}
+    if(t.closest('[data-retire]:not([disabled])')){shares('retire');return}
+    if(t.closest('[data-buyown]:not([disabled])')){shares('buy');return}
+    if(t.closest('[data-sellown]:not([disabled])')){shares('sell');return}
+    if(t.closest('[data-offer]:not([disabled])')){shares('offer');return}
+    if(t.closest('[data-loan]:not([disabled])')){const a=wxParse(loanAmt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>f.maxLoan){toast(`Höchstens ${fmt0(f.maxLoan)}.`,'bad');return}
+      ask('Kredit aufnehmen?',`<b class="num" style="color:var(--ink)">${fmt0(a)}</b> kommen in die Firmenkasse. Zinsen: ${fmt0(a*f.rate)} pro Stunde, bis du tilgst.`,'Aufnehmen',()=>post({action:'loan',amount:a},()=>{loanAmt='';toast('Kredit aufgenommen.','good')}));return}
+    if(t.closest('[data-repay]:not([disabled])')){const a=Math.min(wxParse(loanAmt)||f.loan,f.loan);if(a>f.kasse){toast(WERR.kasse_leer,'bad');return}post({action:'repay',amount:a},()=>{loanAmt='';toast(`${fmt0(a)} getilgt.`,'good')});return}
+    if(t.closest('[data-delist]:not([disabled])')){ask('Von der Börse nehmen?','Keine anderen Spieler haben Anteile. Die freien Anteile werden zurückgezogen und die Firma gehört wieder ganz dir.','Von der Börse nehmen',()=>post({action:'delist'},()=>toast('Die Firma ist nicht mehr an der Börse.','good')));return}
     if(t.closest('[data-inv]:not([disabled])')){const c=Math.round(.1*Math.max(f.value,120000*L));ask('Investoren holen?',`Die Firma bekommt sofort <b class="num" style="color:var(--ink)">${fmt0(c)}</b> in die Kasse. Dafür gehen ab jetzt dauerhaft 10 % des Gewinns an die Investoren (dann ${f.invPct+10} %).`,'Deal!',()=>post({action:'setLever',k:'invest'},()=>SND.win()));return}
     if(t.closest('[data-pivot]:not([disabled])')){ask('Pivot wagen?','Die Firma probiert eine neue Idee. Das kann sie besser oder schlechter machen. Geht nur einmal pro Tag.','Pivot!',()=>post({action:'setLever',k:'pivot'}));return}
     if(t.closest('[data-drop]:not([disabled])')){lever('drop',1,2*FI_BC[L],'Kollektion droppen?');return}
@@ -8393,7 +8490,7 @@ const FI=(()=>{
     if(t.closest('[data-up]:not([disabled])')){ask('Ausbauen?',`Auf <b>${esc(FI_LV[f.br][f.lvl])}</b> für <b class="num" style="color:var(--ink)">${fmt0(f.upCost)}</b>. Mehr Gewinn, aber auch höhere laufende Kosten.`,'Ausbauen · '+fmt0(f.upCost),()=>{if(f.upCost>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'upgrade'},d=>{wirtSpend(d.cost);SND.win();confetti(80)})});return}
     if(t.closest('[data-down]:not([disabled])')){ask('Verkleinern?',`Zurück auf <b>${esc(FI_LV[f.br][f.lvl-2])}</b>. Du bekommst <b class="num" style="color:var(--ink)">${fmt0(f.downBack)}</b> zurück, die laufenden Kosten sinken.`,'Verkleinern',()=>post({action:'downgrade'},d=>wirtPay('firma',d.pay,0,`<b class="num">+${fmt(d.pay)}</b> zurück`)),true);return}
     if(t.closest('[data-dep]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>S.bal+1e-9){toast(WERR.guthaben,'bad');return}post({action:'deposit',amount:a},d=>{wirtSpend(d.cost);amt='';toast(`<b class="num">${fmt0(a)}</b> in die Firmenkasse eingezahlt.`,'good')});return}
-    if(t.closest('[data-wd]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>f.maxOut){toast(f.public?`Seit dem Börsengang höchstens ${fmt0(f.maxOut)}.`:'So viel ist nicht in der Firmenkasse.','bad');return}post({action:'withdraw',amount:a},d=>{wirtPay('firma',d.pay,d.stat,`<b class="num">+${fmt(d.pay)}</b> aus der Firmenkasse`);amt=''});return}
+    if(t.closest('[data-wd]:not([disabled])')){const a=wxParse(amt);if(a<1){toast('Gib einen Betrag ein.','bad');return}if(a>f.maxOut){toast(`Höchstens ${fmt0(f.maxOut)}.`,'bad');return}post({action:'withdraw',amount:a},d=>{wirtPay('firma',d.pay,d.stat,`<b class="num">+${fmt(d.pay)}</b> aus der Firmenkasse`);amt=''});return}
     if(t.closest('[data-ipo]:not([disabled])')){ipo();return}
     if(t.closest('[data-dis]:not([disabled])')){ask('Firma auflösen?',`Die Firma wird geschlossen. Du bekommst <b class="num" style="color:var(--ink)">${fmt0(Math.round(f.value*.6))}</b> (60 % des Firmenwerts). Das lässt sich nicht rückgängig machen.`,'Auflösen',()=>{quitId=f.id;post({action:'dissolve'},d=>{sel=null;wirtPay('firma',d.pay,d.pay,`Firma aufgelöst: <b class="num">+${fmt(d.pay)}</b>`)})},true)}});
   function rename(){const f=F();if(!f)return;
@@ -8401,11 +8498,36 @@ const FI=(()=>{
       ()=>{const nm=(window.__fiRen||'').trim().replace(/\s+/g,' ');if(!/^[A-Za-zÄÖÜäöüß0-9][A-Za-zÄÖÜäöüß0-9 \-]{1,22}[A-Za-zÄÖÜäöüß0-9]$/.test(nm)){toast('Name: 3 bis 24 Zeichen, nur Buchstaben, Zahlen, Leerzeichen und Bindestrich.','bad');return}
         post({action:'rename',fname:nm},()=>toast(`Heißt jetzt <b>${esc(nm)}</b>.`,'good'))});
     const i=$('fiRen');window.__fiRen=i.value;i.oninput=()=>{window.__fiRen=i.value};i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector('#modal [data-ok]').click()}};i.focus();i.select()}
-  function ipo(){const f=F(),pr=Math.round(f.value/1000*100)/100;
-    modal(`<p class="eyebrow">${esc(f.name)}</p><h2>An die Börse</h2><p>Die Firma wird in 1.000 Anteile geteilt, einer kostet <b class="num" style="color:var(--ink)">${pr.toLocaleString('de-DE',{minimumFractionDigits:2})}</b>. Du verkaufst jetzt bis zu 490 Anteile an die Börse und bekommst sofort das Geld. Danach können alle Spieler Anteile kaufen. 24 Stunden lang darfst du selbst nichts verkaufen.</p>
-      <label class="lbl" for="fiIpoN"><span>Anteile verkaufen</span><span id="fiIpoV" style="text-transform:none;letter-spacing:0"></span></label><input id="fiIpoN" type="range" min="1" max="490" step="1" value="${ipoN}" style="width:100%">
-      <div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>Börsengang</button></div>`,()=>{const n=ipoN;post({action:'ipo',n},d=>{wirtPay('firma',d.pay,d.pay,`Börsengang! <b class="num">+${fmt(d.pay)}</b>`);confetti(200);SND.win()})});
-    const upd=()=>{const n=ipoN=+$('fiIpoN').value;$('fiIpoV').textContent=`${n} (${(n/10).toLocaleString('de-DE')} %) · +${fmt0(n*pr)}`};$('fiIpoN').oninput=upd;upd();}
+  function ipo(){const f=F(),fs=f.fs||1000,fair=f.value/fs;let n=Math.round(fs*.3),m=0,disc=10;
+    const maxM=nn=>Math.max(0,Math.floor(fs-f.minOwn*(fs+nn)));
+    modal(`<p class="eyebrow">${esc(f.name)}</p><h2>Börsengang planen</h2><p>Fairer Wert pro Anteil: <b class="num" style="color:var(--ink)">${f2(fair)}</b> (Firmenwert ${fmt0(f.value)} ÷ ${fmt0(fs)} Anteile).</p>
+      <label class="lbl" for="ipN"><span>Neue Anteile (Geld für die Firma)</span><span id="ipNv" style="text-transform:none;letter-spacing:0"></span></label><input id="ipN" type="range" min="0" max="${2*fs}" step="1" value="${n}" style="width:100%">
+      <label class="lbl" for="ipM"><span>Eigene Anteile (Geld für dich)</span><span id="ipMv" style="text-transform:none;letter-spacing:0"></span></label><input id="ipM" type="range" min="0" max="${maxM(n)}" step="1" value="${m}" style="width:100%">
+      <span class="lbl">Rabatt auf den Ausgabepreis</span><div class="seg" id="ipD" role="group">${[0,5,10,15,20].map(d=>`<button type="button" data-d="${d}" aria-pressed="${d===disc}">${d} %</button>`).join('')}</div>
+      <div class="ak-sum" id="ipSum"></div>
+      <div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>An die Börse!</button></div>`,()=>{if(n+m<1){toast('Wähl mindestens einen Anteil.','bad');return}
+        post({action:'ipo',n,m,disc},d=>{toast(`<b>${esc(f.name)}</b> ist an der Börse! 24 Std. Zeichnungsfrist zu je ${f2(d.price)}.`,'good');confetti(200);SND.win();tab='bo'})});
+    const upd=()=>{n=+$('ipN').value;const mm=maxM(n),ms=$('ipM');ms.max=mm;if(+ms.value>mm)ms.value=mm;m=+ms.value;
+      const pr=Math.max(.01,Math.round(fair*(1-disc/100)*100)/100),vol=(n+m)*pr,fee=Math.round(.02*vol),after=(fs-m)/(fs+n);
+      $('ipNv').textContent=fmt0(n);$('ipMv').textContent=`${fmt0(m)} (max. ${fmt0(mm)})`;
+      $('ipD').querySelectorAll('[data-d]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.d===disc)));
+      $('ipSum').innerHTML=`<span>Ausgabepreis</span><b>${f2(pr)}</b><span>Volumen</span><b>${fmt0(vol)}</b><span>davon in die Firmenkasse</span><b>${fmt0(n*pr)}</b><span>davon an dich</span><b>${fmt0(m*pr)}</b><span>Bankgebühr 2 %</span><b>−${fmt0(fee)}</b><span>Dein Anteil, wenn alles verkauft ist</span><b>${pctS(after)}</b>`};
+    $('ipN').oninput=upd;$('ipM').oninput=upd;$('ipD').onclick=e=>{const b=e.target.closest('[data-d]');if(b){disc=+b.dataset.d;upd()}};upd()}
+  // Anteile: ausgeben, zurückziehen, zurückkaufen, verkaufen
+  function shares(kind){const f=F(),p=f.price,mx=kind==='emit'?f.maxEmit:kind==='retire'?f.pool:kind==='offer'?f.maxSellOwn:kind==='buy'?Math.min(f.pool-f.poolOwn,Math.floor((S.bal+1e-9)/(p*1.01))):Math.min(f.maxSellOwn,Math.floor(Math.max(0,f.kasse)/p));
+    if(mx<1){toast(kind==='buy'?WERR.guthaben:kind==='sell'?WERR.kasse_knapp:WERR.anzahl,'bad');return}
+    const T={emit:['Neue Anteile ausgeben','Neue Anteile kommen in den freien Handel (Kapitalerhöhung). Käufer zahlen den Kurs in die Firmenkasse. Dein Anteil wird kleiner, sobald sie verkauft sind.','Ausgeben'],
+      retire:['Angebot zurückziehen','Noch nicht verkaufte Anteile werden vom Markt genommen. Zuerst deine angebotenen (sie kommen zu dir zurück), dann die der Firma. Das kostet nichts.','Zurückziehen'],
+      buy:['Anteile zurückkaufen','Du kaufst freie Anteile mit deinem Guthaben (Kurs + 1 % Gebühr). Das Geld geht in die Firmenkasse, dein Anteil steigt.','Kaufen'],
+      sell:['An die Firma verkaufen','Die Firma kauft dir Anteile sofort ab und zahlt aus der Firmenkasse (Kurs − 1 % Gebühr). Danach sind sie frei zu kaufen. Du behältst mindestens 10 %.','Verkaufen'],
+      offer:['Anteile anbieten','Deine Anteile kommen in den freien Handel. Kauft sie jemand, bekommst du den Kurs direkt in deinen Posteingang. Du behältst mindestens 10 %.','Anbieten']}[kind];
+    let n=Math.min(mx,Math.max(1,Math.round(mx/2)));
+    modal(`<p class="eyebrow">${esc(f.name)}</p><h2>${T[0]}</h2><p>${T[1]}</p><label class="lbl" for="fiShN"><span>Anteile</span><span id="fiShV" style="text-transform:none;letter-spacing:0"></span></label><input id="fiShN" type="range" min="1" max="${mx}" step="1" value="${n}" style="width:100%">
+      <div class="row"><button class="btn" data-close>Abbrechen</button><button class="btn gold" data-ok>${T[2]}</button></div>`,()=>{
+      if(kind==='buy')post({action:'trade',id:f.id,n,side:'buy'},d=>{wirtSpend(d.cost);toast(`<b>${fmt0(d.n)}</b> Anteile zurückgekauft.`,'good')});
+      else if(kind==='sell')post({action:'trade',id:f.id,n,side:'sell'},d=>wirtPay('firma',d.pay,d.pay,`<b>${fmt0(d.n)}</b> Anteile verkauft: <b class="num">+${fmt(d.pay)}</b>`));
+      else post({action:kind,n},()=>toast(kind==='emit'?`${fmt0(n)} neue Anteile an der Börse.`:kind==='offer'?`${fmt0(n)} Anteile zum Verkauf angeboten.`:`${fmt0(n)} Anteile zurückgezogen.`,'good'))});
+    const upd=()=>{n=+$('fiShN').value;$('fiShV').textContent=kind==='buy'?`${fmt0(n)} · kostet ${fmt0(n*p*1.01)}`:kind==='sell'?`${fmt0(n)} · bringt ${fmt0(n*p*.99)}`:kind==='emit'?`${fmt0(n)} · bis zu +${fmt0(n*p)} in die Kasse`:kind==='offer'?`${fmt0(n)} · bis zu +${fmt0(n*p)} für dich`:fmt0(n)};$('fiShN').oninput=upd;upd()}
   setInterval(()=>{if(cur!=='firmen'||document.hidden)return;live();pull()},1000);
   return{show(){render(true);pull(true)},render}})();
 onShow.firmen=FI.show;

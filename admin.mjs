@@ -66,14 +66,16 @@ async function lottoInfo(now) {
   let added = 0;
   for (const b of ab) { const v = await get(b.key), k = b.key.slice(`a/${D}/`.length); if (!v) continue; if (k.startsWith("~")) { added = r2(added + num(v.c)); continue; } const p = of(k); p.c = r2(num(v.c)); p.slots = Array.isArray(v.s) ? v.s.length : 0; }
   for (const b of bb) { const v = await get(b.key); if (v) of(b.key.slice(`b/${D}/`.length)).n = Math.round(num(v.n)); }
-  const players = [...P.values()].map((p) => ({ ...p, f: Math.min(4, Math.floor(p.slots / 6)) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
+  const bans = (await get("bans")) || {};
+  const players = [...P.values()].filter((p) => !bans[encodeURIComponent(p.name)]).map((p) => ({ ...p, f: Math.min(4, Math.floor(p.slots / 6)) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
   // Topf = Rest aus der letzten Ziehung + Verluste/Aufstockungen + gekaufte Lose (wie in spielstand.mjs)
   const { blobs: rb } = await s.list({ prefix: "r/" });
   const ids = rb.map((b) => +b.key.slice(2)).filter((n) => n > 0 && n < D).sort((a, b) => b - a).slice(0, 8);
   const hist = (await Promise.all(ids.map((id) => get(`r/${id}`)))).filter(Boolean);
   const carry = hist[0] ? r2(num(hist[0].carry)) : 0;
-  const pot = r2(carry + added + players.reduce((t, p) => t + p.c + 250 * p.n, 0));
-  return { d: D, players, added, carry, pot, hist };
+  const banned = Object.entries(bans).map(([k, t]) => ({ name: decodeURIComponent(k), t: num(t), c: P.has(k) ? P.get(k).c : 0 })).sort((a, b) => b.t - a.t);
+  const pot = r2(carry + added + players.reduce((t, p) => t + p.c + 250 * p.n, 0) + banned.reduce((t, p) => t + p.c, 0));
+  return { d: D, players, banned, added, carry, pot, hist };
 }
 const ITEMS = ["kette", "uhr", "auto", "villa", "yacht", "jet", "insel"];
 
@@ -366,6 +368,11 @@ export default async (req) => {
     await s.setJSON("f/" + f.id, f); try { await s.delete("cache"); } catch {}
     return json({ ok: true });
   }
+  if (action === "devReset") {
+    let n = 0;
+    for (const name of ["geraete", "iplimit"]) { const s = getStore(name), { blobs } = await s.list(); for (const b of blobs) { try { await s.delete(b.key); n++; } catch {} } }
+    return json({ ok: true, n });
+  }
   if (action === "aktienReset") {
     const s = getStore("aktien"), cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 };
     await s.setJSON("cfg", { epoch: num(cfg.epoch) + 1, t: now });
@@ -378,6 +385,27 @@ export default async (req) => {
     const { blobs } = await s.list();
     for (const b of blobs) if (b.key.startsWith("s/") || b.key.startsWith("c/")) { try { await s.delete(b.key); } catch {} }
     return json({ ok: true });
+  }
+  // Spieler für den Jackpot sperren: Lose fliegen aus dem Topf, gekaufte Lose werden erstattet
+  if (action === "lottoBan" || action === "lottoUnban") {
+    const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (!name || name.length > 30) return json({ error: "Name fehlt" }, 400);
+    const key = encodeURIComponent(name), s = getStore("lotto");
+    if (!(await getStore("spielstaende").get(key, { type: "json" }).catch(() => null))) return json({ error: "Spieler gibt es nicht" }, 404);
+    const bans = (await s.get("bans", { type: "json" }).catch(() => null)) || {};
+    let refund = 0;
+    if (action === "lottoBan") {
+      bans[key] = now;
+      const D = nextDraw(now), b = await s.get(`b/${D}/${key}`, { type: "json" }).catch(() => null), n = b ? Math.round(num(b.n)) : 0;
+      if (n > 0) {
+        refund = n * 250;
+        await getStore("posteingang").setJSON(`${key}/${now}-ltban`, { f: `Jackpot · ${n} ${n === 1 ? "Los" : "Lose"} erstattet`, a: refund, t: now });
+      }
+      try { await s.delete(`b/${D}/${key}`); } catch {}
+    } else delete bans[key];
+    await s.setJSON("bans", bans);
+    try { await s.delete("cache"); } catch {}
+    return json({ ok: true, refund, ...(await lottoInfo(now)) });
   }
   if (action === "lottoAdd") {
     const a = r2(num(body.a));

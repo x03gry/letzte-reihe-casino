@@ -186,6 +186,11 @@ textarea.inp{min-height:90px;resize:vertical}
     <div class="panel" style="padding:6px 12px">
       <div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Guthaben</th><th>Sterne</th><th>Runden</th><th>Netto Spiele</th><th>Lieblingsspiel</th><th>Zuletzt aktiv</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div>
     </div>
+    <div class="panel">
+      <h2 style="font-size:16px">Account-Sperre pro Gerät</h2>
+      <p class="note">Auf jedem Gerät (genauer: in jedem Browser) kann nur ein neuer Account pro Woche erstellt werden. Hier hebst du die Sperre für alle Geräte auf.</p>
+      <div class="row"><button class="btn" id="ipReset">Gerätesperren aufheben</button></div>
+    </div>
     <div class="panel" id="wipePanel" style="border-color:rgba(255,77,106,.35)">
       <h2 style="font-size:16px">Alle Accounts löschen</h2>
       <p class="note">Löscht alle Spieler mit Guthaben und Spielständen, dazu Posteingänge, Rangliste, Jackpot und Lose, offene Rennwetten, Wett-Tipps, Vorschläge und Ausschlüsse. Wetten-Fragen und die Nachricht an alle bleiben. Das lässt sich nicht rückgängig machen.</p>
@@ -229,7 +234,13 @@ textarea.inp{min-height:90px;resize:vertical}
     </div>
     <div class="panel" style="padding:6px 12px">
       <h2 style="font-size:16px;padding-top:8px">Teilnehmer der nächsten Ziehung</h2>
-      <div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Gekaufte Lose</th><th>Gratis-Lose</th><th>Chance</th><th>Verluste in den Topf</th></tr></thead><tbody id="lRows"></tbody></table></div>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Gekaufte Lose</th><th>Gratis-Lose</th><th>Chance</th><th>Verluste in den Topf</th><th></th></tr></thead><tbody id="lRows"></tbody></table></div>
+    </div>
+    <div class="panel">
+      <h2 style="font-size:16px">Für den Jackpot gesperrt</h2>
+      <p class="note">Gesperrte Spieler können keine Lose kaufen, bekommen keine Gratis-Lose und werden nicht gezogen. Ihre Lose verschwinden sofort aus dem Topf, gekaufte Lose bekommen sie zurück (250 Coins pro Los). Ihre Verluste fließen weiter in den Topf.</p>
+      <div class="row"><input class="inp" id="lBanName" placeholder="Spielername" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn red" id="lBanBtn">Sperren</button></div>
+      <div id="lBans"></div>
     </div>
     <div class="panel"><h2 style="font-size:16px">Letzte Ziehungen</h2><div id="lHist"></div></div>
   </section>
@@ -319,6 +330,8 @@ let fiArm='';$('fiRows').addEventListener('click',async e=>{const r=e.target.clo
 let akArm=0;$('wxAkReset').onclick=async()=>{if(Date.now()-akArm>4000){akArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}akArm=0;
   try{await api('aktienReset');toast('Aktienkurse neu gestartet')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 
+let ipArm=0;$('ipReset').onclick=async()=>{if(Date.now()-ipArm>4000){ipArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}ipArm=0;
+  try{const d=await api('devReset');toast(`Gerätesperren aufgehoben (${d.n||0})`)}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 // ---------- Accounts ----------
 async function loadAccounts(){try{const d=await api('list');ACC=d.accounts||[];renderAccounts()}catch(e){if(e.message!=='401')toast('Laden fehlgeschlagen: '+e.message,true)}}
 function renderAccounts(){
@@ -404,8 +417,14 @@ $('clearRej').onclick=async()=>{const b=$('clearRej');if(!b.classList.contains('
 // ---- Jackpot-Ziehung
 function renderL(d){const P=d.players||[],T=P.reduce((t,p)=>t+p.n+p.f,0);
   $('lKpis').innerHTML=[['Jackpot',fmt(d.pot||0)],['Nächste Ziehung',when(d.d)],['Lose im Topf',fmt0(T)],['Davon aufgestockt',fmt(d.added||0)]].map(([k,v])=>`<div class="kpi"><span>${k}</span><b>${v}</b></div>`).join('');
-  $('lRows').innerHTML=P.length?P.map(p=>`<tr><td>${esc(p.name)}</td><td>${fmt0(p.n)}</td><td>${fmt0(p.f)}</td><td>${T&&p.n+p.f?((p.n+p.f)/T*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %':'–'}</td><td>${fmt(p.c)}</td></tr>`).join(''):'<tr><td colspan="5" class="note">Noch niemand dabei.</td></tr>';
+  $('lRows').innerHTML=P.length?P.map(p=>`<tr><td>${esc(p.name)}</td><td>${fmt0(p.n)}</td><td>${fmt0(p.f)}</td><td>${T&&p.n+p.f?((p.n+p.f)/T*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %':'–'}</td><td>${fmt(p.c)}</td><td><button class="btn red" data-lban="${esc(p.name)}">Sperren</button></td></tr>`).join(''):'<tr><td colspan="6" class="note">Noch niemand dabei.</td></tr>';
+  const B=d.banned||[];$('lBans').innerHTML=B.length?B.map(b=>`<div class="row" style="justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line)"><span><b>${esc(b.name)}</b> <span class="note">seit ${new Date(b.t).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span></span><button class="btn" data-lunban="${esc(b.name)}">Entsperren</button></div>`).join(''):'<p class="note">Niemand gesperrt.</p>';
   $('lHist').innerHTML=(d.hist||[]).length?d.hist.map(h=>`<div class="note" style="padding:6px 0;border-bottom:1px solid var(--line)"><b style="color:var(--ink)">${when(h.d)}</b> · Topf ${fmt(h.pot)} · ${fmt0(h.tickets||0)} Lose · ${(h.win||[]).length?h.win.map(w=>`${w.r}. ${esc(w.n)} +${fmt(w.a)}`).join(' · '):'kein Gewinner'}</div>`).join(''):'<p class="note">Noch keine Ziehung.</p>'}
+let lArm='';async function lBan(name,un){if(!name)return;
+  if(!un&&lArm!==name){lArm=name;toast(`${name} sperren? Zum Bestätigen nochmal klicken`);setTimeout(()=>{if(lArm===name)lArm=''},4000);return}lArm='';
+  try{const d=await api(un?'lottoUnban':'lottoBan',{name});renderL(d);toast(un?`${name} entsperrt`:`${name} gesperrt`+(d.refund?` · ${fmt(d.refund)} erstattet`:''));if(!un)$('lBanName').value=''}catch(e){if(e.message!=='401')toast(e.message,true)}}
+$('t-lot').addEventListener('click',e=>{const b=e.target.closest('[data-lban]'),u=e.target.closest('[data-lunban]');if(b)lBan(b.dataset.lban,false);if(u)lBan(u.dataset.lunban,true)});
+$('lBanBtn').onclick=()=>lBan($('lBanName').value.trim().toLowerCase(),false);
 async function loadL(){try{renderL(await api('lotto'))}catch(e){if(e.message!=='401')toast('Jackpot laden fehlgeschlagen: '+e.message,true)}}
 $('lAddBtn').onclick=async()=>{const a=Math.round(+$('lAdd').value);if(!(a>=1)){toast('Betrag eingeben',true);return}
   $('lAddBtn').disabled=true;try{renderL(await api('lottoAdd',{a}));$('lAdd').value='';toast(`Jackpot um ${fmt(a)} aufgestockt`)}catch(e){if(e.message!=='401')toast(e.message,true)}$('lAddBtn').disabled=false};
