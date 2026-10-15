@@ -321,7 +321,7 @@ document.querySelector('.tabs').addEventListener('click',e=>{const b=e.target.cl
 let wxArm=0;$('wxImmoReset').onclick=async()=>{if(Date.now()-wxArm>4000){wxArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}wxArm=0;
   try{await api('immoReset');toast('Immobilienmarkt zurückgesetzt')}catch(e){if(e.message!=='401')toast('Fehler: '+e.message,true)}};
 
-const BRN={imbiss:'Imbiss',startup:'Startup',mode:'Modelabel',energie:'Energie'};
+const BRN={imbiss:'Imbiss',startup:'Startup',mode:'Modelabel',energie:'Energie',logistik:'Spedition',games:'Spielestudio',fitness:'Fitnessstudio'};
 async function loadFirms(){try{const d=await api('firmList');$('fiRows').innerHTML=d.firms.length?d.firms.map(f=>`<tr data-fid="${f.id}"><td class="name">${esc(f.name)}${f.pleite?' <span class="chip ban">pleite</span>':''}</td><td>${esc(f.owner)}</td><td>${BRN[f.br]||f.br} · Stufe ${f.lvl}</td><td class="num ${f.kasse<0?'neg':''}">${fmt0(f.kasse)}</td><td class="num">${fmt0(f.value)}</td><td>${f.public?`ja (${f.holders} Aktionäre)`:'nein'}</td>
   <td>${f.pleite?'':`<button class="btn" data-frn="${f.id}">Umbenennen</button> <button class="btn red" data-fdel="${f.id}">Löschen</button>`}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Noch keine Firmen.</td></tr>'}catch(e){if(e.message!=='401')toast('Laden fehlgeschlagen: '+e.message,true)}}
 let fiArm='';$('fiRows').addEventListener('click',async e=>{const r=e.target.closest('[data-frn]'),d=e.target.closest('[data-fdel]');

@@ -998,7 +998,15 @@ const AK = {
   TSLA: { name: "Tesla", start: 300, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 1500, jm: [0.08, 0.22], div: 0, col: "#e82127", up: AK_UP, dn: AK_DN },
   NVDA: { name: "Nvidia", start: 150, sig: 0.004, ts: 0.00012, phi: 0.998, kap: 0.0002, jp: 1 / 1400, jm: [0.08, 0.25], div: 0, col: "#76b900", up: AK_UP, dn: AK_DN },
   GME: { name: "GameStop", start: 25, sig: 0.0032, ts: 0.0001, phi: 0.998, kap: 0.0002, jp: 1 / 2800, jm: [0.25, 0.6], div: 0, col: "#ff6a3d", up: AK_UP, dn: AK_DN },
+  ADS: { name: "Adidas", start: 200, sig: 0.0014, ts: 0.00006, phi: 0.998, kap: 0.0002, jp: 1 / 2200, jm: [0.04, 0.12], div: 0.001, col: "#9aa7b4", up: AK_UP, dn: AK_DN },
+  MBG: { name: "Mercedes-Benz", start: 65, sig: 0.0012, ts: 0.00008, phi: 0.998, kap: 0.0002, jp: 1 / 2400, jm: [0.04, 0.1], div: 0.004, col: "#b8c4cf", up: AK_UP, dn: AK_DN },
+  AAPL: { name: "Apple", start: 220, sig: 0.0013, ts: 0.00008, phi: 0.999, kap: 0.00015, jp: 1 / 2600, jm: [0.03, 0.09], div: 0.0004, col: "#d9dee3", up: AK_UP, dn: AK_DN },
+  MSFT: { name: "Microsoft", start: 420, sig: 0.0012, ts: 0.00008, phi: 0.999, kap: 0.00015, jp: 1 / 2600, jm: [0.03, 0.09], div: 0.0006, col: "#00a4ef", up: AK_UP, dn: AK_DN },
 };
+// Kennzahlen (fiktiv, nur zur Orientierung): Branche, Aktien in Mio. (für den Börsenwert), KGV beim Startkurs
+const AK_META = { ALV: ["Versicherung", 390, 12], DTE: ["Telekommunikation", 4980, 14], SIE: ["Industrie", 790, 18], BMW: ["Auto", 640, 6], SAP: ["Software", 1170, 35],
+  TSLA: ["Auto", 3200, 60], NVDA: ["Halbleiter", 24500, 45], GME: ["Handel", 430, 80], ADS: ["Sportartikel", 180, 40], MBG: ["Auto", 1000, 6], AAPL: ["Technologie", 15200, 30], MSFT: ["Software", 7430, 34] };
+const AK_ORD_MAX = 10, AK_ORD_TTL = 7 * 86_400_000, AK_LOG = 40;
 // Umstellung von den alten Fantasie-Kürzeln: Bestände werden zum Startkurs-Verhältnis übernommen (gleicher Wert)
 const AK_OLD = { BRZ: ["ALV", 120], TWE: ["DTE", 85], MMG: ["SIE", 40], SBL: ["BMW", 60], PHH: ["SAP", 200], KSC: ["TSLA", 15], HAI: ["NVDA", 300], PXG: ["GME", 25] };
 const AK_IDS = Object.keys(AK);
@@ -1037,7 +1045,9 @@ async function akState(now) {
   const s = getStore("aktien"), T = Math.floor(now / AK_TICK);
   const cfg = (await s.get("cfg", { type: "json" }).catch(() => null)) || { epoch: 0 };
   let st = await s.get("state", { type: "json" }).catch(() => null);
-  if (!st || st.epoch !== num(cfg.epoch) || AK_IDS.some((id) => !(id in (st.p || {})))) st = akFresh(T - 1, num(cfg.epoch));
+  if (!st || st.epoch !== num(cfg.epoch)) st = akFresh(T - 1, num(cfg.epoch));
+  // Neue Werte nachträglich aufnehmen, ohne die anderen Kurse zurückzusetzen
+  for (const id of AK_IDS) if (!(id in st.p)) { st.p[id] = AK[id].start; st.tr[id] = 0; st.h24[id] = [AK[id].start]; st.h7[id] = [AK[id].start]; }
   if (st.T < T) {
     // Mehr als 10 Tage verpasst: nur die letzten 10 Tage nachrechnen (Kurs läuft einfach von dort weiter)
     let from = Math.max(st.T + 1, T - 4800);
@@ -1060,6 +1070,31 @@ function akDivSettle(W, st, now, id) {   // Dividende einer Position festhalten,
   W.divK = r2(num(W.divK) + x.n * st.p[id] * akDivRate(id) * Math.min(AK_DIV_CAP, Math.max(0, now - num(x.divFrom))) / AK_DIV_CAP);
   x.divFrom = now;
 }
+// ---- Orders (Limit-Kauf, Limit-Verkauf, Stop-Loss): werden gegen die Kurse seit dem Auftrag geprüft, sobald der Spieler die Börse aufruft
+function akLog(W, e) { W.akLog = [e].concat(Array.isArray(W.akLog) ? W.akLog : []).slice(0, AK_LOG); }
+function akAddShares(W, id, n, cost, now) { const x = W.depot[id] || { n: 0, avg: 0, divFrom: now }; x.avg = r2((num(x.avg) * num(x.n) + cost) / (num(x.n) + n)); x.n = num(x.n) + n; x.divFrom = now; W.depot[id] = x; }
+function akOrders(W, st, now) {
+  if (!Array.isArray(W.orders) || !W.orders.length) return false;
+  let changed = false;
+  for (const o of W.orders.slice()) {
+    const h = st.h24[o.s] || [], L = h.length; let hit = null, hitT = 0;
+    for (let i = 0; i < L; i++) {
+      const tt = (st.T - (L - 1 - i)) * AK_TICK; if (tt <= o.t) continue; const p = h[i];
+      if ((o.side === "buy" && p <= o.lim) || (o.side === "sell" && o.type === "limit" && p >= o.lim) || (o.side === "sell" && o.type === "stop" && p <= o.lim)) { hit = p; hitT = tt; break; }
+    }
+    if (hit != null) {
+      if (o.side === "buy") { const cost = r2(o.n * hit * (1 + AK_FEE)); akDivSettle(W, st, now, o.s); akAddShares(W, o.s, o.n, cost, now); W.out = r2(W.out + Math.max(0, o.res - cost)); akLog(W, { t: hitT, id: o.s, side: "buy", n: o.n, p: hit, kind: "Limit", v: cost }); }
+      else { const pay = r2(o.n * hit * (1 - AK_FEE)), pnl = r2(pay - o.n * num(o.avg)); W.out = r2(W.out + pay); W.akReal = r2(num(W.akReal) + pnl); akLog(W, { t: hitT, id: o.s, side: "sell", n: o.n, p: hit, kind: o.type === "stop" ? "Stop-Loss" : "Limit", v: pay, pnl }); }
+      W.orders = W.orders.filter((x) => x !== o); changed = true;
+    } else if (now - o.t > AK_ORD_TTL) { akCancel(W, o, now); changed = true; }
+  }
+  return changed;
+}
+function akCancel(W, o, now) {
+  if (o.side === "buy") W.out = r2(W.out + num(o.res));
+  else { const x = W.depot[o.s] || { n: 0, avg: 0, divFrom: now }; x.avg = r2((num(x.avg) * num(x.n) + num(o.avg) * o.n) / (num(x.n) + o.n)); x.n = num(x.n) + o.n; x.divFrom = now; W.depot[o.s] = x; }
+  W.orders = (W.orders || []).filter((x) => x !== o);
+}
 async function aktienRoute(req, url) {
   const now = Date.now();
   let name = "", body = {};
@@ -1070,10 +1105,10 @@ async function aktienRoute(req, url) {
   const pf = await fiPublic(now);
   const view = (W) => {
     const out = { now, tick: st.T, next: (st.T + 1) * AK_TICK, prices: st.p, h24: st.h24, h7: st.h7, news: st.news.slice(0, 8),
-      info: Object.fromEntries(AK_IDS.map((id) => [id, { name: AK[id].name, col: AK[id].col, div: AK[id].div }])), pf };
+      info: Object.fromEntries(AK_IDS.map((id) => [id, { name: AK[id].name, col: AK[id].col, div: AK[id].div, sec: AK_META[id][0], sh: AK_META[id][1], eps: AK[id].start / AK_META[id][2], start: AK[id].start, trend: Math.round(num(st.tr[id]) * 1e6) }])), pf };
     if (W) {
       const holds = {}; for (const [fid, x] of Object.entries(W.fshares || {})) if (x && x.n > 0) holds[fid] = { n: x.n, avg: x.avg, pleite: !pf.find((p) => p.id === fid) };
-      out.mine = { depot: W.depot, div: r2(akDivAccrue(W, st, now) + fiDivAll(W, pf)), divEarned: num(W.divEarned), holds };
+      out.mine = { depot: W.depot, div: r2(akDivAccrue(W, st, now) + fiDivAll(W, pf)), divEarned: num(W.divEarned), holds, orders: W.orders || [], log: W.akLog || [], real: num(W.akReal) };
     }
     return out;
   };
@@ -1086,6 +1121,7 @@ async function aktienRoute(req, url) {
     if (acc.banned) return json({ error: "gesperrt", now }, 403);
     if (!authed(req, acc)) return json({ error: "login", now }, 401);
     W = await wirtGet(key);
+    if (akOrders(W, st, now)) await getStore("wirtschaft").setJSON(key, W);
   }
   if (req.method === "GET") return json({ ok: true, ...view(W) });
   if (req.method !== "POST") return json({ error: "methode", now }, 405);
@@ -1102,18 +1138,34 @@ async function aktienRoute(req, url) {
       if (cost > wirtBal(acc.state || {}, W) + 10) return fail("guthaben");
       akDivSettle(W, st, now, id);
       x.avg = r2((num(x.avg) * num(x.n) + cost) / (num(x.n) + n)); x.n = num(x.n) + n; x.divFrom = now; W.depot[id] = x;
-      W.in = r2(W.in + cost);
+      W.in = r2(W.in + cost); akLog(W, { t: now, id, side: "buy", n, p: price, kind: "Markt", v: cost });
       return done({ price, cost, n });
     }
     if (side === "sell") {
       if (!(num(x.n) >= n)) return fail("zu_wenig_aktien");
       akDivSettle(W, st, now, id);
-      const pay = r2(n * price * (1 - AK_FEE));
+      const pay = r2(n * price * (1 - AK_FEE)), pnl = r2(pay - n * num(x.avg));
       x.n = num(x.n) - n; if (x.n <= 0) delete W.depot[id]; else W.depot[id] = x;
-      W.out = r2(W.out + pay);
-      return done({ price, pay, n });
+      W.out = r2(W.out + pay); W.akReal = r2(num(W.akReal) + pnl); akLog(W, { t: now, id, side: "sell", n, p: price, kind: "Markt", v: pay, pnl });
+      return done({ price, pay, n, pnl });
     }
     return fail("aktion");
+  }
+  if (body.action === "order") {
+    const id = String(body.id), n = Math.floor(num(body.n)), side = body.side, type = body.type === "stop" ? "stop" : "limit", lim = Math.round(num(body.lim) * 100) / 100;
+    if (!AK[id] || !["buy", "sell"].includes(side) || (type === "stop" && side !== "sell")) return fail("aktion");
+    if (!(n >= 1) || n > 1_000_000) return fail("anzahl");
+    if (!(lim > 0) || lim > st.p[id] * 10) return fail("limit");
+    W.orders = Array.isArray(W.orders) ? W.orders : []; if (W.orders.length >= AK_ORD_MAX) return fail("max_orders");
+    const o = { oid: "o" + now.toString(36) + Math.floor(Math.random() * 1296).toString(36), s: id, side, type, n, lim, t: now };
+    if (side === "buy") { o.res = r2(n * lim * (1 + AK_FEE)); if (o.res > wirtBal(acc.state || {}, W) + 10) return fail("guthaben"); W.in = r2(W.in + o.res); }
+    else { const x = W.depot[id]; if (!x || !(num(x.n) >= n)) return fail("zu_wenig_aktien"); akDivSettle(W, st, now, id); o.avg = num(x.avg); x.n = num(x.n) - n; if (x.n <= 0) delete W.depot[id]; else W.depot[id] = x; }
+    W.orders.push(o);
+    return done({ order: o, cost: o.res || 0 });
+  }
+  if (body.action === "cancel") {
+    const o = (W.orders || []).find((x) => x.oid === String(body.oid)); if (!o) return fail("order_weg");
+    akCancel(W, o, now); return done({ back: o.side === "buy" ? num(o.res) : 0 });
   }
   if (body.action === "divCollect") {
     const pay = r2(akDivAccrue(W, st, now) + fiDivAll(W, pf));
@@ -1149,52 +1201,93 @@ const FI_BR = {
   startup: { name: "Startup", up: 1, lv: ["Garage", "Coworking-Platz", "Büroetage", "Campus", "Tech-Konzern"] },
   mode: { name: "Modelabel", up: 1, lv: ["Hinterhof-Label", "Boutique", "Flagship-Store", "Modehaus", "Weltmarke"] },
   energie: { name: "Energie", up: 1.5, lv: ["Dachanlage", "Kleinkraftwerk", "Kraftwerk", "Energiepark", "Energiekonzern"] },
+  logistik: { name: "Spedition", up: 1.2, lv: ["Kurierdienst", "Spedition", "Logistikzentrum", "Logistik-Gruppe", "Weltlogistiker"] },
+  games: { name: "Spielestudio", up: 1.1, lv: ["Kinderzimmer-Studio", "Indie-Studio", "Mittelgroßes Studio", "Publisher", "Gaming-Konzern"] },
+  fitness: { name: "Fitnessstudio", up: 1, lv: ["Kellergym", "Fitnessstudio", "Fitness-Kette", "Wellness-Club", "Fitness-Imperium"] },
 };
+// Personal (alle Branchen): Abteilungen mit Mitarbeitern, Lohnniveau und Stimmung
+const FI_DEPTS = ["sales", "ops", "mkt", "qual", "adm"], FI_STAFF = [0, 3, 5, 8, 12, 16];
+const fiSalary = (f) => 0.02 * FI_B[f.lvl] * [0.75, 1, 1.35][f.wage == null ? 1 : f.wage];   // pro Mitarbeiter und Stunde
+const fiStaffN = (f) => FI_DEPTS.reduce((a, d) => a + num(f.staff && f.staff[d]), 0);
 const FI_COLS = ["#ffb020", "#2fe08f", "#38bdf8", "#ec4899", "#a78bfa", "#ff4d6a"];
 const FI_NAME_RE = /^[A-Za-zÄÖÜäöüß0-9][A-Za-zÄÖÜäöüß0-9 \-]{1,22}[A-Za-zÄÖÜäöüß0-9]$/;
 const fiR = (...p) => { const h = createHmac("sha256", akSec).update("fi|" + p.join("|")).digest("hex"); return [0, 13, 26, 39].map((o) => parseInt(h.slice(o, o + 13), 16) / 2 ** 52); };
 const fiUpCost = (f, l) => Math.round(FI_UP[l] * FI_BR[f.br].up);
 function fiFresh(id, name, owner, col, br, now) {
-  const lv = { imbiss: { fil: 0, q: 1, o: 1 }, startup: { dev: 2 }, mode: { mkt: 0, style: 0 }, energie: { typ: 1, cap: 1, wart: 1 } }[br];
-  return { id, name, owner, col, br, lvl: 1, founded: now, kasse: FI_START, lastH: Math.floor(now / HOUR), lv, st: { br: false, M: 1, pm: 1, H: 0 },
+  const lv = { imbiss: { fil: 0, q: 1, o: 1 }, startup: { dev: 2 }, mode: { mkt: 0, style: 0 }, energie: { typ: 1, cap: 1, wart: 1 },
+    logistik: { trucks: 1, route: 0, express: 0 }, games: { genre: 0, live: 0 }, fitness: { price: 1, kurse: 0, area: 1 } }[br];
+  return { id, name, owner, col, br, lvl: 1, founded: now, kasse: FI_START, lastH: Math.floor(now / HOUR), lv, st: { br: false, M: 1, pm: 1, H: 0, prog: 0, sales: 0, rel: 0, mem: 20 },
+    staff: { sales: 0, ops: 0, mkt: 0, qual: 0, adm: 0 }, wage: 1, morale: 70,
     ev: [], kh: [FI_START], pr: [], ph: [], negSince: 0, public: false, ipoAt: 0, float: 0, pool: 0, fs: FI_SHARES, divPct: 0, dps: 0, invPct: 0, pivotAt: 0, dropAt: 0, h: {}, dep: 0 };
 }
 function fiEv(f, t, text, a) { f.ev.unshift({ t, text, a: Math.round(a) }); f.ev = f.ev.slice(0, 10); }
 // Ergebnis einer vollen Stunde H
 function fiHour(f, H) {
   const L = f.lvl, B = FI_B[L], K = FI_K[L], lv = f.lv, st = f.st, [u1, u2, u3, u4] = fiR(f.id, H), t = (H + 1) * HOUR;
+  const sf = f.staff || {}, nS = num(sf.sales), nO = num(sf.ops), nM = num(sf.mkt), nQ = num(sf.qual), nA = num(sf.adm);
+  const mor = f.morale == null ? 70 : num(f.morale), eff = 0.5 + 0.5 * mor / 100, qm = Math.max(0.25, 1 - 0.1 * nQ);
   let rev = 0, cost = 0;
   if (f.br === "imbiss") {
     rev = B * (1 + 0.2 * lv.fil) * [0.9, 1, 1.25][lv.q] * [0.8, 1, 1.3][lv.o] * (1 + (u1 - 0.5) * 0.16);
     cost = K * (1 + 0.15 * lv.fil) * [0.72, 1, 1.3][lv.q] * [0.85, 1, 1.22][lv.o];
-    if (u2 < [0.03, 0.008, 0.002][lv.q]) { cost += 4 * K; fiEv(f, t, "Lebensmittelkontrolle: Bußgeld", -4 * K); }
+    if (u2 < [0.03, 0.008, 0.002][lv.q] * qm) { cost += 4 * K; fiEv(f, t, "Lebensmittelkontrolle: Bußgeld", -4 * K); }
     else if (u2 > 0.994) { rev += 2 * B; fiEv(f, t, "Food-Blogger schwärmt von euch", 2 * B); }
   } else if (f.br === "startup") {
     cost = K + lv.dev * 90 * L;
     if (!st.br) {
       rev = B * 0.3 * st.pm * (1 + 0.03 * lv.dev) * (1 + (u1 - 0.5) * 0.4);
-      if (u2 < (0.004 + 0.0015 * lv.dev) * st.pm) { st.br = true; st.M = 2.5 + u3 * 3.5; fiEv(f, t, "Durchbruch! Die App geht durch die Decke", 0); }
+      if (u2 < (0.004 + 0.0015 * lv.dev) * st.pm * (1 + 0.05 * nM)) { st.br = true; st.M = 2.5 + u3 * 3.5; fiEv(f, t, "Durchbruch! Die App geht durch die Decke", 0); }
     } else {
       rev = B * st.M * st.pm * (1 + 0.02 * lv.dev) * (1 + (u1 - 0.5) * 0.7);
-      if (u2 > 0.993) { rev = 0; fiEv(f, t, "Server-Crash: eine Stunde offline", 0); }
+      if (u2 > 1 - 0.007 * qm) { rev = 0; fiEv(f, t, "Server-Crash: eine Stunde offline", 0); }
     }
   } else if (f.br === "mode") {
     const pr = lv.price == null ? 1 : lv.price, shop = num(lv.shop), onl = lv.online ? 1 : 0;
     rev = B * (0.4 + 0.85 * st.H) * [0.8, 1, 1.35][pr] * (1 + 0.15 * onl) * (1 + (u1 - 0.5) * 0.3) + B * 0.22 * shop * (0.6 + 0.4 * Math.min(1, st.H));
     cost = K + lv.mkt * 0.2 * K + shop * 0.15 * K + onl * 0.25 * K;
-    st.H = Math.max(0, st.H - [0.14, 0.05][lv.style] * (1 - 0.22 * lv.mkt) * [0.75, 1, 1.3][pr] * (onl ? 0.9 : 1));
+    st.H = Math.max(0, st.H - [0.14, 0.05][lv.style] * (1 - 0.22 * lv.mkt) * [0.75, 1, 1.3][pr] * (onl ? 0.9 : 1) * Math.max(0.5, 1 - 0.04 * nM));
     if (u2 < 0.008) { st.H = Math.min(3, st.H + 1); fiEv(f, t, "Viral auf TikTok", 0); }
-    else if (u2 > 0.994) { st.H = Math.max(0, st.H - 1); fiEv(f, t, "Shitstorm wegen Billig-Nähten", 0); }
+    else if (u2 > 1 - 0.006 * qm) { st.H = Math.max(0, st.H - 1); fiEv(f, t, "Shitstorm wegen Billig-Nähten", 0); }
   } else if (f.br === "energie") {
     const capF = [1, 1.6, 2.2][lv.cap - 1], hd = (H + 2) % 24, sun = hd >= 7 && hd < 19 ? 1.5 : 0.3;
     rev = B * 1.1 * capF * [1, 1, sun, 1][lv.typ] * (1 + (u1 - 0.5) * (lv.typ === 3 ? 0.6 : 0.12));
     cost = K * capF * [0.72, 0.9, 1, 1.05][lv.typ] * [0.85, 1, 1.15][lv.wart];
-    if (u2 < [0.03, 0.006, 0][lv.wart]) { rev = 0; cost += K; fiEv(f, t, "Stromausfall: Reparatur nötig", -K); }
+    if (u2 < [0.03, 0.006, 0][lv.wart] * qm) { rev = 0; cost += K; fiEv(f, t, "Stromausfall: Reparatur nötig", -K); }
     else if (lv.typ === 0 && u3 < 0.02) { cost += 3 * K; fiEv(f, t, "CO₂-Steuer wird fällig", -3 * K); }
     else if (lv.typ === 1 && u3 < 0.012) { cost += 2 * K; fiEv(f, t, "Gaspreis-Schock", -2 * K); }
     else if (u2 > 0.995) { rev += 3 * B; fiEv(f, t, "Großkunde gewonnen", 3 * B); }
+  } else if (f.br === "logistik") {
+    const tr = num(lv.trucks), rt = num(lv.route), ex = lv.express ? 1 : 0, fuel = 0.85 + 0.3 * u3;
+    rev = B * 0.3 * tr * [0.8, 1, 1.3][rt] * (1 + 0.25 * ex) * (1 + (u1 - 0.5) * 0.25);
+    cost = K * 0.45 + tr * K * 0.2 * [0.85, 1, 1.25][rt] * fuel * (1 + 0.15 * ex);
+    if (u2 < 0.012 * [1, 1.2, 1.6][rt] * qm) { cost += 2.5 * K; fiEv(f, t, "Unfall: ein LKW muss in die Werkstatt", -2.5 * K); }
+    else if (u2 > 0.993) { rev += 2 * B; fiEv(f, t, "Großauftrag von einem Online-Händler", 2 * B); }
+  } else if (f.br === "games") {
+    const g = num(lv.genre);
+    st.prog = Math.min(100, num(st.prog) + [7, 4.5, 2.5][g] * (1 + 0.05 * nO) * eff);
+    rev = B * 0.12 + num(st.sales); st.sales = num(st.sales) * 0.94;
+    cost = K * [0.8, 1, 1.35][g];
+    if (lv.live) { rev += B * 0.3 * (1 + 0.15 * Math.min(5, num(st.rel))); cost += K * 0.35; }
+    if (u2 < 0.01 * qm && st.prog > 20) { st.prog = Math.max(0, st.prog - 15); fiEv(f, t, "Daten-Leak: ein Teil des Spiels muss neu gemacht werden", 0); }
+    else if (u2 > 0.994) { st.sales = num(st.sales) + B; fiEv(f, t, "Ein großer Streamer spielt euer Spiel", B); }
+  } else if (f.br === "fitness") {
+    const pr = num(lv.price), ar = Math.max(1, num(lv.area)), cap = 150 * ar, ku = lv.kurse ? 1 : 0;
+    const grow = [5, 3, 1.5][pr] * (1 + 0.25 * ku) * (1 + 0.06 * nM) * eff, churn = num(st.mem) * [0.004, 0.006, 0.009][pr] * Math.max(0.5, 1 - 0.04 * nQ);
+    st.mem = Math.max(0, Math.min(cap, num(st.mem) + grow - churn));
+    rev = B * 0.007 * st.mem * [0.6, 1, 1.55][pr] * (1 + 0.1 * ku);
+    cost = K * (0.55 + 0.35 * ar) + ku * 0.2 * K;
+    if (u2 < 0.01 * qm) { cost += 1.5 * K; fiEv(f, t, "Laufbänder kaputt: Reparatur", -1.5 * K); }
+    else if (u2 > 0.993) { st.mem = Math.min(cap, st.mem + 25); fiEv(f, t, "Neujahrsvorsätze: 25 neue Mitglieder", 0); }
   }
-  const zins = num(f.loan) > 0 ? num(f.loan) * FI_RATE : 0; cost += zins;
+  // Personal: Vertrieb/Marketing/Qualität bringen Umsatz, Betrieb/Verwaltung senken Kosten, Stimmung wirkt auf alles
+  rev *= 1 + (0.045 * nS + 0.03 * nM + 0.03 * nQ) * eff;
+  cost *= 1 - Math.min(0.4, 0.06 * nO * eff) - Math.min(0.25, 0.04 * nA * eff);
+  const nAll = nS + nO + nM + nQ + nA; cost += nAll * fiSalary(f);
+  const wage = f.wage == null ? 1 : f.wage, target = Math.min(100, [30, 70, 95][wage] + 3 * nA);
+  f.morale = Math.round((mor + (target - mor) * 0.15) * 10) / 10;
+  if (nAll > 0 && mor < 35 && u4 < 0.03) { rev *= 0.2; fiEv(f, t, "Streik! Die Mitarbeiter legen die Arbeit nieder", 0); }
+  else if (nAll > 0 && mor > 85 && u4 > 0.99) { rev += 0.5 * B; fiEv(f, t, "Top-Stimmung im Team: Rekordtag", 0.5 * B); }
+  const zins = num(f.loan) > 0 ? num(f.loan) * FI_RATE * Math.max(0.5, 1 - 0.08 * nA) : 0; cost += zins;
   let net = rev - cost;
   if (net > 0 && f.invPct > 0) net -= net * f.invPct / 100;
   let out = 0, perShare = 0;
@@ -1263,7 +1356,7 @@ function fiView(f, now) {
   if (!f) return null;
   const v = { ...f, value: fiValue(f), avg: Math.round(fiAvg(f)), price: fiPrice(f), level: FI_BR[f.br].lv[f.lvl - 1], brName: FI_BR[f.br].name,
     maxOut: fiMaxOut(f), held: fiHeld(f), out: fiOut(f), total: fiTotal(f), ownShares: fiOwnShares(f), poolOwn: num(f.poolOwn), loan: num(f.loan), maxLoan: fiMaxLoan(f), rate: FI_RATE,
-    maxEmit: f.public ? fiMaxEmit(f) : 0, maxSellOwn: f.public ? fiMaxSellOwn(f) : 0, devMax: FI_DEVMAX[f.lvl], minOwn: FI_MIN_OWN,
+    maxEmit: f.public ? fiMaxEmit(f) : 0, maxSellOwn: f.public ? fiMaxSellOwn(f) : 0, devMax: FI_DEVMAX[f.lvl], minOwn: FI_MIN_OWN, staff: f.staff || { sales: 0, ops: 0, mkt: 0, qual: 0, adm: 0 }, wage: f.wage == null ? 1 : f.wage, morale: f.morale == null ? 70 : f.morale, staffCap: FI_STAFF[f.lvl], salary: Math.round(fiSalary(f)), staffN: fiStaffN(f), hire: Math.round(0.5 * FI_B[f.lvl]),
     buyPrice: fiBuyPrice(f, now), subUntil: fiSubOpen(f, now) ? num(f.ipoUntil) : 0, ipoReadyAt: num(f.founded) + FI_IPO_AGE, ipoFee: FI_IPO_FEE,
     holders: Object.entries(f.h || {}).filter(([, n]) => n > 0).map(([n, c]) => ({ n, c })).sort((a, b) => b.c - a.c), upCost: f.lvl < 5 ? fiUpCost(f, f.lvl + 1) : 0, downBack: f.lvl > 1 ? Math.round(fiUpCost(f, f.lvl) / 2) : 0, nextH: (Math.floor(now / HOUR) + 1) * HOUR };
   delete v.h; return v;
@@ -1291,6 +1384,7 @@ function wealthOf(name, st, W, ctx, detail) {
   for (const h of W.immo.houses) { const v = imHouseView(h, now); immo += num(v.value) + num(v.kasse); houses.push({ name: h.name, d: h.d, type: h.type, value: num(v.value), rentH: v.rentH, cond: v.cond, extras: Object.keys(h.extras || {}).filter((k) => h.extras[k]) }); }
   let depot = 0; const stocks = [];
   for (const [id, x] of Object.entries(W.depot || {})) { if (!(x && x.n > 0) || !AK[id]) continue; const v = x.n * num(ctx.ak.p[id]); depot += v; stocks.push({ id, name: AK[id].name, n: x.n, value: Math.round(v) }); }
+  for (const o of Array.isArray(W.orders) ? W.orders : []) depot += o.side === "buy" ? num(o.res) : o.n * num(ctx.ak.p[o.s]);
   for (const [fid, x] of Object.entries(W.fshares || {})) { if (!(x && x.n > 0)) continue; const pf = ctx.pub.find((p) => p.id === fid); if (!pf) continue; const v = x.n * pf.price; depot += v; stocks.push({ id: fid, name: pf.name, n: x.n, value: Math.round(v), pf: true }); }
   let firmen = 0; const fl = [];
   for (const f of ctx.firms.get(normName(name)) || []) { const v = fiValue(f) * (f.public ? fiOwnShares(f) / fiOut(f) : 1); firmen += v; fl.push({ name: f.name, col: f.col, br: f.br, brName: FI_BR[f.br] ? FI_BR[f.br].name : "", lvl: f.lvl, level: FI_BR[f.br] ? FI_BR[f.br].lv[f.lvl - 1] : "", value: Math.round(v), avg: Math.round(fiAvg(f)), public: !!f.public, stake: Math.round((f.public ? fiOwnShares(f) / fiOut(f) : 1) * 1000) / 10 }); }
@@ -1416,7 +1510,7 @@ async function firmaRoute(req, url) {
   if (a === "downgrade") {
     if (L <= 1) return fail("min_stufe");
     const back = Math.round(fiUpCost(f, L) / 2);
-    f.lvl--; if (f.br === "startup") f.lv.dev = Math.min(f.lv.dev, FI_DEVMAX[f.lvl]); if (f.br === "mode") f.lv.shop = Math.min(num(f.lv.shop), f.lvl); fiEv(f, now, `Verkleinert: ${FI_BR[f.br].lv[f.lvl - 1]}`, 0); W.out = r2(W.out + back); await saveF();
+    f.lvl--; if (f.br === "startup") f.lv.dev = Math.min(f.lv.dev, FI_DEVMAX[f.lvl]); if (f.br === "mode") f.lv.shop = Math.min(num(f.lv.shop), f.lvl); if (f.br === "logistik") f.lv.trucks = Math.min(num(f.lv.trucks), f.lvl + 1); if (f.staff) for (const d of FI_DEPTS) f.staff[d] = Math.min(num(f.staff[d]), FI_STAFF[f.lvl]); fiEv(f, now, `Verkleinert: ${FI_BR[f.br].lv[f.lvl - 1]}`, 0); W.out = r2(W.out + back); await saveF();
     return done({ pay: back });
   }
   if (a === "deposit" || a === "withdraw") {
@@ -1490,6 +1584,16 @@ async function firmaRoute(req, url) {
   if (a === "setDividend") { const p = Number(body.pct); if (![0, 10, 25, 50].includes(p)) return fail("aktion"); if (p < 10 && f.public && fiOwnShares(f) / fiOut(f) < 0.5) return fail("dividende_pflicht"); f.divPct = p; await saveF(); return done({}); }
   if (a === "setLever") {
     const k = String(body.k), v = Number(body.v), lv = f.lv, pay = (c) => { if (c > f.kasse) return false; f.kasse = r2(f.kasse - c); return true; };
+    const DN = { sales: "Vertrieb", ops: "Betrieb", mkt: "Marketing", qual: "Qualität", adm: "Verwaltung" };
+    if (k === "staff") {
+      const d = String(body.dep); if (!FI_DEPTS.includes(d) || !Number.isInteger(v) || v < 0 || v > FI_STAFF[L]) return fail("max_personal");
+      f.staff = f.staff || { sales: 0, ops: 0, mkt: 0, qual: 0, adm: 0 }; const cur = num(f.staff[d]); if (v === cur) return done({});
+      const c = Math.abs(v - cur) * Math.round(0.5 * B); if (!pay(c)) return fail("kasse_leer");
+      if (v < cur) { f.morale = Math.max(0, num(f.morale == null ? 70 : f.morale) - 4 * (cur - v)); fiEv(f, now, `${DN[d]}: ${cur - v} entlassen (Abfindung)`, -c); }
+      else fiEv(f, now, `${DN[d]}: ${v - cur} eingestellt`, -c);
+      f.staff[d] = v; await saveF(); return done({});
+    }
+    if (k === "wage") { if (![0, 1, 2].includes(v)) return fail("aktion"); f.wage = v; await saveF(); return done({}); }
     if (f.br === "imbiss") {
       if (k === "fil") { if (!Number.isInteger(v) || v < 0 || v > 5) return fail("aktion"); if (v > lv.fil) { const c = (v - lv.fil) * 10000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Neue Filiale eröffnet", -c); } lv.fil = v; }
       else if (k === "q" || k === "o") { if (![0, 1, 2].includes(v)) return fail("aktion"); lv[k] = v; }
@@ -1529,6 +1633,25 @@ async function firmaRoute(req, url) {
         const c = 2 * B; if (!pay(c)) return fail("kasse_leer");
         f.st.H = Math.min(3, f.st.H + [2.2, 1.2][lv.style]); f.dropAt = now; fiEv(f, now, lv.style ? "Neue Kollektion (Massenware)" : "Limitierte Kollektion gedroppt", -c);
       } else return fail("aktion");
+    } else if (f.br === "logistik") {
+      if (k === "trucks") { if (!Number.isInteger(v) || v < 1 || v > L + 1) return fail("aktion"); if (v > num(lv.trucks)) { const c = (v - num(lv.trucks)) * 8000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Neuer LKW gekauft", -c); } else if (v < num(lv.trucks)) { const b2 = (num(lv.trucks) - v) * 4000 * L; f.kasse = r2(f.kasse + b2); fiEv(f, now, "LKW verkauft", b2); } lv.trucks = v; }
+      else if (k === "route") { if (![0, 1, 2].includes(v)) return fail("aktion"); lv.route = v; }
+      else if (k === "express") { if (![0, 1].includes(v)) return fail("aktion"); lv.express = v; }
+      else return fail("aktion");
+    } else if (f.br === "games") {
+      if (k === "genre") { if (![0, 1, 2].includes(v)) return fail("aktion"); if (v !== num(lv.genre)) { lv.genre = v; f.st.prog = 0; fiEv(f, now, "Neues Projekt gestartet", 0); } }
+      else if (k === "live") { if (![0, 1].includes(v)) return fail("aktion"); if (v && !lv.live) { const c = 15000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Live-Service gestartet", -c); } lv.live = v; }
+      else if (k === "release") {
+        if (num(f.st.prog) < 100) return fail("nicht_fertig");
+        const g = num(lv.genre), [u] = fiR(f.id, "rel", now), q = (0.4 + 1.2 * u) * [1, 1.7, 4.5][g] * (1 + 0.04 * num(f.staff && f.staff.qual)) * (1 + 0.03 * num(f.staff && f.staff.mkt));
+        const score = Math.round(40 + 55 * u); f.st.sales = num(f.st.sales) + B * q * 0.8; f.st.prog = 0; f.st.rel = num(f.st.rel) + 1;
+        fiEv(f, now, `Release! Bewertung ${score}/100`, 0);
+      } else return fail("aktion");
+    } else if (f.br === "fitness") {
+      if (k === "price") { if (![0, 1, 2].includes(v)) return fail("aktion"); lv.price = v; }
+      else if (k === "kurse") { if (![0, 1].includes(v)) return fail("aktion"); if (v && !lv.kurse) { const c = 5000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Kursprogramm gestartet", -c); } lv.kurse = v; }
+      else if (k === "area") { if (![1, 2, 3].includes(v)) return fail("aktion"); if (v > num(lv.area)) { const c = (v - num(lv.area)) * 25000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Studio vergrößert", -c); } else if (v < num(lv.area)) f.st.mem = Math.min(num(f.st.mem), 150 * v); lv.area = v; }
+      else return fail("aktion");
     } else if (f.br === "energie") {
       if (k === "typ") { if (![0, 1, 2, 3].includes(v)) return fail("aktion"); if (v !== lv.typ) { const c = 20000 * L; if (!pay(c)) return fail("kasse_leer"); lv.typ = v; fiEv(f, now, "Kraftwerk umgebaut", -c); } }
       else if (k === "cap") { if (![1, 2, 3].includes(v)) return fail("aktion"); if (v > lv.cap) { const c = (v - lv.cap) * 30000 * L; if (!pay(c)) return fail("kasse_leer"); fiEv(f, now, "Kapazität erweitert", -c); } lv.cap = v; }
