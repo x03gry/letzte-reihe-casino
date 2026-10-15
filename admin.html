@@ -227,6 +227,7 @@ textarea.inp{min-height:90px;resize:vertical}
 
   <section id="t-lot" hidden style="display:flex;flex-direction:column;gap:14px">
     <div class="kpis" id="lKpis"></div>
+    <div class="panel" id="lOrph" hidden style="border-color:rgba(255,77,106,.45)"></div>
     <div class="panel">
       <h2 style="font-size:16px">Topf aufstocken</h2>
       <p class="note">Legt Coins zusätzlich in den Jackpot der nächsten Ziehung, z. B. als Startgeld oder für eine Sonder-Ziehung. Gezogen wird jeden zweiten Tag, Mo–Fr um 9:35 Uhr, Sa + So um 12:00 Uhr: 1. Platz 50 %, 2. Platz 25 %, 3. Platz 10 %, der Rest bleibt im Topf.</p>
@@ -418,12 +419,16 @@ $('clearRej').onclick=async()=>{const b=$('clearRej');if(!b.classList.contains('
 function renderL(d){const P=d.players||[],T=P.reduce((t,p)=>t+p.n+p.f,0);
   $('lKpis').innerHTML=[['Jackpot',fmt(d.pot||0)],['Nächste Ziehung',when(d.d)],['Lose im Topf',fmt0(T)],['Davon aufgestockt',fmt(d.added||0)]].map(([k,v])=>`<div class="kpi"><span>${k}</span><b>${v}</b></div>`).join('');
   $('lRows').innerHTML=P.length?P.map(p=>`<tr><td>${esc(p.name)}</td><td>${fmt0(p.n)}</td><td>${fmt0(p.f)}</td><td>${T&&p.n+p.f?((p.n+p.f)/T*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %':'–'}</td><td>${fmt(p.c)}</td><td><button class="btn red" data-lban="${esc(p.name)}">Sperren</button></td></tr>`).join(''):'<tr><td colspan="6" class="note">Noch niemand dabei.</td></tr>';
+  const O=d.orphans||[],ot=O.reduce((t,o)=>t+o.n+o.f,0),om=O.reduce((t,o)=>t+o.c+250*o.n,0);$('lOrph').hidden=!O.length;
+  if(O.length)$('lOrph').innerHTML=`<h2 style="font-size:16px">Lose von gelöschten Accounts</h2><p class="note">${O.length} gelöschte ${O.length===1?'Account hat':'Accounts haben'} noch ${fmt0(ot)} Lose im Topf (zusammen ${fmt(om)}). Gezogen werden sie nicht, aber sie stecken noch in der Trommel und im Topf.</p><p class="note">${O.map(o=>esc(o.name)).join(', ')}</p><div class="row"><button class="btn red" id="lPurge">Alle entfernen</button></div>`;
   const B=d.banned||[];$('lBans').innerHTML=B.length?B.map(b=>`<div class="row" style="justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line)"><span><b>${esc(b.name)}</b> <span class="note">seit ${new Date(b.t).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</span></span><button class="btn" data-lunban="${esc(b.name)}">Entsperren</button></div>`).join(''):'<p class="note">Niemand gesperrt.</p>';
   $('lHist').innerHTML=(d.hist||[]).length?d.hist.map(h=>`<div class="note" style="padding:6px 0;border-bottom:1px solid var(--line)"><b style="color:var(--ink)">${when(h.d)}</b> · Topf ${fmt(h.pot)} · ${fmt0(h.tickets||0)} Lose · ${(h.win||[]).length?h.win.map(w=>`${w.r}. ${esc(w.n)} +${fmt(w.a)}`).join(' · '):'kein Gewinner'}</div>`).join(''):'<p class="note">Noch keine Ziehung.</p>'}
 let lArm='';async function lBan(name,un){if(!name)return;
   if(!un&&lArm!==name){lArm=name;toast(`${name} sperren? Zum Bestätigen nochmal klicken`);setTimeout(()=>{if(lArm===name)lArm=''},4000);return}lArm='';
   try{const d=await api(un?'lottoUnban':'lottoBan',{name});renderL(d);toast(un?`${name} entsperrt`:`${name} gesperrt`+(d.refund?` · ${fmt(d.refund)} erstattet`:''));if(!un)$('lBanName').value=''}catch(e){if(e.message!=='401')toast(e.message,true)}}
 $('t-lot').addEventListener('click',e=>{const b=e.target.closest('[data-lban]'),u=e.target.closest('[data-lunban]');if(b)lBan(b.dataset.lban,false);if(u)lBan(u.dataset.lunban,true)});
+let pArm=0;$('t-lot').addEventListener('click',async e=>{if(!e.target.closest('#lPurge'))return;if(Date.now()-pArm>4000){pArm=Date.now();toast('Zum Bestätigen nochmal klicken');return}pArm=0;
+  try{const d=await api('lottoPurge');renderL(d);toast(`${d.tickets} Lose von ${d.removed} gelöschten Accounts entfernt`)}catch(x){if(x.message!=='401')toast(x.message,true)}});
 $('lBanBtn').onclick=()=>lBan($('lBanName').value.trim().toLowerCase(),false);
 async function loadL(){try{renderL(await api('lotto'))}catch(e){if(e.message!=='401')toast('Jackpot laden fehlgeschlagen: '+e.message,true)}}
 $('lAddBtn').onclick=async()=>{const a=Math.round(+$('lAdd').value);if(!(a>=1)){toast('Betrag eingeben',true);return}

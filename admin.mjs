@@ -67,15 +67,24 @@ async function lottoInfo(now) {
   for (const b of ab) { const v = await get(b.key), k = b.key.slice(`a/${D}/`.length); if (!v) continue; if (k.startsWith("~")) { added = r2(added + num(v.c)); continue; } const p = of(k); p.c = r2(num(v.c)); p.slots = Array.isArray(v.s) ? v.s.length : 0; }
   for (const b of bb) { const v = await get(b.key); if (v) of(b.key.slice(`b/${D}/`.length)).n = Math.round(num(v.n)); }
   const bans = (await get("bans")) || {};
-  const players = [...P.values()].filter((p) => !bans[encodeURIComponent(p.name)]).map((p) => ({ ...p, f: Math.min(4, Math.floor(p.slots / 6)) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
+  // Lose von gelöschten Accounts (zählen bei der Ziehung nicht, liegen aber noch im Topf)
+  const { blobs: accB } = await getStore("spielstaende").list(), alive = new Set(accB.map((b) => b.key));
+  const orphans = [...P.values()].filter((p) => !alive.has(encodeURIComponent(p.name))).map((p) => ({ name: p.name, n: p.n, f: Math.min(4, Math.floor(p.slots / 6)), c: p.c }));
+  const players = [...P.values()].filter((p) => !bans[encodeURIComponent(p.name)] && alive.has(encodeURIComponent(p.name))).map((p) => ({ ...p, f: Math.min(4, Math.floor(p.slots / 6)) })).sort((a, b) => b.n + b.f - (a.n + a.f) || b.c - a.c);
   // Topf = Rest aus der letzten Ziehung + Verluste/Aufstockungen + gekaufte Lose (wie in spielstand.mjs)
   const { blobs: rb } = await s.list({ prefix: "r/" });
   const ids = rb.map((b) => +b.key.slice(2)).filter((n) => n > 0 && n < D).sort((a, b) => b - a).slice(0, 8);
   const hist = (await Promise.all(ids.map((id) => get(`r/${id}`)))).filter(Boolean);
   const carry = hist[0] ? r2(num(hist[0].carry)) : 0;
   const banned = Object.entries(bans).map(([k, t]) => ({ name: decodeURIComponent(k), t: num(t), c: P.has(k) ? P.get(k).c : 0 })).sort((a, b) => b.t - a.t);
-  const pot = r2(carry + added + players.reduce((t, p) => t + p.c + 250 * p.n, 0) + banned.reduce((t, p) => t + p.c, 0));
-  return { d: D, players, banned, added, carry, pot, hist };
+  const pot = r2(carry + added + players.reduce((t, p) => t + p.c + 250 * p.n, 0) + banned.reduce((t, p) => t + p.c, 0) + orphans.reduce((t, p) => t + p.c + 250 * p.n, 0));
+  return { d: D, players, banned, orphans, added, carry, pot, hist };
+}
+// Einträge eines Accounts aus der laufenden Ziehung entfernen (Lose + eingezahlte Verluste)
+async function ltRemove(key, now) {
+  const s = getStore("lotto"), D = nextDraw(now);
+  for (const k of [`a/${D}/${key}`, `b/${D}/${key}`]) { try { await s.delete(k); } catch {} }
+  try { await s.delete("cache"); } catch {}
 }
 const ITEMS = ["kette", "uhr", "auto", "villa", "yacht", "jet", "insel"];
 
@@ -387,6 +396,12 @@ export default async (req) => {
     return json({ ok: true });
   }
   // Spieler für den Jackpot sperren: Lose fliegen aus dem Topf, gekaufte Lose werden erstattet
+  // Alle Lose von gelöschten Accounts aus dem Topf nehmen
+  if (action === "lottoPurge") {
+    const info = await lottoInfo(now);
+    for (const o of info.orphans) await ltRemove(encodeURIComponent(o.name), now);
+    return json({ ok: true, removed: info.orphans.length, tickets: info.orphans.reduce((t, o) => t + o.n + o.f, 0), ...(await lottoInfo(now)) });
+  }
   if (action === "lottoBan" || action === "lottoUnban") {
     const name = String(body.name || "").trim().toLowerCase().replace(/\s+/g, " ");
     if (!name || name.length > 30) return json({ error: "Name fehlt" }, 400);
@@ -431,7 +446,7 @@ export default async (req) => {
     return json({ account: { ...summary(key, rec), wBanned: !!bans[decodeURIComponent(key)] }, state: rec.state, wirt: wirt || null });
   }
 
-  if (action === "delete") { await store.delete(key); try { await getStore("wirtschaft").delete(key); } catch {} return json({ ok: true }); }
+  if (action === "delete") { await store.delete(key); try { await getStore("wirtschaft").delete(key); } catch {} await ltRemove(key, now); return json({ ok: true }); }
 
   // Neues Passwort setzen (z. B. vergessen). Alle Geräte des Spielers werden abgemeldet.
   if (action === "setPassword") {
